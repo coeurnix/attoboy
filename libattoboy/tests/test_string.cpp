@@ -201,6 +201,34 @@ void atto_main() {
   TEST(!(sEq1 != sEq2), "operator!= should return false for equal strings");
   TEST(sEq1 != sEq3, "operator!= should return true for different strings");
 
+  // String comparison (compare)
+  String sCmp1("apple");
+  String sCmp2("apple");
+  String sCmp3("banana");
+  String sCmp4("appl");
+  String sCmp5("application");
+
+  TEST(sCmp1.compare(sCmp2) == 0, "compare() should return 0 for equal strings");
+  TEST(sCmp1.compare(sCmp3) < 0, "\"apple\" should be less than \"banana\"");
+  TEST(sCmp3.compare(sCmp1) > 0, "\"banana\" should be greater than \"apple\"");
+  TEST(sCmp1.compare(sCmp4) > 0, "\"apple\" should be greater than \"appl\" (longer)");
+  TEST(sCmp4.compare(sCmp1) < 0, "\"appl\" should be less than \"apple\" (shorter)");
+  TEST(sCmp1.compare(sCmp5) < 0, "\"apple\" should be less than \"application\"");
+  TEST(sCmp5.compare(sCmp1) > 0, "\"application\" should be greater than \"apple\"");
+
+  String sEmpty1;
+  String sEmpty2;
+  String sNonEmpty("text");
+
+  TEST(sEmpty1.compare(sEmpty2) == 0, "Empty strings should compare equal");
+  TEST(sEmpty1.compare(sNonEmpty) < 0, "Empty string should be less than non-empty");
+  TEST(sNonEmpty.compare(sEmpty1) > 0, "Non-empty string should be greater than empty");
+
+  String sCase1("abc");
+  String sCase2("ABC");
+  TEST(sCase1.compare(sCase2) != 0, "compare() should be case-sensitive");
+  TEST(sCase2.compare(sCase1) < 0, "\"ABC\" should be less than \"abc\" (uppercase < lowercase)");
+
   // Hash
   TEST(sEq1.hash() == sEq2.hash(), "Equal strings should have equal hashes");
   TEST(String().hash() == 0, "Empty string hash should be 0");

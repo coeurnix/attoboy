@@ -1,0 +1,127 @@
+#include "attolist_internal.h"
+
+namespace attoboy {
+
+// Find template specializations
+template <> int List::find<bool>(bool value) const {
+  if (!impl)
+    return -1;
+  ReadLockGuard guard(&impl->lock);
+
+  ListItem searchItem;
+  searchItem.type = TYPE_BOOL;
+  searchItem.boolVal = value;
+
+  for (int i = 0; i < impl->size; i++) {
+    if (ItemsEqual(&impl->items[i], &searchItem))
+      return i;
+  }
+  return -1;
+}
+
+template <> int List::find<int>(int value) const {
+  if (!impl)
+    return -1;
+  ReadLockGuard guard(&impl->lock);
+
+  ListItem searchItem;
+  searchItem.type = TYPE_INT;
+  searchItem.intVal = value;
+
+  for (int i = 0; i < impl->size; i++) {
+    if (ItemsEqual(&impl->items[i], &searchItem))
+      return i;
+  }
+  return -1;
+}
+
+template <> int List::find<long long>(long long value) const {
+  if (!impl)
+    return -1;
+  ReadLockGuard guard(&impl->lock);
+
+  ListItem searchItem;
+  searchItem.type = TYPE_LONG_LONG;
+  searchItem.longLongVal = value;
+
+  for (int i = 0; i < impl->size; i++) {
+    if (ItemsEqual(&impl->items[i], &searchItem))
+      return i;
+  }
+  return -1;
+}
+
+template <> int List::find<double>(double value) const {
+  if (!impl)
+    return -1;
+  ReadLockGuard guard(&impl->lock);
+
+  ListItem searchItem;
+  searchItem.type = TYPE_DOUBLE;
+  searchItem.doubleVal = value;
+
+  for (int i = 0; i < impl->size; i++) {
+    if (ItemsEqual(&impl->items[i], &searchItem))
+      return i;
+  }
+  return -1;
+}
+
+template <> int List::find<String>(String value) const {
+  if (!impl)
+    return -1;
+  ReadLockGuard guard(&impl->lock);
+
+  ListItem searchItem;
+  searchItem.type = TYPE_STRING;
+  searchItem.stringVal = &value;
+
+  for (int i = 0; i < impl->size; i++) {
+    if (ItemsEqual(&impl->items[i], &searchItem))
+      return i;
+  }
+  return -1;
+}
+
+template <> int List::find<const char *>(const char *value) const {
+  String str(value);
+  return find<String>(str);
+}
+
+template <> int List::find<const wchar_t *>(const wchar_t *value) const {
+  String str(value);
+  return find<String>(str);
+}
+
+// Contains template specializations
+template <> bool List::contains<bool>(bool value) const {
+  return find<bool>(value) != -1;
+}
+
+template <> bool List::contains<int>(int value) const {
+  return find<int>(value) != -1;
+}
+
+template <> bool List::contains<long long>(long long value) const {
+  return find<long long>(value) != -1;
+}
+
+template <> bool List::contains<double>(double value) const {
+  return find<double>(value) != -1;
+}
+
+template <> bool List::contains<String>(String value) const {
+  return find<String>(value) != -1;
+}
+
+template <> bool List::contains<const char *>(const char *value) const {
+  String str(value);
+  return find<String>(str) != -1;
+}
+
+template <> bool List::contains<const wchar_t *>(const wchar_t *value) const {
+  String str(value);
+  return find<String>(str) != -1;
+}
+
+} // namespace attoboy

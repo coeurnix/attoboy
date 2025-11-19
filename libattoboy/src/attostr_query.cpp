@@ -251,6 +251,30 @@ bool String::equals(const String &other) const {
   return MyWcsNCmp(impl->data, other.impl->data, impl->len) == 0;
 }
 
+int String::compare(const String &other) const {
+  if (!impl && !other.impl)
+    return 0;
+  if (!impl)
+    return -1;
+  ReadLockGuard guard(&impl->lock);
+  if (!other.impl)
+    return 1;
+
+  int minLen = impl->len < other.impl->len ? impl->len : other.impl->len;
+
+  if (minLen > 0) {
+    int cmp = MyWcsNCmp(impl->data, other.impl->data, minLen);
+    if (cmp != 0)
+      return cmp;
+  }
+
+  if (impl->len < other.impl->len)
+    return -1;
+  if (impl->len > other.impl->len)
+    return 1;
+  return 0;
+}
+
 bool String::operator==(const String &other) const { return equals(other); }
 
 bool String::operator!=(const String &other) const { return !equals(other); }
