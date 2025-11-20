@@ -2,12 +2,12 @@
 
 namespace attoboy {
 
-String &String::trim() {
+String String::trim() const {
   if (!impl)
-    return *this;
-  WriteLockGuard guard(&impl->lock);
+    return String();
+  ReadLockGuard guard(&impl->lock);
   if (!impl->data || impl->len == 0)
-    return *this;
+    return String(*this);
 
   int start = 0;
   while (start < impl->len && impl->data[start] <= L' ')
@@ -21,25 +21,25 @@ String &String::trim() {
   if (newLen < 0)
     newLen = 0;
 
-  if (start > 0 || newLen < impl->len) {
-    LPWSTR newData = AllocString(newLen);
-    if (newLen > 0) {
-      MyWcsNCpy(newData, impl->data + start, newLen);
-    }
-    newData[newLen] = L'\0';
-    FreeString(impl->data);
-    impl->data = newData;
-    impl->len = newLen;
+  LPWSTR newData = AllocString(newLen);
+  if (newLen > 0) {
+    MyWcsNCpy(newData, impl->data + start, newLen);
   }
-  return *this;
+  newData[newLen] = L'\0';
+
+  String result;
+  FreeString(result.impl->data);
+  result.impl->data = newData;
+  result.impl->len = newLen;
+  return result;
 }
 
-String &String::replace(const String &target, const String &replacement) {
+String String::replace(const String &target, const String &replacement) const {
   if (!impl)
-    return *this;
-  WriteLockGuard guard(&impl->lock);
+    return String();
+  ReadLockGuard guard(&impl->lock);
   if (!impl->data || !target.impl || target.impl->len == 0)
-    return *this;
+    return String(*this);
 
   int count = 0;
   WCHAR *p = impl->data;
@@ -52,7 +52,7 @@ String &String::replace(const String &target, const String &replacement) {
   }
 
   if (count == 0)
-    return *this;
+    return String(*this);
 
   int newLen = impl->len + count * (replLen - targetLen);
   LPWSTR newData = AllocString(newLen);
@@ -79,47 +79,59 @@ String &String::replace(const String &target, const String &replacement) {
     src = found + targetLen;
   }
 
-  FreeString(impl->data);
-  impl->data = newData;
-  impl->len = newLen;
-
-  return *this;
+  String result;
+  FreeString(result.impl->data);
+  result.impl->data = newData;
+  result.impl->len = newLen;
+  return result;
 }
 
-String &String::lower() {
+String String::lower() const {
   if (!impl)
-    return *this;
-  WriteLockGuard guard(&impl->lock);
-  if (impl->data) {
-    CharLowerW(impl->data);
-  }
-  return *this;
+    return String();
+  ReadLockGuard guard(&impl->lock);
+  if (!impl->data)
+    return String(*this);
+
+  LPWSTR newData = AllocString(impl->len);
+  lstrcpyW(newData, impl->data);
+  CharLowerW(newData);
+
+  String result;
+  FreeString(result.impl->data);
+  result.impl->data = newData;
+  result.impl->len = impl->len;
+  return result;
 }
 
-String &String::upper() {
+String String::upper() const {
   if (!impl)
-    return *this;
-  WriteLockGuard guard(&impl->lock);
-  if (impl->data) {
-    CharUpperW(impl->data);
-  }
-  return *this;
+    return String();
+  ReadLockGuard guard(&impl->lock);
+  if (!impl->data)
+    return String(*this);
+
+  LPWSTR newData = AllocString(impl->len);
+  lstrcpyW(newData, impl->data);
+  CharUpperW(newData);
+
+  String result;
+  FreeString(result.impl->data);
+  result.impl->data = newData;
+  result.impl->len = impl->len;
+  return result;
 }
 
-String &String::repeat(int count) {
+String String::repeat(int count) const {
   if (!impl)
-    return *this;
-  WriteLockGuard guard(&impl->lock);
+    return String();
+  ReadLockGuard guard(&impl->lock);
   if (count < 0)
-    return *this;
-  if (count == 0) {
-    FreeString(impl->data);
-    impl->data = AllocString(0);
-    impl->len = 0;
-    return *this;
-  }
+    return String(*this);
+  if (count == 0)
+    return String();
   if (count == 1)
-    return *this;
+    return String(*this);
 
   int newLen = impl->len * count;
   LPWSTR newData = AllocString(newLen);
@@ -128,28 +140,31 @@ String &String::repeat(int count) {
     lstrcpyW(newData + (i * impl->len), impl->data);
   }
 
-  FreeString(impl->data);
-  impl->data = newData;
-  impl->len = newLen;
-  return *this;
+  String result;
+  FreeString(result.impl->data);
+  result.impl->data = newData;
+  result.impl->len = newLen;
+  return result;
 }
 
-String &String::reverse() {
+String String::reverse() const {
   if (!impl)
-    return *this;
-  WriteLockGuard guard(&impl->lock);
+    return String();
+  ReadLockGuard guard(&impl->lock);
   if (impl->len <= 1)
-    return *this;
-  int start = 0;
-  int end = impl->len - 1;
-  while (start < end) {
-    WCHAR temp = impl->data[start];
-    impl->data[start] = impl->data[end];
-    impl->data[end] = temp;
-    start++;
-    end--;
+    return String(*this);
+
+  LPWSTR newData = AllocString(impl->len);
+  for (int i = 0; i < impl->len; i++) {
+    newData[i] = impl->data[impl->len - 1 - i];
   }
-  return *this;
+  newData[impl->len] = L'\0';
+
+  String result;
+  FreeString(result.impl->data);
+  result.impl->data = newData;
+  result.impl->len = impl->len;
+  return result;
 }
 
 } // namespace attoboy

@@ -14,34 +14,34 @@ static String EscapeJsonString(const String &str) {
 
     switch (ch) {
     case L'"':
-      result.append(L"\\\"");
+      result = result.append(L"\\\"");
       break;
     case L'\\':
-      result.append(L"\\\\");
+      result = result.append(L"\\\\");
       break;
     case L'\b':
-      result.append(L"\\b");
+      result = result.append(L"\\b");
       break;
     case L'\f':
-      result.append(L"\\f");
+      result = result.append(L"\\f");
       break;
     case L'\n':
-      result.append(L"\\n");
+      result = result.append(L"\\n");
       break;
     case L'\r':
-      result.append(L"\\r");
+      result = result.append(L"\\r");
       break;
     case L'\t':
-      result.append(L"\\t");
+      result = result.append(L"\\t");
       break;
     default:
       if (ch < 32) {
         wchar_t buf[7];
         wsprintfW(buf, L"\\u%04x", (int)ch);
-        result.append(buf);
+        result = result.append(buf);
       } else {
         wchar_t temp[2] = {ch, L'\0'};
-        result.append(temp);
+        result = result.append(temp);
       }
       break;
     }
@@ -58,14 +58,14 @@ static String ListToJson(const List &list) {
 
   for (int i = 0; i < len; i++) {
     ValueType type = list.typeAt(i);
-    result.append(ValueToJson(type, list, i));
+    result = result.append(ValueToJson(type, list, i));
 
     if (i < len - 1) {
-      result.append(L",");
+      result = result.append(L",");
     }
   }
 
-  result.append(L"]");
+  result = result.append(L"]");
   return result;
 }
 
@@ -100,19 +100,19 @@ static String MapToJson(const Map &map) {
       break;
     }
 
-    result.append(L"\"");
-    result.append(EscapeJsonString(keyStr));
-    result.append(L"\":");
+    result = result.append(L"\"");
+    result = result.append(EscapeJsonString(keyStr));
+    result = result.append(L"\":");
 
     ValueType valueType = values.typeAt(i);
-    result.append(ValueToJson(valueType, values, i));
+    result = result.append(ValueToJson(valueType, values, i));
 
     if (i < len - 1) {
-      result.append(L",");
+      result = result.append(L",");
     }
   }
 
-  result.append(L"}");
+  result = result.append(L"}");
   return result;
 }
 
@@ -127,15 +127,15 @@ static String ValueToJson(ValueType type, const List &list, int index) {
   case TYPE_DOUBLE: {
     String num = String(list.at<double>(index));
     if (!num.contains(L".") && !num.contains(L"e") && !num.contains(L"E")) {
-      num.append(L".0");
+      num = num.append(L".0");
     }
     return num;
   }
   case TYPE_STRING: {
     String str = list.at<String>(index);
     String result(L"\"");
-    result.append(EscapeJsonString(str));
-    result.append(L"\"");
+    result = result.append(EscapeJsonString(str));
+    result = result.append(L"\"");
     return result;
   }
   case TYPE_LIST:

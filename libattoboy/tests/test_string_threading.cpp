@@ -43,36 +43,41 @@ DWORD WINAPI ReaderThread(LPVOID param) {
   return 0;
 }
 
-// Writer thread function
+// Writer thread function - with immutable strings, creates new strings
+// Note: With immutable strings, these operations don't modify g_sharedString,
+// they just create new temporary strings. This tests that read operations
+// work correctly even when many threads are creating new strings.
 DWORD WINAPI WriterThread(LPVOID param) {
   for (int i = 0; i < 100; i++) {
-    // Various write operations
-    g_sharedString->append("x");
-    g_sharedString->trim();
-    g_sharedString->upper();
-    g_sharedString->lower();
-    g_sharedString->replace("x", "y");
-    g_sharedString->prepend("z");
-    g_sharedString->reverse();
-    g_sharedString->insert(0, "a");
-    g_sharedString->remove(0, 1);
+    // Various operations that create new strings
+    String temp = g_sharedString->append("x");
+    temp = temp.trim();
+    temp = temp.upper();
+    temp = temp.lower();
+    temp = temp.replace("x", "y");
+    temp = temp.prepend("z");
+    temp = temp.reverse();
+    temp = temp.insert(0, "a");
+    temp = temp.remove(0, 1);
+    // temp goes out of scope, testing memory management
   }
   InterlockedIncrement(&g_writesDone);
   return 0;
 }
 
-// Mutator thread function - modifies string repeatedly
+// Mutator thread function - creates new strings repeatedly
+// With immutable strings, each operation returns a new string
 DWORD WINAPI MutatorThread(LPVOID param) {
   String localStr("Mutate");
   for (int i = 0; i < 500; i++) {
-    localStr.append("!");
-    localStr.trim();
-    localStr.upper();
-    localStr.lower();
-    localStr.reverse();
-    localStr.replace("!", "?");
-    localStr.repeat(2);
-    localStr.remove(0, localStr.length() / 2);
+    localStr = localStr.append("!");
+    localStr = localStr.trim();
+    localStr = localStr.upper();
+    localStr = localStr.lower();
+    localStr = localStr.reverse();
+    localStr = localStr.replace("!", "?");
+    localStr = localStr.repeat(2);
+    localStr = localStr.remove(0, localStr.length() / 2);
   }
   return 0;
 }
@@ -82,8 +87,8 @@ DWORD WINAPI CopyThread(LPVOID param) {
   for (int i = 0; i < 500; i++) {
     String copy1(*g_sharedString);
     String copy2 = g_sharedString->duplicate();
-    copy1.append("_copy");
-    copy2.prepend("copy_");
+    copy1 = copy1.append("_copy");
+    copy2 = copy2.prepend("copy_");
   }
   return 0;
 }

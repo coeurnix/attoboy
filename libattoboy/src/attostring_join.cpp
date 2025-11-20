@@ -46,10 +46,10 @@ String String::join(const List &list) const {
       break;
     }
 
-    result.append(element);
+    result = result.append(element);
 
     if (i < len - 1) {
-      result.append(*this);
+      result = result.append(*this);
     }
   }
 

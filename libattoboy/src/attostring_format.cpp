@@ -96,17 +96,17 @@ String String::format(const List &list) const {
             break;
           }
 
-          result.append(replacement);
+          result = result.append(replacement);
         } else {
-          result.append(L"{");
+          result = result.append(L"{");
           LPWSTR partial = AllocString(end - start);
           if (partial) {
             MyWcsNCpy(partial, data + start, end - start);
             partial[end - start] = L'\0';
-            result.append(String(partial));
+            result = result.append(String(partial));
             FreeString(partial);
           }
-          result.append(L"}");
+          result = result.append(L"}");
         }
 
         i = end;
@@ -115,7 +115,7 @@ String String::format(const List &list) const {
     }
 
     wchar_t ch[2] = {data[i], L'\0'};
-    result.append(String(ch));
+    result = result.append(String(ch));
   }
 
   return result;
@@ -182,11 +182,11 @@ String String::format(const Map &map) const {
               break;
             }
 
-            result.append(replacement);
+            result = result.append(replacement);
           } else {
-            result.append(L"{");
-            result.append(key);
-            result.append(L"}");
+            result = result.append(L"{");
+            result = result.append(key);
+            result = result.append(L"}");
           }
         }
 
@@ -196,7 +196,7 @@ String String::format(const Map &map) const {
     }
 
     wchar_t ch[2] = {data[i], L'\0'};
-    result.append(String(ch));
+    result = result.append(String(ch));
   }
 
   return result;

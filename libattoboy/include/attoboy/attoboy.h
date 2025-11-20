@@ -32,7 +32,7 @@ class List;
 class Map;
 class Set;
 
-/// An easy-to-use, batteries-included mutable string class
+/// An easy-to-use, batteries-included immutable string class
 class String {
 public:
   /// Creates an empty string with length 0.
@@ -122,47 +122,38 @@ public:
   /// (case-insensitive). Otherwise returns false.
   bool toBool() const;
 
-  /// Appends `substring` to the end of this string in-place.
-  /// Returns a reference to this string for chaining.
-  String &append(const String &substring);
+  /// Returns a new string with `substring` appended to the end.
+  String append(const String &substring) const;
 
-  /// Prepends `substring` to the beginning of this string in-place.
-  /// Returns a reference to this string for chaining.
-  String &prepend(const String &substring);
+  /// Returns a new string with `substring` prepended to the beginning.
+  String prepend(const String &substring) const;
 
-  /// Inserts `substring` at the specified `index` in-place.
+  /// Returns a new string with `substring` inserted at the specified `index`.
   /// Negative indices count from the end.
-  /// Returns a reference to this string for chaining.
-  String &insert(int index, const String &substring);
+  String insert(int index, const String &substring) const;
 
-  /// Removes characters from `start` (inclusive) to `end` (exclusive) in-place.
-  /// Negative indices count from the end.
-  /// Returns a reference to this string for chaining.
-  String &remove(int start, int end);
+  /// Returns a new string with characters from `start` (inclusive) to `end`
+  /// (exclusive) removed. Negative indices count from the end.
+  String remove(int start, int end) const;
 
-  /// Replaces all occurrences of `target` with `replacement` in-place.
-  /// Returns a reference to this string for chaining.
-  String &replace(const String &target, const String &replacement);
+  /// Returns a new string with all occurrences of `target` replaced with
+  /// `replacement`.
+  String replace(const String &target, const String &replacement) const;
 
-  /// Removes all leading and trailing whitespace characters in-place.
-  /// Returns a reference to this string for chaining.
-  String &trim();
+  /// Returns a new string with all leading and trailing whitespace removed.
+  String trim() const;
 
-  /// Converts all characters in this string to uppercase in-place.
-  /// Returns a reference to this string for chaining.
-  String &upper();
+  /// Returns a new string with all characters converted to uppercase.
+  String upper() const;
 
-  /// Converts all characters in this string to lowercase in-place.
-  /// Returns a reference to this string for chaining.
-  String &lower();
+  /// Returns a new string with all characters converted to lowercase.
+  String lower() const;
 
-  /// Reverses the order of characters in this string in-place.
-  /// Returns a reference to this string for chaining.
-  String &reverse();
+  /// Returns a new string with characters in reverse order.
+  String reverse() const;
 
-  /// Repeats the string content `count` times in-place.
-  /// Returns a reference to this string for chaining.
-  String &repeat(int count);
+  /// Returns a new string with the content repeated `count` times.
+  String repeat(int count) const;
 
   /// Returns true if this string is equal to the other string.
   bool equals(const String &other) const;
@@ -176,6 +167,9 @@ public:
 
   /// Returns true if this string is not equal to the other string.
   bool operator!=(const String &other) const;
+
+  /// Returns a new string that is the concatenation of this string and other.
+  String operator+(const String &other) const;
 
   /// Returns a hash code for this string.
   int hash() const;

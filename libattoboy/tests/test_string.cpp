@@ -124,77 +124,125 @@ void atto_main() {
 
   // Modification operations - append
   String sApp("A");
-  sApp.append("B");
-  TEST(sApp == "AB", "append(\"B\") should create \"AB\"");
-  TEST(sApp.length() == 2, "After append, length should be 2");
+  String sAppResult = sApp.append("B");
+  TEST(sAppResult == "AB", "append(\"B\") should create \"AB\"");
+  TEST(sAppResult.length() == 2, "After append, length should be 2");
+  TEST(sApp == "A", "Original string should be unchanged");
 
   // Modification operations - prepend
   String sPre("B");
-  sPre.prepend("A");
-  TEST(sPre == "AB", "prepend(\"A\") should create \"AB\"");
-  TEST(sPre.length() == 2, "After prepend, length should be 2");
+  String sPreResult = sPre.prepend("A");
+  TEST(sPreResult == "AB", "prepend(\"A\") should create \"AB\"");
+  TEST(sPreResult.length() == 2, "After prepend, length should be 2");
+  TEST(sPre == "B", "Original string should be unchanged");
 
   // Modification operations - insert
   String sIns("AC");
-  sIns.insert(1, "B");
-  TEST(sIns == "ABC", "insert(1, \"B\") should create \"ABC\"");
-  TEST(sIns.length() == 3, "After insert, length should be 3");
+  String sInsResult = sIns.insert(1, "B");
+  TEST(sInsResult == "ABC", "insert(1, \"B\") should create \"ABC\"");
+  TEST(sInsResult.length() == 3, "After insert, length should be 3");
+  TEST(sIns == "AC", "Original string should be unchanged");
 
   // Modification operations - remove
   String sRem("ABCD");
-  sRem.remove(1, 3);
-  TEST(sRem == "AD", "remove(1, 3) should leave \"AD\"");
-  TEST(sRem.length() == 2, "After remove, length should be 2");
+  String sRemResult = sRem.remove(1, 3);
+  TEST(sRemResult == "AD", "remove(1, 3) should leave \"AD\"");
+  TEST(sRemResult.length() == 2, "After remove, length should be 2");
+  TEST(sRem == "ABCD", "Original string should be unchanged");
 
   // Modification operations - replace
   String sRep("banana");
-  sRep.replace("a", "o");
-  TEST(sRep == "bonono", "replace(\"a\", \"o\") should create \"bonono\"");
-  TEST(!sRep.contains("a"), "After replace, should not contain \"a\"");
-  TEST(sRep.contains("o"), "After replace, should contain \"o\"");
+  String sRepResult = sRep.replace("a", "o");
+  TEST(sRepResult == "bonono",
+       "replace(\"a\", \"o\") should create \"bonono\"");
+  TEST(!sRepResult.contains("a"), "After replace, should not contain \"a\"");
+  TEST(sRepResult.contains("o"), "After replace, should contain \"o\"");
+  TEST(sRep == "banana", "Original string should be unchanged");
 
   // Modification operations - trim
   String sTrim("  test  ");
-  sTrim.trim();
-  TEST(sTrim == "test", "trim() should remove whitespace");
-  TEST(sTrim.length() == 4, "After trim, length should be 4");
+  String sTrimResult = sTrim.trim();
+  TEST(sTrimResult == "test", "trim() should remove whitespace");
+  TEST(sTrimResult.length() == 4, "After trim, length should be 4");
+  TEST(sTrim == "  test  ", "Original string should be unchanged");
 
   String sTrim2("test");
-  sTrim2.trim();
-  TEST(sTrim2 == "test",
+  String sTrim2Result = sTrim2.trim();
+  TEST(sTrim2Result == "test",
        "trim() on string without whitespace should be unchanged");
 
   // Modification operations - upper/lower
   String sCase("HeLLo");
-  sCase.lower();
-  TEST(sCase == "hello", "lower() should convert to lowercase");
-  TEST(!sCase.contains("L"), "After lower(), should not contain uppercase 'L'");
+  String sCaseLower = sCase.lower();
+  TEST(sCaseLower == "hello", "lower() should convert to lowercase");
+  TEST(!sCaseLower.contains("L"),
+       "After lower(), should not contain uppercase 'L'");
+  TEST(sCase == "HeLLo", "Original string should be unchanged");
 
-  sCase.upper();
-  TEST(sCase == "HELLO", "upper() should convert to uppercase");
-  TEST(!sCase.contains("e"), "After upper(), should not contain lowercase 'e'");
+  String sCaseUpper = sCaseLower.upper();
+  TEST(sCaseUpper == "HELLO", "upper() should convert to uppercase");
+  TEST(!sCaseUpper.contains("e"),
+       "After upper(), should not contain lowercase 'e'");
 
   // Modification operations - reverse
   String sRev("ABC");
-  sRev.reverse();
-  TEST(sRev == "CBA", "reverse() should reverse the string");
-  TEST(sRev.startsWith("C"), "Reversed \"ABC\" should start with 'C'");
-  TEST(sRev.endsWith("A"), "Reversed \"ABC\" should end with 'A'");
+  String sRevResult = sRev.reverse();
+  TEST(sRevResult == "CBA", "reverse() should reverse the string");
+  TEST(sRevResult.startsWith("C"), "Reversed \"ABC\" should start with 'C'");
+  TEST(sRevResult.endsWith("A"), "Reversed \"ABC\" should end with 'A'");
+  TEST(sRev == "ABC", "Original string should be unchanged");
 
   // Modification operations - repeat
   String sRpt("A");
-  sRpt.repeat(3);
-  TEST(sRpt == "AAA", "repeat(3) should create \"AAA\"");
-  TEST(sRpt.length() == 3, "After repeat(3), length should be 3");
+  String sRptResult = sRpt.repeat(3);
+  TEST(sRptResult == "AAA", "repeat(3) should create \"AAA\"");
+  TEST(sRptResult.length() == 3, "After repeat(3), length should be 3");
+  TEST(sRpt == "A", "Original string should be unchanged");
 
   String sRpt2("AB");
-  sRpt2.repeat(2);
-  TEST(sRpt2 == "ABAB", "repeat(2) on \"AB\" should create \"ABAB\"");
+  String sRpt2Result = sRpt2.repeat(2);
+  TEST(sRpt2Result == "ABAB", "repeat(2) on \"AB\" should create \"ABAB\"");
+  TEST(sRpt2 == "AB", "Original string should be unchanged");
 
   // Chaining
   String sChain("  hello  ");
-  sChain.trim().upper().append("!");
-  TEST(sChain == "HELLO!", "Chaining trim().upper().append() should work");
+  String sChainResult = sChain.trim().upper().append("!");
+  TEST(sChainResult == "HELLO!",
+       "Chaining trim().upper().append() should work");
+  TEST(sChain == "  hello  ",
+       "Original string should be unchanged after chaining");
+
+  // + operator concatenation
+  String sPlus1("Hello");
+  String sPlus2(" World");
+  String sPlusResult = sPlus1 + sPlus2;
+  TEST(sPlusResult == "Hello World", "operator+ should concatenate strings");
+  TEST(sPlusResult.length() == 11,
+       "Concatenated string should have correct length");
+  TEST(sPlus1 == "Hello",
+       "Original string should be unchanged after operator+");
+  TEST(sPlus2 == " World",
+       "Second original string should be unchanged after operator+");
+
+  String sPlusEmpty1("");
+  String sPlusEmpty2("test");
+  String sPlusEmptyResult = sPlusEmpty1 + sPlusEmpty2;
+  TEST(sPlusEmptyResult == "test",
+       "operator+ with empty first string should work");
+  TEST(sPlusEmptyResult.length() == 4,
+       "Result should have length of non-empty string");
+
+  String sPlusEmptyResult2 = sPlusEmpty2 + sPlusEmpty1;
+  TEST(sPlusEmptyResult2 == "test",
+       "operator+ with empty second string should work");
+
+  String sPlusLong1("This is ");
+  String sPlusLong2("a longer test");
+  String sPlusLongResult = sPlusLong1 + sPlusLong2;
+  TEST(sPlusLongResult == "This is a longer test",
+       "operator+ should work with longer strings");
+  TEST(sPlusLongResult.startsWith("This is "),
+       "Result should start with first string");
 
   // Equality and comparison
   String sEq1("Test");
