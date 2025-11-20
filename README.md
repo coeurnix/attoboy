@@ -4,6 +4,27 @@ Attoboy is a comprehensive, 'batteries-included' C++ library designed for buildi
 
 **WARNING**: *Attoboy is currently in extremely early development. Check back later for a more mature and stable version.*
 
+## What Attoboy Provides
+
+- [x] Strings
+- [x] Lists
+- [x] Maps
+- [x] Sets
+- [x] Logging
+- [x] DateTime
+- [x] Environment Variables
+- [ ] Data Buffers
+- [ ] Memory Management
+- [ ] File I/O
+- [ ] Filesystems
+- [ ] Threads
+- [ ] Process Control
+- [ ] JSON
+- [ ] CSV
+- [ ] HTTP/HTTPS Requests
+- [ ] LLM Chat Completions
+- [ ] TUI/GUI
+
 ## How to Use
 
 TBD. For now, check out `libattoboy/examples`. Build instructions coming soon.

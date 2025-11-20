@@ -115,7 +115,7 @@ List Set::toList() const {
   return impl->values.duplicate();
 }
 
-Set &Set::merge(const Set &other) {
+Set &Set::setUnion(const Set &other) {
   if (!impl || !other.impl)
     return *this;
 
@@ -151,6 +151,93 @@ Set &Set::merge(const Set &other) {
       break;
     case TYPE_SET:
       put_impl(otherValues.at<Set>(i));
+      break;
+    default:
+      break;
+    }
+  }
+
+  return *this;
+}
+
+Set &Set::intersect(const Set &other) {
+  if (!impl || !other.impl)
+    return *this;
+
+  if (this == &other)
+    return *this;
+
+  List currentValues = toList();
+  clear();
+
+  int len = currentValues.length();
+  for (int i = 0; i < len; i++) {
+    ValueType type = currentValues.typeAt(i);
+    bool shouldKeep = false;
+
+    switch (type) {
+    case TYPE_BOOL:
+      shouldKeep = other.contains<bool>(currentValues.at<bool>(i));
+      if (shouldKeep)
+        put_impl(currentValues.at<bool>(i));
+      break;
+    case TYPE_INT:
+      shouldKeep = other.contains<int>(currentValues.at<int>(i));
+      if (shouldKeep)
+        put_impl(currentValues.at<int>(i));
+      break;
+    case TYPE_LONG_LONG:
+      shouldKeep = other.contains<long long>(currentValues.at<long long>(i));
+      if (shouldKeep)
+        put_impl(currentValues.at<long long>(i));
+      break;
+    case TYPE_DOUBLE:
+      shouldKeep = other.contains<double>(currentValues.at<double>(i));
+      if (shouldKeep)
+        put_impl(currentValues.at<double>(i));
+      break;
+    case TYPE_STRING:
+      shouldKeep = other.contains<String>(currentValues.at<String>(i));
+      if (shouldKeep)
+        put_impl(currentValues.at<String>(i));
+      break;
+    default:
+      break;
+    }
+  }
+
+  return *this;
+}
+
+Set &Set::subtract(const Set &other) {
+  if (!impl || !other.impl)
+    return *this;
+
+  if (this == &other) {
+    clear();
+    return *this;
+  }
+
+  List otherValues = other.toList();
+  int len = otherValues.length();
+
+  for (int i = 0; i < len; i++) {
+    ValueType type = otherValues.typeAt(i);
+    switch (type) {
+    case TYPE_BOOL:
+      remove_impl(otherValues.at<bool>(i));
+      break;
+    case TYPE_INT:
+      remove_impl(otherValues.at<int>(i));
+      break;
+    case TYPE_LONG_LONG:
+      remove_impl(otherValues.at<long long>(i));
+      break;
+    case TYPE_DOUBLE:
+      remove_impl(otherValues.at<double>(i));
+      break;
+    case TYPE_STRING:
+      remove_impl(otherValues.at<String>(i));
       break;
     default:
       break;

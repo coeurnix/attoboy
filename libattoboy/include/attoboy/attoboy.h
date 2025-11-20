@@ -25,6 +25,7 @@ class StringImpl;
 class ListImpl;
 class MapImpl;
 class SetImpl;
+class DateTimeImpl;
 
 // Forward declarations
 class List;
@@ -595,10 +596,19 @@ public:
   /// Returns a reference to this set for chaining.
   Set &clear();
 
-  /// Adds all values from another set to this set.
+  /// Adds all values from another set to this set (union operation).
   /// Duplicates are automatically ignored.
   /// Returns a reference to this set for chaining.
-  Set &merge(const Set &other);
+  Set &setUnion(const Set &other);
+
+  /// Keeps only values that exist in both this set and the other set.
+  /// Removes all values not in the intersection.
+  /// Returns a reference to this set for chaining.
+  Set &intersect(const Set &other);
+
+  /// Removes all values that exist in the other set from this set.
+  /// Returns a reference to this set for chaining.
+  Set &subtract(const Set &other);
 
   /// Returns a deep copy of this set.
   Set duplicate() const;
@@ -630,8 +640,67 @@ private:
   void remove_impl(const String &value);
 };
 
+/// A date and time class using Windows FileTime internally.
+/// Supports operations on dates/times with millisecond precision.
+class DateTime {
+public:
+  /// Creates a DateTime representing the current date and time.
+  DateTime();
+
+  /// Creates a DateTime from milliseconds since Unix epoch (Jan 1, 1970).
+  DateTime(long long millisSinceEpoch);
+
+  /// Creates a DateTime from an ISO-8601 formatted string (YYYY-MM-DDTHH:MM:SS.fffZ).
+  DateTime(const String &iso8601);
+
+  /// Creates a deep copy of another DateTime.
+  DateTime(const DateTime &other);
+
+  /// Destroys the DateTime and releases allocated memory.
+  ~DateTime();
+
+  /// Assigns another DateTime to this one.
+  DateTime &operator=(const DateTime &other);
+
+  /// Adds (or subtracts if negative) milliseconds to this DateTime.
+  /// Returns a reference to this DateTime for chaining.
+  DateTime &add(long long milliseconds);
+
+  /// Returns the difference in milliseconds between this and another DateTime.
+  /// Positive if this is later than other, negative otherwise.
+  long long diff(const DateTime &other) const;
+
+  /// Compares this DateTime with another.
+  /// Returns negative if this < other, 0 if equal, positive if this > other.
+  int compare(const DateTime &other) const;
+
+  /// Returns true if this DateTime equals the other DateTime.
+  bool equals(const DateTime &other) const;
+
+  /// Returns true if this DateTime equals the other DateTime.
+  bool operator==(const DateTime &other) const;
+
+  /// Returns true if this DateTime does not equal the other DateTime.
+  bool operator!=(const DateTime &other) const;
+
+  /// Returns this DateTime as milliseconds since Unix epoch (Jan 1, 1970).
+  long long timestamp() const;
+
+  /// Returns this DateTime as an ISO-8601 formatted string (YYYY-MM-DDTHH:MM:SS.fffZ).
+  String toString() const;
+
+private:
+  DateTimeImpl *impl;
+};
+
 /// Terminates the process immediately with the specified exit code.
 void Exit(int exitCode);
+
+/// Returns the value of an environment variable, or empty string if not set.
+String GetEnv(const String &name);
+
+/// Sets an environment variable. Returns true on success, false on failure.
+bool SetEnv(const String &name, const String &value);
 
 // Logging Level Configuration:
 // Define one of the following to set the logging level:

@@ -110,29 +110,88 @@ void atto_main() {
   TEST(list.contains(20), "toList() should contain second value");
   TEST(list.contains(30), "toList() should contain third value");
 
-  // Test merge
+  // Test setUnion
   Set s12;
   s12.put(1).put(2);
   Set s13;
   s13.put(3).put(4);
-  s12.merge(s13);
-  TEST(s12.length() == 4, "merge() should combine sets");
-  TEST(s12.contains(1), "merge() should keep original values");
-  TEST(s12.contains(2), "merge() should keep original values");
-  TEST(s12.contains(3), "merge() should add new values");
-  TEST(s12.contains(4), "merge() should add new values");
+  s12.setUnion(s13);
+  TEST(s12.length() == 4, "setUnion() should combine sets");
+  TEST(s12.contains(1), "setUnion() should keep original values");
+  TEST(s12.contains(2), "setUnion() should keep original values");
+  TEST(s12.contains(3), "setUnion() should add new values");
+  TEST(s12.contains(4), "setUnion() should add new values");
 
-  // Test merge with overlapping values
+  // Test setUnion with overlapping values
   Set s14;
   s14.put(1).put(2).put(3);
   Set s15;
   s15.put(2).put(3).put(4);
-  s14.merge(s15);
-  TEST(s14.length() == 4, "merge() with overlapping values should not duplicate");
-  TEST(s14.contains(1), "merge() overlap check 1");
-  TEST(s14.contains(2), "merge() overlap check 2");
-  TEST(s14.contains(3), "merge() overlap check 3");
-  TEST(s14.contains(4), "merge() overlap check 4");
+  s14.setUnion(s15);
+  TEST(s14.length() == 4, "setUnion() with overlapping values should not duplicate");
+  TEST(s14.contains(1), "setUnion() overlap check 1");
+  TEST(s14.contains(2), "setUnion() overlap check 2");
+  TEST(s14.contains(3), "setUnion() overlap check 3");
+  TEST(s14.contains(4), "setUnion() overlap check 4");
+
+  // Test intersect
+  Set s38;
+  s38.put(1).put(2).put(3);
+  Set s39;
+  s39.put(2).put(3).put(4);
+  s38.intersect(s39);
+  TEST(s38.length() == 2, "intersect() should keep only common values");
+  TEST(!s38.contains(1), "intersect() should remove non-common values");
+  TEST(s38.contains(2), "intersect() should keep common value 2");
+  TEST(s38.contains(3), "intersect() should keep common value 3");
+  TEST(!s38.contains(4), "intersect() should not add new values");
+
+  // Test intersect with no overlap
+  Set s40;
+  s40.put(1).put(2);
+  Set s41;
+  s41.put(3).put(4);
+  s40.intersect(s41);
+  TEST(s40.length() == 0, "intersect() with no overlap should be empty");
+  TEST(s40.isEmpty(), "intersect() with no overlap isEmpty check");
+
+  // Test intersect with self
+  Set s42;
+  s42.put(1).put(2).put(3);
+  s42.intersect(s42);
+  TEST(s42.length() == 3, "intersect(self) should keep all values");
+  TEST(s42.contains(1), "intersect(self) check 1");
+  TEST(s42.contains(2), "intersect(self) check 2");
+  TEST(s42.contains(3), "intersect(self) check 3");
+
+  // Test subtract
+  Set s43;
+  s43.put(1).put(2).put(3).put(4);
+  Set s44;
+  s44.put(2).put(4);
+  s43.subtract(s44);
+  TEST(s43.length() == 2, "subtract() should remove matching values");
+  TEST(s43.contains(1), "subtract() should keep non-matching value 1");
+  TEST(!s43.contains(2), "subtract() should remove matching value 2");
+  TEST(s43.contains(3), "subtract() should keep non-matching value 3");
+  TEST(!s43.contains(4), "subtract() should remove matching value 4");
+
+  // Test subtract with no overlap
+  Set s45;
+  s45.put(1).put(2);
+  Set s46;
+  s46.put(3).put(4);
+  s45.subtract(s46);
+  TEST(s45.length() == 2, "subtract() with no overlap should keep all");
+  TEST(s45.contains(1), "subtract() no overlap check 1");
+  TEST(s45.contains(2), "subtract() no overlap check 2");
+
+  // Test subtract with self
+  Set s47;
+  s47.put(1).put(2).put(3);
+  s47.subtract(s47);
+  TEST(s47.length() == 0, "subtract(self) should clear set");
+  TEST(s47.isEmpty(), "subtract(self) isEmpty check");
 
   // Test duplicate
   Set s16;
