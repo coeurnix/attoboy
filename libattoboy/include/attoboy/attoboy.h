@@ -50,6 +50,9 @@ public:
   /// Destroys the string and releases allocated memory.
   ~String();
 
+  /// Assigns another string to this string (deep copy).
+  String &operator=(const String &other);
+
   /// Creates a string representation of a boolean ("true" or "false").
   String(bool val);
 
@@ -231,6 +234,9 @@ public:
   /// Destroys the list and releases allocated memory.
   ~List();
 
+  /// Assigns another list to this list (deep copy).
+  List &operator=(const List &other);
+
   /// Returns the number of elements in the list.
   int length() const;
 
@@ -395,6 +401,9 @@ public:
 
   /// Destroys the map and releases allocated memory.
   ~Map();
+
+  /// Assigns another map to this map (deep copy).
+  Map &operator=(const Map &other);
 
   /// Returns the number of key-value pairs in the map.
   int length() const;
@@ -568,6 +577,9 @@ public:
 
   /// Destroys the set and releases allocated memory.
   ~Set();
+
+  /// Assigns another set to this set (deep copy).
+  Set &operator=(const Set &other);
 
   /// Returns the number of unique values in the set.
   int length() const;

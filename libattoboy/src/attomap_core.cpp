@@ -42,6 +42,16 @@ Map::~Map() {
   }
 }
 
+Map &Map::operator=(const Map &other) {
+  if (this != &other) {
+    Map temp(other);
+    MapImpl *oldImpl = impl;
+    impl = temp.impl;
+    temp.impl = oldImpl;
+  }
+  return *this;
+}
+
 int Map::length() const {
   if (!impl)
     return 0;

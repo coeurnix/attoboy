@@ -5,6 +5,7 @@ namespace attoboy {
 String::String() {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
+  InitializeSRWLock(&impl->lock);
   impl->data = AllocString(0);
   impl->len = 0;
 }
@@ -12,6 +13,7 @@ String::String() {
 String::String(const char *str) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
+  InitializeSRWLock(&impl->lock);
 
   if (!str) {
     const wchar_t *nullStr = L"null";
@@ -45,6 +47,7 @@ String::String(const char *str) {
 String::String(const wchar_t *str) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
+  InitializeSRWLock(&impl->lock);
 
   if (!str) {
     const wchar_t *nullStr = L"null";
@@ -72,6 +75,7 @@ String::String(const wchar_t *str) {
 String::String(const String &other) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
+  InitializeSRWLock(&impl->lock);
 
   if (other.impl) {
     ReadLockGuard guard(&other.impl->lock);
@@ -99,6 +103,35 @@ String::~String() {
     FreeString(impl->data);
     HeapFree(GetProcessHeap(), 0, impl);
   }
+}
+
+String &String::operator=(const String &other) {
+  if (this == &other) {
+    return *this;
+  }
+
+  if (impl) {
+    WriteLockGuard guard(&impl->lock);
+    FreeString(impl->data);
+
+    if (other.impl) {
+      ReadLockGuard otherGuard(&other.impl->lock);
+      int len = other.impl->len;
+      impl->data = AllocString(len);
+      if (impl->data) {
+        lstrcpyW(impl->data, other.impl->data);
+        impl->len = len;
+      } else {
+        impl->data = AllocString(0);
+        impl->len = 0;
+      }
+    } else {
+      impl->data = AllocString(0);
+      impl->len = 0;
+    }
+  }
+
+  return *this;
 }
 
 int String::length() const {

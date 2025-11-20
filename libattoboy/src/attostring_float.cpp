@@ -48,6 +48,7 @@ static void DoubleToString(double val, LPWSTR buffer, int maxLen) {
 String::String(double val) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
+  InitializeSRWLock(&impl->lock);
   WCHAR buf[64];
   DoubleToString(val, buf, 64);
   int len = lstrlenW(buf);

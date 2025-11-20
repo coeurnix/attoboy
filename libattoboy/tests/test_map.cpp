@@ -1,19 +1,6 @@
 #include "attoboy/attoboy.h"
 #include <windows.h>
 
-// Implement new/delete for no-CRT environment
-void *operator new(size_t size) { return HeapAlloc(GetProcessHeap(), 0, size); }
-
-void operator delete(void *ptr) noexcept {
-  if (ptr)
-    HeapFree(GetProcessHeap(), 0, ptr);
-}
-
-void operator delete(void *ptr, size_t) noexcept {
-  if (ptr)
-    HeapFree(GetProcessHeap(), 0, ptr);
-}
-
 using namespace attoboy;
 
 static int errorCount = 0;
@@ -40,6 +27,8 @@ void atto_main() {
   TEST(m1.length() == 0, "Empty constructor should create map with length 0");
   TEST(m1.isEmpty(), "Empty map should return true for isEmpty()");
 
+  Log("Stage 1 passed");
+
   Map m2(16);
   TEST(m2.length() == 0,
        "Capacity constructor should create map with length 0");
@@ -65,6 +54,8 @@ void atto_main() {
   TEST((m3.get<int, String>(1).equals(String("ONE"))),
        "put() should update value");
 
+  Log("Stage 2 passed");
+
   // Test chaining
   Map m4;
   m4.put(1, 10).put(2, 20).put(3, 30);
@@ -72,6 +63,8 @@ void atto_main() {
   TEST((m4.get<int, int>(1) == 10), "First chained value");
   TEST((m4.get<int, int>(2) == 20), "Second chained value");
   TEST((m4.get<int, int>(3) == 30), "Third chained value");
+
+  Log("Stage 3 passed");
 
   // Test with string keys
   Map m5;
@@ -82,6 +75,8 @@ void atto_main() {
        "String key retrieval");
   TEST((m5.get<String, int>(String("age")) == 30),
        "Mixed types with string key");
+
+  Log("Stage 4 passed");
 
   // Test hasKey
   Map m6;
@@ -115,6 +110,8 @@ void atto_main() {
   m9.remove(99);
   TEST(m9.length() == 1, "remove() non-existing key should not change length");
 
+  Log("Stage 5 passed");
+
   // Test clear
   Map m10;
   m10.put(1, 10).put(2, 20).put(3, 30);
@@ -139,6 +136,8 @@ void atto_main() {
   TEST(values.contains(10), "values() should contain first value");
   TEST(values.contains(20), "values() should contain second value");
   TEST(values.contains(30), "values() should contain third value");
+
+  Log("Stage 6 passed");
 
   // Test findValue
   Map m13;
@@ -167,6 +166,8 @@ void atto_main() {
   m16.merge(m17);
   TEST(m16.length() == 3, "merge() with overlapping keys");
   TEST((m16.get<int, int>(2) == 99), "merge() should update overlapping key");
+
+  Log("Stage 7 passed");
 
   // Test duplicate
   Map m18;
@@ -208,6 +209,8 @@ void atto_main() {
   TEST((m24.get<long long, String>(bigKey).equals(String("big"))),
        "Long long key retrieval");
 
+  Log("Stage 8 passed");
+
   // Test nested containers
   List innerList;
   innerList.append(1).append(2).append(3);
@@ -218,15 +221,22 @@ void atto_main() {
   TEST(retrieved.length() == 3,
        "Retrieved nested list should have correct length");
 
+  Log("Stage 9 passed");
+
   // Test nested maps
   Map innerMap;
   innerMap.put(1, 100);
+  Log("nested-map-A");
   Map m26;
   m26.put(String("map"), innerMap);
+  Log("nested-map-B");
   TEST(m26.length() == 1, "Nested map values should work");
   Map retrievedMap = m26.get<String, Map>(String("map"));
+  Log("nested-map-C");
   TEST(retrievedMap.length() == 1,
        "Retrieved nested map should have correct length");
+
+  Log("Stage 10 passed");
 
   // Test get with default value
   Map m27;
@@ -235,6 +245,8 @@ void atto_main() {
        "get() with default should return value when key exists");
   TEST((m27.get<int, int>(99, 999) == 999),
        "get() with default should return default when key doesn't exist");
+
+  Log("Stage 11 passed");
 
   // Test edge case: empty map operations
   Map empty;
@@ -248,6 +260,8 @@ void atto_main() {
   TEST(emptyValues.length() == 0,
        "Empty map values() should return empty list");
 
+  Log("Stage 12 passed");
+
   // Test with c-string keys
   Map m28;
   m28.put("key1", 100);
@@ -255,6 +269,8 @@ void atto_main() {
   TEST(m28.length() == 2, "C-string keys should work");
   TEST(m28.hasKey("key1"), "hasKey() with c-string");
   TEST((m28.get<String, int>(String("key1")) == 100), "C-string key retrieval");
+
+  Log("Stage 13 passed");
 
   // Test with wide string keys
   Map m29;

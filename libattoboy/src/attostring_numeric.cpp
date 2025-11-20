@@ -5,6 +5,7 @@ namespace attoboy {
 String::String(bool val) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
+  InitializeSRWLock(&impl->lock);
   const WCHAR *s = val ? L"true" : L"false";
   int len = lstrlenW(s);
   impl->data = AllocString(len);
@@ -15,6 +16,7 @@ String::String(bool val) {
 String::String(int val) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
+  InitializeSRWLock(&impl->lock);
   WCHAR buf[32];
   wsprintfW(buf, L"%d", val);
   int len = lstrlenW(buf);
@@ -26,6 +28,7 @@ String::String(int val) {
 String::String(long long val) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
+  InitializeSRWLock(&impl->lock);
   WCHAR buf[64];
   wsprintfW(buf, L"%I64d", val);
   int len = lstrlenW(buf);

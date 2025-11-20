@@ -6,6 +6,7 @@ List::List() {
   impl = (ListImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                sizeof(ListImpl));
   if (impl) {
+    InitializeSRWLock(&impl->lock);
     impl->items = AllocItems(8);
     impl->size = 0;
     impl->capacity = 8;
@@ -16,6 +17,7 @@ List::List(int capacity) {
   impl = (ListImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                sizeof(ListImpl));
   if (impl) {
+    InitializeSRWLock(&impl->lock);
     if (capacity < 0)
       capacity = 0;
     if (capacity == 0)
@@ -31,6 +33,8 @@ List::List(const List &other) {
                                sizeof(ListImpl));
   if (!impl)
     return;
+
+  InitializeSRWLock(&impl->lock);
 
   if (other.impl) {
     ReadLockGuard guard(&other.impl->lock);
@@ -187,6 +191,16 @@ List::~List() {
     }
     HeapFree(GetProcessHeap(), 0, impl);
   }
+}
+
+List &List::operator=(const List &other) {
+  if (this != &other) {
+    List temp(other);
+    ListImpl *oldImpl = impl;
+    impl = temp.impl;
+    temp.impl = oldImpl;
+  }
+  return *this;
 }
 
 int List::length() const {

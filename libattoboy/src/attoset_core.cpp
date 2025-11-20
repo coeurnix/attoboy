@@ -82,6 +82,16 @@ Set::~Set() {
   }
 }
 
+Set &Set::operator=(const Set &other) {
+  if (this != &other) {
+    Set temp(other);
+    SetImpl *oldImpl = impl;
+    impl = temp.impl;
+    temp.impl = oldImpl;
+  }
+  return *this;
+}
+
 int Set::length() const {
   if (!impl)
     return 0;

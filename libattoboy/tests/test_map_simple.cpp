@@ -1,18 +1,5 @@
 #include "attoboy/attoboy.h"
 #include <windows.h>
-
-void *operator new(size_t size) { return HeapAlloc(GetProcessHeap(), 0, size); }
-
-void operator delete(void *ptr) noexcept {
-  if (ptr)
-    HeapFree(GetProcessHeap(), 0, ptr);
-}
-
-void operator delete(void *ptr, size_t) noexcept {
-  if (ptr)
-    HeapFree(GetProcessHeap(), 0, ptr);
-}
-
 using namespace attoboy;
 
 void atto_main() {
