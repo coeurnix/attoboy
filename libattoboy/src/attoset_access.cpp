@@ -130,4 +130,54 @@ void Set::remove_impl(const String &value) {
   }
 }
 
+bool Set::compare(const Set &other) const {
+  if (!impl && !other.impl)
+    return true;
+  if (!impl || !other.impl)
+    return false;
+
+  ReadLockGuard guard1(&impl->lock);
+  ReadLockGuard guard2(&other.impl->lock);
+
+  if (impl->values.length() != other.impl->values.length())
+    return false;
+
+  List myValues = impl->values.duplicate();
+  int len = myValues.length();
+
+  for (int i = 0; i < len; i++) {
+    ValueType type = myValues.typeAt(i);
+    bool found = false;
+
+    switch (type) {
+    case TYPE_BOOL:
+      found = other.contains<bool>(myValues.at<bool>(i));
+      break;
+    case TYPE_INT:
+      found = other.contains<int>(myValues.at<int>(i));
+      break;
+    case TYPE_LONG_LONG:
+      found = other.contains<long long>(myValues.at<long long>(i));
+      break;
+    case TYPE_DOUBLE:
+      found = other.contains<double>(myValues.at<double>(i));
+      break;
+    case TYPE_STRING:
+      found = other.contains<String>(myValues.at<String>(i));
+      break;
+    default:
+      break;
+    }
+
+    if (!found)
+      return false;
+  }
+
+  return true;
+}
+
+bool Set::operator==(const Set &other) const { return compare(other); }
+
+bool Set::operator!=(const Set &other) const { return !compare(other); }
+
 } // namespace attoboy

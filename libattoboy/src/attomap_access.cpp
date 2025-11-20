@@ -1027,4 +1027,24 @@ void Map::remove_impl(const String &key) {
   }
 }
 
+bool Map::compare(const Map &other) const {
+  if (!impl && !other.impl)
+    return true;
+  if (!impl || !other.impl)
+    return false;
+
+  ReadLockGuard guard1(&impl->lock);
+  ReadLockGuard guard2(&other.impl->lock);
+
+  if (impl->keys.length() != other.impl->keys.length())
+    return false;
+
+  return impl->keys.compare(other.impl->keys) &&
+         impl->values.compare(other.impl->values);
+}
+
+bool Map::operator==(const Map &other) const { return compare(other); }
+
+bool Map::operator!=(const Map &other) const { return !compare(other); }
+
 } // namespace attoboy

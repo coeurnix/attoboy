@@ -124,4 +124,28 @@ template <> bool List::contains<const wchar_t *>(const wchar_t *value) const {
   return find<String>(str) != -1;
 }
 
+bool List::compare(const List &other) const {
+  if (!impl && !other.impl)
+    return true;
+  if (!impl || !other.impl)
+    return false;
+
+  ReadLockGuard guard1(&impl->lock);
+  ReadLockGuard guard2(&other.impl->lock);
+
+  if (impl->size != other.impl->size)
+    return false;
+
+  for (int i = 0; i < impl->size; i++) {
+    if (!ItemsEqual(&impl->items[i], &other.impl->items[i]))
+      return false;
+  }
+
+  return true;
+}
+
+bool List::operator==(const List &other) const { return compare(other); }
+
+bool List::operator!=(const List &other) const { return !compare(other); }
+
 } // namespace attoboy

@@ -78,6 +78,13 @@ public:
   /// Converts the set to a list and creates a JSON array representation.
   String(const Set &set);
 
+  /// Creates a string by concatenating multiple arguments.
+  /// Each argument is converted to a String and concatenated in order.
+  /// Requires at least 2 arguments.
+  template <typename T, typename U, typename... Args>
+  String(const T &first, const U &second, const Args &...rest)
+      : String(String(first) + String(second) + String(rest...)) {}
+
   /// Returns the number of characters in the string.
   int length() const;
 
@@ -225,6 +232,12 @@ public:
   /// Creates a list from a set, preserving all values.
   List(const Set &set);
 
+  /// Creates a list with the specified values appended in order.
+  template <typename... Args>
+  List(const Args &...args) : List() {
+    variadic_append(args...);
+  }
+
   /// Destroys the list and releases allocated memory.
   ~List();
 
@@ -329,6 +342,24 @@ public:
   /// Returns a shallow copy of this list
   List duplicate() const;
 
+  /// Compares this list with another for equality.
+  /// Returns true if both lists have the same length, same types,
+  /// and same values in the same order.
+  bool compare(const List &other) const;
+
+  /// Returns true if this list equals the other list.
+  bool operator==(const List &other) const;
+
+  /// Returns true if this list does not equal the other list.
+  bool operator!=(const List &other) const;
+
+  /// Returns a new list with the value appended.
+  template <typename T> List operator+(T value) const {
+    List result = duplicate();
+    result.append(value);
+    return result;
+  }
+
 private:
   ListImpl *impl;
 
@@ -376,6 +407,15 @@ private:
   void set_impl(int index, const List &value);
   void set_impl(int index, const Map &value);
   void set_impl(int index, const Set &value);
+
+  // Variadic helper for constructor
+  template <typename T, typename... Args>
+  void variadic_append(const T &first, const Args &...rest) {
+    append(first);
+    variadic_append(rest...);
+  }
+
+  void variadic_append() {} // Base case
 };
 
 /// A key-value map container that stores heterogeneous typed keys and values.
@@ -392,6 +432,13 @@ public:
 
   /// Creates a deep copy of another map.
   Map(const Map &other);
+
+  /// Creates a map with alternating key-value pairs.
+  /// If the number of arguments is odd, the last key gets a null value.
+  template <typename... Args>
+  Map(const Args &...args) : Map() {
+    variadic_put_pairs(args...);
+  }
 
   /// Destroys the map and releases allocated memory.
   ~Map();
@@ -449,6 +496,16 @@ public:
 
   /// Returns a copy of all values in the map as a List.
   List values() const;
+
+  /// Compares this map with another for equality.
+  /// Returns true if both maps have the same keys and values.
+  bool compare(const Map &other) const;
+
+  /// Returns true if this map equals the other map.
+  bool operator==(const Map &other) const;
+
+  /// Returns true if this map does not equal the other map.
+  bool operator!=(const Map &other) const;
 
 private:
   MapImpl *impl;
@@ -538,6 +595,21 @@ private:
   void remove_impl(const char *key);
   void remove_impl(const wchar_t *key);
   void remove_impl(const String &key);
+
+  // Variadic helper for constructor - handles alternating key-value pairs
+  template <typename K, typename V, typename... Args>
+  void variadic_put_pairs(const K &key, const V &value, const Args &...rest) {
+    put(key, value);
+    variadic_put_pairs(rest...);
+  }
+
+  // Handle odd number of arguments - last key gets null value
+  template <typename K>
+  void variadic_put_pairs(const K &key) {
+    put_impl(key, false); // Put with null/false value
+  }
+
+  void variadic_put_pairs() {} // Base case
 };
 
 // Template implementations for Map
@@ -568,6 +640,12 @@ public:
 
   /// Creates a set from a list, removing duplicate values.
   Set(const List &list);
+
+  /// Creates a set with the specified values added.
+  template <typename... Args>
+  Set(const Args &...args) : Set() {
+    variadic_put(args...);
+  }
 
   /// Destroys the set and releases allocated memory.
   ~Set();
@@ -622,6 +700,24 @@ public:
   /// Returns a List containing all values from this set.
   List toList() const;
 
+  /// Compares this set with another for equality.
+  /// Returns true if both sets have the same length and contain the same values
+  /// (order doesn't matter).
+  bool compare(const Set &other) const;
+
+  /// Returns true if this set equals the other set.
+  bool operator==(const Set &other) const;
+
+  /// Returns true if this set does not equal the other set.
+  bool operator!=(const Set &other) const;
+
+  /// Returns a new set with the value added.
+  template <typename T> Set operator+(T value) const {
+    Set result = duplicate();
+    result.put(value);
+    return result;
+  }
+
 private:
   SetImpl *impl;
 
@@ -644,6 +740,15 @@ private:
   void remove_impl(const char *value);
   void remove_impl(const wchar_t *value);
   void remove_impl(const String &value);
+
+  // Variadic helper for constructor
+  template <typename T, typename... Args>
+  void variadic_put(const T &first, const Args &...rest) {
+    put(first);
+    variadic_put(rest...);
+  }
+
+  void variadic_put() {} // Base case
 };
 
 /// A date and time class using Windows FileTime internally.
