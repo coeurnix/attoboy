@@ -14,8 +14,15 @@ String::String(const char *str) {
                                  sizeof(StringImpl));
 
   if (!str) {
-    impl->data = AllocString(0);
-    impl->len = 0;
+    const wchar_t *nullStr = L"null";
+    int len = 4;
+    impl->data = AllocString(len);
+    if (impl->data) {
+      lstrcpyW(impl->data, nullStr);
+      impl->len = len;
+    } else {
+      impl->len = 0;
+    }
     return;
   }
 
@@ -40,8 +47,15 @@ String::String(const wchar_t *str) {
                                  sizeof(StringImpl));
 
   if (!str) {
-    impl->data = AllocString(0);
-    impl->len = 0;
+    const wchar_t *nullStr = L"null";
+    int len = 4;
+    impl->data = AllocString(len);
+    if (impl->data) {
+      lstrcpyW(impl->data, nullStr);
+      impl->len = len;
+    } else {
+      impl->len = 0;
+    }
     return;
   }
 

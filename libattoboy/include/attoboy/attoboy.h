@@ -27,6 +27,7 @@ class MapImpl;
 class SetImpl;
 
 // Forward declarations
+class List;
 class Map;
 class Set;
 
@@ -59,6 +60,19 @@ public:
 
   /// Creates a string representation of a floating-point number.
   String(double val);
+
+  /// Creates a JSON-style string from a list (e.g., ["value1",2,true]).
+  /// Handles all value types intelligently with proper JSON escaping.
+  String(const List &list);
+
+  /// Creates a JSON-style string from a map (e.g., {"key1":"value1","key2":2}).
+  /// Converts keys to strings if needed and handles values intelligently with
+  /// proper JSON escaping.
+  String(const Map &map);
+
+  /// Creates a JSON-style string from a set (e.g., [1,2,3]).
+  /// Converts the set to a list and creates a JSON array representation.
+  String(const Set &set);
 
   /// Returns the number of characters in the string.
   int length() const;
@@ -161,6 +175,31 @@ public:
 
   /// Returns a hash code for this string.
   int hash() const;
+
+  /// Splits this string into a list of strings by line breaks.
+  /// Handles both Windows (\\r\\n) and Unix (\\n) line endings.
+  List lines() const;
+
+  /// Joins all elements of the list using this string as the separator.
+  /// Non-string elements are converted to strings automatically.
+  String join(const List &list) const;
+
+  /// Splits this string by the separator into a list of strings.
+  /// The max parameter controls the maximum number of splits (default 1).
+  /// Returns up to max+2 parts (e.g., max=1 allows 1 split, yielding 2 parts).
+  List split(const String &sep, int max = 1) const;
+
+  /// Splits this string by whitespace into a list of strings.
+  /// Consecutive whitespace is treated as a single separator.
+  List split() const;
+
+  /// Formats this string using list elements as substitutions.
+  /// Replaces {0}, {1}, etc. with corresponding list elements.
+  String format(const List &list) const;
+
+  /// Formats this string using map values as substitutions.
+  /// Replaces {key} with the corresponding value from the map.
+  String format(const Map &map) const;
 
   /// Returns a pointer to the underlying null-terminated wide string.
   /// Returns an empty string literal if the string is empty.

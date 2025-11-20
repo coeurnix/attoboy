@@ -1,5 +1,6 @@
 #pragma once
 #include "attoboy/attoboy.h"
+#include "atto_internal_common.h"
 #include <new> // For placement new
 #include <windows.h>
 
@@ -32,23 +33,6 @@ struct ListImpl {
   int size;
   int capacity;
   SRWLOCK lock;
-};
-
-// RAII lock guards for thread safety
-class ReadLockGuard {
-  SRWLOCK *lock;
-
-public:
-  ReadLockGuard(SRWLOCK *l) : lock(l) { AcquireSRWLockShared(lock); }
-  ~ReadLockGuard() { ReleaseSRWLockShared(lock); }
-};
-
-class WriteLockGuard {
-  SRWLOCK *lock;
-
-public:
-  WriteLockGuard(SRWLOCK *l) : lock(l) { AcquireSRWLockExclusive(lock); }
-  ~WriteLockGuard() { ReleaseSRWLockExclusive(lock); }
 };
 
 // Inline helper functions for list item allocation
