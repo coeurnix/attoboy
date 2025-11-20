@@ -15,7 +15,8 @@ void atto_main() {
 
   // Constructors
   String s1;
-  TEST(s1.length() == 0, "Empty constructor should create string with length 0");
+  TEST(s1.length() == 0,
+       "Empty constructor should create string with length 0");
   TEST(s1.isEmpty(), "Empty string should return true for isEmpty()");
 
   String s2("Hello");
@@ -38,7 +39,8 @@ void atto_main() {
 
   String sDouble(123.456);
   TEST(sDouble.length() >= 7, "String(123.456) should have length >= 7");
-  TEST(sDouble.startsWith("123."), "String(123.456) should start with \"123.\"");
+  TEST(sDouble.startsWith("123."),
+       "String(123.456) should start with \"123.\"");
 
   String sWide(L"Wide String");
   TEST(sWide.length() == 11, "String(L\"Wide String\") should have length 11");
@@ -77,16 +79,21 @@ void atto_main() {
 
   TEST(s2.startsWith("H"), "\"Hello\" should start with \"H\"");
   TEST(s2.startsWith("Hel"), "\"Hello\" should start with \"Hel\"");
-  TEST(!s2.startsWith("h"), "\"Hello\" should not start with \"h\" (case-sensitive)");
+  TEST(!s2.startsWith("h"),
+       "\"Hello\" should not start with \"h\" (case-sensitive)");
 
   TEST(s2.endsWith("o"), "\"Hello\" should end with \"o\"");
   TEST(s2.endsWith("llo"), "\"Hello\" should end with \"llo\"");
-  TEST(!s2.endsWith("O"), "\"Hello\" should not end with \"O\" (case-sensitive)");
+  TEST(!s2.endsWith("O"),
+       "\"Hello\" should not end with \"O\" (case-sensitive)");
 
   String banana("banana");
-  TEST(banana.count("a") == 3, "\"banana\" should contain 3 occurrences of \"a\"");
-  TEST(banana.count("an") == 2, "\"banana\" should contain 2 occurrences of \"an\"");
-  TEST(banana.count("x") == 0, "\"banana\" should contain 0 occurrences of \"x\"");
+  TEST(banana.count("a") == 3,
+       "\"banana\" should contain 3 occurrences of \"a\"");
+  TEST(banana.count("an") == 2,
+       "\"banana\" should contain 2 occurrences of \"an\"");
+  TEST(banana.count("x") == 0,
+       "\"banana\" should contain 0 occurrences of \"x\"");
 
   // Number validation and conversion
   String sNum("123");
@@ -96,7 +103,8 @@ void atto_main() {
 
   String sFloat("45.67");
   TEST(sFloat.isNumber(), "\"45.67\" should be a valid number");
-  TEST(sFloat.toDouble() > 45.6 && sFloat.toDouble() < 45.7, "\"45.67\".toDouble() should be approximately 45.67");
+  TEST(sFloat.toDouble() > 45.6 && sFloat.toDouble() < 45.7,
+       "\"45.67\".toDouble() should be approximately 45.67");
 
   String sNotNum("abc");
   TEST(!sNotNum.isNumber(), "\"abc\" should not be a valid number");
@@ -153,7 +161,8 @@ void atto_main() {
 
   String sTrim2("test");
   sTrim2.trim();
-  TEST(sTrim2 == "test", "trim() on string without whitespace should be unchanged");
+  TEST(sTrim2 == "test",
+       "trim() on string without whitespace should be unchanged");
 
   // Modification operations - upper/lower
   String sCase("HeLLo");
@@ -193,7 +202,8 @@ void atto_main() {
   String sEq3("Other");
 
   TEST(sEq1.equals(sEq2), "equals() should return true for equal strings");
-  TEST(!sEq1.equals(sEq3), "equals() should return false for different strings");
+  TEST(!sEq1.equals(sEq3),
+       "equals() should return false for different strings");
 
   TEST(sEq1 == sEq2, "operator== should return true for equal strings");
   TEST(!(sEq1 == sEq3), "operator== should return false for different strings");
@@ -208,26 +218,34 @@ void atto_main() {
   String sCmp4("appl");
   String sCmp5("application");
 
-  TEST(sCmp1.compare(sCmp2) == 0, "compare() should return 0 for equal strings");
+  TEST(sCmp1.compare(sCmp2) == 0,
+       "compare() should return 0 for equal strings");
   TEST(sCmp1.compare(sCmp3) < 0, "\"apple\" should be less than \"banana\"");
   TEST(sCmp3.compare(sCmp1) > 0, "\"banana\" should be greater than \"apple\"");
-  TEST(sCmp1.compare(sCmp4) > 0, "\"apple\" should be greater than \"appl\" (longer)");
-  TEST(sCmp4.compare(sCmp1) < 0, "\"appl\" should be less than \"apple\" (shorter)");
-  TEST(sCmp1.compare(sCmp5) < 0, "\"apple\" should be less than \"application\"");
-  TEST(sCmp5.compare(sCmp1) > 0, "\"application\" should be greater than \"apple\"");
+  TEST(sCmp1.compare(sCmp4) > 0,
+       "\"apple\" should be greater than \"appl\" (longer)");
+  TEST(sCmp4.compare(sCmp1) < 0,
+       "\"appl\" should be less than \"apple\" (shorter)");
+  TEST(sCmp1.compare(sCmp5) < 0,
+       "\"apple\" should be less than \"application\"");
+  TEST(sCmp5.compare(sCmp1) > 0,
+       "\"application\" should be greater than \"apple\"");
 
   String sEmpty1;
   String sEmpty2;
   String sNonEmpty("text");
 
   TEST(sEmpty1.compare(sEmpty2) == 0, "Empty strings should compare equal");
-  TEST(sEmpty1.compare(sNonEmpty) < 0, "Empty string should be less than non-empty");
-  TEST(sNonEmpty.compare(sEmpty1) > 0, "Non-empty string should be greater than empty");
+  TEST(sEmpty1.compare(sNonEmpty) < 0,
+       "Empty string should be less than non-empty");
+  TEST(sNonEmpty.compare(sEmpty1) > 0,
+       "Non-empty string should be greater than empty");
 
   String sCase1("abc");
   String sCase2("ABC");
   TEST(sCase1.compare(sCase2) != 0, "compare() should be case-sensitive");
-  TEST(sCase2.compare(sCase1) < 0, "\"ABC\" should be less than \"abc\" (uppercase < lowercase)");
+  TEST(sCase2.compare(sCase1) < 0,
+       "\"ABC\" should be less than \"abc\" (uppercase < lowercase)");
 
   // Hash
   TEST(sEq1.hash() == sEq2.hash(), "Equal strings should have equal hashes");
@@ -249,6 +267,6 @@ void atto_main() {
     Exit(0);
   } else {
     LogError(errorCount, " test(s) failed");
-    Exit(1);
+    Exit(errorCount);
   }
 }

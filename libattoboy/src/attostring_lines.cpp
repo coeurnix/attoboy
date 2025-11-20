@@ -1,5 +1,6 @@
-#include "attostr_internal.h"
 #include "attolist_internal.h"
+#include "attostring_internal.h"
+
 
 namespace attoboy {
 
@@ -52,7 +53,8 @@ List String::lines() const {
     }
   } else if (start == impl->len && impl->len > 0 &&
              (data[impl->len - 1] == L'\n' ||
-              (impl->len > 1 && data[impl->len - 2] == L'\r' && data[impl->len - 1] == L'\n'))) {
+              (impl->len > 1 && data[impl->len - 2] == L'\r' &&
+               data[impl->len - 1] == L'\n'))) {
     result.append(String());
   }
 

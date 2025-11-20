@@ -1,4 +1,4 @@
-#include "attostr_internal.h"
+#include "attostring_internal.h"
 
 namespace attoboy {
 
@@ -108,9 +108,7 @@ int String::length() const {
   return impl->len;
 }
 
-String String::duplicate() const {
-  return String(*this);
-}
+String String::duplicate() const { return String(*this); }
 
 const wchar_t *String::c_str() const {
   return (impl && impl->data) ? impl->data : L"";

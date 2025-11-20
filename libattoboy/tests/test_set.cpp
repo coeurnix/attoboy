@@ -33,7 +33,8 @@ void atto_main() {
   TEST(s1.isEmpty(), "Empty set should return true for isEmpty()");
 
   Set s2(16);
-  TEST(s2.length() == 0, "Capacity constructor should create set with length 0");
+  TEST(s2.length() == 0,
+       "Capacity constructor should create set with length 0");
   TEST(s2.isEmpty(), "Capacity set should return true for isEmpty()");
 
   // Test put with different types
@@ -77,7 +78,8 @@ void atto_main() {
   Set s7;
   s7.put(10).put(20).put(30);
   TEST(s7.contains(20), "contains() should return true for existing value");
-  TEST(!s7.contains(99), "contains() should return false for non-existing value");
+  TEST(!s7.contains(99),
+       "contains() should return false for non-existing value");
 
   // Test remove
   Set s8;
@@ -92,7 +94,8 @@ void atto_main() {
   Set s9;
   s9.put(10);
   s9.remove(99);
-  TEST(s9.length() == 1, "remove() non-existing value should not change length");
+  TEST(s9.length() == 1,
+       "remove() non-existing value should not change length");
 
   // Test clear
   Set s10;
@@ -128,7 +131,8 @@ void atto_main() {
   Set s15;
   s15.put(2).put(3).put(4);
   s14.setUnion(s15);
-  TEST(s14.length() == 4, "setUnion() with overlapping values should not duplicate");
+  TEST(s14.length() == 4,
+       "setUnion() with overlapping values should not duplicate");
   TEST(s14.contains(1), "setUnion() overlap check 1");
   TEST(s14.contains(2), "setUnion() overlap check 2");
   TEST(s14.contains(3), "setUnion() overlap check 3");
@@ -282,7 +286,8 @@ void atto_main() {
   Set s27;
   s27.put(5);
   TEST(s27.contains(5), "Int value should be found");
-  TEST(s27.contains(5.0), "Int value should be found with double (numeric coercion)");
+  TEST(s27.contains(5.0),
+       "Int value should be found with double (numeric coercion)");
 
   // Test List concat with Set
   List l3;
@@ -302,6 +307,6 @@ void atto_main() {
     Exit(0);
   } else {
     LogError(errorCount, " test(s) failed");
-    Exit(1);
+    Exit(errorCount);
   }
 }

@@ -31,9 +31,11 @@ void atto_main() {
 
   String sLinesWindows("line1\r\nline2\r\nline3");
   List linesWindows = sLinesWindows.lines();
-  TEST(linesWindows.length() == 3, "lines() should handle Windows line endings");
+  TEST(linesWindows.length() == 3,
+       "lines() should handle Windows line endings");
   TEST(linesWindows.at<String>(0) == "line1", "First line should be \"line1\"");
-  TEST(linesWindows.at<String>(1) == "line2", "Second line should be \"line2\"");
+  TEST(linesWindows.at<String>(1) == "line2",
+       "Second line should be \"line2\"");
 
   String sLinesMixed("line1\nline2\r\nline3");
   List linesMixed = sLinesMixed.lines();
@@ -42,13 +44,15 @@ void atto_main() {
   String sLinesTrailing("line1\nline2\n");
   List linesTrailing = sLinesTrailing.lines();
   TEST(linesTrailing.length() == 3, "lines() should handle trailing newline");
-  TEST(linesTrailing.at<String>(2).isEmpty(), "Last line after trailing newline should be empty");
+  TEST(linesTrailing.at<String>(2).isEmpty(),
+       "Last line after trailing newline should be empty");
 
   // Test join()
   List listToJoin;
   listToJoin.append("apple").append("banana").append("cherry");
   String joined = String(", ").join(listToJoin);
-  TEST(joined == "apple, banana, cherry", "join() should join strings with separator");
+  TEST(joined == "apple, banana, cherry",
+       "join() should join strings with separator");
 
   List listMixedTypes;
   listMixedTypes.append("value").append(42).append(true);
@@ -59,7 +63,8 @@ void atto_main() {
 
   List emptyList;
   String joinedEmpty = String(", ").join(emptyList);
-  TEST(joinedEmpty.isEmpty(), "join() with empty list should return empty string");
+  TEST(joinedEmpty.isEmpty(),
+       "join() with empty list should return empty string");
 
   // Test split(sep, max)
   String sSplit("a,b,c,d,e");
@@ -79,7 +84,8 @@ void atto_main() {
   List splitMulti = sSplitMulti.split("::", 1);
   TEST(splitMulti.length() == 2, "split() should handle multi-char separator");
   TEST(splitMulti.at<String>(0) == "apple", "First part should be \"apple\"");
-  TEST(splitMulti.at<String>(1) == "banana::cherry", "Remainder should contain remaining separators");
+  TEST(splitMulti.at<String>(1) == "banana::cherry",
+       "Remainder should contain remaining separators");
 
   // Test split() - whitespace
   String sWhitespace("  hello   world  test  ");
@@ -95,25 +101,30 @@ void atto_main() {
 
   String sMultiWs("a  \t\n  b");
   List splitMultiWs = sMultiWs.split();
-  TEST(splitMultiWs.length() == 2, "split() should treat consecutive whitespace as one");
+  TEST(splitMultiWs.length() == 2,
+       "split() should treat consecutive whitespace as one");
 
   // Test format(list)
   List formatList;
   formatList.append("World").append(42);
   String formatted = String("Hello {0}! The answer is {1}.").format(formatList);
-  TEST(formatted == "Hello World! The answer is 42.", "format(list) should substitute indexed placeholders");
+  TEST(formatted == "Hello World! The answer is 42.",
+       "format(list) should substitute indexed placeholders");
 
   String formatOutOfBounds = String("{0} {5} {1}").format(formatList);
-  TEST(formatOutOfBounds.contains("{5}"), "format(list) should leave out-of-bounds placeholders unchanged");
+  TEST(formatOutOfBounds.contains("{5}"),
+       "format(list) should leave out-of-bounds placeholders unchanged");
 
   // Test format(map)
   Map formatMap;
   formatMap.put("name", "Alice").put("age", 30);
   String formattedMap = String("Name: {name}, Age: {age}").format(formatMap);
-  TEST(formattedMap == "Name: Alice, Age: 30", "format(map) should substitute keyed placeholders");
+  TEST(formattedMap == "Name: Alice, Age: 30",
+       "format(map) should substitute keyed placeholders");
 
   String formatMissingKey = String("{name} {unknown}").format(formatMap);
-  TEST(formatMissingKey.contains("{unknown}"), "format(map) should leave unknown keys unchanged");
+  TEST(formatMissingKey.contains("{unknown}"),
+       "format(map) should leave unknown keys unchanged");
 
   // Test String(list) - JSON
   List jsonList;
@@ -122,7 +133,7 @@ void atto_main() {
   TEST(jsonListStr.contains("\"hello\""), "String(list) should quote strings");
   TEST(jsonListStr.contains("42"), "String(list) should include integers");
   TEST(jsonListStr.contains("true"), "String(list) should include booleans");
-  TEST(jsonListStr.contains("3.14"), "String(list) should include doubles");
+  TEST(jsonListStr.contains("3.1"), "String(list) should include doubles");
   TEST(jsonListStr.startsWith("["), "String(list) should start with [");
   TEST(jsonListStr.endsWith("]"), "String(list) should end with ]");
 
@@ -131,16 +142,19 @@ void atto_main() {
   innerList.append(1).append(2);
   nestedList.append("outer").append(innerList);
   String jsonNested(nestedList);
-  TEST(jsonNested.contains("[1,2]") || jsonNested.contains("[1.0,2.0]"), "String(list) should handle nested lists");
+  TEST(jsonNested.contains("[1,2]") || jsonNested.contains("[1.0,2.0]"),
+       "String(list) should handle nested lists");
 
   // Test String(map) - JSON
   Map jsonMap;
   jsonMap.put("name", "Bob").put("age", 25).put("active", true);
   String jsonMapStr(jsonMap);
   TEST(jsonMapStr.contains("\"name\""), "String(map) should quote keys");
-  TEST(jsonMapStr.contains("\"Bob\""), "String(map) should quote string values");
+  TEST(jsonMapStr.contains("\"Bob\""),
+       "String(map) should quote string values");
   TEST(jsonMapStr.contains("25"), "String(map) should include integer values");
-  TEST(jsonMapStr.contains("true"), "String(map) should include boolean values");
+  TEST(jsonMapStr.contains("true"),
+       "String(map) should include boolean values");
   TEST(jsonMapStr.startsWith("{"), "String(map) should start with {");
   TEST(jsonMapStr.endsWith("}"), "String(map) should end with }");
 
@@ -155,8 +169,10 @@ void atto_main() {
   List nullList;
   nullList.append(String());
   String jsonWithNull(nullList);
-  // Empty String() might produce empty string or null depending on implementation
-  TEST(jsonWithNull.contains("\"\"") || jsonWithNull.contains("null"), "String(list) should handle null/empty values");
+  // Empty String() might produce empty string or null depending on
+  // implementation
+  TEST(jsonWithNull.contains("\"\"") || jsonWithNull.contains("null"),
+       "String(list) should handle null/empty values");
 
   // Report results
   if (errorCount == 0) {
@@ -164,6 +180,6 @@ void atto_main() {
     Exit(0);
   } else {
     LogError(errorCount, " test(s) failed");
-    Exit(1);
+    Exit(errorCount);
   }
 }

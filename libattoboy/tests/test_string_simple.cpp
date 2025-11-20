@@ -66,6 +66,6 @@ void atto_main() {
     Exit(0);
   } else {
     LogError(errorCount, " test(s) failed");
-    Exit(1);
+    Exit(errorCount);
   }
 }

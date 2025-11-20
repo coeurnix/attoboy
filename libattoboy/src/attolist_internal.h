@@ -25,7 +25,11 @@ struct ListItem {
     void *setVal;
   };
 
-  ListItem() : type(TYPE_NULL), intVal(0) {}
+  ListItem() {
+    type = TYPE_NULL;
+    // Zero all 8 bytes of union
+    doubleVal = 0.0;
+  }
 };
 
 struct ListImpl {

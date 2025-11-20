@@ -136,18 +136,47 @@ add_custom_command(TARGET attoboy POST_BUILD
 # ------------------------------------------------------------------------------
 if(ATTO_BUILD_TESTS)
     message(STATUS "Building tests...")
-    enable_testing()
     file(GLOB TEST_SOURCES "tests/*.cpp")
+
+    # List to keep track of test targets for the 'check' dependency
+    set(TEST_TARGETS "")
+
     foreach(test_src ${TEST_SOURCES})
         get_filename_component(test_name ${test_src} NAME_WE)
-        add_executable(test_${test_name} ${test_src})
-        target_link_libraries(test_${test_name} PRIVATE attoboy ${SYSTEM_LIBS})
-        set_target_properties(test_${test_name} PROPERTIES 
+        add_executable(${test_name} ${test_src})
+        target_link_libraries(${test_name} PRIVATE attoboy ${SYSTEM_LIBS})
+        set_target_properties(${test_name} PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests"
             OUTPUT_NAME "${test_name}"
         )
-        add_test(NAME ${test_name} COMMAND test_${test_name})
+        list(APPEND TEST_TARGETS ${test_name})
     endforeach()
+
+    # Add a target to build and run all tests
+    set(CHECK_COMMANDS COMMAND ${CMAKE_COMMAND} -E echo "")
+    foreach(test_target ${TEST_TARGETS})
+        set(SCRIPT_FILE "${CMAKE_BINARY_DIR}/run_${test_target}.cmake")
+        set(EXE_FILE "${CMAKE_BINARY_DIR}/tests/${test_target}${CMAKE_EXECUTABLE_SUFFIX}")
+
+        file(WRITE "${SCRIPT_FILE}" "
+EXECUTE_PROCESS(
+    COMMAND cmd.exe /c \"${EXE_FILE}\"
+    RESULT_VARIABLE RESULT
+)
+IF(NOT RESULT EQUAL 0)
+    MESSAGE(FATAL_ERROR \"Running ${test_target} failed! Please run ${EXE_FILE} to see detailed error output.\")
+ELSE()
+    MESSAGE(\"Running ${test_target}... passed.\")
+ENDIF()
+")
+        set(CHECK_COMMANDS ${CHECK_COMMANDS} COMMAND ${CMAKE_COMMAND} -P "${SCRIPT_FILE}")
+    endforeach()
+    add_custom_target(check
+        ${CHECK_COMMANDS}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Building and running all tests..."
+    )
+    add_dependencies(check ${TEST_TARGETS})
 endif()
 
 # ------------------------------------------------------------------------------

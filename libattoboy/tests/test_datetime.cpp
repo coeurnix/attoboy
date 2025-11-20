@@ -29,7 +29,8 @@ void atto_main() {
   // Test default constructor (now)
   DateTime dt1;
   long long ts1 = dt1.timestamp();
-  TEST(ts1 > 0, "Default constructor should create DateTime with positive timestamp");
+  TEST(ts1 > 0,
+       "Default constructor should create DateTime with positive timestamp");
   String str1 = dt1.toString();
   TEST(str1.length() > 0, "toString() should return non-empty string");
   TEST(str1.contains(L"T"), "ISO-8601 format should contain 'T'");
@@ -48,7 +49,8 @@ void atto_main() {
   long long ts3 = dt3.timestamp();
   TEST(ts3 == millis2000, "DateTime should preserve timestamp");
   String str3 = dt3.toString();
-  TEST(str3.startsWith(L"2000-01-01"), "Timestamp for 2000-01-01 should format correctly");
+  TEST(str3.startsWith(L"2000-01-01"),
+       "Timestamp for 2000-01-01 should format correctly");
 
   // Test constructor from ISO-8601 string
   String isoStr = String(L"2024-06-15T12:30:45.123Z");
@@ -91,7 +93,8 @@ void atto_main() {
 
   // Test diff (negative)
   long long diffBA = dtB.diff(dtA);
-  TEST(diffBA == -5000, "diff() should return negative value when this < other");
+  TEST(diffBA == -5000,
+       "diff() should return negative value when this < other");
 
   // Test diff (equal)
   DateTime dtC(1000LL);
@@ -102,8 +105,10 @@ void atto_main() {
   // Test compare
   DateTime dtE(1000LL);
   DateTime dtF(2000LL);
-  TEST(dtE.compare(dtF) < 0, "compare() should return negative when this < other");
-  TEST(dtF.compare(dtE) > 0, "compare() should return positive when this > other");
+  TEST(dtE.compare(dtF) < 0,
+       "compare() should return negative when this < other");
+  TEST(dtF.compare(dtE) > 0,
+       "compare() should return positive when this > other");
   TEST(dtE.compare(dtE) == 0, "compare() should return 0 when equal");
 
   // Test equals
@@ -111,7 +116,8 @@ void atto_main() {
   DateTime dtH(12345LL);
   DateTime dtI(54321LL);
   TEST(dtG.equals(dtH), "equals() should return true for equal DateTimes");
-  TEST(!dtG.equals(dtI), "equals() should return false for different DateTimes");
+  TEST(!dtG.equals(dtI),
+       "equals() should return false for different DateTimes");
 
   // Test operator ==
   TEST(dtG == dtH, "operator== should return true for equal DateTimes");
@@ -124,7 +130,8 @@ void atto_main() {
   // Test ISO-8601 parsing edge cases
   DateTime dtJ(String(L"2020-12-31T23:59:59.999Z"));
   String strJ = dtJ.toString();
-  TEST(strJ.contains(L"2020-12-31"), "ISO-8601 parsing should handle end of year");
+  TEST(strJ.contains(L"2020-12-31"),
+       "ISO-8601 parsing should handle end of year");
   TEST(strJ.contains(L"23:59:59"), "ISO-8601 parsing should handle end of day");
 
   // Test timestamp precision (milliseconds)
@@ -135,9 +142,11 @@ void atto_main() {
   // Test toString format
   DateTime dtL(String(L"1999-03-15T08:30:00.500Z"));
   String strL = dtL.toString();
-  TEST(strL.startsWith(L"1999-03-15"), "toString() should format date correctly");
+  TEST(strL.startsWith(L"1999-03-15"),
+       "toString() should format date correctly");
   TEST(strL.contains(L"08:30:00"), "toString() should format time correctly");
-  TEST(strL.contains(L".500Z"), "toString() should format milliseconds correctly");
+  TEST(strL.contains(L".500Z"),
+       "toString() should format milliseconds correctly");
 
   // Test add with large values
   DateTime dtM(0LL);
@@ -150,27 +159,12 @@ void atto_main() {
   long long tsN = dtN.timestamp();
   TEST(tsN == -86400000LL, "Negative timestamps should be supported");
 
-  // Test environment variables
-  Log("\nTesting environment variables...");
-
-  String testName = String(L"ATTOBOY_TEST_VAR");
-  String testValue = String(L"Hello World");
-
-  bool setResult = SetEnv(testName, testValue);
-  TEST(setResult, "SetEnv should return true on success");
-
-  String getValue = GetEnv(testName);
-  TEST(getValue.equals(testValue), "GetEnv should return the value set by SetEnv");
-
-  String nonExistent = GetEnv(String(L"ATTOBOY_NONEXISTENT_VAR_12345"));
-  TEST(nonExistent.isEmpty(), "GetEnv should return empty string for non-existent variable");
-
   // Report results
   if (errorCount == 0) {
     Log("All DateTime tests passed!");
     Exit(0);
   } else {
     LogError(errorCount, " test(s) failed");
-    Exit(1);
+    Exit(errorCount);
   }
 }

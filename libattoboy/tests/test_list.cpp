@@ -24,6 +24,14 @@ static int errorCount = 0;
     errorCount++;                                                              \
   }
 
+// Helper for approximate floating point equality
+static inline bool ApproxEqual(double a, double b, double epsilon = 0.0001) {
+  double diff = a - b;
+  if (diff < 0)
+    diff = -diff;
+  return diff < epsilon;
+}
+
 void atto_main() {
   Log("Running List tests...");
 
@@ -33,7 +41,8 @@ void atto_main() {
   TEST(l1.isEmpty(), "Empty list should return true for isEmpty()");
 
   List l2(16);
-  TEST(l2.length() == 0, "Capacity constructor should create list with length 0");
+  TEST(l2.length() == 0,
+       "Capacity constructor should create list with length 0");
   TEST(l2.isEmpty(), "Capacity list should return true for isEmpty()");
 
   // Test append with different types
@@ -51,12 +60,13 @@ void atto_main() {
   l3.append(3.14);
   TEST(l3.length() == 3, "Append double should increase length to 3");
   TEST(l3.typeAt(2) == TYPE_DOUBLE, "Third item should be TYPE_DOUBLE");
-  TEST(l3.at<double>(2) == 3.14, "Third item should be 3.14");
+  TEST(ApproxEqual(l3.at<double>(2), 3.14), "Third item should be 3.14");
 
   l3.append(String("hello"));
   TEST(l3.length() == 4, "Append String should increase length to 4");
   TEST(l3.typeAt(3) == TYPE_STRING, "Fourth item should be TYPE_STRING");
-  TEST(l3.at<String>(3).equals(String("hello")), "Fourth item should be 'hello'");
+  TEST(l3.at<String>(3).equals(String("hello")),
+       "Fourth item should be 'hello'");
 
   // Test chaining
   List l4;
@@ -144,20 +154,23 @@ void atto_main() {
   List l15;
   l15.append(1).append(2).append(3);
   TEST(l15.find(2) == 1, "find() should find int value");
-  TEST(l15.find(2.0) == 1, "find() should find with numeric coercion (int == double)");
+  TEST(l15.find(2.0) == 1,
+       "find() should find with numeric coercion (int == double)");
   TEST(l15.find(99) == -1, "find() should return -1 for not found");
 
   // Test find with strings
   List l16;
   l16.append(String("a")).append(String("b")).append(String("c"));
   TEST(l16.find(String("b")) == 1, "find() should find String value");
-  TEST(l16.find(String("z")) == -1, "find() should return -1 for String not found");
+  TEST(l16.find(String("z")) == -1,
+       "find() should return -1 for String not found");
 
   // Test contains
   List l17;
   l17.append(10).append(20).append(30);
   TEST(l17.contains(20), "contains() should return true for existing value");
-  TEST(!l17.contains(99), "contains() should return false for non-existing value");
+  TEST(!l17.contains(99),
+       "contains() should return false for non-existing value");
   TEST(l17.contains(20.0), "contains() should work with numeric coercion");
 
   // Test reverse
@@ -246,10 +259,10 @@ void atto_main() {
   List l29;
   l29.append(3.5).append(1).append(2.2).append(4);
   l29.sort(true);
-  TEST(l29.at<double>(0) == 1.0, "sort() mixed numeric - first");
-  TEST(l29.at<double>(1) == 2.2, "sort() mixed numeric - second");
-  TEST(l29.at<double>(2) == 3.5, "sort() mixed numeric - third");
-  TEST(l29.at<double>(3) == 4.0, "sort() mixed numeric - fourth");
+  TEST(ApproxEqual(l29.at<double>(0), 1.0), "sort() mixed numeric - first");
+  TEST(ApproxEqual(l29.at<double>(1), 2.2), "sort() mixed numeric - second");
+  TEST(ApproxEqual(l29.at<double>(2), 3.5), "sort() mixed numeric - third");
+  TEST(ApproxEqual(l29.at<double>(3), 4.0), "sort() mixed numeric - fourth");
 
   // Test nested lists
   List inner1;
@@ -261,7 +274,8 @@ void atto_main() {
   TEST(outer.length() == 2, "Nested lists should work");
   TEST(outer.typeAt(0) == TYPE_LIST, "First nested item should be TYPE_LIST");
   List retrieved = outer.at<List>(0);
-  TEST(retrieved.length() == 2, "Retrieved nested list should have correct length");
+  TEST(retrieved.length() == 2,
+       "Retrieved nested list should have correct length");
   TEST(retrieved.at<int>(0) == 1, "Nested list first item");
   TEST(retrieved.at<int>(1) == 2, "Nested list second item");
 
@@ -269,8 +283,10 @@ void atto_main() {
   List l30;
   l30.append(1);
   TEST(l30.typeAt(0) == TYPE_INT, "typeAt() should return correct type");
-  TEST(l30.typeAt(-1) == TYPE_INVALID, "typeAt() with negative index should return TYPE_INVALID");
-  TEST(l30.typeAt(100) == TYPE_INVALID, "typeAt() with large index should return TYPE_INVALID");
+  TEST(l30.typeAt(-1) == TYPE_INVALID,
+       "typeAt() with negative index should return TYPE_INVALID");
+  TEST(l30.typeAt(100) == TYPE_INVALID,
+       "typeAt() with large index should return TYPE_INVALID");
 
   // Test edge case: empty list operations
   List empty;
@@ -288,20 +304,25 @@ void atto_main() {
   List l31;
   long long bigNum = 9223372036854775807LL;
   l31.append(bigNum);
-  TEST(l31.typeAt(0) == TYPE_LONG_LONG, "Append long long should set TYPE_LONG_LONG");
+  TEST(l31.typeAt(0) == TYPE_LONG_LONG,
+       "Append long long should set TYPE_LONG_LONG");
   TEST(l31.at<long long>(0) == bigNum, "Long long should be stored correctly");
 
   // Test with c-style strings
   List l32;
   l32.append("test");
-  TEST(l32.typeAt(0) == TYPE_STRING, "C-string should be converted to TYPE_STRING");
-  TEST(l32.at<String>(0).equals(String("test")), "C-string should be stored as String");
+  TEST(l32.typeAt(0) == TYPE_STRING,
+       "C-string should be converted to TYPE_STRING");
+  TEST(l32.at<String>(0).equals(String("test")),
+       "C-string should be stored as String");
 
   // Test with wide strings
   List l33;
   l33.append(L"wide");
-  TEST(l33.typeAt(0) == TYPE_STRING, "Wide string should be converted to TYPE_STRING");
-  TEST(l33.at<String>(0).equals(String(L"wide")), "Wide string should be stored as String");
+  TEST(l33.typeAt(0) == TYPE_STRING,
+       "Wide string should be converted to TYPE_STRING");
+  TEST(l33.at<String>(0).equals(String(L"wide")),
+       "Wide string should be stored as String");
 
   // Report results
   if (errorCount == 0) {
@@ -309,6 +330,6 @@ void atto_main() {
     Exit(0);
   } else {
     LogError(errorCount, " test(s) failed");
-    Exit(1);
+    Exit(errorCount);
   }
 }

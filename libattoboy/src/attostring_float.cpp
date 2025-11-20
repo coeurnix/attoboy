@@ -1,4 +1,4 @@
-#include "attostr_internal.h"
+#include "attostring_internal.h"
 
 // Needed for floating point support when not linking with CRT
 extern "C" {
@@ -26,6 +26,7 @@ static void DoubleToString(double val, LPWSTR buffer, int maxLen) {
     *buffer++ = L'.';
     maxLen--;
 
+    LPWSTR firstDecimalDigit = buffer;
     for (int i = 0; i < 6 && maxLen > 0; i++) {
       fracPart *= 10;
       int digit = (int)fracPart;
@@ -33,6 +34,13 @@ static void DoubleToString(double val, LPWSTR buffer, int maxLen) {
       fracPart -= digit;
       maxLen--;
     }
+
+    // Strip trailing zeros, keeping at least one decimal digit
+    buffer--;
+    while (buffer > firstDecimalDigit && *buffer == L'0') {
+      buffer--;
+    }
+    buffer++;
     *buffer = L'\0';
   }
 }
