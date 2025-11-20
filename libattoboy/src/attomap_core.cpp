@@ -277,25 +277,4 @@ Map &Map::merge(const Map &other) {
   return *this;
 }
 
-__attribute__((weak)) Map *AllocMap() {
-  void *mem = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(Map));
-  if (!mem)
-    return nullptr;
-  return new (mem) Map();
-}
-
-__attribute__((weak)) Map *AllocMap(const Map &other) {
-  void *mem = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(Map));
-  if (!mem)
-    return nullptr;
-  return new (mem) Map(other);
-}
-
-__attribute__((weak)) void FreeMap(Map *map) {
-  if (!map)
-    return;
-  map->~Map();
-  HeapFree(GetProcessHeap(), 0, map);
-}
-
 } // namespace attoboy

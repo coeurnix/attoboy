@@ -6,7 +6,7 @@ namespace attoboy {
 
 struct SetImpl {
   List values;
-  SRWLOCK lock;
+  mutable SRWLOCK lock;
 
   SetImpl() : values() { InitializeSRWLock(&lock); }
 };

@@ -7,7 +7,7 @@ namespace attoboy {
 struct MapImpl {
   List keys;
   List values;
-  SRWLOCK lock;
+  mutable SRWLOCK lock;
 
   MapImpl() : keys(), values() { InitializeSRWLock(&lock); }
 };

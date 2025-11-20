@@ -8,7 +8,7 @@ namespace attoboy {
 struct StringImpl {
   LPWSTR data;
   int len;
-  SRWLOCK lock;
+  mutable SRWLOCK lock;
 };
 
 // Inline helper functions for string allocation

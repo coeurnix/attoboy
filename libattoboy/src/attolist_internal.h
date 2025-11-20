@@ -36,7 +36,7 @@ struct ListImpl {
   ListItem *items;
   int size;
   int capacity;
-  SRWLOCK lock;
+  mutable SRWLOCK lock;
 };
 
 // Inline helper functions for list item allocation
@@ -111,18 +111,16 @@ static inline void FreeList(List *list) {
 }
 
 // Helper functions for Map allocation/deallocation without new/delete
-// Implemented in attolist_mapset.cpp as weak symbols to allow linker elimination
-// when Map/Set are not used
-__attribute__((weak)) Map *AllocMap();
-__attribute__((weak)) Map *AllocMap(const Map &other);
-__attribute__((weak)) void FreeMap(Map *map);
+// Implemented in attolist_mapset.cpp
+Map *AllocMap();
+Map *AllocMap(const Map &other);
+void FreeMap(Map *map);
 
 // Helper functions for Set allocation/deallocation without new/delete
-// Implemented in attolist_mapset.cpp as weak symbols to allow linker elimination
-// when Map/Set are not used
-__attribute__((weak)) Set *AllocSet();
-__attribute__((weak)) Set *AllocSet(const Set &other);
-__attribute__((weak)) void FreeSet(Set *set);
+// Implemented in attolist_mapset.cpp
+Set *AllocSet();
+Set *AllocSet(const Set &other);
+void FreeSet(Set *set);
 
 // Helper function to free a single item's contents
 static inline void FreeItemContents(ListItem *item) {

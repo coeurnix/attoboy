@@ -257,25 +257,4 @@ Set &Set::subtract(const Set &other) {
   return *this;
 }
 
-__attribute__((weak)) Set *AllocSet() {
-  void *mem = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(Set));
-  if (!mem)
-    return nullptr;
-  return new (mem) Set();
-}
-
-__attribute__((weak)) Set *AllocSet(const Set &other) {
-  void *mem = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(Set));
-  if (!mem)
-    return nullptr;
-  return new (mem) Set(other);
-}
-
-__attribute__((weak)) void FreeSet(Set *set) {
-  if (!set)
-    return;
-  set->~Set();
-  HeapFree(GetProcessHeap(), 0, set);
-}
-
 } // namespace attoboy
