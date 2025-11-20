@@ -121,6 +121,34 @@ template <> List List::at<List>(int index) const {
   return List();
 }
 
+template <> Map List::at<Map>(int index) const {
+  if (!impl)
+    return Map();
+  ReadLockGuard guard(&impl->lock);
+
+  if (impl->size == 0)
+    return Map();
+  index = ClampIndex(index, impl->size);
+
+  if (impl->items[index].type == TYPE_MAP && impl->items[index].mapVal)
+    return *(Map *)impl->items[index].mapVal;
+  return Map();
+}
+
+template <> Set List::at<Set>(int index) const {
+  if (!impl)
+    return Set();
+  ReadLockGuard guard(&impl->lock);
+
+  if (impl->size == 0)
+    return Set();
+  index = ClampIndex(index, impl->size);
+
+  if (impl->items[index].type == TYPE_SET && impl->items[index].setVal)
+    return *(Set *)impl->items[index].setVal;
+  return Set();
+}
+
 // Template specializations for operator[]
 template <> bool List::operator[]<bool>(int index) const {
   return at<bool>(index);
@@ -144,6 +172,14 @@ template <> String List::operator[]<String>(int index) const {
 
 template <> List List::operator[]<List>(int index) const {
   return at<List>(index);
+}
+
+template <> Map List::operator[]<Map>(int index) const {
+  return at<Map>(index);
+}
+
+template <> Set List::operator[]<Set>(int index) const {
+  return at<Set>(index);
 }
 
 // Set implementations
@@ -305,6 +341,46 @@ void List::set_impl(int index, const List &value) {
   FreeItemContents(&impl->items[index]);
   impl->items[index].type = TYPE_LIST;
   impl->items[index].listVal = AllocList(value);
+}
+
+void List::set_impl(int index, const Map &value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (impl->size == 0) {
+    if (!EnsureCapacity(impl, 1))
+      return;
+    impl->items[0].type = TYPE_MAP;
+    impl->items[0].mapVal = AllocMap(value);
+    impl->size = 1;
+    return;
+  }
+
+  index = ClampIndex(index, impl->size);
+  FreeItemContents(&impl->items[index]);
+  impl->items[index].type = TYPE_MAP;
+  impl->items[index].mapVal = AllocMap(value);
+}
+
+void List::set_impl(int index, const Set &value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (impl->size == 0) {
+    if (!EnsureCapacity(impl, 1))
+      return;
+    impl->items[0].type = TYPE_SET;
+    impl->items[0].setVal = AllocSet(value);
+    impl->size = 1;
+    return;
+  }
+
+  index = ClampIndex(index, impl->size);
+  FreeItemContents(&impl->items[index]);
+  impl->items[index].type = TYPE_SET;
+  impl->items[index].setVal = AllocSet(value);
 }
 
 } // namespace attoboy

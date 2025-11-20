@@ -6,6 +6,7 @@ project(attoboy VERSION 0.0.1 LANGUAGES CXX)
 # ------------------------------------------------------------------------------
 option(ATTO_BUILD_TESTS "Build test executables" ON)
 option(ATTO_BUILD_EXAMPLES "Build example executables" ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ------------------------------------------------------------------------------
 # Global Configuration

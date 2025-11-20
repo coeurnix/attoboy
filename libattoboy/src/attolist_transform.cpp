@@ -69,6 +69,22 @@ List &List::concat(const List &other) {
         impl->items[targetIndex].listVal = nullptr;
       }
       break;
+    case TYPE_MAP:
+      if (other.impl->items[i].mapVal) {
+        impl->items[targetIndex].mapVal =
+            AllocMap(*(Map *)other.impl->items[i].mapVal);
+      } else {
+        impl->items[targetIndex].mapVal = nullptr;
+      }
+      break;
+    case TYPE_SET:
+      if (other.impl->items[i].setVal) {
+        impl->items[targetIndex].setVal =
+            AllocSet(*(Set *)other.impl->items[i].setVal);
+      } else {
+        impl->items[targetIndex].setVal = nullptr;
+      }
+      break;
     default:
       break;
     }
@@ -76,6 +92,11 @@ List &List::concat(const List &other) {
 
   impl->size = newSize;
   return *this;
+}
+
+List &List::concat(const Set &set) {
+  List temp = set.toList();
+  return concat(temp);
 }
 
 List List::slice(int start, int end) const {
@@ -138,6 +159,22 @@ List List::slice(int start, int end) const {
             AllocList(*impl->items[sourceIndex].listVal);
       } else {
         result.impl->items[i].listVal = nullptr;
+      }
+      break;
+    case TYPE_MAP:
+      if (impl->items[sourceIndex].mapVal) {
+        result.impl->items[i].mapVal =
+            AllocMap(*(Map *)impl->items[sourceIndex].mapVal);
+      } else {
+        result.impl->items[i].mapVal = nullptr;
+      }
+      break;
+    case TYPE_SET:
+      if (impl->items[sourceIndex].setVal) {
+        result.impl->items[i].setVal =
+            AllocSet(*(Set *)impl->items[sourceIndex].setVal);
+      } else {
+        result.impl->items[i].setVal = nullptr;
       }
       break;
     default:

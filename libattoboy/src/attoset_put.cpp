@@ -1,0 +1,99 @@
+#include "attoset_internal.h"
+
+namespace attoboy {
+
+void Set::put_impl(bool value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (!impl->values.contains<bool>(value)) {
+    impl->values.append<bool>(value);
+  }
+}
+
+void Set::put_impl(int value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (!impl->values.contains<int>(value)) {
+    impl->values.append<int>(value);
+  }
+}
+
+void Set::put_impl(long long value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (!impl->values.contains<long long>(value)) {
+    impl->values.append<long long>(value);
+  }
+}
+
+void Set::put_impl(double value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (!impl->values.contains<double>(value)) {
+    impl->values.append<double>(value);
+  }
+}
+
+void Set::put_impl(const char *value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (!impl->values.contains<const char *>(value)) {
+    impl->values.append(value);
+  }
+}
+
+void Set::put_impl(const wchar_t *value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (!impl->values.contains<const wchar_t *>(value)) {
+    impl->values.append(value);
+  }
+}
+
+void Set::put_impl(const String &value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (!impl->values.contains<String>(value)) {
+    impl->values.append(value);
+  }
+}
+
+void Set::put_impl(const List &value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  impl->values.append(value);
+}
+
+void Set::put_impl(const Map &value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  impl->values.append(value);
+}
+
+void Set::put_impl(const Set &value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  impl->values.append(value);
+}
+
+} // namespace attoboy

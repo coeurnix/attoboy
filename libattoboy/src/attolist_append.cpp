@@ -106,4 +106,30 @@ void List::append_impl(const List &value) {
   impl->size++;
 }
 
+void List::append_impl(const Map &value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (!EnsureCapacity(impl, impl->size + 1))
+    return;
+
+  impl->items[impl->size].type = TYPE_MAP;
+  impl->items[impl->size].mapVal = AllocMap(value);
+  impl->size++;
+}
+
+void List::append_impl(const Set &value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (!EnsureCapacity(impl, impl->size + 1))
+    return;
+
+  impl->items[impl->size].type = TYPE_SET;
+  impl->items[impl->size].setVal = AllocSet(value);
+  impl->size++;
+}
+
 } // namespace attoboy

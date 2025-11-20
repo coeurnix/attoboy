@@ -140,6 +140,40 @@ void List::prepend_impl(const List &value) {
   impl->size++;
 }
 
+void List::prepend_impl(const Map &value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (!EnsureCapacity(impl, impl->size + 1))
+    return;
+
+  for (int i = impl->size; i > 0; i--) {
+    impl->items[i] = impl->items[i - 1];
+  }
+
+  impl->items[0].type = TYPE_MAP;
+  impl->items[0].mapVal = AllocMap(value);
+  impl->size++;
+}
+
+void List::prepend_impl(const Set &value) {
+  if (!impl)
+    return;
+  WriteLockGuard guard(&impl->lock);
+
+  if (!EnsureCapacity(impl, impl->size + 1))
+    return;
+
+  for (int i = impl->size; i > 0; i--) {
+    impl->items[i] = impl->items[i - 1];
+  }
+
+  impl->items[0].type = TYPE_SET;
+  impl->items[0].setVal = AllocSet(value);
+  impl->size++;
+}
+
 // Insert implementations
 void List::insert_impl(int index, bool value) {
   if (!impl)
@@ -381,6 +415,66 @@ void List::insert_impl(int index, const List &value) {
   impl->size++;
 }
 
+void List::insert_impl(int index, const Map &value) {
+  if (!impl)
+    return;
+
+  WriteLockGuard guard(&impl->lock);
+
+  if (index < 0)
+    index = 0;
+
+  if (index >= impl->size) {
+    if (!EnsureCapacity(impl, impl->size + 1))
+      return;
+    impl->items[impl->size].type = TYPE_MAP;
+    impl->items[impl->size].mapVal = AllocMap(value);
+    impl->size++;
+    return;
+  }
+
+  if (!EnsureCapacity(impl, impl->size + 1))
+    return;
+
+  for (int i = impl->size; i > index; i--) {
+    impl->items[i] = impl->items[i - 1];
+  }
+
+  impl->items[index].type = TYPE_MAP;
+  impl->items[index].mapVal = AllocMap(value);
+  impl->size++;
+}
+
+void List::insert_impl(int index, const Set &value) {
+  if (!impl)
+    return;
+
+  WriteLockGuard guard(&impl->lock);
+
+  if (index < 0)
+    index = 0;
+
+  if (index >= impl->size) {
+    if (!EnsureCapacity(impl, impl->size + 1))
+      return;
+    impl->items[impl->size].type = TYPE_SET;
+    impl->items[impl->size].setVal = AllocSet(value);
+    impl->size++;
+    return;
+  }
+
+  if (!EnsureCapacity(impl, impl->size + 1))
+    return;
+
+  for (int i = impl->size; i > index; i--) {
+    impl->items[i] = impl->items[i - 1];
+  }
+
+  impl->items[index].type = TYPE_SET;
+  impl->items[index].setVal = AllocSet(value);
+  impl->size++;
+}
+
 // Remove implementation
 List &List::remove(int index) {
   if (!impl)
@@ -529,6 +623,48 @@ template <> List List::pop<List>() {
   if (impl->items[lastIndex].type == TYPE_LIST &&
       impl->items[lastIndex].listVal) {
     result = *impl->items[lastIndex].listVal;
+  }
+
+  FreeItemContents(&impl->items[lastIndex]);
+  impl->size--;
+  return result;
+}
+
+template <> Map List::pop<Map>() {
+  if (!impl)
+    return Map();
+  WriteLockGuard guard(&impl->lock);
+
+  if (impl->size == 0)
+    return Map();
+
+  int lastIndex = impl->size - 1;
+  Map result;
+
+  if (impl->items[lastIndex].type == TYPE_MAP &&
+      impl->items[lastIndex].mapVal) {
+    result = *(Map *)impl->items[lastIndex].mapVal;
+  }
+
+  FreeItemContents(&impl->items[lastIndex]);
+  impl->size--;
+  return result;
+}
+
+template <> Set List::pop<Set>() {
+  if (!impl)
+    return Set();
+  WriteLockGuard guard(&impl->lock);
+
+  if (impl->size == 0)
+    return Set();
+
+  int lastIndex = impl->size - 1;
+  Set result;
+
+  if (impl->items[lastIndex].type == TYPE_SET &&
+      impl->items[lastIndex].setVal) {
+    result = *(Set *)impl->items[lastIndex].setVal;
   }
 
   FreeItemContents(&impl->items[lastIndex]);

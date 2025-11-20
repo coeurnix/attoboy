@@ -16,10 +16,19 @@ enum ValueType {
   TYPE_DOUBLE,    ///< Floating-point value (double precision)
   TYPE_STRING,    ///< String value (attoboy::String)
   TYPE_LIST,      ///< List value (attoboy::List)
+  TYPE_MAP,       ///< Map value (attoboy::Map)
+  TYPE_SET,       ///< Set value (attoboy::Set)
   TYPE_UNKNOWN    ///< Unknown or unrecognized type
 };
 
 class StringImpl;
+class ListImpl;
+class MapImpl;
+class SetImpl;
+
+// Forward declarations
+class Map;
+class Set;
 
 /// An easy-to-use, batteries-included mutable string class
 class String {
@@ -161,8 +170,6 @@ private:
   StringImpl *impl;
 };
 
-class ListImpl;
-
 /// A dynamic array container that stores heterogeneous typed values.
 /// Supports storing bools, integers, doubles, strings, and nested lists.
 /// All operations are thread-safe and handle errors gracefully without
@@ -177,6 +184,9 @@ public:
 
   /// Creates a deep copy of another list.
   List(const List &other);
+
+  /// Creates a list from a set, preserving all values.
+  List(const Set &set);
 
   /// Destroys the list and releases allocated memory.
   ~List();
@@ -272,6 +282,10 @@ public:
   /// Returns a reference to this list for chaining.
   List &concat(const List &other);
 
+  /// Appends all values from a set to the end of this list.
+  /// Returns a reference to this list for chaining.
+  List &concat(const Set &set);
+
   /// Returns a shallow copy of this list
   List duplicate() const;
 
@@ -287,6 +301,8 @@ private:
   void append_impl(const wchar_t *value);
   void append_impl(const String &value);
   void append_impl(const List &value);
+  void append_impl(const Map &value);
+  void append_impl(const Set &value);
 
   void prepend_impl(bool value);
   void prepend_impl(int value);
@@ -296,6 +312,8 @@ private:
   void prepend_impl(const wchar_t *value);
   void prepend_impl(const String &value);
   void prepend_impl(const List &value);
+  void prepend_impl(const Map &value);
+  void prepend_impl(const Set &value);
 
   void insert_impl(int index, bool value);
   void insert_impl(int index, int value);
@@ -305,6 +323,8 @@ private:
   void insert_impl(int index, const wchar_t *value);
   void insert_impl(int index, const String &value);
   void insert_impl(int index, const List &value);
+  void insert_impl(int index, const Map &value);
+  void insert_impl(int index, const Set &value);
 
   void set_impl(int index, bool value);
   void set_impl(int index, int value);
@@ -314,6 +334,261 @@ private:
   void set_impl(int index, const wchar_t *value);
   void set_impl(int index, const String &value);
   void set_impl(int index, const List &value);
+  void set_impl(int index, const Map &value);
+  void set_impl(int index, const Set &value);
+};
+
+/// A key-value map container that stores heterogeneous typed keys and values.
+/// Keys must be unique (exclusive map). Insertion order is not guaranteed.
+/// All operations are thread-safe and handle errors gracefully without
+/// crashing.
+class Map {
+public:
+  /// Creates an empty map with initial capacity of 8 key-value pairs.
+  Map();
+
+  /// Creates an empty map with the specified initial capacity.
+  Map(int capacity);
+
+  /// Creates a deep copy of another map.
+  Map(const Map &other);
+
+  /// Destroys the map and releases allocated memory.
+  ~Map();
+
+  /// Returns the number of key-value pairs in the map.
+  int length() const;
+
+  /// Returns true if the map has no key-value pairs.
+  bool isEmpty() const;
+
+  /// Returns the value associated with the key, or default value if not found.
+  /// The default value is a null-type value if not specified.
+  template <typename K, typename V> V get(K key, V defaultValue = V()) const;
+
+  /// Returns the value associated with the key using [] operator.
+  /// Returns a null-type value if the key is not found.
+  template <typename K, typename V> V operator[](K key) const;
+
+  /// Associates the key with the value. If key exists, updates its value.
+  /// Returns a reference to this map for chaining.
+  template <typename K, typename V> Map &put(K key, V value);
+
+  /// Removes the key-value pair with the specified key.
+  /// Returns a reference to this map for chaining.
+  template <typename K> Map &remove(K key);
+
+  /// Removes all key-value pairs from the map.
+  /// Returns a reference to this map for chaining.
+  Map &clear();
+
+  /// Finds the first key associated with the specified value.
+  /// Returns a null-type value if the value is not found.
+  template <typename K, typename V> K findValue(V value) const;
+
+  /// Returns true if the map contains the specified key.
+  template <typename K> bool hasKey(K key) const;
+
+  /// Returns the type of the value associated with the key.
+  /// Returns TYPE_INVALID if the key is not found.
+  template <typename K> ValueType typeAt(K key) const;
+
+  /// Adds all key-value pairs from another map to this map.
+  /// If a key exists in both maps, the value from the other map is used.
+  /// Returns a reference to this map for chaining.
+  Map &merge(const Map &other);
+
+  /// Returns a deep copy of this map.
+  Map duplicate() const;
+
+  /// Returns a copy of all keys in the map as a List.
+  List keys() const;
+
+  /// Returns a copy of all values in the map as a List.
+  List values() const;
+
+private:
+  MapImpl *impl;
+
+  // Implementation methods for different types
+  void put_impl(bool key, bool value);
+  void put_impl(bool key, int value);
+  void put_impl(bool key, long long value);
+  void put_impl(bool key, double value);
+  void put_impl(bool key, const char *value);
+  void put_impl(bool key, const wchar_t *value);
+  void put_impl(bool key, const String &value);
+  void put_impl(bool key, const List &value);
+  void put_impl(bool key, const Map &value);
+  void put_impl(bool key, const Set &value);
+
+  void put_impl(int key, bool value);
+  void put_impl(int key, int value);
+  void put_impl(int key, long long value);
+  void put_impl(int key, double value);
+  void put_impl(int key, const char *value);
+  void put_impl(int key, const wchar_t *value);
+  void put_impl(int key, const String &value);
+  void put_impl(int key, const List &value);
+  void put_impl(int key, const Map &value);
+  void put_impl(int key, const Set &value);
+
+  void put_impl(long long key, bool value);
+  void put_impl(long long key, int value);
+  void put_impl(long long key, long long value);
+  void put_impl(long long key, double value);
+  void put_impl(long long key, const char *value);
+  void put_impl(long long key, const wchar_t *value);
+  void put_impl(long long key, const String &value);
+  void put_impl(long long key, const List &value);
+  void put_impl(long long key, const Map &value);
+  void put_impl(long long key, const Set &value);
+
+  void put_impl(double key, bool value);
+  void put_impl(double key, int value);
+  void put_impl(double key, long long value);
+  void put_impl(double key, double value);
+  void put_impl(double key, const char *value);
+  void put_impl(double key, const wchar_t *value);
+  void put_impl(double key, const String &value);
+  void put_impl(double key, const List &value);
+  void put_impl(double key, const Map &value);
+  void put_impl(double key, const Set &value);
+
+  void put_impl(const char *key, bool value);
+  void put_impl(const char *key, int value);
+  void put_impl(const char *key, long long value);
+  void put_impl(const char *key, double value);
+  void put_impl(const char *key, const char *value);
+  void put_impl(const char *key, const wchar_t *value);
+  void put_impl(const char *key, const String &value);
+  void put_impl(const char *key, const List &value);
+  void put_impl(const char *key, const Map &value);
+  void put_impl(const char *key, const Set &value);
+
+  void put_impl(const wchar_t *key, bool value);
+  void put_impl(const wchar_t *key, int value);
+  void put_impl(const wchar_t *key, long long value);
+  void put_impl(const wchar_t *key, double value);
+  void put_impl(const wchar_t *key, const char *value);
+  void put_impl(const wchar_t *key, const wchar_t *value);
+  void put_impl(const wchar_t *key, const String &value);
+  void put_impl(const wchar_t *key, const List &value);
+  void put_impl(const wchar_t *key, const Map &value);
+  void put_impl(const wchar_t *key, const Set &value);
+
+  void put_impl(const String &key, bool value);
+  void put_impl(const String &key, int value);
+  void put_impl(const String &key, long long value);
+  void put_impl(const String &key, double value);
+  void put_impl(const String &key, const char *value);
+  void put_impl(const String &key, const wchar_t *value);
+  void put_impl(const String &key, const String &value);
+  void put_impl(const String &key, const List &value);
+  void put_impl(const String &key, const Map &value);
+  void put_impl(const String &key, const Set &value);
+
+  void remove_impl(bool key);
+  void remove_impl(int key);
+  void remove_impl(long long key);
+  void remove_impl(double key);
+  void remove_impl(const char *key);
+  void remove_impl(const wchar_t *key);
+  void remove_impl(const String &key);
+};
+
+// Template implementations for Map
+template <typename K, typename V> inline Map &Map::put(K key, V value) {
+  put_impl(key, value);
+  return *this;
+}
+
+template <typename K> inline Map &Map::remove(K key) {
+  remove_impl(key);
+  return *this;
+}
+
+/// A set container that stores unique heterogeneous typed values.
+/// Values are exclusive (no duplicates). Insertion order is not guaranteed.
+/// All operations are thread-safe and handle errors gracefully without
+/// crashing.
+class Set {
+public:
+  /// Creates an empty set with initial capacity of 8 elements.
+  Set();
+
+  /// Creates an empty set with the specified initial capacity.
+  Set(int capacity);
+
+  /// Creates a deep copy of another set.
+  Set(const Set &other);
+
+  /// Creates a set from a list, removing duplicate values.
+  Set(const List &list);
+
+  /// Destroys the set and releases allocated memory.
+  ~Set();
+
+  /// Returns the number of unique values in the set.
+  int length() const;
+
+  /// Returns true if the set has no values.
+  bool isEmpty() const;
+
+  /// Adds one or more values to the set. Duplicates are ignored.
+  /// Returns a reference to this set for chaining.
+  template <typename T> Set &put(T value) {
+    put_impl(value);
+    return *this;
+  }
+
+  /// Returns true if the set contains the specified value.
+  template <typename T> bool contains(T value) const;
+
+  /// Removes the specified value from the set if it exists.
+  /// Returns a reference to this set for chaining.
+  template <typename T> Set &remove(T value) {
+    remove_impl(value);
+    return *this;
+  }
+
+  /// Removes all values from the set.
+  /// Returns a reference to this set for chaining.
+  Set &clear();
+
+  /// Adds all values from another set to this set.
+  /// Duplicates are automatically ignored.
+  /// Returns a reference to this set for chaining.
+  Set &merge(const Set &other);
+
+  /// Returns a deep copy of this set.
+  Set duplicate() const;
+
+  /// Returns a List containing all values from this set.
+  List toList() const;
+
+private:
+  SetImpl *impl;
+
+  // Implementation methods for different types
+  void put_impl(bool value);
+  void put_impl(int value);
+  void put_impl(long long value);
+  void put_impl(double value);
+  void put_impl(const char *value);
+  void put_impl(const wchar_t *value);
+  void put_impl(const String &value);
+  void put_impl(const List &value);
+  void put_impl(const Map &value);
+  void put_impl(const Set &value);
+
+  void remove_impl(bool value);
+  void remove_impl(int value);
+  void remove_impl(long long value);
+  void remove_impl(double value);
+  void remove_impl(const char *value);
+  void remove_impl(const wchar_t *value);
+  void remove_impl(const String &value);
 };
 
 /// Terminates the process immediately with the specified exit code.

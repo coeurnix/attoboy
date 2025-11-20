@@ -1,7 +1,8 @@
 #include "attoboy/attoboy.h"
 
+using namespace attoboy;
+
 void atto_main() {
-  using namespace attoboy;
 
   Log("=== Attoboy String Class Demo ===\n");
 

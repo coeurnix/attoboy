@@ -8,6 +8,8 @@ namespace attoboy {
 
 // Forward declaration for internal use
 struct ListImpl;
+class Map;
+class Set;
 
 struct ListItem {
   ValueType type;
@@ -18,6 +20,8 @@ struct ListItem {
     double doubleVal;
     String *stringVal;
     List *listVal;
+    void *mapVal;
+    void *setVal;
   };
 
   ListItem() : type(TYPE_NULL), intVal(0) {}
@@ -118,6 +122,20 @@ static inline void FreeList(List *list) {
   HeapFree(GetProcessHeap(), 0, list);
 }
 
+// Helper functions for Map allocation/deallocation without new/delete
+// Implemented in attolist_mapset.cpp as weak symbols to allow linker elimination
+// when Map/Set are not used
+__attribute__((weak)) Map *AllocMap();
+__attribute__((weak)) Map *AllocMap(const Map &other);
+__attribute__((weak)) void FreeMap(Map *map);
+
+// Helper functions for Set allocation/deallocation without new/delete
+// Implemented in attolist_mapset.cpp as weak symbols to allow linker elimination
+// when Map/Set are not used
+__attribute__((weak)) Set *AllocSet();
+__attribute__((weak)) Set *AllocSet(const Set &other);
+__attribute__((weak)) void FreeSet(Set *set);
+
 // Helper function to free a single item's contents
 static inline void FreeItemContents(ListItem *item) {
   if (!item)
@@ -128,6 +146,12 @@ static inline void FreeItemContents(ListItem *item) {
   } else if (item->type == TYPE_LIST && item->listVal) {
     FreeList(item->listVal);
     item->listVal = nullptr;
+  } else if (item->type == TYPE_MAP && item->mapVal) {
+    FreeMap((Map *)item->mapVal);
+    item->mapVal = nullptr;
+  } else if (item->type == TYPE_SET && item->setVal) {
+    FreeSet((Set *)item->setVal);
+    item->setVal = nullptr;
   }
   item->type = TYPE_NULL;
 }
