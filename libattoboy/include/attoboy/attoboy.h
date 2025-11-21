@@ -26,6 +26,7 @@ class ListImpl;
 class MapImpl;
 class SetImpl;
 class DateTimeImpl;
+class BufferImpl;
 
 // Forward declarations
 class List;
@@ -216,8 +217,6 @@ private:
 
 /// A dynamic array container that stores heterogeneous typed values.
 /// Supports storing bools, integers, doubles, strings, and nested lists.
-/// All operations are thread-safe and handle errors gracefully without
-/// crashing.
 class List {
 public:
   /// Creates an empty list with initial capacity of 8 elements.
@@ -233,8 +232,7 @@ public:
   List(const Set &set);
 
   /// Creates a list with the specified values appended in order.
-  template <typename... Args>
-  List(const Args &...args) : List() {
+  template <typename... Args> List(const Args &...args) : List() {
     variadic_append(args...);
   }
 
@@ -420,8 +418,6 @@ private:
 
 /// A key-value map container that stores heterogeneous typed keys and values.
 /// Keys must be unique (exclusive map). Insertion order is not guaranteed.
-/// All operations are thread-safe and handle errors gracefully without
-/// crashing.
 class Map {
 public:
   /// Creates an empty map with initial capacity of 8 key-value pairs.
@@ -435,8 +431,7 @@ public:
 
   /// Creates a map with alternating key-value pairs.
   /// If the number of arguments is odd, the last key gets a null value.
-  template <typename... Args>
-  Map(const Args &...args) : Map() {
+  template <typename... Args> Map(const Args &...args) : Map() {
     variadic_put_pairs(args...);
   }
 
@@ -604,8 +599,7 @@ private:
   }
 
   // Handle odd number of arguments - last key gets null value
-  template <typename K>
-  void variadic_put_pairs(const K &key) {
+  template <typename K> void variadic_put_pairs(const K &key) {
     put_impl(key, false); // Put with null/false value
   }
 
@@ -625,8 +619,6 @@ template <typename K> inline Map &Map::remove(K key) {
 
 /// A set container that stores unique heterogeneous typed values.
 /// Values are exclusive (no duplicates). Insertion order is not guaranteed.
-/// All operations are thread-safe and handle errors gracefully without
-/// crashing.
 class Set {
 public:
   /// Creates an empty set with initial capacity of 8 elements.
@@ -642,8 +634,7 @@ public:
   Set(const List &list);
 
   /// Creates a set with the specified values added.
-  template <typename... Args>
-  Set(const Args &...args) : Set() {
+  template <typename... Args> Set(const Args &...args) : Set() {
     variadic_put(args...);
   }
 
@@ -761,7 +752,8 @@ public:
   /// Creates a DateTime from milliseconds since Unix epoch (Jan 1, 1970).
   DateTime(long long millisSinceEpoch);
 
-  /// Creates a DateTime from an ISO-8601 formatted string (YYYY-MM-DDTHH:MM:SS.fffZ).
+  /// Creates a DateTime from an ISO-8601 formatted string
+  /// (YYYY-MM-DDTHH:MM:SS.fffZ).
   DateTime(const String &iso8601);
 
   /// Creates a deep copy of another DateTime.
@@ -797,11 +789,123 @@ public:
   /// Returns this DateTime as milliseconds since Unix epoch (Jan 1, 1970).
   long long timestamp() const;
 
-  /// Returns this DateTime as an ISO-8601 formatted string (YYYY-MM-DDTHH:MM:SS.fffZ).
+  /// Returns this DateTime as an ISO-8601 formatted string
+  /// (YYYY-MM-DDTHH:MM:SS.fffZ).
   String toString() const;
 
 private:
   DateTimeImpl *impl;
+};
+
+/// A mutable byte buffer class for storing and manipulating binary data.
+/// Dynamically expands as needed.
+class Buffer {
+public:
+  /// Creates an empty buffer with initial capacity of 512 bytes.
+  Buffer();
+
+  /// Creates an empty buffer with the specified initial capacity.
+  Buffer(int size);
+
+  /// Creates a buffer from a String, copying its underlying byte data.
+  Buffer(const String &str);
+
+  /// Creates a buffer by copying the specified number of bytes from a pointer.
+  Buffer(const void *ptr, int size);
+
+  /// Creates a deep copy of another buffer.
+  Buffer(const Buffer &other);
+
+  /// Destroys the buffer and releases allocated memory.
+  ~Buffer();
+
+  /// Assigns another buffer to this buffer (deep copy).
+  Buffer &operator=(const Buffer &other);
+
+  /// Returns the number of bytes currently stored in the buffer.
+  int length() const;
+
+  /// Returns true if the buffer contains no bytes.
+  bool isEmpty() const;
+
+  /// Removes all bytes from the buffer.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &clear();
+
+  /// Compares this buffer with another for equality.
+  /// Returns true if both buffers have the same length and byte contents.
+  bool compare(const Buffer &other) const;
+
+  /// Appends a string's byte data to the end of the buffer.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &append(const String &str);
+
+  /// Appends another buffer's contents to the end of this buffer.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &append(const Buffer &other);
+
+  /// Appends the specified number of bytes from a pointer to the buffer.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &append(const void *ptr, int size);
+
+  /// Prepends a string's byte data to the beginning of the buffer.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &prepend(const String &str);
+
+  /// Prepends another buffer's contents to the beginning of this buffer.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &prepend(const Buffer &other);
+
+  /// Prepends the specified number of bytes from a pointer to the buffer.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &prepend(const void *ptr, int size);
+
+  /// Inserts a string's byte data at the specified index.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &insert(int index, const String &str);
+
+  /// Inserts another buffer's contents at the specified index.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &insert(int index, const Buffer &other);
+
+  /// Inserts the specified number of bytes from a pointer at the given index.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &insert(int index, const void *ptr, int size);
+
+  /// Returns a new buffer containing bytes from start (inclusive) to end
+  /// (exclusive). If end is -1, slices to the end of the buffer.
+  Buffer slice(int start, int end = -1) const;
+
+  /// Removes bytes from start (inclusive) to end (exclusive).
+  /// If end is -1, removes to the end of the buffer.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &remove(int start, int end = -1);
+
+  /// Reverses the order of bytes in the buffer in-place.
+  /// Returns a reference to this buffer for chaining.
+  Buffer &reverse();
+
+  /// Converts the buffer's bytes to a String.
+  /// Interprets bytes as UTF-16LE wide characters.
+  String toString() const;
+
+  /// Returns a hash code for this buffer.
+  int hash() const;
+
+  /// Returns true if this buffer equals the other buffer.
+  bool operator==(const Buffer &other) const;
+
+  /// Returns true if this buffer does not equal the other buffer.
+  bool operator!=(const Buffer &other) const;
+
+  /// Returns a new buffer with the string's bytes appended.
+  Buffer operator+(const String &str) const;
+
+  /// Returns a new buffer with the other buffer's bytes appended.
+  Buffer operator+(const Buffer &other) const;
+
+private:
+  BufferImpl *impl;
 };
 
 /// Terminates the process immediately with the specified exit code.
