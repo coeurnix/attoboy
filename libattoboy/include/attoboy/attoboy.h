@@ -811,7 +811,7 @@ public:
   Buffer(const String &str);
 
   /// Creates a buffer by copying the specified number of bytes from a pointer.
-  Buffer(const void *ptr, int size);
+  Buffer(const unsigned char *ptr, int size);
 
   /// Creates a deep copy of another buffer.
   Buffer(const Buffer &other);
@@ -827,6 +827,11 @@ public:
 
   /// Returns true if the buffer contains no bytes.
   bool isEmpty() const;
+
+  /// Returns a pointer to the buffer's data and its size.
+  /// The returned pointer is const and should not be modified.
+  /// For empty buffers, returns nullptr and sets len to 0.
+  const unsigned char *c_ptr(int *len) const;
 
   /// Removes all bytes from the buffer.
   /// Returns a reference to this buffer for chaining.
@@ -846,7 +851,7 @@ public:
 
   /// Appends the specified number of bytes from a pointer to the buffer.
   /// Returns a reference to this buffer for chaining.
-  Buffer &append(const void *ptr, int size);
+  Buffer &append(const unsigned char *ptr, int size);
 
   /// Prepends a string's byte data to the beginning of the buffer.
   /// Returns a reference to this buffer for chaining.
@@ -858,7 +863,7 @@ public:
 
   /// Prepends the specified number of bytes from a pointer to the buffer.
   /// Returns a reference to this buffer for chaining.
-  Buffer &prepend(const void *ptr, int size);
+  Buffer &prepend(const unsigned char *ptr, int size);
 
   /// Inserts a string's byte data at the specified index.
   /// Returns a reference to this buffer for chaining.
@@ -870,7 +875,7 @@ public:
 
   /// Inserts the specified number of bytes from a pointer at the given index.
   /// Returns a reference to this buffer for chaining.
-  Buffer &insert(int index, const void *ptr, int size);
+  Buffer &insert(int index, const unsigned char *ptr, int size);
 
   /// Returns a new buffer containing bytes from start (inclusive) to end
   /// (exclusive). If end is -1, slices to the end of the buffer.
@@ -884,6 +889,18 @@ public:
   /// Reverses the order of bytes in the buffer in-place.
   /// Returns a reference to this buffer for chaining.
   Buffer &reverse();
+
+  /// Shrinks the buffer's capacity to match its current length, freeing unused
+  /// memory. Returns a reference to this buffer for chaining.
+  Buffer &trim();
+
+  /// Returns a new buffer containing the compressed version of this buffer's
+  /// data. Uses XPRESS Huffman compression for efficient compression.
+  Buffer compress() const;
+
+  /// Returns a new buffer containing the decompressed version of this buffer's
+  /// data. The buffer must contain data compressed with the compress() method.
+  Buffer decompress() const;
 
   /// Converts the buffer's bytes to a String.
   /// Interprets bytes as UTF-16LE wide characters.
@@ -936,8 +953,8 @@ long long Random();
 /// Returns a random double between 0.0 (inclusive) and 1.0 (exclusive).
 double RandomDouble();
 
-/// Returns a random long long integer between start (inclusive) and end (exclusive).
-/// If start >= end, returns start.
+/// Returns a random long long integer between start (inclusive) and end
+/// (exclusive). If start >= end, returns start.
 long long RandomRange(long long start, long long end);
 
 /// Returns a random boolean value (true or false).

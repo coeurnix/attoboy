@@ -47,7 +47,7 @@ Buffer &Buffer::append(const Buffer &other) {
   return *this;
 }
 
-Buffer &Buffer::append(const void *ptr, int size) {
+Buffer &Buffer::append(const unsigned char *ptr, int size) {
   if (!ptr || size <= 0)
     return *this;
 
@@ -56,9 +56,8 @@ Buffer &Buffer::append(const void *ptr, int size) {
   if (!EnsureBufferCapacity(impl, impl->size + size))
     return *this;
 
-  const unsigned char *src = (const unsigned char *)ptr;
   for (int i = 0; i < size; i++) {
-    impl->data[impl->size + i] = src[i];
+    impl->data[impl->size + i] = ptr[i];
   }
   impl->size += size;
 
@@ -118,7 +117,7 @@ Buffer &Buffer::prepend(const Buffer &other) {
   return *this;
 }
 
-Buffer &Buffer::prepend(const void *ptr, int size) {
+Buffer &Buffer::prepend(const unsigned char *ptr, int size) {
   if (!ptr || size <= 0)
     return *this;
 
@@ -131,9 +130,8 @@ Buffer &Buffer::prepend(const void *ptr, int size) {
     impl->data[i + size] = impl->data[i];
   }
 
-  const unsigned char *src = (const unsigned char *)ptr;
   for (int i = 0; i < size; i++) {
-    impl->data[i] = src[i];
+    impl->data[i] = ptr[i];
   }
   impl->size += size;
 
@@ -203,7 +201,7 @@ Buffer &Buffer::insert(int index, const Buffer &other) {
   return *this;
 }
 
-Buffer &Buffer::insert(int index, const void *ptr, int size) {
+Buffer &Buffer::insert(int index, const unsigned char *ptr, int size) {
   if (!ptr || size <= 0)
     return *this;
 
@@ -221,9 +219,8 @@ Buffer &Buffer::insert(int index, const void *ptr, int size) {
     impl->data[i + size] = impl->data[i];
   }
 
-  const unsigned char *src = (const unsigned char *)ptr;
   for (int i = 0; i < size; i++) {
-    impl->data[index + i] = src[i];
+    impl->data[index + i] = ptr[i];
   }
   impl->size += size;
 

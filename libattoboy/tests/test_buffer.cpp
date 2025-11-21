@@ -32,7 +32,7 @@ void atto_main() {
 
   // Test constructor from pointer
   const char data[] = {0x41, 0x00, 0x42, 0x00, 0x43, 0x00};
-  Buffer b4(data, 6);
+  Buffer b4(reinterpret_cast<const unsigned char *>(data), 6);
   TEST(b4.length() == 6, "Buffer from pointer should have 6 bytes");
   String s2 = b4.toString();
   TEST(s2 == "ABC", "Buffer with ABC bytes should convert to 'ABC'");
@@ -74,7 +74,7 @@ void atto_main() {
   // Test append with pointer
   Buffer b12;
   const char moreData[] = {0x58, 0x00, 0x59, 0x00};
-  b12.append(moreData, 4);
+  b12.append(reinterpret_cast<const unsigned char *>(moreData), 4);
   TEST(b12.length() == 4, "Appending 4 bytes should result in length 4");
   TEST(b12.toString() == "XY", "Appended bytes should form 'XY'");
 
@@ -93,7 +93,7 @@ void atto_main() {
   // Test prepend with pointer
   Buffer b16(String("Y"));
   const char prefix[] = {0x58, 0x00};
-  b16.prepend(prefix, 2);
+  b16.prepend(reinterpret_cast<const unsigned char *>(prefix), 2);
   TEST(b16.toString() == "XY", "Prepending bytes should work");
 
   // Test insert at start
@@ -116,7 +116,7 @@ void atto_main() {
   // Test insert with pointer (at wchar boundary)
   Buffer b21(String("AC"));
   const char insertData[] = {0x42, 0x00};
-  b21.insert(2, insertData, 2);
+  b21.insert(2, reinterpret_cast<const unsigned char *>(insertData), 2);
   TEST(b21.toString() == "ABC", "Inserting bytes should work");
 
   // Test slice
@@ -151,7 +151,8 @@ void atto_main() {
   Buffer b28(String("Test"));
   Buffer b29(String("Different"));
   TEST(b27.hash() == b28.hash(), "Equal buffers should have equal hashes");
-  TEST(b27.hash() != b29.hash(), "Different buffers should likely have different hashes");
+  TEST(b27.hash() != b29.hash(),
+       "Different buffers should likely have different hashes");
 
   // Test compare
   Buffer b30(String("Same"));
@@ -177,7 +178,7 @@ void atto_main() {
   Buffer b38(nullptr, 10);
   TEST(b38.isEmpty(), "Buffer from nullptr should be empty");
 
-  const char *nullPtr = nullptr;
+  const unsigned char *nullPtr = nullptr;
   Buffer b39;
   b39.append(nullPtr, 10);
   TEST(b39.isEmpty(), "Appending nullptr should not change buffer");

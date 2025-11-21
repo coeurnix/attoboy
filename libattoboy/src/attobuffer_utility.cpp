@@ -36,6 +36,18 @@ Buffer Buffer::operator+(const Buffer &other) const {
   return result;
 }
 
+const unsigned char *Buffer::c_ptr(int *len) const {
+  if (!impl || !len) {
+    if (len)
+      *len = 0;
+    return nullptr;
+  }
+
+  ReadLockGuard guard(&impl->lock);
+  *len = impl->size;
+  return impl->data;
+}
+
 String Buffer::toString() const {
   if (!impl) {
     return String();
@@ -53,8 +65,8 @@ String Buffer::toString() const {
     return String();
   }
 
-  wchar_t *temp = (wchar_t *)HeapAlloc(
-      GetProcessHeap(), HEAP_ZERO_MEMORY, (wcharCount + 1) * sizeof(wchar_t));
+  wchar_t *temp = (wchar_t *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+                                       (wcharCount + 1) * sizeof(wchar_t));
 
   if (!temp) {
     return String();

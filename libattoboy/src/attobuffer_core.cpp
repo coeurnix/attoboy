@@ -47,7 +47,7 @@ Buffer::Buffer(const String &str) {
   }
 }
 
-Buffer::Buffer(const void *ptr, int size) {
+Buffer::Buffer(const unsigned char *ptr, int size) {
   impl = (BufferImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(BufferImpl));
   InitializeSRWLock(&impl->lock);
