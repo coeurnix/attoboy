@@ -5,15 +5,18 @@ using namespace attoboy;
 void atto_main() {
   Log(ATTO_TEXT("=== Buffer Crypto Example ==="));
 
-  String message(ATTO_TEXT("Hello, World!"));
+  String message(ATTO_TEXT("Hello, World! This is a secret message."));
   Buffer buf(message);
 
   Log(ATTO_TEXT("Original: "), message);
 
-  Buffer encrypted = buf.encrypt();
-  Log(ATTO_TEXT("Encrypted (base64): "), encrypted.toString());
+  String key(ATTO_TEXT("12345678901234567890123456789012"));
+  String nonce(ATTO_TEXT("123456789012"));
 
-  Buffer decrypted = encrypted.decrypt();
+  Buffer encrypted = buf.crypt(key, nonce);
+  Log(ATTO_TEXT("Encrypted (base64): "), encrypted.toBase64());
+
+  Buffer decrypted = encrypted.crypt(key, nonce);
   Log(ATTO_TEXT("Decrypted: "), decrypted.toString());
 
   String base64 = buf.toBase64();

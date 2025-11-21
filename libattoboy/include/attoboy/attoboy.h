@@ -861,15 +861,18 @@ public:
   /// data. The buffer must contain data compressed with the compress() method.
   Buffer decompress() const;
 
-  /// Encrypts this buffer's data using Windows CryptoAPI and returns a new
-  /// encrypted Buffer. Uses CRYPT_STRING_BINARY format for maximum space
-  /// efficiency. Only suitable for basic use cases; consider proper
-  /// cryptographic libraries for production security.
-  Buffer encrypt() const;
-
-  /// Decrypts this buffer in-place, assuming it was encrypted with encrypt().
-  /// Returns a reference to this buffer for chaining.
-  Buffer &decrypt();
+  /// Encrypts or decrypts the buffer using the ChaCha20 stream cipher. The
+  /// operation is symmetric: applying it twice with the same key and nonce
+  /// restores the original data. Returns a new Buffer containing the
+  /// transformed data.
+  ///
+  /// The key must be a String or Buffer of at least 32 bytes (256 bits).
+  /// The nonce must be a String or Buffer of at least 12 bytes (96 bits).
+  /// shorter input fails and returns an empty Buffer.
+  Buffer crypt(const String &key, const String &nonce) const;
+  Buffer crypt(const String &key, const Buffer &nonce) const;
+  Buffer crypt(const Buffer &key, const String &nonce) const;
+  Buffer crypt(const Buffer &key, const Buffer &nonce) const;
 
   /// Converts the buffer's binary data to standard Base64-encoded text and
   /// returns it as a String. The resulting string is printable ASCII that can

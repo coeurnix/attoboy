@@ -16,14 +16,19 @@ void atto_main() {
   {
     String original(ATTO_TEXT("Hello, World!"));
     Buffer buf(original);
-    Buffer encrypted = buf.encrypt();
+    String key(ATTO_TEXT("12345678901234567890123456789012"));
+    String nonce(ATTO_TEXT("123456789012"));
+
+    Buffer encrypted = buf.crypt(key, nonce);
     TEST(!encrypted.isEmpty(),
          ATTO_TEXT("Encrypted buffer should not be empty"));
-
-    encrypted.decrypt();
     TEST(encrypted.length() == buf.length(),
+         ATTO_TEXT("Encrypted buffer size should match original"));
+
+    Buffer decrypted = encrypted.crypt(key, nonce);
+    TEST(decrypted.length() == buf.length(),
          ATTO_TEXT("Decrypted buffer size should match original"));
-    TEST(buf.compare(encrypted),
+    TEST(buf.compare(decrypted),
          ATTO_TEXT("Decrypted buffer should match original"));
   }
 
@@ -41,9 +46,71 @@ void atto_main() {
 
   {
     Buffer empty;
-    Buffer encrypted = empty.encrypt();
+    String key(ATTO_TEXT("12345678901234567890123456789012"));
+    String nonce(ATTO_TEXT("123456789012"));
+    Buffer encrypted = empty.crypt(key, nonce);
     TEST(encrypted.isEmpty(),
          ATTO_TEXT("Encrypting empty buffer should return empty buffer"));
+  }
+
+  {
+    String original(ATTO_TEXT("Test message"));
+    Buffer buf(original);
+    String shortKey(ATTO_TEXT("short"));
+    String nonce(ATTO_TEXT("123456789012"));
+    Buffer encrypted = buf.crypt(shortKey, nonce);
+    TEST(encrypted.isEmpty(),
+         ATTO_TEXT("Encryption with short key should fail"));
+  }
+
+  {
+    String original(ATTO_TEXT("Test message"));
+    Buffer buf(original);
+    String key(ATTO_TEXT("12345678901234567890123456789012"));
+    String shortNonce(ATTO_TEXT("short"));
+    Buffer encrypted = buf.crypt(key, shortNonce);
+    TEST(encrypted.isEmpty(),
+         ATTO_TEXT("Encryption with short nonce should fail"));
+  }
+
+  {
+    String original(ATTO_TEXT("ChaCha20 test vector"));
+    Buffer buf(original);
+
+    unsigned char keyBytes[32];
+    for (int i = 0; i < 32; i++) {
+      keyBytes[i] = (unsigned char)i;
+    }
+    Buffer keyBuf(keyBytes, 32);
+
+    unsigned char nonceBytes[12];
+    for (int i = 0; i < 12; i++) {
+      nonceBytes[i] = (unsigned char)(i * 2);
+    }
+    Buffer nonceBuf(nonceBytes, 12);
+
+    Buffer encrypted = buf.crypt(keyBuf, nonceBuf);
+    TEST(!encrypted.isEmpty(),
+         ATTO_TEXT("Buffer-to-buffer encryption should work"));
+
+    Buffer decrypted = encrypted.crypt(keyBuf, nonceBuf);
+    TEST(buf.compare(decrypted),
+         ATTO_TEXT("Buffer-to-buffer decryption should match original"));
+  }
+
+  {
+    String msg1(ATTO_TEXT("Message one"));
+    String msg2(ATTO_TEXT("Message one"));
+    Buffer buf1(msg1);
+    Buffer buf2(msg2);
+    String key(ATTO_TEXT("12345678901234567890123456789012"));
+    String nonce(ATTO_TEXT("123456789012"));
+
+    Buffer enc1 = buf1.crypt(key, nonce);
+    Buffer enc2 = buf2.crypt(key, nonce);
+
+    TEST(enc1.compare(enc2),
+         ATTO_TEXT("Same message with same key/nonce produces same ciphertext"));
   }
 
   {

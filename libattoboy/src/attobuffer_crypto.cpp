@@ -2,6 +2,113 @@
 
 namespace attoboy {
 
+static inline unsigned int rotl32(unsigned int x, int n) {
+  return (x << n) | (x >> (32 - n));
+}
+
+static void chacha20_quarter_round(unsigned int &a, unsigned int &b,
+                                    unsigned int &c, unsigned int &d) {
+  a += b;
+  d ^= a;
+  d = rotl32(d, 16);
+  c += d;
+  b ^= c;
+  b = rotl32(b, 12);
+  a += b;
+  d ^= a;
+  d = rotl32(d, 8);
+  c += d;
+  b ^= c;
+  b = rotl32(b, 7);
+}
+
+static void chacha20_block(const unsigned int key[8],
+                            const unsigned int nonce[3], unsigned int counter,
+                            unsigned char output[64]) {
+  unsigned int state[16];
+
+  state[0] = 0x61707865;
+  state[1] = 0x3320646e;
+  state[2] = 0x79622d32;
+  state[3] = 0x6b206574;
+
+  for (int i = 0; i < 8; i++) {
+    state[4 + i] = key[i];
+  }
+
+  state[12] = counter;
+  state[13] = nonce[0];
+  state[14] = nonce[1];
+  state[15] = nonce[2];
+
+  unsigned int working[16];
+  for (int i = 0; i < 16; i++) {
+    working[i] = state[i];
+  }
+
+  for (int i = 0; i < 10; i++) {
+    chacha20_quarter_round(working[0], working[4], working[8], working[12]);
+    chacha20_quarter_round(working[1], working[5], working[9], working[13]);
+    chacha20_quarter_round(working[2], working[6], working[10], working[14]);
+    chacha20_quarter_round(working[3], working[7], working[11], working[15]);
+    chacha20_quarter_round(working[0], working[5], working[10], working[15]);
+    chacha20_quarter_round(working[1], working[6], working[11], working[12]);
+    chacha20_quarter_round(working[2], working[7], working[8], working[13]);
+    chacha20_quarter_round(working[3], working[4], working[9], working[14]);
+  }
+
+  for (int i = 0; i < 16; i++) {
+    working[i] += state[i];
+  }
+
+  for (int i = 0; i < 16; i++) {
+    output[i * 4 + 0] = (unsigned char)(working[i] >> 0);
+    output[i * 4 + 1] = (unsigned char)(working[i] >> 8);
+    output[i * 4 + 2] = (unsigned char)(working[i] >> 16);
+    output[i * 4 + 3] = (unsigned char)(working[i] >> 24);
+  }
+}
+
+static void chacha20_crypt(const unsigned char *key, const unsigned char *nonce,
+                            const unsigned char *input, unsigned char *output,
+                            int length) {
+  unsigned int keyInts[8];
+  for (int i = 0; i < 8; i++) {
+    keyInts[i] = ((unsigned int)key[i * 4 + 0] << 0) |
+                 ((unsigned int)key[i * 4 + 1] << 8) |
+                 ((unsigned int)key[i * 4 + 2] << 16) |
+                 ((unsigned int)key[i * 4 + 3] << 24);
+  }
+
+  unsigned int nonceInts[3];
+  for (int i = 0; i < 3; i++) {
+    nonceInts[i] = ((unsigned int)nonce[i * 4 + 0] << 0) |
+                   ((unsigned int)nonce[i * 4 + 1] << 8) |
+                   ((unsigned int)nonce[i * 4 + 2] << 16) |
+                   ((unsigned int)nonce[i * 4 + 3] << 24);
+  }
+
+  unsigned int counter = 0;
+  int offset = 0;
+
+  while (offset < length) {
+    unsigned char block[64];
+    chacha20_block(keyInts, nonceInts, counter, block);
+
+    int blockSize = 64;
+    if (offset + blockSize > length) {
+      blockSize = length - offset;
+    }
+
+    for (int i = 0; i < blockSize; i++) {
+      output[offset + i] = input[offset + i] ^ block[i];
+    }
+
+    offset += blockSize;
+    counter++;
+  }
+}
+
 static const unsigned char base64_table[65] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -177,71 +284,142 @@ Buffer Buffer::fromBase64(const String &base64String) {
   return result;
 }
 
-Buffer Buffer::encrypt() const {
-  Buffer result;
-  if (!impl || impl->size == 0) {
-    return result;
+static void crypt_impl(BufferImpl *resultImpl, const BufferImpl *bufImpl,
+                       const unsigned char *keyBytes, int keyLen,
+                       const unsigned char *nonceBytes, int nonceLen) {
+  if (!bufImpl || bufImpl->size == 0 || !resultImpl) {
+    return;
   }
 
-  ReadLockGuard guard(&impl->lock);
-  WriteLockGuard resultGuard(&result.impl->lock);
-
-  int outputSize = impl->size * 2;
-  if (result.impl->capacity < outputSize) {
-    FreeBufferData(result.impl->data);
-    result.impl->data = AllocBufferData(outputSize);
-    result.impl->capacity = outputSize;
+  if (keyLen < 32 || nonceLen < 12) {
+    return;
   }
 
-  if (!result.impl->data) {
-    return result;
+  ReadLockGuard guard(&bufImpl->lock);
+
+  int outputSize = bufImpl->size;
+  if (!EnsureBufferCapacity(resultImpl, outputSize)) {
+    return;
   }
 
-  static const unsigned char hexDigits[] = "0123456789ABCDEF";
-  for (int i = 0; i < impl->size; i++) {
-    unsigned char byte = impl->data[i];
-    result.impl->data[i * 2] = hexDigits[byte >> 4];
-    result.impl->data[i * 2 + 1] = hexDigits[byte & 0x0F];
-  }
-
-  result.impl->size = outputSize;
-  return result;
+  chacha20_crypt(keyBytes, nonceBytes, bufImpl->data, resultImpl->data,
+                 outputSize);
+  resultImpl->size = outputSize;
 }
 
-Buffer &Buffer::decrypt() {
-  if (!impl || impl->size == 0 || (impl->size % 2) != 0) {
-    return *this;
+Buffer Buffer::crypt(const String &key, const String &nonce) const {
+  Buffer result;
+  if (!impl) {
+    return result;
   }
 
-  WriteLockGuard guard(&impl->lock);
+#ifdef UNICODE
+  int keyByteLen = key.length();
+  int nonceByteLen = nonce.length();
 
-  int outputSize = impl->size / 2;
+  unsigned char *keyBytes = (unsigned char *)Alloc(keyByteLen);
+  unsigned char *nonceBytes = (unsigned char *)Alloc(nonceByteLen);
 
-  for (int i = 0; i < outputSize; i++) {
-    unsigned char highNibble = impl->data[i * 2];
-    unsigned char lowNibble = impl->data[i * 2 + 1];
-
-    unsigned char highValue, lowValue;
-
-    if (highNibble >= '0' && highNibble <= '9')
-      highValue = highNibble - '0';
-    else if (highNibble >= 'A' && highNibble <= 'F')
-      highValue = highNibble - 'A' + 10;
-    else
-      return *this;
-
-    if (lowNibble >= '0' && lowNibble <= '9')
-      lowValue = lowNibble - '0';
-    else if (lowNibble >= 'A' && lowNibble <= 'F')
-      lowValue = lowNibble - 'A' + 10;
-    else
-      return *this;
-
-    impl->data[i] = (highValue << 4) | lowValue;
+  if (!keyBytes || !nonceBytes) {
+    Free(keyBytes);
+    Free(nonceBytes);
+    return result;
   }
 
-  impl->size = outputSize;
-  return *this;
+  const wchar_t *keyStr = key.c_str();
+  const wchar_t *nonceStr = nonce.c_str();
+
+  for (int i = 0; i < keyByteLen; i++) {
+    keyBytes[i] = (unsigned char)(keyStr[i] & 0xFF);
+  }
+  for (int i = 0; i < nonceByteLen; i++) {
+    nonceBytes[i] = (unsigned char)(nonceStr[i] & 0xFF);
+  }
+
+  crypt_impl(result.impl, impl, keyBytes, keyByteLen, nonceBytes, nonceByteLen);
+
+  Free(keyBytes);
+  Free(nonceBytes);
+
+  return result;
+#else
+  crypt_impl(result.impl, impl, (const unsigned char *)key.c_str(), key.length(),
+             (const unsigned char *)nonce.c_str(), nonce.length());
+  return result;
+#endif
+}
+
+Buffer Buffer::crypt(const String &key, const Buffer &nonce) const {
+  Buffer result;
+  if (!impl || !nonce.impl) {
+    return result;
+  }
+
+#ifdef UNICODE
+  int keyByteLen = key.length();
+
+  unsigned char *keyBytes = (unsigned char *)Alloc(keyByteLen);
+  if (!keyBytes) {
+    return result;
+  }
+
+  const wchar_t *keyStr = key.c_str();
+  for (int i = 0; i < keyByteLen; i++) {
+    keyBytes[i] = (unsigned char)(keyStr[i] & 0xFF);
+  }
+
+  crypt_impl(result.impl, impl, keyBytes, keyByteLen, nonce.impl->data,
+             nonce.impl->size);
+
+  Free(keyBytes);
+  return result;
+#else
+  crypt_impl(result.impl, impl, (const unsigned char *)key.c_str(), key.length(),
+             nonce.impl->data, nonce.impl->size);
+  return result;
+#endif
+}
+
+Buffer Buffer::crypt(const Buffer &key, const String &nonce) const {
+  Buffer result;
+  if (!impl || !key.impl) {
+    return result;
+  }
+
+#ifdef UNICODE
+  int nonceByteLen = nonce.length();
+
+  unsigned char *nonceBytes = (unsigned char *)Alloc(nonceByteLen);
+  if (!nonceBytes) {
+    return result;
+  }
+
+  const wchar_t *nonceStr = nonce.c_str();
+  for (int i = 0; i < nonceByteLen; i++) {
+    nonceBytes[i] = (unsigned char)(nonceStr[i] & 0xFF);
+  }
+
+  crypt_impl(result.impl, impl, key.impl->data, key.impl->size, nonceBytes,
+             nonceByteLen);
+
+  Free(nonceBytes);
+  return result;
+#else
+  crypt_impl(result.impl, impl, key.impl->data, key.impl->size,
+             (const unsigned char *)nonce.c_str(), nonce.length());
+  return result;
+#endif
+}
+
+Buffer Buffer::crypt(const Buffer &key, const Buffer &nonce) const {
+  Buffer result;
+  if (!impl || !key.impl || !nonce.impl) {
+    return result;
+  }
+
+  crypt_impl(result.impl, impl, key.impl->data, key.impl->size, nonce.impl->data,
+             nonce.impl->size);
+  return result;
 }
 
 } // namespace attoboy
