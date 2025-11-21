@@ -23,11 +23,8 @@ String String::join(const List &list) const {
     case TYPE_INT:
       element = String(list.at<int>(i));
       break;
-    case TYPE_LONG_LONG:
-      element = String(list.at<long long>(i));
-      break;
-    case TYPE_DOUBLE:
-      element = String(list.at<double>(i));
+    case TYPE_FLOAT:
+      element = String(list.at<float>(i));
       break;
     case TYPE_STRING:
       element = list.at<String>(i);

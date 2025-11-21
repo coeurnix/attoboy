@@ -11,7 +11,7 @@ void atto_main() {
       " Bool: ", true);
 
   // Test 3: Log with numeric types
-  Log("Test 3: Numbers - ", 123, " ", 45.67, " ", -99);
+  Log("Test 3: Numbers - ", 123, " ", 45.67f, " ", -99);
 
   // Test 4: LogInfo (should work with default INFO level)
   LogInfo("Test 4: Info message");

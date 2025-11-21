@@ -51,11 +51,8 @@ Set::Set(const List &list) {
     case TYPE_INT:
       put_impl(list.at<int>(i));
       break;
-    case TYPE_LONG_LONG:
-      put_impl(list.at<long long>(i));
-      break;
-    case TYPE_DOUBLE:
-      put_impl(list.at<double>(i));
+    case TYPE_FLOAT:
+      put_impl(list.at<float>(i));
       break;
     case TYPE_STRING:
       put_impl(list.at<String>(i));
@@ -144,11 +141,8 @@ Set &Set::setUnion(const Set &other) {
     case TYPE_INT:
       put_impl(otherValues.at<int>(i));
       break;
-    case TYPE_LONG_LONG:
-      put_impl(otherValues.at<long long>(i));
-      break;
-    case TYPE_DOUBLE:
-      put_impl(otherValues.at<double>(i));
+    case TYPE_FLOAT:
+      put_impl(otherValues.at<float>(i));
       break;
     case TYPE_STRING:
       put_impl(otherValues.at<String>(i));
@@ -196,15 +190,10 @@ Set &Set::intersect(const Set &other) {
       if (shouldKeep)
         put_impl(currentValues.at<int>(i));
       break;
-    case TYPE_LONG_LONG:
-      shouldKeep = other.contains<long long>(currentValues.at<long long>(i));
+    case TYPE_FLOAT:
+      shouldKeep = other.contains<float>(currentValues.at<float>(i));
       if (shouldKeep)
-        put_impl(currentValues.at<long long>(i));
-      break;
-    case TYPE_DOUBLE:
-      shouldKeep = other.contains<double>(currentValues.at<double>(i));
-      if (shouldKeep)
-        put_impl(currentValues.at<double>(i));
+        put_impl(currentValues.at<float>(i));
       break;
     case TYPE_STRING:
       shouldKeep = other.contains<String>(currentValues.at<String>(i));
@@ -240,11 +229,8 @@ Set &Set::subtract(const Set &other) {
     case TYPE_INT:
       remove_impl(otherValues.at<int>(i));
       break;
-    case TYPE_LONG_LONG:
-      remove_impl(otherValues.at<long long>(i));
-      break;
-    case TYPE_DOUBLE:
-      remove_impl(otherValues.at<double>(i));
+    case TYPE_FLOAT:
+      remove_impl(otherValues.at<float>(i));
       break;
     case TYPE_STRING:
       remove_impl(otherValues.at<String>(i));

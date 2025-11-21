@@ -28,8 +28,8 @@ void atto_main() {
   Log("");
   Log("=== Random Number Generation Example ===");
 
-  Log("Random long long: ", Random());
-  Log("Random double [0, 1): ", RandomDouble());
+  Log("Random int: ", static_cast<int>(Random()));
+  Log("Random float [0, 1): ", RandomFloat());
   Log("Random range [10, 20): ", RandomRange(10, 20));
   Log("Random bool: ", RandomBool() ? "true" : "false");
 

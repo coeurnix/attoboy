@@ -129,12 +129,12 @@ void atto_main() {
 
   // Test String(list) - JSON
   List jsonList;
-  jsonList.append("hello").append(42).append(true).append(3.14);
+  jsonList.append("hello").append(42).append(true).append(3.14f);
   String jsonListStr(jsonList);
   TEST(jsonListStr.contains("\"hello\""), "String(list) should quote strings");
   TEST(jsonListStr.contains("42"), "String(list) should include integers");
   TEST(jsonListStr.contains("true"), "String(list) should include booleans");
-  TEST(jsonListStr.contains("3.1"), "String(list) should include doubles");
+  TEST(jsonListStr.contains("3.1"), "String(list) should include floats");
   TEST(jsonListStr.startsWith("["), "String(list) should start with [");
   TEST(jsonListStr.endsWith("]"), "String(list) should end with ]");
 
@@ -143,7 +143,7 @@ void atto_main() {
   innerList.append(1).append(2);
   nestedList.append("outer").append(innerList);
   String jsonNested(nestedList);
-  TEST(jsonNested.contains("[1,2]") || jsonNested.contains("[1.0,2.0]"),
+  TEST(jsonNested.contains("[1,2]") || jsonNested.contains("[1,2]"),
        "String(list) should handle nested lists");
 
   // Test String(map) - JSON

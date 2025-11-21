@@ -28,7 +28,7 @@ template <> int Map::get<bool, int>(bool key, int defaultValue) const {
 }
 
 template <>
-long long Map::get<bool, long long>(bool key, long long defaultValue) const {
+float Map::get<bool, float>(bool key, float defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
@@ -37,20 +37,7 @@ long long Map::get<bool, long long>(bool key, long long defaultValue) const {
   if (index < 0)
     return defaultValue;
 
-  return impl->values.at<long long>(index);
-}
-
-template <>
-double Map::get<bool, double>(bool key, double defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<bool>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<double>(index);
+  return impl->values.at<float>(index);
 }
 
 template <>
@@ -127,7 +114,7 @@ template <> int Map::get<int, int>(int key, int defaultValue) const {
 }
 
 template <>
-long long Map::get<int, long long>(int key, long long defaultValue) const {
+float Map::get<int, float>(int key, float defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
@@ -136,19 +123,7 @@ long long Map::get<int, long long>(int key, long long defaultValue) const {
   if (index < 0)
     return defaultValue;
 
-  return impl->values.at<long long>(index);
-}
-
-template <> double Map::get<int, double>(int key, double defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<int>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<double>(index);
+  return impl->values.at<float>(index);
 }
 
 template <>
@@ -201,25 +176,24 @@ template <> Set Map::get<int, Set>(int key, Set defaultValue) const {
 }
 
 template <>
-bool Map::get<long long, bool>(long long key, bool defaultValue) const {
+bool Map::get<float, bool>(float key, bool defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<long long>(key);
+  int index = impl->keys.find<float>(key);
   if (index < 0)
     return defaultValue;
 
   return impl->values.at<bool>(index);
 }
 
-template <>
-int Map::get<long long, int>(long long key, int defaultValue) const {
+template <> int Map::get<float, int>(float key, int defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<long long>(key);
+  int index = impl->keys.find<float>(key);
   if (index < 0)
     return defaultValue;
 
@@ -227,178 +201,61 @@ int Map::get<long long, int>(long long key, int defaultValue) const {
 }
 
 template <>
-long long Map::get<long long, long long>(long long key,
-                                         long long defaultValue) const {
+float Map::get<float, float>(float key, float defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<long long>(key);
+  int index = impl->keys.find<float>(key);
   if (index < 0)
     return defaultValue;
 
-  return impl->values.at<long long>(index);
+  return impl->values.at<float>(index);
 }
 
 template <>
-double Map::get<long long, double>(long long key, double defaultValue) const {
+String Map::get<float, String>(float key, String defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<long long>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<double>(index);
-}
-
-template <>
-String Map::get<long long, String>(long long key, String defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<long long>(key);
+  int index = impl->keys.find<float>(key);
   if (index < 0)
     return defaultValue;
 
   return impl->values.at<String>(index);
 }
 
-template <>
-List Map::get<long long, List>(long long key, List defaultValue) const {
+template <> List Map::get<float, List>(float key, List defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<long long>(key);
+  int index = impl->keys.find<float>(key);
   if (index < 0)
     return defaultValue;
 
   return impl->values.at<List>(index);
 }
 
-template <>
-Map Map::get<long long, Map>(long long key, Map defaultValue) const {
+template <> Map Map::get<float, Map>(float key, Map defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<long long>(key);
+  int index = impl->keys.find<float>(key);
   if (index < 0)
     return defaultValue;
 
   return impl->values.at<Map>(index);
 }
 
-template <>
-Set Map::get<long long, Set>(long long key, Set defaultValue) const {
+template <> Set Map::get<float, Set>(float key, Set defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<long long>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<Set>(index);
-}
-
-template <>
-bool Map::get<double, bool>(double key, bool defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<double>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<bool>(index);
-}
-
-template <> int Map::get<double, int>(double key, int defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<double>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<int>(index);
-}
-
-template <>
-long long Map::get<double, long long>(double key, long long defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<double>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<long long>(index);
-}
-
-template <>
-double Map::get<double, double>(double key, double defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<double>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<double>(index);
-}
-
-template <>
-String Map::get<double, String>(double key, String defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<double>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<String>(index);
-}
-
-template <> List Map::get<double, List>(double key, List defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<double>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<List>(index);
-}
-
-template <> Map Map::get<double, Map>(double key, Map defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<double>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<Map>(index);
-}
-
-template <> Set Map::get<double, Set>(double key, Set defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<double>(key);
+  int index = impl->keys.find<float>(key);
   if (index < 0)
     return defaultValue;
 
@@ -431,7 +288,7 @@ template <> int Map::get<String, int>(String key, int defaultValue) const {
 }
 
 template <>
-long long Map::get<String, long long>(String key, long long defaultValue) const {
+float Map::get<String, float>(String key, float defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
@@ -440,20 +297,7 @@ long long Map::get<String, long long>(String key, long long defaultValue) const 
   if (index < 0)
     return defaultValue;
 
-  return impl->values.at<long long>(index);
-}
-
-template <>
-double Map::get<String, double>(String key, double defaultValue) const {
-  if (!impl)
-    return defaultValue;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<String>(key);
-  if (index < 0)
-    return defaultValue;
-
-  return impl->values.at<double>(index);
+  return impl->values.at<float>(index);
 }
 
 template <>
@@ -520,18 +364,11 @@ template <> bool Map::hasKey<int>(int key) const {
   return impl->keys.find<int>(key) >= 0;
 }
 
-template <> bool Map::hasKey<long long>(long long key) const {
+template <> bool Map::hasKey<float>(float key) const {
   if (!impl)
     return false;
   ReadLockGuard guard(&impl->lock);
-  return impl->keys.find<long long>(key) >= 0;
-}
-
-template <> bool Map::hasKey<double>(double key) const {
-  if (!impl)
-    return false;
-  ReadLockGuard guard(&impl->lock);
-  return impl->keys.find<double>(key) >= 0;
+  return impl->keys.find<float>(key) >= 0;
 }
 
 template <> bool Map::hasKey<String>(String key) const {
@@ -580,24 +417,12 @@ template <> ValueType Map::typeAt<int>(int key) const {
   return impl->values.typeAt(index);
 }
 
-template <> ValueType Map::typeAt<long long>(long long key) const {
+template <> ValueType Map::typeAt<float>(float key) const {
   if (!impl)
     return TYPE_INVALID;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<long long>(key);
-  if (index < 0)
-    return TYPE_INVALID;
-
-  return impl->values.typeAt(index);
-}
-
-template <> ValueType Map::typeAt<double>(double key) const {
-  if (!impl)
-    return TYPE_INVALID;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<double>(key);
+  int index = impl->keys.find<float>(key);
   if (index < 0)
     return TYPE_INVALID;
 
@@ -665,28 +490,16 @@ template <> int Map::findValue<int, bool>(bool value) const {
   return impl->keys.at<int>(index);
 }
 
-template <> long long Map::findValue<long long, bool>(bool value) const {
+template <> float Map::findValue<float, bool>(bool value) const {
   if (!impl)
-    return 0LL;
+    return 0.0f;
   ReadLockGuard guard(&impl->lock);
 
   int index = impl->values.find<bool>(value);
   if (index < 0)
-    return 0LL;
+    return 0.0f;
 
-  return impl->keys.at<long long>(index);
-}
-
-template <> double Map::findValue<double, bool>(bool value) const {
-  if (!impl)
-    return 0.0;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->values.find<bool>(value);
-  if (index < 0)
-    return 0.0;
-
-  return impl->keys.at<double>(index);
+  return impl->keys.at<float>(index);
 }
 
 template <> String Map::findValue<String, bool>(bool value) const {
@@ -725,28 +538,16 @@ template <> int Map::findValue<int, int>(int value) const {
   return impl->keys.at<int>(index);
 }
 
-template <> long long Map::findValue<long long, int>(int value) const {
+template <> float Map::findValue<float, int>(int value) const {
   if (!impl)
-    return 0LL;
+    return 0.0f;
   ReadLockGuard guard(&impl->lock);
 
   int index = impl->values.find<int>(value);
   if (index < 0)
-    return 0LL;
+    return 0.0f;
 
-  return impl->keys.at<long long>(index);
-}
-
-template <> double Map::findValue<double, int>(int value) const {
-  if (!impl)
-    return 0.0;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->values.find<int>(value);
-  if (index < 0)
-    return 0.0;
-
-  return impl->keys.at<double>(index);
+  return impl->keys.at<float>(index);
 }
 
 template <> String Map::findValue<String, int>(int value) const {
@@ -761,121 +562,48 @@ template <> String Map::findValue<String, int>(int value) const {
   return impl->keys.at<String>(index);
 }
 
-template <> bool Map::findValue<bool, long long>(long long value) const {
+template <> bool Map::findValue<bool, float>(float value) const {
   if (!impl)
     return false;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->values.find<long long>(value);
-  if (index < 0)
-    return false;
-
-  return impl->keys.at<bool>(index);
-}
-
-template <> int Map::findValue<int, long long>(long long value) const {
-  if (!impl)
-    return 0;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->values.find<long long>(value);
-  if (index < 0)
-    return 0;
-
-  return impl->keys.at<int>(index);
-}
-
-template <>
-long long Map::findValue<long long, long long>(long long value) const {
-  if (!impl)
-    return 0LL;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->values.find<long long>(value);
-  if (index < 0)
-    return 0LL;
-
-  return impl->keys.at<long long>(index);
-}
-
-template <> double Map::findValue<double, long long>(long long value) const {
-  if (!impl)
-    return 0.0;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->values.find<long long>(value);
-  if (index < 0)
-    return 0.0;
-
-  return impl->keys.at<double>(index);
-}
-
-template <> String Map::findValue<String, long long>(long long value) const {
-  if (!impl)
-    return String();
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->values.find<long long>(value);
-  if (index < 0)
-    return String();
-
-  return impl->keys.at<String>(index);
-}
-
-template <> bool Map::findValue<bool, double>(double value) const {
-  if (!impl)
-    return false;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->values.find<double>(value);
+  int index = impl->values.find<float>(value);
   if (index < 0)
     return false;
 
   return impl->keys.at<bool>(index);
 }
 
-template <> int Map::findValue<int, double>(double value) const {
+template <> int Map::findValue<int, float>(float value) const {
   if (!impl)
     return 0;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->values.find<double>(value);
+  int index = impl->values.find<float>(value);
   if (index < 0)
     return 0;
 
   return impl->keys.at<int>(index);
 }
 
-template <> long long Map::findValue<long long, double>(double value) const {
+template <> float Map::findValue<float, float>(float value) const {
   if (!impl)
-    return 0LL;
+    return 0.0f;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->values.find<double>(value);
+  int index = impl->values.find<float>(value);
   if (index < 0)
-    return 0LL;
+    return 0.0f;
 
-  return impl->keys.at<long long>(index);
+  return impl->keys.at<float>(index);
 }
 
-template <> double Map::findValue<double, double>(double value) const {
-  if (!impl)
-    return 0.0;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->values.find<double>(value);
-  if (index < 0)
-    return 0.0;
-
-  return impl->keys.at<double>(index);
-}
-
-template <> String Map::findValue<String, double>(double value) const {
+template <> String Map::findValue<String, float>(float value) const {
   if (!impl)
     return String();
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->values.find<double>(value);
+  int index = impl->values.find<float>(value);
   if (index < 0)
     return String();
 
@@ -906,29 +634,7 @@ template <> int Map::findValue<int, String>(String value) const {
   return impl->keys.at<int>(index);
 }
 
-template <> long long Map::findValue<long long, String>(String value) const {
-  if (!impl)
-    return 0LL;
-  ReadLockGuard guard(&impl->lock);
 
-  int index = impl->values.find<String>(value);
-  if (index < 0)
-    return 0LL;
-
-  return impl->keys.at<long long>(index);
-}
-
-template <> double Map::findValue<double, String>(String value) const {
-  if (!impl)
-    return 0.0;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->values.find<String>(value);
-  if (index < 0)
-    return 0.0;
-
-  return impl->keys.at<double>(index);
-}
 
 template <> String Map::findValue<String, String>(String value) const {
   if (!impl)
@@ -967,24 +673,12 @@ void Map::remove_impl(int key) {
   }
 }
 
-void Map::remove_impl(long long key) {
+void Map::remove_impl(float key) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<long long>(key);
-  if (index >= 0) {
-    impl->keys.remove(index);
-    impl->values.remove(index);
-  }
-}
-
-void Map::remove_impl(double key) {
-  if (!impl)
-    return;
-  WriteLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<double>(key);
+  int index = impl->keys.find<float>(key);
   if (index >= 0) {
     impl->keys.remove(index);
     impl->values.remove(index);

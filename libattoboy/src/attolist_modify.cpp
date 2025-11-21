@@ -38,7 +38,7 @@ void List::prepend_impl(int value) {
   impl->size++;
 }
 
-void List::prepend_impl(long long value) {
+void List::prepend_impl(float value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
@@ -50,25 +50,8 @@ void List::prepend_impl(long long value) {
     impl->items[i] = impl->items[i - 1];
   }
 
-  impl->items[0].type = TYPE_LONG_LONG;
-  impl->items[0].longLongVal = value;
-  impl->size++;
-}
-
-void List::prepend_impl(double value) {
-  if (!impl)
-    return;
-  WriteLockGuard guard(&impl->lock);
-
-  if (!EnsureCapacity(impl, impl->size + 1))
-    return;
-
-  for (int i = impl->size; i > 0; i--) {
-    impl->items[i] = impl->items[i - 1];
-  }
-
-  impl->items[0].type = TYPE_DOUBLE;
-  impl->items[0].doubleVal = value;
+  impl->items[0].type = TYPE_FLOAT;
+  impl->items[0].floatVal = value;
   impl->size++;
 }
 
@@ -235,7 +218,7 @@ void List::insert_impl(int index, int value) {
   impl->size++;
 }
 
-void List::insert_impl(int index, long long value) {
+void List::insert_impl(int index, float value) {
   if (!impl)
     return;
 
@@ -247,8 +230,8 @@ void List::insert_impl(int index, long long value) {
   if (index >= impl->size) {
     if (!EnsureCapacity(impl, impl->size + 1))
       return;
-    impl->items[impl->size].type = TYPE_LONG_LONG;
-    impl->items[impl->size].longLongVal = value;
+    impl->items[impl->size].type = TYPE_FLOAT;
+    impl->items[impl->size].floatVal = value;
     impl->size++;
     return;
   }
@@ -260,38 +243,8 @@ void List::insert_impl(int index, long long value) {
     impl->items[i] = impl->items[i - 1];
   }
 
-  impl->items[index].type = TYPE_LONG_LONG;
-  impl->items[index].longLongVal = value;
-  impl->size++;
-}
-
-void List::insert_impl(int index, double value) {
-  if (!impl)
-    return;
-
-  WriteLockGuard guard(&impl->lock);
-
-  if (index < 0)
-    index = 0;
-
-  if (index >= impl->size) {
-    if (!EnsureCapacity(impl, impl->size + 1))
-      return;
-    impl->items[impl->size].type = TYPE_DOUBLE;
-    impl->items[impl->size].doubleVal = value;
-    impl->size++;
-    return;
-  }
-
-  if (!EnsureCapacity(impl, impl->size + 1))
-    return;
-
-  for (int i = impl->size; i > index; i--) {
-    impl->items[i] = impl->items[i - 1];
-  }
-
-  impl->items[index].type = TYPE_DOUBLE;
-  impl->items[index].doubleVal = value;
+  impl->items[index].type = TYPE_FLOAT;
+  impl->items[index].floatVal = value;
   impl->size++;
 }
 
@@ -532,56 +485,29 @@ template <> int List::pop<int>() {
 
   if (impl->items[lastIndex].type == TYPE_INT)
     result = impl->items[lastIndex].intVal;
-  else if (impl->items[lastIndex].type == TYPE_LONG_LONG)
-    result = (int)impl->items[lastIndex].longLongVal;
-  else if (impl->items[lastIndex].type == TYPE_DOUBLE)
-    result = (int)impl->items[lastIndex].doubleVal;
+  else if (impl->items[lastIndex].type == TYPE_FLOAT)
+    result = (int)impl->items[lastIndex].floatVal;
 
   FreeItemContents(&impl->items[lastIndex]);
   impl->size--;
   return result;
 }
 
-template <> long long List::pop<long long>() {
+template <> float List::pop<float>() {
   if (!impl)
-    return 0LL;
+    return 0.0f;
   WriteLockGuard guard(&impl->lock);
 
   if (impl->size == 0)
-    return 0LL;
+    return 0.0f;
 
   int lastIndex = impl->size - 1;
-  long long result = 0LL;
+  float result = 0.0f;
 
-  if (impl->items[lastIndex].type == TYPE_LONG_LONG)
-    result = impl->items[lastIndex].longLongVal;
+  if (impl->items[lastIndex].type == TYPE_FLOAT)
+    result = impl->items[lastIndex].floatVal;
   else if (impl->items[lastIndex].type == TYPE_INT)
-    result = (long long)impl->items[lastIndex].intVal;
-  else if (impl->items[lastIndex].type == TYPE_DOUBLE)
-    result = (long long)impl->items[lastIndex].doubleVal;
-
-  FreeItemContents(&impl->items[lastIndex]);
-  impl->size--;
-  return result;
-}
-
-template <> double List::pop<double>() {
-  if (!impl)
-    return 0.0;
-  WriteLockGuard guard(&impl->lock);
-
-  if (impl->size == 0)
-    return 0.0;
-
-  int lastIndex = impl->size - 1;
-  double result = 0.0;
-
-  if (impl->items[lastIndex].type == TYPE_DOUBLE)
-    result = impl->items[lastIndex].doubleVal;
-  else if (impl->items[lastIndex].type == TYPE_INT)
-    result = (double)impl->items[lastIndex].intVal;
-  else if (impl->items[lastIndex].type == TYPE_LONG_LONG)
-    result = (double)impl->items[lastIndex].longLongVal;
+    result = (float)impl->items[lastIndex].intVal;
 
   FreeItemContents(&impl->items[lastIndex]);
   impl->size--;

@@ -22,23 +22,13 @@ void Set::put_impl(int value) {
   }
 }
 
-void Set::put_impl(long long value) {
+void Set::put_impl(float value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  if (!impl->values.contains<long long>(value)) {
-    impl->values.append<long long>(value);
-  }
-}
-
-void Set::put_impl(double value) {
-  if (!impl)
-    return;
-  WriteLockGuard guard(&impl->lock);
-
-  if (!impl->values.contains<double>(value)) {
-    impl->values.append<double>(value);
+  if (!impl->values.contains<float>(value)) {
+    impl->values.append<float>(value);
   }
 }
 

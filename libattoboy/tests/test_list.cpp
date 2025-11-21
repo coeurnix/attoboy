@@ -12,8 +12,8 @@ static int errorCount = 0;
   }
 
 // Helper for approximate floating point equality
-static inline bool ApproxEqual(double a, double b, double epsilon = 0.0001) {
-  double diff = a - b;
+static inline bool ApproxEqual(float a, float b, float epsilon = 0.0001f) {
+  float diff = a - b;
   if (diff < 0)
     diff = -diff;
   return diff < epsilon;
@@ -44,10 +44,10 @@ void atto_main() {
   TEST(l3.typeAt(1) == TYPE_INT, "Second item should be TYPE_INT");
   TEST(l3.at<int>(1) == 42, "Second item should be 42");
 
-  l3.append(3.14);
-  TEST(l3.length() == 3, "Append double should increase length to 3");
-  TEST(l3.typeAt(2) == TYPE_DOUBLE, "Third item should be TYPE_DOUBLE");
-  TEST(ApproxEqual(l3.at<double>(2), 3.14), "Third item should be 3.14");
+  l3.append(3.14f);
+  TEST(l3.length() == 3, "Append float should increase length to 3");
+  TEST(l3.typeAt(2) == TYPE_FLOAT, "Third item should be TYPE_FLOAT");
+  TEST(ApproxEqual(l3.at<float>(2), 3.14f), "Third item should be 3.14");
 
   l3.append(String("hello"));
   TEST(l3.length() == 4, "Append String should increase length to 4");
@@ -141,8 +141,8 @@ void atto_main() {
   List l15;
   l15.append(1).append(2).append(3);
   TEST(l15.find(2) == 1, "find() should find int value");
-  TEST(l15.find(2.0) == 1,
-       "find() should find with numeric coercion (int == double)");
+  TEST(l15.find(2.0f) == 1,
+       "find() should find with numeric coercion (int == float)");
   TEST(l15.find(99) == -1, "find() should return -1 for not found");
 
   // Test find with strings
@@ -158,7 +158,7 @@ void atto_main() {
   TEST(l17.contains(20), "contains() should return true for existing value");
   TEST(!l17.contains(99),
        "contains() should return false for non-existing value");
-  TEST(l17.contains(20.0), "contains() should work with numeric coercion");
+  TEST(l17.contains(20.0f), "contains() should work with numeric coercion");
 
   // Test reverse
   List l18;
@@ -244,12 +244,12 @@ void atto_main() {
 
   // Test sort with mixed numeric types (numeric coercion)
   List l29;
-  l29.append(3.5).append(1).append(2.2).append(4);
+  l29.append(3.5f).append(1).append(2.2f).append(4);
   l29.sort(true);
-  TEST(ApproxEqual(l29.at<double>(0), 1.0), "sort() mixed numeric - first");
-  TEST(ApproxEqual(l29.at<double>(1), 2.2), "sort() mixed numeric - second");
-  TEST(ApproxEqual(l29.at<double>(2), 3.5), "sort() mixed numeric - third");
-  TEST(ApproxEqual(l29.at<double>(3), 4.0), "sort() mixed numeric - fourth");
+  TEST(ApproxEqual(l29.at<float>(0), 1.0f), "sort() mixed numeric - first");
+  TEST(ApproxEqual(l29.at<float>(1), 2.2f), "sort() mixed numeric - second");
+  TEST(ApproxEqual(l29.at<float>(2), 3.5f), "sort() mixed numeric - third");
+  TEST(ApproxEqual(l29.at<float>(3), 4.0f), "sort() mixed numeric - fourth");
 
   // Test nested lists
   List inner1;
@@ -286,14 +286,6 @@ void atto_main() {
   TEST(empty.length() == 0, "Empty list reverse() should not crash");
   empty.sort();
   TEST(empty.length() == 0, "Empty list sort() should not crash");
-
-  // Test long long type
-  List l31;
-  long long bigNum = 9223372036854775807LL;
-  l31.append(bigNum);
-  TEST(l31.typeAt(0) == TYPE_LONG_LONG,
-       "Append long long should set TYPE_LONG_LONG");
-  TEST(l31.at<long long>(0) == bigNum, "Long long should be stored correctly");
 
   // Test with c-style strings
   List l32;

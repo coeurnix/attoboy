@@ -77,13 +77,13 @@ bool String::contains(const String &substring) const {
   return MyWcsStr(impl->data, substring.impl->data) != nullptr;
 }
 
-double String::toDouble() const {
+float String::toFloat() const {
   if (!impl)
-    return 0.0;
+    return 0.0f;
   ReadLockGuard guard(&impl->lock);
   if (!impl->data)
-    return 0.0;
-  double res = 0.0;
+    return 0.0f;
+  float res = 0.0f;
   int sign = 1;
   WCHAR *p = impl->data;
 
@@ -96,16 +96,16 @@ double String::toDouble() const {
     p++;
 
   while (*p >= L'0' && *p <= L'9') {
-    res = res * 10.0 + (*p - L'0');
+    res = res * 10.0f + (*p - L'0');
     p++;
   }
 
   if (*p == L'.') {
     p++;
-    double frac = 0.1;
+    float frac = 0.1f;
     while (*p >= L'0' && *p <= L'9') {
       res += (*p - L'0') * frac;
-      frac *= 0.1;
+      frac *= 0.1f;
       p++;
     }
   }
@@ -113,13 +113,13 @@ double String::toDouble() const {
   return res * sign;
 }
 
-long long String::toInteger() const {
+int String::toInteger() const {
   if (!impl)
     return 0;
   ReadLockGuard guard(&impl->lock);
   if (!impl->data)
     return 0;
-  long long res = 0;
+  int res = 0;
   int sign = 1;
   WCHAR *p = impl->data;
 

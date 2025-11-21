@@ -86,11 +86,8 @@ static String MapToJson(const Map &map) {
     case TYPE_INT:
       keyStr = String(keys.at<int>(i));
       break;
-    case TYPE_LONG_LONG:
-      keyStr = String(keys.at<long long>(i));
-      break;
-    case TYPE_DOUBLE:
-      keyStr = String(keys.at<double>(i));
+    case TYPE_FLOAT:
+      keyStr = String(keys.at<float>(i));
       break;
     case TYPE_STRING:
       keyStr = keys.at<String>(i);
@@ -122,10 +119,8 @@ static String ValueToJson(ValueType type, const List &list, int index) {
     return String(list.at<bool>(index) ? "true" : "false");
   case TYPE_INT:
     return String(list.at<int>(index));
-  case TYPE_LONG_LONG:
-    return String(list.at<long long>(index));
-  case TYPE_DOUBLE: {
-    String num = String(list.at<double>(index));
+  case TYPE_FLOAT: {
+    String num = String(list.at<float>(index));
     if (!num.contains(L".") && !num.contains(L"e") && !num.contains(L"E")) {
       num = num.append(L".0");
     }

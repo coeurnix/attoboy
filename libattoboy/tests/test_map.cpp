@@ -12,8 +12,8 @@ static int errorCount = 0;
   }
 
 // Helper for approximate floating point equality
-static inline bool ApproxEqual(double a, double b, double epsilon = 0.0001) {
-  double diff = a - b;
+static inline bool ApproxEqual(float a, float b, float epsilon = 0.0001f) {
+  float diff = a - b;
   if (diff < 0)
     diff = -diff;
   return diff < epsilon;
@@ -88,10 +88,10 @@ void atto_main() {
   Map m7;
   m7.put(1, 42);
   m7.put(2, String("test"));
-  m7.put(3, 3.14);
+  m7.put(3, 3.14f);
   TEST(m7.typeAt(1) == TYPE_INT, "typeAt() should return TYPE_INT");
   TEST(m7.typeAt(2) == TYPE_STRING, "typeAt() should return TYPE_STRING");
-  TEST(m7.typeAt(3) == TYPE_DOUBLE, "typeAt() should return TYPE_DOUBLE");
+  TEST(m7.typeAt(3) == TYPE_FLOAT, "typeAt() should return TYPE_FLOAT");
   TEST(m7.typeAt(99) == TYPE_INVALID,
        "typeAt() should return TYPE_INVALID for non-existing key");
 
@@ -193,21 +193,13 @@ void atto_main() {
   TEST((m22.get<bool, String>(true).equals(String("yes"))), "Bool key true");
   TEST((m22.get<bool, String>(false).equals(String("no"))), "Bool key false");
 
-  // Test with double keys
+  // Test with float keys
   Map m23;
-  m23.put(1.5, String("one-half"));
-  m23.put(2.5, String("two-half"));
-  TEST(m23.length() == 2, "Double keys should work");
-  TEST((m23.get<double, String>(1.5).equals(String("one-half"))),
-       "Double key retrieval");
-
-  // Test with long long keys
-  Map m24;
-  long long bigKey = 9223372036854775807LL;
-  m24.put(bigKey, String("big"));
-  TEST(m24.length() == 1, "Long long keys should work");
-  TEST((m24.get<long long, String>(bigKey).equals(String("big"))),
-       "Long long key retrieval");
+  m23.put(1.5f, String("one-half"));
+  m23.put(2.5f, String("two-half"));
+  TEST(m23.length() == 2, "Float keys should work");
+  TEST((m23.get<float, String>(1.5f).equals(String("one-half"))),
+       "Float key retrieval");
 
   Log("Stage 8 passed");
 

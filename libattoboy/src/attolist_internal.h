@@ -17,8 +17,7 @@ struct ListItem {
   union {
     bool boolVal;
     int intVal;
-    long long longLongVal;
-    double doubleVal;
+    float floatVal;
     String *stringVal;
     List *listVal;
     void *mapVal;
@@ -27,8 +26,8 @@ struct ListItem {
 
   ListItem() {
     type = TYPE_NULL;
-    // Zero all 8 bytes of union
-    doubleVal = 0.0;
+    // Zero all bytes of union
+    floatVal = 0.0f;
   }
 };
 
@@ -174,28 +173,22 @@ static inline bool ItemsEqual(const ListItem *a, const ListItem *b) {
   if (!a || !b)
     return false;
 
-  // Handle numeric coercion: int, long long, and double can be equal
-  bool aIsNumeric = (a->type == TYPE_INT || a->type == TYPE_LONG_LONG ||
-                     a->type == TYPE_DOUBLE);
-  bool bIsNumeric = (b->type == TYPE_INT || b->type == TYPE_LONG_LONG ||
-                     b->type == TYPE_DOUBLE);
+  // Handle numeric coercion: int and float can be equal
+  bool aIsNumeric = (a->type == TYPE_INT || a->type == TYPE_FLOAT);
+  bool bIsNumeric = (b->type == TYPE_INT || b->type == TYPE_FLOAT);
 
   if (aIsNumeric && bIsNumeric) {
-    // Convert both to double for comparison
-    double aVal = 0.0, bVal = 0.0;
+    // Convert both to float for comparison
+    float aVal = 0.0f, bVal = 0.0f;
     if (a->type == TYPE_INT)
-      aVal = (double)a->intVal;
-    else if (a->type == TYPE_LONG_LONG)
-      aVal = (double)a->longLongVal;
+      aVal = (float)a->intVal;
     else
-      aVal = a->doubleVal;
+      aVal = a->floatVal;
 
     if (b->type == TYPE_INT)
-      bVal = (double)b->intVal;
-    else if (b->type == TYPE_LONG_LONG)
-      bVal = (double)b->longLongVal;
+      bVal = (float)b->intVal;
     else
-      bVal = b->doubleVal;
+      bVal = b->floatVal;
 
     return aVal == bVal;
   }
@@ -218,25 +211,23 @@ static inline bool ItemsEqual(const ListItem *a, const ListItem *b) {
   }
 }
 
-// Helper function to convert item to double for sorting
-static inline double ItemToDouble(const ListItem *item) {
+// Helper function to convert item to float for sorting
+static inline float ItemToFloat(const ListItem *item) {
   if (!item)
-    return 0.0;
+    return 0.0f;
   switch (item->type) {
   case TYPE_BOOL:
-    return item->boolVal ? 1.0 : 0.0;
+    return item->boolVal ? 1.0f : 0.0f;
   case TYPE_INT:
-    return (double)item->intVal;
-  case TYPE_LONG_LONG:
-    return (double)item->longLongVal;
-  case TYPE_DOUBLE:
-    return item->doubleVal;
+    return (float)item->intVal;
+  case TYPE_FLOAT:
+    return item->floatVal;
   case TYPE_STRING:
     if (item->stringVal)
-      return item->stringVal->toDouble();
-    return 0.0;
+      return item->stringVal->toFloat();
+    return 0.0f;
   default:
-    return 0.0;
+    return 0.0f;
   }
 }
 
@@ -246,14 +237,14 @@ static inline int CompareItems(const ListItem *a, const ListItem *b) {
     return 0;
 
   // Try numeric comparison first
-  bool aIsNumeric = (a->type == TYPE_INT || a->type == TYPE_LONG_LONG ||
-                     a->type == TYPE_DOUBLE || a->type == TYPE_BOOL);
-  bool bIsNumeric = (b->type == TYPE_INT || b->type == TYPE_LONG_LONG ||
-                     b->type == TYPE_DOUBLE || b->type == TYPE_BOOL);
+  bool aIsNumeric = (a->type == TYPE_INT || a->type == TYPE_FLOAT ||
+                     a->type == TYPE_BOOL);
+  bool bIsNumeric = (b->type == TYPE_INT || b->type == TYPE_FLOAT ||
+                     b->type == TYPE_BOOL);
 
   if (aIsNumeric && bIsNumeric) {
-    double aVal = ItemToDouble(a);
-    double bVal = ItemToDouble(b);
+    float aVal = ItemToFloat(a);
+    float bVal = ItemToFloat(b);
     if (aVal < bVal)
       return -1;
     if (aVal > bVal)

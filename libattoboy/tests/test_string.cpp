@@ -34,13 +34,13 @@ void atto_main() {
   TEST(sInt.length() == 3, "String(123) should have length 3");
   TEST(sInt == "123", "String(123) should equal \"123\"");
 
-  String sLong(1234567890LL);
-  TEST(sLong.length() == 10, "String(1234567890LL) should have length 10");
+  String sLong(1234567890);
+  TEST(sLong.length() == 10, "String(1234567890) should have length 10");
 
-  String sDouble(123.456);
-  TEST(sDouble.length() >= 7, "String(123.456) should have length >= 7");
-  TEST(sDouble.startsWith("123."),
-       "String(123.456) should start with \"123.\"");
+  String sFloat(123.456f);
+  TEST(sFloat.length() >= 7, "String(123.456f) should have length >= 7");
+  TEST(sFloat.startsWith("123."),
+       "String(123.456f) should start with \"123.\"");
 
   String sWide(L"Wide String");
   TEST(sWide.length() == 11, "String(L\"Wide String\") should have length 11");
@@ -99,12 +99,12 @@ void atto_main() {
   String sNum("123");
   TEST(sNum.isNumber(), "\"123\" should be a valid number");
   TEST(sNum.toInteger() == 123, "\"123\".toInteger() should be 123");
-  TEST(sNum.toDouble() == 123.0, "\"123\".toDouble() should be 123.0");
+  TEST(sNum.toFloat() == 123.0f, "\"123\".toFloat() should be 123.0");
 
-  String sFloat("45.67");
-  TEST(sFloat.isNumber(), "\"45.67\" should be a valid number");
-  TEST(sFloat.toDouble() > 45.6 && sFloat.toDouble() < 45.7,
-       "\"45.67\".toDouble() should be approximately 45.67");
+  String sFloatStr("45.67");
+  TEST(sFloatStr.isNumber(), "\"45.67\" should be a valid number");
+  TEST(sFloatStr.toFloat() > 45.6f && sFloatStr.toFloat() < 45.7f,
+       "\"45.67\".toFloat() should be approximately 45.67");
 
   String sNotNum("abc");
   TEST(!sNotNum.isNumber(), "\"abc\" should not be a valid number");

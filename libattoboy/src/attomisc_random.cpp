@@ -17,10 +17,10 @@ long long Random() {
   return value;
 }
 
-double RandomDouble() {
-  unsigned long long value = 0;
+float RandomFloat() {
+  unsigned int value = 0;
   GetRandomBytes(&value, sizeof(value));
-  return (value >> 11) * (1.0 / (1ULL << 53));
+  return (value >> 8) * (1.0f / (1U << 24));
 }
 
 long long RandomRange(long long start, long long end) {
@@ -31,15 +31,22 @@ long long RandomRange(long long start, long long end) {
   unsigned long long value = 0;
   GetRandomBytes(&value, sizeof(value));
 
-  unsigned long long result;
-  if (range <= 0xFFFFFFFFULL) {
-    result = (unsigned long)(value) % (unsigned long)range;
-  } else {
-    double scaled = (value >> 11) * (1.0 / (1ULL << 53));
-    result = (unsigned long long)(scaled * range);
+  // Avoid 64-bit modulo to prevent libgcc dependency
+  // Simple division-based modulo: value % range = value - (value / range) * range
+  unsigned long long quotient = 0;
+  unsigned long long remainder = 0;
+
+  // Binary long division for 64-bit modulo
+  for (int i = 63; i >= 0; i--) {
+    remainder <<= 1;
+    remainder |= (value >> i) & 1;
+    if (remainder >= range) {
+      remainder -= range;
+      quotient |= (1ULL << i);
+    }
   }
 
-  return start + result;
+  return start + remainder;
 }
 
 bool RandomBool() {

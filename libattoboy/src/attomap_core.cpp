@@ -118,11 +118,8 @@ Map &Map::merge(const Map &other) {
       case TYPE_INT:
         put_impl(key, otherValues.at<int>(i));
         break;
-      case TYPE_LONG_LONG:
-        put_impl(key, otherValues.at<long long>(i));
-        break;
-      case TYPE_DOUBLE:
-        put_impl(key, otherValues.at<double>(i));
+      case TYPE_FLOAT:
+        put_impl(key, otherValues.at<float>(i));
         break;
       case TYPE_STRING:
         put_impl(key, otherValues.at<String>(i));
@@ -150,11 +147,8 @@ Map &Map::merge(const Map &other) {
       case TYPE_INT:
         put_impl(key, otherValues.at<int>(i));
         break;
-      case TYPE_LONG_LONG:
-        put_impl(key, otherValues.at<long long>(i));
-        break;
-      case TYPE_DOUBLE:
-        put_impl(key, otherValues.at<double>(i));
+      case TYPE_FLOAT:
+        put_impl(key, otherValues.at<float>(i));
         break;
       case TYPE_STRING:
         put_impl(key, otherValues.at<String>(i));
@@ -173,8 +167,8 @@ Map &Map::merge(const Map &other) {
       }
       break;
     }
-    case TYPE_LONG_LONG: {
-      long long key = otherKeys.at<long long>(i);
+    case TYPE_FLOAT: {
+      float key = otherKeys.at<float>(i);
       switch (valueType) {
       case TYPE_BOOL:
         put_impl(key, otherValues.at<bool>(i));
@@ -182,43 +176,8 @@ Map &Map::merge(const Map &other) {
       case TYPE_INT:
         put_impl(key, otherValues.at<int>(i));
         break;
-      case TYPE_LONG_LONG:
-        put_impl(key, otherValues.at<long long>(i));
-        break;
-      case TYPE_DOUBLE:
-        put_impl(key, otherValues.at<double>(i));
-        break;
-      case TYPE_STRING:
-        put_impl(key, otherValues.at<String>(i));
-        break;
-      case TYPE_LIST:
-        put_impl(key, otherValues.at<List>(i));
-        break;
-      case TYPE_MAP:
-        put_impl(key, otherValues.at<Map>(i));
-        break;
-      case TYPE_SET:
-        put_impl(key, otherValues.at<Set>(i));
-        break;
-      default:
-        break;
-      }
-      break;
-    }
-    case TYPE_DOUBLE: {
-      double key = otherKeys.at<double>(i);
-      switch (valueType) {
-      case TYPE_BOOL:
-        put_impl(key, otherValues.at<bool>(i));
-        break;
-      case TYPE_INT:
-        put_impl(key, otherValues.at<int>(i));
-        break;
-      case TYPE_LONG_LONG:
-        put_impl(key, otherValues.at<long long>(i));
-        break;
-      case TYPE_DOUBLE:
-        put_impl(key, otherValues.at<double>(i));
+      case TYPE_FLOAT:
+        put_impl(key, otherValues.at<float>(i));
         break;
       case TYPE_STRING:
         put_impl(key, otherValues.at<String>(i));
@@ -246,11 +205,8 @@ Map &Map::merge(const Map &other) {
       case TYPE_INT:
         put_impl(key, otherValues.at<int>(i));
         break;
-      case TYPE_LONG_LONG:
-        put_impl(key, otherValues.at<long long>(i));
-        break;
-      case TYPE_DOUBLE:
-        put_impl(key, otherValues.at<double>(i));
+      case TYPE_FLOAT:
+        put_impl(key, otherValues.at<float>(i));
         break;
       case TYPE_STRING:
         put_impl(key, otherValues.at<String>(i));

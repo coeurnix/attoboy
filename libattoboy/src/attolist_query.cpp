@@ -35,30 +35,14 @@ template <> int List::find<int>(int value) const {
   return -1;
 }
 
-template <> int List::find<long long>(long long value) const {
+template <> int List::find<float>(float value) const {
   if (!impl)
     return -1;
   ReadLockGuard guard(&impl->lock);
 
   ListItem searchItem;
-  searchItem.type = TYPE_LONG_LONG;
-  searchItem.longLongVal = value;
-
-  for (int i = 0; i < impl->size; i++) {
-    if (ItemsEqual(&impl->items[i], &searchItem))
-      return i;
-  }
-  return -1;
-}
-
-template <> int List::find<double>(double value) const {
-  if (!impl)
-    return -1;
-  ReadLockGuard guard(&impl->lock);
-
-  ListItem searchItem;
-  searchItem.type = TYPE_DOUBLE;
-  searchItem.doubleVal = value;
+  searchItem.type = TYPE_FLOAT;
+  searchItem.floatVal = value;
 
   for (int i = 0; i < impl->size; i++) {
     if (ItemsEqual(&impl->items[i], &searchItem))
@@ -102,12 +86,8 @@ template <> bool List::contains<int>(int value) const {
   return find<int>(value) != -1;
 }
 
-template <> bool List::contains<long long>(long long value) const {
-  return find<long long>(value) != -1;
-}
-
-template <> bool List::contains<double>(double value) const {
-  return find<double>(value) != -1;
+template <> bool List::contains<float>(float value) const {
+  return find<float>(value) != -1;
 }
 
 template <> bool List::contains<String>(String value) const {

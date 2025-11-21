@@ -28,7 +28,7 @@ void List::append_impl(int value) {
   impl->size++;
 }
 
-void List::append_impl(long long value) {
+void List::append_impl(float value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
@@ -36,21 +36,8 @@ void List::append_impl(long long value) {
   if (!EnsureCapacity(impl, impl->size + 1))
     return;
 
-  impl->items[impl->size].type = TYPE_LONG_LONG;
-  impl->items[impl->size].longLongVal = value;
-  impl->size++;
-}
-
-void List::append_impl(double value) {
-  if (!impl)
-    return;
-  WriteLockGuard guard(&impl->lock);
-
-  if (!EnsureCapacity(impl, impl->size + 1))
-    return;
-
-  impl->items[impl->size].type = TYPE_DOUBLE;
-  impl->items[impl->size].doubleVal = value;
+  impl->items[impl->size].type = TYPE_FLOAT;
+  impl->items[impl->size].floatVal = value;
   impl->size++;
 }
 

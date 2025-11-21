@@ -17,18 +17,11 @@ template <> bool Set::contains<int>(int value) const {
   return impl->values.contains<int>(value);
 }
 
-template <> bool Set::contains<long long>(long long value) const {
+template <> bool Set::contains<float>(float value) const {
   if (!impl)
     return false;
   ReadLockGuard guard(&impl->lock);
-  return impl->values.contains<long long>(value);
-}
-
-template <> bool Set::contains<double>(double value) const {
-  if (!impl)
-    return false;
-  ReadLockGuard guard(&impl->lock);
-  return impl->values.contains<double>(value);
+  return impl->values.contains<float>(value);
 }
 
 template <> bool Set::contains<String>(String value) const {
@@ -75,23 +68,12 @@ void Set::remove_impl(int value) {
   }
 }
 
-void Set::remove_impl(long long value) {
+void Set::remove_impl(float value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->values.find<long long>(value);
-  if (index >= 0) {
-    impl->values.remove(index);
-  }
-}
-
-void Set::remove_impl(double value) {
-  if (!impl)
-    return;
-  WriteLockGuard guard(&impl->lock);
-
-  int index = impl->values.find<double>(value);
+  int index = impl->values.find<float>(value);
   if (index >= 0) {
     impl->values.remove(index);
   }
@@ -156,11 +138,8 @@ bool Set::compare(const Set &other) const {
     case TYPE_INT:
       found = other.contains<int>(myValues.at<int>(i));
       break;
-    case TYPE_LONG_LONG:
-      found = other.contains<long long>(myValues.at<long long>(i));
-      break;
-    case TYPE_DOUBLE:
-      found = other.contains<double>(myValues.at<double>(i));
+    case TYPE_FLOAT:
+      found = other.contains<float>(myValues.at<float>(i));
       break;
     case TYPE_STRING:
       found = other.contains<String>(myValues.at<String>(i));

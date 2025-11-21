@@ -54,11 +54,8 @@ List::List(const List &other) {
         case TYPE_INT:
           impl->items[i].intVal = other.impl->items[i].intVal;
           break;
-        case TYPE_LONG_LONG:
-          impl->items[i].longLongVal = other.impl->items[i].longLongVal;
-          break;
-        case TYPE_DOUBLE:
-          impl->items[i].doubleVal = other.impl->items[i].doubleVal;
+        case TYPE_FLOAT:
+          impl->items[i].floatVal = other.impl->items[i].floatVal;
           break;
         case TYPE_STRING:
           if (other.impl->items[i].stringVal) {
@@ -135,11 +132,8 @@ List::List(const Set &set) {
         case TYPE_INT:
           impl->items[i].intVal = temp.impl->items[i].intVal;
           break;
-        case TYPE_LONG_LONG:
-          impl->items[i].longLongVal = temp.impl->items[i].longLongVal;
-          break;
-        case TYPE_DOUBLE:
-          impl->items[i].doubleVal = temp.impl->items[i].doubleVal;
+        case TYPE_FLOAT:
+          impl->items[i].floatVal = temp.impl->items[i].floatVal;
           break;
         case TYPE_STRING:
           if (temp.impl->items[i].stringVal) {

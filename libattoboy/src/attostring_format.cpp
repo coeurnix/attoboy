@@ -73,11 +73,8 @@ String String::format(const List &list) const {
           case TYPE_INT:
             replacement = String(list.at<int>(index));
             break;
-          case TYPE_LONG_LONG:
-            replacement = String(list.at<long long>(index));
-            break;
-          case TYPE_DOUBLE:
-            replacement = String(list.at<double>(index));
+          case TYPE_FLOAT:
+            replacement = String(list.at<float>(index));
             break;
           case TYPE_STRING:
             replacement = list.at<String>(index);
@@ -159,11 +156,8 @@ String String::format(const Map &map) const {
             case TYPE_INT:
               replacement = String(map.get<String, int>(key));
               break;
-            case TYPE_LONG_LONG:
-              replacement = String(map.get<String, long long>(key));
-              break;
-            case TYPE_DOUBLE:
-              replacement = String(map.get<String, double>(key));
+            case TYPE_FLOAT:
+              replacement = String(map.get<String, float>(key));
               break;
             case TYPE_STRING:
               replacement = map.get<String, String>(key);

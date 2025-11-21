@@ -47,11 +47,8 @@ List &List::concat(const List &other) {
     case TYPE_INT:
       impl->items[targetIndex].intVal = other.impl->items[i].intVal;
       break;
-    case TYPE_LONG_LONG:
-      impl->items[targetIndex].longLongVal = other.impl->items[i].longLongVal;
-      break;
-    case TYPE_DOUBLE:
-      impl->items[targetIndex].doubleVal = other.impl->items[i].doubleVal;
+    case TYPE_FLOAT:
+      impl->items[targetIndex].floatVal = other.impl->items[i].floatVal;
       break;
     case TYPE_STRING:
       if (other.impl->items[i].stringVal) {
@@ -139,11 +136,8 @@ List List::slice(int start, int end) const {
     case TYPE_INT:
       result.impl->items[i].intVal = impl->items[sourceIndex].intVal;
       break;
-    case TYPE_LONG_LONG:
-      result.impl->items[i].longLongVal = impl->items[sourceIndex].longLongVal;
-      break;
-    case TYPE_DOUBLE:
-      result.impl->items[i].doubleVal = impl->items[sourceIndex].doubleVal;
+    case TYPE_FLOAT:
+      result.impl->items[i].floatVal = impl->items[sourceIndex].floatVal;
       break;
     case TYPE_STRING:
       if (impl->items[sourceIndex].stringVal) {

@@ -29,7 +29,7 @@ void atto_main() {
   TEST(list1.at<int>(0) == 1, "List variadic [0]");
   TEST(list1.at<int>(4) == 5, "List variadic [4]");
 
-  List list2("hello", 42, true, 3.14);
+  List list2("hello", 42, true, 3.14f);
   TEST(list2.length() == 4, "List variadic mixed types length");
   TEST(list2.at<String>(0) == "hello", "List variadic mixed types [0]");
   TEST(list2.at<int>(1) == 42, "List variadic mixed types [1]");

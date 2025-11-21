@@ -227,22 +227,14 @@ void atto_main() {
   TEST(s22.contains(true), "Bool contains() true");
   TEST(s22.contains(false), "Bool contains() false");
 
-  // Test with double values
+  // Test with float values
   Set s23;
-  s23.put(1.5);
-  s23.put(2.5);
-  s23.put(1.5); // duplicate
-  TEST(s23.length() == 2, "Double values should work with uniqueness");
-  TEST(s23.contains(1.5), "Double contains() check");
-  TEST(s23.contains(2.5), "Double contains() check 2");
-
-  // Test with long long values
-  Set s24;
-  long long bigVal = 9223372036854775807LL;
-  s24.put(bigVal);
-  s24.put(bigVal); // duplicate
-  TEST(s24.length() == 1, "Long long values should work with uniqueness");
-  TEST(s24.contains(bigVal), "Long long contains() check");
+  s23.put(1.5f);
+  s23.put(2.5f);
+  s23.put(1.5f); // duplicate
+  TEST(s23.length() == 2, "Float values should work with uniqueness");
+  TEST(s23.contains(1.5f), "Float contains() check");
+  TEST(s23.contains(2.5f), "Float contains() check 2");
 
   // Test with c-strings
   Set s25;
@@ -269,12 +261,12 @@ void atto_main() {
   List emptyList = empty.toList();
   TEST(emptyList.length() == 0, "Empty set toList() should return empty list");
 
-  // Test numeric coercion (int and double)
+  // Test numeric coercion (int and float)
   Set s27;
   s27.put(5);
   TEST(s27.contains(5), "Int value should be found");
-  TEST(s27.contains(5.0),
-       "Int value should be found with double (numeric coercion)");
+  TEST(s27.contains(5.0f),
+       "Int value should be found with float (numeric coercion)");
 
   // Test List concat with Set
   List l3;

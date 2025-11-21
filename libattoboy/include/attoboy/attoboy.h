@@ -12,8 +12,7 @@ enum ValueType {
   TYPE_INVALID,   ///< Invalid or error state
   TYPE_BOOL,      ///< Boolean value (true/false)
   TYPE_INT,       ///< Integer value (32-bit)
-  TYPE_LONG_LONG, ///< Long integer value (64-bit)
-  TYPE_DOUBLE,    ///< Floating-point value (double precision)
+  TYPE_FLOAT,     ///< Floating-point value (single precision)
   TYPE_STRING,    ///< String value (attoboy::String)
   TYPE_LIST,      ///< List value (attoboy::List)
   TYPE_MAP,       ///< Map value (attoboy::Map)
@@ -64,7 +63,7 @@ public:
   String(long long val);
 
   /// Creates a string representation of a floating-point number.
-  String(double val);
+  String(float val);
 
   /// Creates a JSON-style string from a list (e.g., ["value1",2,true]).
   /// Handles all value types intelligently with proper JSON escaping.
@@ -120,11 +119,11 @@ public:
   /// Returns true if the string represents a valid integer or decimal number.
   bool isNumber() const;
 
-  /// Parses the string as a long integer. Returns 0 if invalid.
-  long long toInteger() const;
+  /// Parses the string as an integer. Returns 0 if invalid.
+  int toInteger() const;
 
   /// Parses the string as a floating-point number. Returns 0.0 if invalid.
-  double toDouble() const;
+  float toFloat() const;
 
   /// Returns true if string is "true", "t", "1", "yes", or "on"
   /// (case-insensitive). Otherwise returns false.
@@ -364,8 +363,7 @@ private:
   // Implementation methods for different types
   void append_impl(bool value);
   void append_impl(int value);
-  void append_impl(long long value);
-  void append_impl(double value);
+  void append_impl(float value);
   void append_impl(const char *value);
   void append_impl(const wchar_t *value);
   void append_impl(const String &value);
@@ -375,8 +373,7 @@ private:
 
   void prepend_impl(bool value);
   void prepend_impl(int value);
-  void prepend_impl(long long value);
-  void prepend_impl(double value);
+  void prepend_impl(float value);
   void prepend_impl(const char *value);
   void prepend_impl(const wchar_t *value);
   void prepend_impl(const String &value);
@@ -386,8 +383,7 @@ private:
 
   void insert_impl(int index, bool value);
   void insert_impl(int index, int value);
-  void insert_impl(int index, long long value);
-  void insert_impl(int index, double value);
+  void insert_impl(int index, float value);
   void insert_impl(int index, const char *value);
   void insert_impl(int index, const wchar_t *value);
   void insert_impl(int index, const String &value);
@@ -397,8 +393,7 @@ private:
 
   void set_impl(int index, bool value);
   void set_impl(int index, int value);
-  void set_impl(int index, long long value);
-  void set_impl(int index, double value);
+  void set_impl(int index, float value);
   void set_impl(int index, const char *value);
   void set_impl(int index, const wchar_t *value);
   void set_impl(int index, const String &value);
@@ -508,8 +503,7 @@ private:
   // Implementation methods for different types
   void put_impl(bool key, bool value);
   void put_impl(bool key, int value);
-  void put_impl(bool key, long long value);
-  void put_impl(bool key, double value);
+  void put_impl(bool key, float value);
   void put_impl(bool key, const char *value);
   void put_impl(bool key, const wchar_t *value);
   void put_impl(bool key, const String &value);
@@ -519,8 +513,7 @@ private:
 
   void put_impl(int key, bool value);
   void put_impl(int key, int value);
-  void put_impl(int key, long long value);
-  void put_impl(int key, double value);
+  void put_impl(int key, float value);
   void put_impl(int key, const char *value);
   void put_impl(int key, const wchar_t *value);
   void put_impl(int key, const String &value);
@@ -528,32 +521,19 @@ private:
   void put_impl(int key, const Map &value);
   void put_impl(int key, const Set &value);
 
-  void put_impl(long long key, bool value);
-  void put_impl(long long key, int value);
-  void put_impl(long long key, long long value);
-  void put_impl(long long key, double value);
-  void put_impl(long long key, const char *value);
-  void put_impl(long long key, const wchar_t *value);
-  void put_impl(long long key, const String &value);
-  void put_impl(long long key, const List &value);
-  void put_impl(long long key, const Map &value);
-  void put_impl(long long key, const Set &value);
-
-  void put_impl(double key, bool value);
-  void put_impl(double key, int value);
-  void put_impl(double key, long long value);
-  void put_impl(double key, double value);
-  void put_impl(double key, const char *value);
-  void put_impl(double key, const wchar_t *value);
-  void put_impl(double key, const String &value);
-  void put_impl(double key, const List &value);
-  void put_impl(double key, const Map &value);
-  void put_impl(double key, const Set &value);
+  void put_impl(float key, bool value);
+  void put_impl(float key, int value);
+  void put_impl(float key, float value);
+  void put_impl(float key, const char *value);
+  void put_impl(float key, const wchar_t *value);
+  void put_impl(float key, const String &value);
+  void put_impl(float key, const List &value);
+  void put_impl(float key, const Map &value);
+  void put_impl(float key, const Set &value);
 
   void put_impl(const char *key, bool value);
   void put_impl(const char *key, int value);
-  void put_impl(const char *key, long long value);
-  void put_impl(const char *key, double value);
+  void put_impl(const char *key, float value);
   void put_impl(const char *key, const char *value);
   void put_impl(const char *key, const wchar_t *value);
   void put_impl(const char *key, const String &value);
@@ -563,8 +543,7 @@ private:
 
   void put_impl(const wchar_t *key, bool value);
   void put_impl(const wchar_t *key, int value);
-  void put_impl(const wchar_t *key, long long value);
-  void put_impl(const wchar_t *key, double value);
+  void put_impl(const wchar_t *key, float value);
   void put_impl(const wchar_t *key, const char *value);
   void put_impl(const wchar_t *key, const wchar_t *value);
   void put_impl(const wchar_t *key, const String &value);
@@ -574,8 +553,7 @@ private:
 
   void put_impl(const String &key, bool value);
   void put_impl(const String &key, int value);
-  void put_impl(const String &key, long long value);
-  void put_impl(const String &key, double value);
+  void put_impl(const String &key, float value);
   void put_impl(const String &key, const char *value);
   void put_impl(const String &key, const wchar_t *value);
   void put_impl(const String &key, const String &value);
@@ -585,8 +563,7 @@ private:
 
   void remove_impl(bool key);
   void remove_impl(int key);
-  void remove_impl(long long key);
-  void remove_impl(double key);
+  void remove_impl(float key);
   void remove_impl(const char *key);
   void remove_impl(const wchar_t *key);
   void remove_impl(const String &key);
@@ -715,8 +692,7 @@ private:
   // Implementation methods for different types
   void put_impl(bool value);
   void put_impl(int value);
-  void put_impl(long long value);
-  void put_impl(double value);
+  void put_impl(float value);
   void put_impl(const char *value);
   void put_impl(const wchar_t *value);
   void put_impl(const String &value);
@@ -726,8 +702,7 @@ private:
 
   void remove_impl(bool value);
   void remove_impl(int value);
-  void remove_impl(long long value);
-  void remove_impl(double value);
+  void remove_impl(float value);
   void remove_impl(const char *value);
   void remove_impl(const wchar_t *value);
   void remove_impl(const String &value);
@@ -950,8 +925,8 @@ void Free(void *ptr);
 /// Returns a random long long integer.
 long long Random();
 
-/// Returns a random double between 0.0 (inclusive) and 1.0 (exclusive).
-double RandomDouble();
+/// Returns a random float between 0.0 (inclusive) and 1.0 (exclusive).
+float RandomFloat();
 
 /// Returns a random long long integer between start (inclusive) and end
 /// (exclusive). If start >= end, returns start.

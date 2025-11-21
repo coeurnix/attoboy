@@ -11,7 +11,7 @@ void atto_main() {
   String greeting("Hello");
   String world(L"World");
   String answer(42);
-  String pi(3.14159);
+  String pi(3.14159f);
   String ready(true);
 
   Log("  Text: ", greeting);
@@ -86,7 +86,7 @@ void atto_main() {
   String num3("not a number");
 
   Log("  '", num1, "' is number: ", num1.isNumber(), " -> ", num1.toInteger());
-  Log("  '", num2, "' is number: ", num2.isNumber(), " -> ", num2.toDouble());
+  Log("  '", num2, "' is number: ", num2.isNumber(), " -> ", num2.toFloat());
   Log("  '", num3, "' is number: ", num3.isNumber(), "\n");
 
   // String manipulation

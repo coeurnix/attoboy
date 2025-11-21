@@ -7,18 +7,18 @@ int _fltused = 0;
 
 namespace attoboy {
 
-// Helper for double to string conversion
-static void DoubleToString(double val, LPWSTR buffer, int maxLen) {
+// Helper for float to string conversion
+static void FloatToString(float val, LPWSTR buffer, int maxLen) {
   if (val < 0) {
     *buffer++ = L'-';
     val = -val;
     maxLen--;
   }
 
-  long long intPart = (long long)val;
-  double fracPart = val - intPart;
+  int intPart = (int)val;
+  float fracPart = val - intPart;
 
-  int len = wsprintfW(buffer, L"%I64d", intPart);
+  int len = wsprintfW(buffer, L"%d", intPart);
   buffer += len;
   maxLen -= len;
 
@@ -45,12 +45,12 @@ static void DoubleToString(double val, LPWSTR buffer, int maxLen) {
   }
 }
 
-String::String(double val) {
+String::String(float val) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
   InitializeSRWLock(&impl->lock);
   WCHAR buf[64];
-  DoubleToString(val, buf, 64);
+  FloatToString(val, buf, 64);
   int len = lstrlenW(buf);
   impl->data = AllocString(len);
   lstrcpyW(impl->data, buf);

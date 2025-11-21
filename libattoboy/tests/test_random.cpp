@@ -14,35 +14,35 @@ void atto_main() {
   Log("Running random number generation tests...");
 
   // Test Random() produces different values
-  long long r1 = Random();
-  long long r2 = Random();
-  long long r3 = Random();
+  int r1 = Random();
+  int r2 = Random();
+  int r3 = Random();
   TEST(r1 != r2 || r2 != r3, "Random() should produce different values");
   Log("Random values: ", r1, ", ", r2, ", ", r3);
 
-  // Test RandomDouble() produces values in range [0, 1)
+  // Test RandomFloat() produces values in range [0, 1)
   bool allInRange = true;
   for (int i = 0; i < 100; i++) {
-    double val = RandomDouble();
-    if (val < 0.0 || val >= 1.0) {
+    float val = RandomFloat();
+    if (val < 0.0f || val >= 1.0f) {
       allInRange = false;
-      LogError("RandomDouble() produced out-of-range value: ", val);
+      LogError("RandomFloat() produced out-of-range value: ", val);
       break;
     }
   }
-  TEST(allInRange, "RandomDouble() should produce values in [0, 1)");
+  TEST(allInRange, "RandomFloat() should produce values in [0, 1)");
 
-  // Test RandomDouble() produces different values
-  double d1 = RandomDouble();
-  double d2 = RandomDouble();
-  double d3 = RandomDouble();
-  TEST(d1 != d2 || d2 != d3, "RandomDouble() should produce different values");
-  Log("RandomDouble values: ", d1, ", ", d2, ", ", d3);
+  // Test RandomFloat() produces different values
+  float d1 = RandomFloat();
+  float d2 = RandomFloat();
+  float d3 = RandomFloat();
+  TEST(d1 != d2 || d2 != d3, "RandomFloat() should produce different values");
+  Log("RandomFloat values: ", d1, ", ", d2, ", ", d3);
 
   // Test RandomRange() with valid range
   bool allInRangeInt = true;
   for (int i = 0; i < 100; i++) {
-    long long val = RandomRange(10, 20);
+    int val = RandomRange(10, 20);
     if (val < 10 || val >= 20) {
       allInRangeInt = false;
       LogError("RandomRange(10, 20) produced out-of-range value: ", val);
@@ -52,15 +52,15 @@ void atto_main() {
   TEST(allInRangeInt, "RandomRange(10, 20) should produce values in [10, 20)");
 
   // Test RandomRange() with start >= end
-  long long sameVal = RandomRange(10, 10);
+  int sameVal = RandomRange(10, 10);
   TEST(sameVal == 10, "RandomRange(10, 10) should return 10");
-  long long startVal = RandomRange(20, 10);
+  int startVal = RandomRange(20, 10);
   TEST(startVal == 20, "RandomRange(20, 10) should return 20");
 
   // Test RandomRange() produces different values
-  long long rr1 = RandomRange(0, 1000);
-  long long rr2 = RandomRange(0, 1000);
-  long long rr3 = RandomRange(0, 1000);
+  int rr1 = RandomRange(0, 1000);
+  int rr2 = RandomRange(0, 1000);
+  int rr3 = RandomRange(0, 1000);
   TEST(rr1 != rr2 || rr2 != rr3,
        "RandomRange() should produce different values");
   Log("RandomRange values: ", rr1, ", ", rr2, ", ", rr3);
