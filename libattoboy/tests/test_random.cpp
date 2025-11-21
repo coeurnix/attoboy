@@ -13,107 +13,107 @@ static int errorCount = 0;
 void atto_main() {
   Log("Running random number generation tests...");
 
-  // Test Random() produces different values
-  int r1 = Random();
-  int r2 = Random();
-  int r3 = Random();
-  TEST(r1 != r2 || r2 != r3, "Random() should produce different values");
+  // Test random() produces different values
+  int r1 = Math::random();
+  int r2 = Math::random();
+  int r3 = Math::random();
+  TEST(r1 != r2 || r2 != r3, "random() should produce different values");
   Log("Random values: ", r1, ", ", r2, ", ", r3);
 
-  // Test RandomFloat() produces values in range [0, 1)
+  // Test randomFloat() produces values in range [0, 1)
   bool allInRange = true;
   for (int i = 0; i < 100; i++) {
-    float val = RandomFloat();
+    float val = Math::randomFloat();
     if (val < 0.0f || val >= 1.0f) {
       allInRange = false;
-      LogError("RandomFloat() produced out-of-range value: ", val);
+      LogError("randomFloat() produced out-of-range value: ", val);
       break;
     }
   }
-  TEST(allInRange, "RandomFloat() should produce values in [0, 1)");
+  TEST(allInRange, "randomFloat() should produce values in [0, 1)");
 
-  // Test RandomFloat() produces different values
-  float d1 = RandomFloat();
-  float d2 = RandomFloat();
-  float d3 = RandomFloat();
-  TEST(d1 != d2 || d2 != d3, "RandomFloat() should produce different values");
-  Log("RandomFloat values: ", d1, ", ", d2, ", ", d3);
+  // Test randomFloat() produces different values
+  float d1 = Math::randomFloat();
+  float d2 = Math::randomFloat();
+  float d3 = Math::randomFloat();
+  TEST(d1 != d2 || d2 != d3, "randomFloat() should produce different values");
+  Log("randomFloat values: ", d1, ", ", d2, ", ", d3);
 
-  // Test RandomRange() with valid range
+  // Test randomRange() with valid range
   bool allInRangeInt = true;
   for (int i = 0; i < 100; i++) {
-    int val = RandomRange(10, 20);
+    int val = Math::randomRange(10, 20);
     if (val < 10 || val >= 20) {
       allInRangeInt = false;
-      LogError("RandomRange(10, 20) produced out-of-range value: ", val);
+      LogError("randomRange(10, 20) produced out-of-range value: ", val);
       break;
     }
   }
-  TEST(allInRangeInt, "RandomRange(10, 20) should produce values in [10, 20)");
+  TEST(allInRangeInt, "randomRange(10, 20) should produce values in [10, 20)");
 
-  // Test RandomRange() with start >= end
-  int sameVal = RandomRange(10, 10);
-  TEST(sameVal == 10, "RandomRange(10, 10) should return 10");
-  int startVal = RandomRange(20, 10);
-  TEST(startVal == 20, "RandomRange(20, 10) should return 20");
+  // Test randomRange() with start >= end
+  int sameVal = Math::randomRange(10, 10);
+  TEST(sameVal == 10, "randomRange(10, 10) should return 10");
+  int startVal = Math::randomRange(20, 10);
+  TEST(startVal == 20, "randomRange(20, 10) should return 20");
 
-  // Test RandomRange() produces different values
-  int rr1 = RandomRange(0, 1000);
-  int rr2 = RandomRange(0, 1000);
-  int rr3 = RandomRange(0, 1000);
+  // Test randomRange() produces different values
+  int rr1 = Math::randomRange(0, 1000);
+  int rr2 = Math::randomRange(0, 1000);
+  int rr3 = Math::randomRange(0, 1000);
   TEST(rr1 != rr2 || rr2 != rr3,
-       "RandomRange() should produce different values");
-  Log("RandomRange values: ", rr1, ", ", rr2, ", ", rr3);
+       "randomRange() should produce different values");
+  Log("randomRange values: ", rr1, ", ", rr2, ", ", rr3);
 
-  // Test RandomBool()
+  // Test randomBool()
   int trueCount = 0;
   int falseCount = 0;
   for (int i = 0; i < 100; i++) {
-    if (RandomBool()) {
+    if (Math::randomBool()) {
       trueCount++;
     } else {
       falseCount++;
     }
   }
   TEST(trueCount > 0 && falseCount > 0,
-       "RandomBool() should produce both true and false");
-  Log("RandomBool distribution: ", trueCount, " true, ", falseCount, " false");
+       "randomBool() should produce both true and false");
+  Log("randomBool distribution: ", trueCount, " true, ", falseCount, " false");
 
-  // Test RandomChoice() with non-empty list
+  // Test randomChoice() with non-empty list
   List numbers;
   numbers.append(10).append(20).append(30).append(40).append(50);
   bool allValid = true;
   for (int i = 0; i < 50; i++) {
-    int choice = RandomChoice<int>(numbers);
+    int choice = Math::randomChoice<int>(numbers);
     if (choice != 10 && choice != 20 && choice != 30 && choice != 40 &&
         choice != 50) {
       allValid = false;
-      LogError("RandomChoice() returned invalid value: ", choice);
+      LogError("randomChoice() returned invalid value: ", choice);
       break;
     }
   }
-  TEST(allValid, "RandomChoice() should return values from the list");
+  TEST(allValid, "randomChoice() should return values from the list");
 
-  // Test RandomChoice() with empty list
+  // Test randomChoice() with empty list
   List empty;
-  int emptyChoice = RandomChoice<int>(empty);
+  int emptyChoice = Math::randomChoice<int>(empty);
   TEST(emptyChoice == 0,
-       "RandomChoice() on empty list should return default value");
+       "randomChoice() on empty list should return default value");
 
-  // Test RandomChoice() with strings
+  // Test randomChoice() with strings
   List strings;
   strings.append("apple").append("banana").append("cherry");
   bool allValidStrings = true;
   for (int i = 0; i < 30; i++) {
-    String choice = RandomChoice<String>(strings);
+    String choice = Math::randomChoice<String>(strings);
     if (choice != "apple" && choice != "banana" && choice != "cherry") {
       allValidStrings = false;
-      LogError("RandomChoice() returned invalid string: ", choice);
+      LogError("randomChoice() returned invalid string: ", choice);
       break;
     }
   }
   TEST(allValidStrings,
-       "RandomChoice() should return string values from the list");
+       "randomChoice() should return string values from the list");
 
   // Report results
   if (errorCount == 0) {

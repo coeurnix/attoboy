@@ -900,6 +900,157 @@ private:
   BufferImpl *impl;
 };
 
+/// A collection of mathematical functions and utilities.
+/// All functions are static inline members for minimal binary size.
+class Math {
+public:
+  // Random number generation
+
+  /// Returns a random integer.
+  static int random() noexcept;
+
+  /// Returns a random float between 0.0 (inclusive) and 1.0 (exclusive).
+  static float randomFloat() noexcept;
+
+  /// Returns a random integer between start (inclusive) and end (exclusive).
+  /// If start >= end, returns start.
+  static int randomRange(int start, int end) noexcept;
+
+  /// Returns a random boolean value (true or false).
+  static bool randomBool() noexcept;
+
+  /// Returns a random element from a list.
+  /// Returns a null-type value if the list is empty.
+  template <typename T> static T randomChoice(const List &list) noexcept;
+
+  // Basic math functions
+
+  /// Returns the absolute value of x.
+  static int abs(int x) noexcept;
+
+  /// Returns the absolute value of x.
+  static float abs(float x) noexcept;
+
+  /// Returns the minimum of two integers.
+  static int min(int a, int b) noexcept;
+
+  /// Returns the minimum of two floats.
+  static float min(float a, float b) noexcept;
+
+  /// Returns the maximum of two integers.
+  static int max(int a, int b) noexcept;
+
+  /// Returns the maximum of two floats.
+  static float max(float a, float b) noexcept;
+
+  /// Returns x clamped to the range [minVal, maxVal].
+  static int clamp(int x, int minVal, int maxVal) noexcept;
+
+  /// Returns x clamped to the range [minVal, maxVal].
+  static float clamp(float x, float minVal, float maxVal) noexcept;
+
+  /// Returns the sign of x: -1 if negative, 0 if zero, 1 if positive.
+  static int sign(int x) noexcept;
+
+  /// Returns the sign of x: -1.0f if negative, 0.0f if zero, 1.0f if positive.
+  static float sign(float x) noexcept;
+
+  /// Returns true if x is even.
+  static bool isEven(int x) noexcept;
+
+  /// Returns true if x is odd.
+  static bool isOdd(int x) noexcept;
+
+  /// Returns true if x is a power of two.
+  static bool isPowerOfTwo(int x) noexcept;
+
+  // Rounding functions
+
+  /// Returns the largest integer less than or equal to x.
+  static float floor(float x) noexcept;
+
+  /// Returns the smallest integer greater than or equal to x.
+  static float ceil(float x) noexcept;
+
+  /// Returns x rounded toward zero (fractional part removed).
+  static float trunc(float x) noexcept;
+
+  /// Returns x rounded to the nearest integer (0.5 rounds up).
+  static float round(float x) noexcept;
+
+  // Advanced math functions
+
+  /// Returns the square root of x. Returns 0 if x is negative.
+  static float sqrt(float x) noexcept;
+
+  /// Returns the sine of x (x in radians).
+  static float sin(float x) noexcept;
+
+  /// Returns the cosine of x (x in radians).
+  static float cos(float x) noexcept;
+
+  /// Returns the tangent of x (x in radians).
+  static float tan(float x) noexcept;
+
+  /// Returns the arctangent of y/x in radians, using signs to determine quadrant.
+  static float atan2(float y, float x) noexcept;
+
+  /// Returns the arctangent of x in radians.
+  static float atan(float x) noexcept;
+
+  /// Returns the arcsine of x in radians.
+  static float asin(float x) noexcept;
+
+  /// Returns the hyperbolic cosine of x.
+  static float cosh(float x) noexcept;
+
+  // Exponential and logarithmic functions
+
+  /// Returns 2 raised to the power of x.
+  static float exp2(float x) noexcept;
+
+  /// Returns the base-2 logarithm of x.
+  static float log2(float x) noexcept;
+
+  /// Returns the natural logarithm (base e) of x.
+  static float log(float x) noexcept;
+
+  /// Returns the base-10 logarithm of x.
+  static float log10(float x) noexcept;
+
+  /// Returns the natural exponential e^x.
+  static float exp(float x) noexcept;
+
+  /// Returns x raised to the power of y.
+  static float pow(float x, float y) noexcept;
+
+  /// Returns 2 raised to the power of x (integer version).
+  static int pow2(int x) noexcept;
+
+  // Utility functions
+
+  /// Returns the floating-point remainder of x / y.
+  static float mod(float x, float y) noexcept;
+
+  /// Returns linear interpolation between a and b by t (0.0 to 1.0).
+  static float lerp(float a, float b, float t) noexcept;
+
+  /// Returns 0.0f if x < edge, otherwise 1.0f.
+  static float step(float edge, float x) noexcept;
+
+  /// Converts degrees to radians.
+  static float degToRad(float degrees) noexcept;
+
+  /// Converts radians to degrees.
+  static float radToDeg(float radians) noexcept;
+
+  /// Returns true if x is finite (not infinite or NaN).
+  static bool isFinite(float x) noexcept;
+
+  /// Returns true if x is NaN (not a number).
+  static bool isNaN(float x) noexcept;
+};
+
 /// Terminates the process immediately with the specified exit code.
 void Exit(int exitCode);
 
@@ -921,23 +1072,6 @@ void *Realloc(void *ptr, int size);
 /// Frees a previously allocated block of memory.
 /// Does nothing if ptr is nullptr.
 void Free(void *ptr);
-
-/// Returns a random long long integer.
-long long Random();
-
-/// Returns a random float between 0.0 (inclusive) and 1.0 (exclusive).
-float RandomFloat();
-
-/// Returns a random long long integer between start (inclusive) and end
-/// (exclusive). If start >= end, returns start.
-long long RandomRange(long long start, long long end);
-
-/// Returns a random boolean value (true or false).
-bool RandomBool();
-
-/// Returns a random element from a list.
-/// Returns a null-type value if the list is empty.
-template <typename T> T RandomChoice(const List &list);
 
 // Logging Level Configuration:
 // Define one of the following to set the logging level:
@@ -1009,13 +1143,12 @@ template <typename... Args> void LogError(const Args &...args) {
 #endif
 }
 
-/// Returns a random element from a list.
-/// Returns a null-type value if the list is empty.
-template <typename T> inline T RandomChoice(const List &list) {
+// Template implementation for Math::randomChoice
+template <typename T> inline T Math::randomChoice(const List &list) noexcept {
   if (list.isEmpty()) {
     return T();
   }
-  int index = static_cast<int>(RandomRange(0, list.length()));
+  int index = randomRange(0, list.length());
   return list.at<T>(index);
 }
 
