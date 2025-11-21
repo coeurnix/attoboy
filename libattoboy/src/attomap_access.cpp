@@ -1,4 +1,5 @@
 #include "attomap_internal.h"
+#include "attostring_internal.h"
 
 namespace attoboy {
 
@@ -378,18 +379,11 @@ template <> bool Map::hasKey<String>(String key) const {
   return impl->keys.find<String>(key) >= 0;
 }
 
-template <> bool Map::hasKey<const char *>(const char *key) const {
+template <> bool Map::hasKey<const ATTO_CHAR *>(const ATTO_CHAR *key) const {
   if (!impl)
     return false;
   ReadLockGuard guard(&impl->lock);
-  return impl->keys.find<const char *>(key) >= 0;
-}
-
-template <> bool Map::hasKey<const wchar_t *>(const wchar_t *key) const {
-  if (!impl)
-    return false;
-  ReadLockGuard guard(&impl->lock);
-  return impl->keys.find<const wchar_t *>(key) >= 0;
+  return impl->keys.find<const ATTO_CHAR *>(key) >= 0;
 }
 
 // Template specializations for typeAt()
@@ -441,24 +435,12 @@ template <> ValueType Map::typeAt<String>(String key) const {
   return impl->values.typeAt(index);
 }
 
-template <> ValueType Map::typeAt<const char *>(const char *key) const {
+template <> ValueType Map::typeAt<const ATTO_CHAR *>(const ATTO_CHAR *key) const {
   if (!impl)
     return TYPE_INVALID;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const char *>(key);
-  if (index < 0)
-    return TYPE_INVALID;
-
-  return impl->values.typeAt(index);
-}
-
-template <> ValueType Map::typeAt<const wchar_t *>(const wchar_t *key) const {
-  if (!impl)
-    return TYPE_INVALID;
-  ReadLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<const wchar_t *>(key);
+  int index = impl->keys.find<const ATTO_CHAR *>(key);
   if (index < 0)
     return TYPE_INVALID;
 
@@ -685,24 +667,12 @@ void Map::remove_impl(float key) {
   }
 }
 
-void Map::remove_impl(const char *key) {
+void Map::remove_impl(const ATTO_CHAR *key) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const char *>(key);
-  if (index >= 0) {
-    impl->keys.remove(index);
-    impl->values.remove(index);
-  }
-}
-
-void Map::remove_impl(const wchar_t *key) {
-  if (!impl)
-    return;
-  WriteLockGuard guard(&impl->lock);
-
-  int index = impl->keys.find<const wchar_t *>(key);
+  int index = impl->keys.find<const ATTO_CHAR *>(key);
   if (index >= 0) {
     impl->keys.remove(index);
     impl->values.remove(index);

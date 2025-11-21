@@ -1,4 +1,5 @@
 #include "attolist_internal.h"
+#include "attostring_internal.h"
 
 namespace attoboy {
 
@@ -67,12 +68,7 @@ template <> int List::find<String>(String value) const {
   return -1;
 }
 
-template <> int List::find<const char *>(const char *value) const {
-  String str(value);
-  return find<String>(str);
-}
-
-template <> int List::find<const wchar_t *>(const wchar_t *value) const {
+template <> int List::find<const ATTO_CHAR *>(const ATTO_CHAR *value) const {
   String str(value);
   return find<String>(str);
 }
@@ -94,12 +90,7 @@ template <> bool List::contains<String>(String value) const {
   return find<String>(value) != -1;
 }
 
-template <> bool List::contains<const char *>(const char *value) const {
-  String str(value);
-  return find<String>(str) != -1;
-}
-
-template <> bool List::contains<const wchar_t *>(const wchar_t *value) const {
+template <> bool List::contains<const ATTO_CHAR *>(const ATTO_CHAR *value) const {
   String str(value);
   return find<String>(str) != -1;
 }

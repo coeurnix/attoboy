@@ -1,4 +1,5 @@
 #include "attolist_internal.h"
+#include "attostring_internal.h"
 
 namespace attoboy {
 
@@ -217,27 +218,7 @@ void List::set_impl(int index, float value) {
   impl->items[index].floatVal = value;
 }
 
-void List::set_impl(int index, const char *value) {
-  if (!impl)
-    return;
-  WriteLockGuard guard(&impl->lock);
-
-  if (impl->size == 0) {
-    if (!EnsureCapacity(impl, 1))
-      return;
-    impl->items[0].type = TYPE_STRING;
-    impl->items[0].stringVal = AllocString(value);
-    impl->size = 1;
-    return;
-  }
-
-  index = ClampIndex(index, impl->size);
-  FreeItemContents(&impl->items[index]);
-  impl->items[index].type = TYPE_STRING;
-  impl->items[index].stringVal = AllocString(value);
-}
-
-void List::set_impl(int index, const wchar_t *value) {
+void List::set_impl(int index, const ATTO_CHAR *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);

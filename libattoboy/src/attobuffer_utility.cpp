@@ -1,4 +1,5 @@
 #include "attobuffer_internal.h"
+#include "attostring_internal.h"
 
 namespace attoboy {
 
@@ -45,6 +46,8 @@ const unsigned char *Buffer::c_ptr(int *len) const {
 
   ReadLockGuard guard(&impl->lock);
   *len = impl->size;
+  if (impl->size == 0)
+    return nullptr;
   return impl->data;
 }
 
@@ -59,25 +62,27 @@ String Buffer::toString() const {
     return String();
   }
 
-  int wcharCount = impl->size / sizeof(wchar_t);
+  int wcharCount = impl->size / sizeof(ATTO_WCHAR);
 
   if (wcharCount == 0) {
     return String();
   }
 
-  wchar_t *temp = (wchar_t *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
-                                       (wcharCount + 1) * sizeof(wchar_t));
+  ATTO_WCHAR *temp =
+      (ATTO_WCHAR *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+                              (wcharCount + 1) * sizeof(ATTO_WCHAR));
 
   if (!temp) {
     return String();
   }
 
   for (int i = 0; i < wcharCount; i++) {
-    int byteOffset = i * sizeof(wchar_t);
-    wchar_t wc = 0;
+    int byteOffset = i * sizeof(ATTO_WCHAR);
+    ATTO_WCHAR wc = 0;
     unsigned char *wcBytes = (unsigned char *)&wc;
-    wcBytes[0] = impl->data[byteOffset];
-    wcBytes[1] = impl->data[byteOffset + 1];
+    for (int j = 0; j < (int)sizeof(ATTO_WCHAR); j++) {
+      wcBytes[j] = impl->data[byteOffset + j];
+    }
     temp[i] = wc;
   }
   temp[wcharCount] = 0;

@@ -4,20 +4,29 @@
 // Entry point for the application (bypasses CRT startup)
 extern "C" void atto_main();
 
+// Character type aliases and macros based on UNICODE configuration
+#ifdef UNICODE
+using ATTO_CHAR = wchar_t;
+#define ATTO_TEXT(x) L##x
+#else
+using ATTO_CHAR = char;
+#define ATTO_TEXT(x) x
+#endif
+
 namespace attoboy {
 
 /// Represents the type of a value stored in a container.
 enum ValueType {
-  TYPE_NULL = 0,  ///< Null or uninitialized value
-  TYPE_INVALID,   ///< Invalid or error state
-  TYPE_BOOL,      ///< Boolean value (true/false)
-  TYPE_INT,       ///< Integer value (32-bit)
-  TYPE_FLOAT,     ///< Floating-point value (single precision)
-  TYPE_STRING,    ///< String value (attoboy::String)
-  TYPE_LIST,      ///< List value (attoboy::List)
-  TYPE_MAP,       ///< Map value (attoboy::Map)
-  TYPE_SET,       ///< Set value (attoboy::Set)
-  TYPE_UNKNOWN    ///< Unknown or unrecognized type
+  TYPE_NULL = 0, ///< Null or uninitialized value
+  TYPE_INVALID,  ///< Invalid or error state
+  TYPE_BOOL,     ///< Boolean value (true/false)
+  TYPE_INT,      ///< Integer value (32-bit)
+  TYPE_FLOAT,    ///< Floating-point value (single precision)
+  TYPE_STRING,   ///< String value (attoboy::String)
+  TYPE_LIST,     ///< List value (attoboy::List)
+  TYPE_MAP,      ///< Map value (attoboy::Map)
+  TYPE_SET,      ///< Set value (attoboy::Set)
+  TYPE_UNKNOWN   ///< Unknown or unrecognized type
 };
 
 class StringImpl;
@@ -38,11 +47,8 @@ public:
   /// Creates an empty string with length 0.
   String();
 
-  /// Creates a string from a C-style string, converting ANSI to Unicode.
-  String(const char *str);
-
-  /// Creates a string from a wide character string.
-  String(const wchar_t *str);
+  /// Creates a string from a C-style string.
+  String(const ATTO_CHAR *str);
 
   /// Creates a deep copy of another string.
   String(const String &other);
@@ -206,9 +212,9 @@ public:
   /// Replaces {key} with the corresponding value from the map.
   String format(const Map &map) const;
 
-  /// Returns a pointer to the underlying null-terminated wide string.
+  /// Returns a pointer to the underlying null-terminated string.
   /// Returns an empty string literal if the string is empty.
-  const wchar_t *c_str() const;
+  const ATTO_CHAR *c_str() const;
 
 private:
   StringImpl *impl;
@@ -364,8 +370,7 @@ private:
   void append_impl(bool value);
   void append_impl(int value);
   void append_impl(float value);
-  void append_impl(const char *value);
-  void append_impl(const wchar_t *value);
+  void append_impl(const ATTO_CHAR *value);
   void append_impl(const String &value);
   void append_impl(const List &value);
   void append_impl(const Map &value);
@@ -374,8 +379,7 @@ private:
   void prepend_impl(bool value);
   void prepend_impl(int value);
   void prepend_impl(float value);
-  void prepend_impl(const char *value);
-  void prepend_impl(const wchar_t *value);
+  void prepend_impl(const ATTO_CHAR *value);
   void prepend_impl(const String &value);
   void prepend_impl(const List &value);
   void prepend_impl(const Map &value);
@@ -384,8 +388,7 @@ private:
   void insert_impl(int index, bool value);
   void insert_impl(int index, int value);
   void insert_impl(int index, float value);
-  void insert_impl(int index, const char *value);
-  void insert_impl(int index, const wchar_t *value);
+  void insert_impl(int index, const ATTO_CHAR *value);
   void insert_impl(int index, const String &value);
   void insert_impl(int index, const List &value);
   void insert_impl(int index, const Map &value);
@@ -394,8 +397,7 @@ private:
   void set_impl(int index, bool value);
   void set_impl(int index, int value);
   void set_impl(int index, float value);
-  void set_impl(int index, const char *value);
-  void set_impl(int index, const wchar_t *value);
+  void set_impl(int index, const ATTO_CHAR *value);
   void set_impl(int index, const String &value);
   void set_impl(int index, const List &value);
   void set_impl(int index, const Map &value);
@@ -504,8 +506,7 @@ private:
   void put_impl(bool key, bool value);
   void put_impl(bool key, int value);
   void put_impl(bool key, float value);
-  void put_impl(bool key, const char *value);
-  void put_impl(bool key, const wchar_t *value);
+  void put_impl(bool key, const ATTO_CHAR *value);
   void put_impl(bool key, const String &value);
   void put_impl(bool key, const List &value);
   void put_impl(bool key, const Map &value);
@@ -514,8 +515,7 @@ private:
   void put_impl(int key, bool value);
   void put_impl(int key, int value);
   void put_impl(int key, float value);
-  void put_impl(int key, const char *value);
-  void put_impl(int key, const wchar_t *value);
+  void put_impl(int key, const ATTO_CHAR *value);
   void put_impl(int key, const String &value);
   void put_impl(int key, const List &value);
   void put_impl(int key, const Map &value);
@@ -524,38 +524,25 @@ private:
   void put_impl(float key, bool value);
   void put_impl(float key, int value);
   void put_impl(float key, float value);
-  void put_impl(float key, const char *value);
-  void put_impl(float key, const wchar_t *value);
+  void put_impl(float key, const ATTO_CHAR *value);
   void put_impl(float key, const String &value);
   void put_impl(float key, const List &value);
   void put_impl(float key, const Map &value);
   void put_impl(float key, const Set &value);
 
-  void put_impl(const char *key, bool value);
-  void put_impl(const char *key, int value);
-  void put_impl(const char *key, float value);
-  void put_impl(const char *key, const char *value);
-  void put_impl(const char *key, const wchar_t *value);
-  void put_impl(const char *key, const String &value);
-  void put_impl(const char *key, const List &value);
-  void put_impl(const char *key, const Map &value);
-  void put_impl(const char *key, const Set &value);
-
-  void put_impl(const wchar_t *key, bool value);
-  void put_impl(const wchar_t *key, int value);
-  void put_impl(const wchar_t *key, float value);
-  void put_impl(const wchar_t *key, const char *value);
-  void put_impl(const wchar_t *key, const wchar_t *value);
-  void put_impl(const wchar_t *key, const String &value);
-  void put_impl(const wchar_t *key, const List &value);
-  void put_impl(const wchar_t *key, const Map &value);
-  void put_impl(const wchar_t *key, const Set &value);
+  void put_impl(const ATTO_CHAR *key, bool value);
+  void put_impl(const ATTO_CHAR *key, int value);
+  void put_impl(const ATTO_CHAR *key, float value);
+  void put_impl(const ATTO_CHAR *key, const ATTO_CHAR *value);
+  void put_impl(const ATTO_CHAR *key, const String &value);
+  void put_impl(const ATTO_CHAR *key, const List &value);
+  void put_impl(const ATTO_CHAR *key, const Map &value);
+  void put_impl(const ATTO_CHAR *key, const Set &value);
 
   void put_impl(const String &key, bool value);
   void put_impl(const String &key, int value);
   void put_impl(const String &key, float value);
-  void put_impl(const String &key, const char *value);
-  void put_impl(const String &key, const wchar_t *value);
+  void put_impl(const String &key, const ATTO_CHAR *value);
   void put_impl(const String &key, const String &value);
   void put_impl(const String &key, const List &value);
   void put_impl(const String &key, const Map &value);
@@ -564,8 +551,7 @@ private:
   void remove_impl(bool key);
   void remove_impl(int key);
   void remove_impl(float key);
-  void remove_impl(const char *key);
-  void remove_impl(const wchar_t *key);
+  void remove_impl(const ATTO_CHAR *key);
   void remove_impl(const String &key);
 
   // Variadic helper for constructor - handles alternating key-value pairs
@@ -693,8 +679,7 @@ private:
   void put_impl(bool value);
   void put_impl(int value);
   void put_impl(float value);
-  void put_impl(const char *value);
-  void put_impl(const wchar_t *value);
+  void put_impl(const ATTO_CHAR *value);
   void put_impl(const String &value);
   void put_impl(const List &value);
   void put_impl(const Map &value);
@@ -703,8 +688,7 @@ private:
   void remove_impl(bool value);
   void remove_impl(int value);
   void remove_impl(float value);
-  void remove_impl(const char *value);
-  void remove_impl(const wchar_t *value);
+  void remove_impl(const ATTO_CHAR *value);
   void remove_impl(const String &value);
 
   // Variadic helper for constructor
@@ -901,9 +885,17 @@ private:
 };
 
 /// A collection of mathematical functions and utilities.
-/// All functions are static inline members for minimal binary size.
 class Math {
 public:
+  // Mathematical constants
+  static constexpr float PI = 3.14159265358979323846f;     ///< π
+  static constexpr float E = 2.71828182845904523536f;      ///< Euler's number
+  static constexpr float TAU = 6.28318530717958647693f;    ///< τ = 2π
+  static constexpr float SQRT_2 = 1.41421356237309504880f; ///< √2
+  static const float INF;                                  ///< +∞
+  static const float NEG_INF;                              ///< -∞
+  static const float NAN;                                  ///< Not-a-number
+
   // Random number generation
 
   /// Returns a random integer.
@@ -992,7 +984,8 @@ public:
   /// Returns the tangent of x (x in radians).
   static float tan(float x) noexcept;
 
-  /// Returns the arctangent of y/x in radians, using signs to determine quadrant.
+  /// Returns the arctangent of y/x in radians, using signs to determine
+  /// quadrant.
   static float atan2(float y, float x) noexcept;
 
   /// Returns the arctangent of x in radians.

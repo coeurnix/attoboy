@@ -1,4 +1,5 @@
 #include "attodatetime_internal.h"
+#include "attostring_internal.h"
 #include <new>
 
 namespace attoboy {
@@ -38,22 +39,26 @@ DateTime::DateTime(const String &iso8601) {
 
   new (impl) DateTimeImpl();
 
-  const wchar_t *str = iso8601.c_str();
+  const ATTO_CHAR *str = iso8601.c_str();
   SYSTEMTIME st = {0};
 
+#ifdef UNICODE
   int len = lstrlenW(str);
+#else
+  int len = lstrlenA(str);
+#endif
   if (len >= 19) {
-    st.wYear = (str[0] - L'0') * 1000 + (str[1] - L'0') * 100 +
-               (str[2] - L'0') * 10 + (str[3] - L'0');
-    st.wMonth = (str[5] - L'0') * 10 + (str[6] - L'0');
-    st.wDay = (str[8] - L'0') * 10 + (str[9] - L'0');
-    st.wHour = (str[11] - L'0') * 10 + (str[12] - L'0');
-    st.wMinute = (str[14] - L'0') * 10 + (str[15] - L'0');
-    st.wSecond = (str[17] - L'0') * 10 + (str[18] - L'0');
+    st.wYear = (str[0] - ATTO_TEXT('0')) * 1000 + (str[1] - ATTO_TEXT('0')) * 100 +
+               (str[2] - ATTO_TEXT('0')) * 10 + (str[3] - ATTO_TEXT('0'));
+    st.wMonth = (str[5] - ATTO_TEXT('0')) * 10 + (str[6] - ATTO_TEXT('0'));
+    st.wDay = (str[8] - ATTO_TEXT('0')) * 10 + (str[9] - ATTO_TEXT('0'));
+    st.wHour = (str[11] - ATTO_TEXT('0')) * 10 + (str[12] - ATTO_TEXT('0'));
+    st.wMinute = (str[14] - ATTO_TEXT('0')) * 10 + (str[15] - ATTO_TEXT('0'));
+    st.wSecond = (str[17] - ATTO_TEXT('0')) * 10 + (str[18] - ATTO_TEXT('0'));
 
-    if (len >= 24 && str[19] == L'.') {
-      st.wMilliseconds = (str[20] - L'0') * 100 + (str[21] - L'0') * 10 +
-                         (str[22] - L'0');
+    if (len >= 24 && str[19] == ATTO_TEXT('.')) {
+      st.wMilliseconds = (str[20] - ATTO_TEXT('0')) * 100 + (str[21] - ATTO_TEXT('0')) * 10 +
+                         (str[22] - ATTO_TEXT('0'));
     }
 
     SystemTimeToFileTime(&st, &impl->fileTime);

@@ -4,18 +4,22 @@
 using namespace attoboy;
 
 void atto_main() {
-  OutputDebugStringW(L"[TEST] Starting test\n");
-  Log("Creating List");
+#ifdef UNICODE
+  OutputDebugStringW(ATTO_TEXT("[TEST] Starting test\n"));
+#else
+  OutputDebugStringA(ATTO_TEXT("[TEST] Starting test\n"));
+#endif
+  Log(ATTO_TEXT("Creating List"));
 
   List innerList;
-  Log("Appending to List");
+  Log(ATTO_TEXT("Appending to List"));
   innerList.append(1);
-  Log("Creating Map");
+  Log(ATTO_TEXT("Creating Map"));
 
   Map m;
-  Log("About to put List into Map");
-  m.put(String("list"), innerList);
-  Log("Put succeeded");
+  Log(ATTO_TEXT("About to put List into Map"));
+  m.put(String(ATTO_TEXT("list")), innerList);
+  Log(ATTO_TEXT("Put succeeded"));
 
   Exit(0);
 }

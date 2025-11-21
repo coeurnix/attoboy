@@ -27,12 +27,12 @@ DWORD WINAPI ReaderThread(LPVOID param) {
     // Various read operations
     int len = g_sharedString->length();
     bool empty = g_sharedString->isEmpty();
-    bool contains = g_sharedString->contains("a");
+    bool contains = g_sharedString->contains(ATTO_TEXT("a"));
     String copy = g_sharedString->duplicate();
     int hash = g_sharedString->hash();
-    bool starts = g_sharedString->startsWith("I");
-    bool ends = g_sharedString->endsWith("l");
-    int cnt = g_sharedString->count("i");
+    bool starts = g_sharedString->startsWith(ATTO_TEXT("I"));
+    bool ends = g_sharedString->endsWith(ATTO_TEXT("l"));
+    int cnt = g_sharedString->count(ATTO_TEXT("i"));
     String sub = g_sharedString->substring(0, 3);
 
     // Prevent compiler optimization
@@ -50,14 +50,14 @@ DWORD WINAPI ReaderThread(LPVOID param) {
 DWORD WINAPI WriterThread(LPVOID param) {
   for (int i = 0; i < 100; i++) {
     // Various operations that create new strings
-    String temp = g_sharedString->append("x");
+    String temp = g_sharedString->append(ATTO_TEXT("x"));
     temp = temp.trim();
     temp = temp.upper();
     temp = temp.lower();
-    temp = temp.replace("x", "y");
-    temp = temp.prepend("z");
+    temp = temp.replace(ATTO_TEXT("x"), ATTO_TEXT("y"));
+    temp = temp.prepend(ATTO_TEXT("z"));
     temp = temp.reverse();
-    temp = temp.insert(0, "a");
+    temp = temp.insert(0, ATTO_TEXT("a"));
     temp = temp.remove(0, 1);
     // temp goes out of scope, testing memory management
   }
@@ -68,14 +68,14 @@ DWORD WINAPI WriterThread(LPVOID param) {
 // Mutator thread function - creates new strings repeatedly
 // With immutable strings, each operation returns a new string
 DWORD WINAPI MutatorThread(LPVOID param) {
-  String localStr("Mutate");
+  String localStr(ATTO_TEXT("Mutate"));
   for (int i = 0; i < 500; i++) {
-    localStr = localStr.append("!");
+    localStr = localStr.append(ATTO_TEXT("!"));
     localStr = localStr.trim();
     localStr = localStr.upper();
     localStr = localStr.lower();
     localStr = localStr.reverse();
-    localStr = localStr.replace("!", "?");
+    localStr = localStr.replace(ATTO_TEXT("!"), ATTO_TEXT("?"));
     localStr = localStr.repeat(2);
     localStr = localStr.remove(0, localStr.length() / 2);
   }
@@ -87,15 +87,15 @@ DWORD WINAPI CopyThread(LPVOID param) {
   for (int i = 0; i < 500; i++) {
     String copy1(*g_sharedString);
     String copy2 = g_sharedString->duplicate();
-    copy1 = copy1.append("_copy");
-    copy2 = copy2.prepend("copy_");
+    copy1 = copy1.append(ATTO_TEXT("_copy"));
+    copy2 = copy2.prepend(ATTO_TEXT("copy_"));
   }
   return 0;
 }
 
 void atto_main() {
   // Initialize shared string
-  g_sharedString = new String("Initial");
+  g_sharedString = new String(ATTO_TEXT("Initial"));
 
   // Test 1: Multiple readers on shared string
   HANDLE readers[4];
@@ -117,7 +117,7 @@ void atto_main() {
   g_readsDone = 0;
   g_writesDone = 0;
   delete g_sharedString;
-  g_sharedString = new String("Reset");
+  g_sharedString = new String(ATTO_TEXT("Reset"));
 
   HANDLE mixed[6];
   for (int i = 0; i < 3; i++) {
@@ -154,7 +154,7 @@ void atto_main() {
 
   // Test 4: Copy constructor stress test
   delete g_sharedString;
-  g_sharedString = new String("CopyTest");
+  g_sharedString = new String(ATTO_TEXT("CopyTest"));
   HANDLE copiers[4];
   for (int i = 0; i < 4; i++) {
     copiers[i] = CreateThread(nullptr, 0, CopyThread, nullptr, 0, nullptr);

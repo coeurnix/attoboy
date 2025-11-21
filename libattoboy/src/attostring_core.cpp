@@ -10,17 +10,21 @@ String::String() {
   impl->len = 0;
 }
 
-String::String(const char *str) {
+String::String(const ATTO_CHAR *str) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
   InitializeSRWLock(&impl->lock);
 
   if (!str) {
-    const wchar_t *nullStr = L"null";
+    const ATTO_CHAR *nullStr = ATTO_TEXT("null");
     int len = 4;
     impl->data = AllocString(len);
     if (impl->data) {
+#ifdef UNICODE
       lstrcpyW(impl->data, nullStr);
+#else
+      lstrcpyA(impl->data, nullStr);
+#endif
       impl->len = len;
     } else {
       impl->len = 0;
@@ -28,44 +32,18 @@ String::String(const char *str) {
     return;
   }
 
-  int num_chars = MultiByteToWideChar(CP_ACP, 0, str, -1, nullptr, 0);
-  if (num_chars > 0) {
-    impl->data = (LPWSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
-                                   num_chars * sizeof(WCHAR));
-    if (impl->data) {
-      MultiByteToWideChar(CP_ACP, 0, str, -1, impl->data, num_chars);
-      impl->len = num_chars - 1;
-    } else {
-      impl->len = 0;
-    }
-  } else {
-    impl->data = AllocString(0);
-    impl->len = 0;
-  }
-}
-
-String::String(const wchar_t *str) {
-  impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
-                                 sizeof(StringImpl));
-  InitializeSRWLock(&impl->lock);
-
-  if (!str) {
-    const wchar_t *nullStr = L"null";
-    int len = 4;
-    impl->data = AllocString(len);
-    if (impl->data) {
-      lstrcpyW(impl->data, nullStr);
-      impl->len = len;
-    } else {
-      impl->len = 0;
-    }
-    return;
-  }
-
+#ifdef UNICODE
   int len = lstrlenW(str);
+#else
+  int len = lstrlenA(str);
+#endif
   impl->data = AllocString(len);
   if (impl->data) {
+#ifdef UNICODE
     lstrcpyW(impl->data, str);
+#else
+    lstrcpyA(impl->data, str);
+#endif
     impl->len = len;
   } else {
     impl->len = 0;
@@ -83,7 +61,11 @@ String::String(const String &other) {
       int len = other.impl->len;
       impl->data = AllocString(len);
       if (impl->data) {
+#ifdef UNICODE
         lstrcpyW(impl->data, other.impl->data);
+#else
+        lstrcpyA(impl->data, other.impl->data);
+#endif
         impl->len = len;
       } else {
         impl->len = 0;
@@ -119,7 +101,11 @@ String &String::operator=(const String &other) {
       int len = other.impl->len;
       impl->data = AllocString(len);
       if (impl->data) {
+#ifdef UNICODE
         lstrcpyW(impl->data, other.impl->data);
+#else
+        lstrcpyA(impl->data, other.impl->data);
+#endif
         impl->len = len;
       } else {
         impl->data = AllocString(0);
@@ -143,8 +129,8 @@ int String::length() const {
 
 String String::duplicate() const { return String(*this); }
 
-const wchar_t *String::c_str() const {
-  return (impl && impl->data) ? impl->data : L"";
+const ATTO_CHAR *String::c_str() const {
+  return (impl && impl->data) ? impl->data : ATTO_TEXT("");
 }
 
 } // namespace attoboy

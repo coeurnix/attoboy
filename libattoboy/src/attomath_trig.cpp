@@ -2,6 +2,18 @@
 
 namespace attoboy {
 
+// Initialize constants declared in header
+const float Math::INF = 1e30f;
+const float Math::NEG_INF = -1e30f;
+
+// Create NaN using union (IEEE 754 quiet NaN for little-endian)
+union FloatBits {
+  unsigned int bits;
+  float value;
+};
+const FloatBits nanBits = {0x7FC00000};
+const float Math::NAN = nanBits.value;
+
 static const float PI = 3.14159265358979323846f;
 
 float Math::sqrt(float x) noexcept {
@@ -61,25 +73,30 @@ float Math::tan(float x) noexcept {
 }
 
 float Math::atan(float x) noexcept {
-  if (abs(x) > 1.0f) {
+  float absx = abs(x);
+  if (absx > 1.0f) {
     float result = PI / 2.0f - atan(1.0f / x);
     return x < 0.0f ? -result : result;
   }
 
-  float x2 = x * x;
-  float result = x;
-  float term = x;
+  // Range reduction for |x| <= 1: atan(x) = 2 * atan(y) where y = x / (1 +
+  // sqrt(1 + x²))
+  float y = absx / (1.0f + sqrt(1.0f + absx * absx));
+  float y2 = y * y;
+  float result = y;
+  float term = y;
 
-  term = term * x2;
+  term *= y2; // y^3
   result -= term / 3.0f;
-  term = term * x2;
+  term *= y2; // y^5
   result += term / 5.0f;
-  term = term * x2;
+  term *= y2; // y^7
   result -= term / 7.0f;
-  term = term * x2;
+  term *= y2; // y^9
   result += term / 9.0f;
 
-  return result;
+  result *= 2.0f;
+  return x < 0.0f ? -result : result;
 }
 
 float Math::atan2(float y, float x) noexcept {

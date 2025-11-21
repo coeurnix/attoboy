@@ -1,4 +1,5 @@
 #include "attoset_internal.h"
+#include "attostring_internal.h"
 
 namespace attoboy {
 
@@ -32,22 +33,12 @@ void Set::put_impl(float value) {
   }
 }
 
-void Set::put_impl(const char *value) {
+void Set::put_impl(const ATTO_CHAR *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  if (!impl->values.contains<const char *>(value)) {
-    impl->values.append(value);
-  }
-}
-
-void Set::put_impl(const wchar_t *value) {
-  if (!impl)
-    return;
-  WriteLockGuard guard(&impl->lock);
-
-  if (!impl->values.contains<const wchar_t *>(value)) {
+  if (!impl->values.contains<const ATTO_CHAR *>(value)) {
     impl->values.append(value);
   }
 }

@@ -4,8 +4,8 @@
 
 namespace attoboy {
 
-static inline bool IsWhitespace(wchar_t c) {
-  return c == L' ' || c == L'\t' || c == L'\n' || c == L'\r';
+static inline bool IsWhitespace(ATTO_WCHAR c) {
+  return c == ATTO_TEXT(' ') || c == ATTO_TEXT('\t') || c == ATTO_TEXT('\n') || c == ATTO_TEXT('\r');
 }
 
 List String::split(const String &sep, int max) const {
@@ -33,8 +33,8 @@ List String::split(const String &sep, int max) const {
     max = 1;
   }
 
-  const wchar_t *data = impl->data;
-  const wchar_t *sepData = sep.impl->data;
+  const ATTO_WCHAR *data = impl->data;
+  const ATTO_WCHAR *sepData = sep.impl->data;
   int sepLen = sep.impl->len;
 
   int start = 0;
@@ -54,10 +54,10 @@ List String::split(const String &sep, int max) const {
     }
 
     if (found) {
-      LPWSTR part = AllocString(i - start);
+      ATTO_LPSTR part = AllocString(i - start);
       if (part) {
-        MyWcsNCpy(part, data + start, i - start);
-        part[i - start] = L'\0';
+        MyStrNCpy(part, data + start, i - start);
+        part[i - start] = ATTO_TEXT('\0');
         result.append(String(part));
         FreeString(part);
       }
@@ -67,10 +67,10 @@ List String::split(const String &sep, int max) const {
     }
   }
 
-  LPWSTR remainder = AllocString(impl->len - start);
+  ATTO_LPSTR remainder = AllocString(impl->len - start);
   if (remainder) {
-    MyWcsNCpy(remainder, data + start, impl->len - start);
-    remainder[impl->len - start] = L'\0';
+    MyStrNCpy(remainder, data + start, impl->len - start);
+    remainder[impl->len - start] = ATTO_TEXT('\0');
     result.append(String(remainder));
     FreeString(remainder);
   }
@@ -91,16 +91,16 @@ List String::split() const {
     return result;
   }
 
-  const wchar_t *data = impl->data;
+  const ATTO_WCHAR *data = impl->data;
   int start = -1;
 
   for (int i = 0; i < impl->len; i++) {
     if (IsWhitespace(data[i])) {
       if (start >= 0) {
-        LPWSTR part = AllocString(i - start);
+        ATTO_LPSTR part = AllocString(i - start);
         if (part) {
-          MyWcsNCpy(part, data + start, i - start);
-          part[i - start] = L'\0';
+          MyStrNCpy(part, data + start, i - start);
+          part[i - start] = ATTO_TEXT('\0');
           result.append(String(part));
           FreeString(part);
         }
@@ -114,10 +114,10 @@ List String::split() const {
   }
 
   if (start >= 0) {
-    LPWSTR part = AllocString(impl->len - start);
+    ATTO_LPSTR part = AllocString(impl->len - start);
     if (part) {
-      MyWcsNCpy(part, data + start, impl->len - start);
-      part[impl->len - start] = L'\0';
+      MyStrNCpy(part, data + start, impl->len - start);
+      part[impl->len - start] = ATTO_TEXT('\0');
       result.append(String(part));
       FreeString(part);
     }

@@ -16,11 +16,17 @@ void atto_main() {
   }
 
   // Test 3: Create buffer from string
-  String s("Test");
+  String s(ATTO_TEXT("Test"));
   Buffer b3(s);
-  if (b3.length() != 8) {  // 4 chars * 2 bytes per wchar
+#ifdef UNICODE
+  if (b3.length() != 8) { // 4 chars * 2 bytes per wchar
     Exit(3);
   }
+#else
+  if (b3.length() != 4) { // 4 chars * 1 byte per char
+    Exit(3);
+  }
+#endif
 
   // Test 4: toString
   String result = b3.toString();
@@ -50,10 +56,16 @@ void atto_main() {
 
   // Test 8: Append string
   Buffer b7;
-  b7.append(String("A"));
+  b7.append(String(ATTO_TEXT("A")));
+#ifdef UNICODE
   if (b7.length() != 2) {
     Exit(8);
   }
+#else
+  if (b7.length() != 1) {
+    Exit(8);
+  }
+#endif
 
   // Test 9: Compare
   Buffer b8(s);

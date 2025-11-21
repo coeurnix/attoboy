@@ -41,20 +41,7 @@ void List::append_impl(float value) {
   impl->size++;
 }
 
-void List::append_impl(const char *value) {
-  if (!impl)
-    return;
-  WriteLockGuard guard(&impl->lock);
-
-  if (!EnsureCapacity(impl, impl->size + 1))
-    return;
-
-  impl->items[impl->size].type = TYPE_STRING;
-  impl->items[impl->size].stringVal = AllocString(value);
-  impl->size++;
-}
-
-void List::append_impl(const wchar_t *value) {
+void List::append_impl(const ATTO_CHAR *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);

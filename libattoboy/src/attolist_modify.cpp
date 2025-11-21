@@ -55,7 +55,7 @@ void List::prepend_impl(float value) {
   impl->size++;
 }
 
-void List::prepend_impl(const char *value) {
+void List::prepend_impl(const ATTO_CHAR *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
@@ -72,22 +72,6 @@ void List::prepend_impl(const char *value) {
   impl->size++;
 }
 
-void List::prepend_impl(const wchar_t *value) {
-  if (!impl)
-    return;
-  WriteLockGuard guard(&impl->lock);
-
-  if (!EnsureCapacity(impl, impl->size + 1))
-    return;
-
-  for (int i = impl->size; i > 0; i--) {
-    impl->items[i] = impl->items[i - 1];
-  }
-
-  impl->items[0].type = TYPE_STRING;
-  impl->items[0].stringVal = AllocString(value);
-  impl->size++;
-}
 
 void List::prepend_impl(const String &value) {
   if (!impl)
@@ -248,7 +232,7 @@ void List::insert_impl(int index, float value) {
   impl->size++;
 }
 
-void List::insert_impl(int index, const char *value) {
+void List::insert_impl(int index, const ATTO_CHAR *value) {
   if (!impl)
     return;
 
@@ -278,35 +262,6 @@ void List::insert_impl(int index, const char *value) {
   impl->size++;
 }
 
-void List::insert_impl(int index, const wchar_t *value) {
-  if (!impl)
-    return;
-
-  WriteLockGuard guard(&impl->lock);
-
-  if (index < 0)
-    index = 0;
-
-  if (index >= impl->size) {
-    if (!EnsureCapacity(impl, impl->size + 1))
-      return;
-    impl->items[impl->size].type = TYPE_STRING;
-    impl->items[impl->size].stringVal = AllocString(value);
-    impl->size++;
-    return;
-  }
-
-  if (!EnsureCapacity(impl, impl->size + 1))
-    return;
-
-  for (int i = impl->size; i > index; i--) {
-    impl->items[i] = impl->items[i - 1];
-  }
-
-  impl->items[index].type = TYPE_STRING;
-  impl->items[index].stringVal = AllocString(value);
-  impl->size++;
-}
 
 void List::insert_impl(int index, const String &value) {
   if (!impl)

@@ -2,19 +2,19 @@
 
 namespace attoboy {
 
-// Custom wcsncpy replacement
-void MyWcsNCpy(WCHAR *dest, const WCHAR *src, int count) {
+// Custom strncpy replacement
+void MyStrNCpy(ATTO_WCHAR *dest, const ATTO_WCHAR *src, int count) {
   for (int i = 0; i < count; i++) {
     if (*src) {
       *dest++ = *src++;
     } else {
-      *dest++ = L'\0';
+      *dest++ = ATTO_TEXT('\0');
     }
   }
 }
 
-// Custom wcsncmp replacement
-int MyWcsNCmp(const WCHAR *s1, const WCHAR *s2, int count) {
+// Custom strncmp replacement
+int MyStrNCmp(const ATTO_WCHAR *s1, const ATTO_WCHAR *s2, int count) {
   for (int i = 0; i < count; i++) {
     if (*s1 != *s2)
       return *s1 - *s2;
@@ -26,21 +26,21 @@ int MyWcsNCmp(const WCHAR *s1, const WCHAR *s2, int count) {
   return 0;
 }
 
-// Custom wcsstr replacement
-WCHAR *MyWcsStr(const WCHAR *haystack, const WCHAR *needle) {
+// Custom strstr replacement
+ATTO_WCHAR *MyStrStr(const ATTO_WCHAR *haystack, const ATTO_WCHAR *needle) {
   if (!*needle)
-    return (WCHAR *)haystack;
+    return (ATTO_WCHAR *)haystack;
 
   for (; *haystack; haystack++) {
     if (*haystack == *needle) {
-      const WCHAR *h = haystack;
-      const WCHAR *n = needle;
+      const ATTO_WCHAR *h = haystack;
+      const ATTO_WCHAR *n = needle;
       while (*h && *n && *h == *n) {
         h++;
         n++;
       }
       if (!*n)
-        return (WCHAR *)haystack;
+        return (ATTO_WCHAR *)haystack;
     }
   }
   return nullptr;

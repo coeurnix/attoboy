@@ -7,164 +7,161 @@ static int errorCount = 0;
 
 #define TEST(condition, message)                                               \
   if (!(condition)) {                                                          \
-    LogError("Test failed: ", message);                                        \
+    LogError(ATTO_TEXT("Test failed: "), message);                                        \
     errorCount++;                                                              \
   }
 
 void atto_main() {
-  Log("Running extended String tests...");
+  Log(ATTO_TEXT("Running extended String tests..."));
 
   // Test String(nullptr) - should create "null"
-  const char *nullChar = nullptr;
-  const wchar_t *nullWchar = nullptr;
-  String sNullChar(nullChar);
-  String sNullWchar(nullWchar);
-  TEST(sNullChar == "null", "String(nullptr char) should create \"null\"");
-  TEST(sNullWchar == "null", "String(nullptr wchar_t) should create \"null\"");
+  const ATTO_CHAR *nullPtr = nullptr;
+  String sNull(nullPtr);
+  TEST(sNull == ATTO_TEXT("null"), ATTO_TEXT("String(nullptr) should create \"null\""));
 
   // Test lines()
-  String sLines("line1\nline2\nline3");
+  String sLines(ATTO_TEXT("line1\nline2\nline3"));
   List lines = sLines.lines();
-  TEST(lines.length() == 3, "lines() should split into 3 lines");
-  TEST(lines.at<String>(0) == "line1", "First line should be \"line1\"");
-  TEST(lines.at<String>(1) == "line2", "Second line should be \"line2\"");
-  TEST(lines.at<String>(2) == "line3", "Third line should be \"line3\"");
+  TEST(lines.length() == 3, ATTO_TEXT("lines() should split into 3 lines"));
+  TEST(lines.at<String>(0) == ATTO_TEXT("line1"), ATTO_TEXT("First line should be \"line1\""));
+  TEST(lines.at<String>(1) == ATTO_TEXT("line2"), ATTO_TEXT("Second line should be \"line2\""));
+  TEST(lines.at<String>(2) == ATTO_TEXT("line3"), ATTO_TEXT("Third line should be \"line3\""));
 
-  String sLinesWindows("line1\r\nline2\r\nline3");
+  String sLinesWindows(ATTO_TEXT("line1\r\nline2\r\nline3"));
   List linesWindows = sLinesWindows.lines();
   TEST(linesWindows.length() == 3,
-       "lines() should handle Windows line endings");
-  TEST(linesWindows.at<String>(0) == "line1", "First line should be \"line1\"");
-  TEST(linesWindows.at<String>(1) == "line2",
-       "Second line should be \"line2\"");
+       ATTO_TEXT("lines() should handle Windows line endings"));
+  TEST(linesWindows.at<String>(0) == ATTO_TEXT("line1"), ATTO_TEXT("First line should be \"line1\""));
+  TEST(linesWindows.at<String>(1) == ATTO_TEXT("line2"),
+       ATTO_TEXT("Second line should be \"line2\""));
 
-  String sLinesMixed("line1\nline2\r\nline3");
+  String sLinesMixed(ATTO_TEXT("line1\nline2\r\nline3"));
   List linesMixed = sLinesMixed.lines();
-  TEST(linesMixed.length() == 3, "lines() should handle mixed line endings");
+  TEST(linesMixed.length() == 3, ATTO_TEXT("lines() should handle mixed line endings"));
 
-  String sLinesTrailing("line1\nline2\n");
+  String sLinesTrailing(ATTO_TEXT("line1\nline2\n"));
   List linesTrailing = sLinesTrailing.lines();
-  TEST(linesTrailing.length() == 3, "lines() should handle trailing newline");
+  TEST(linesTrailing.length() == 3, ATTO_TEXT("lines() should handle trailing newline"));
   TEST(linesTrailing.at<String>(2).isEmpty(),
-       "Last line after trailing newline should be empty");
+       ATTO_TEXT("Last line after trailing newline should be empty"));
 
   // Test join()
   List listToJoin;
-  listToJoin.append("apple").append("banana").append("cherry");
-  String joined = String(", ").join(listToJoin);
-  TEST(joined == "apple, banana, cherry",
-       "join() should join strings with separator");
+  listToJoin.append(ATTO_TEXT("apple")).append(ATTO_TEXT("banana")).append(ATTO_TEXT("cherry"));
+  String joined = String(ATTO_TEXT(", ")).join(listToJoin);
+  TEST(joined == ATTO_TEXT("apple, banana, cherry"),
+       ATTO_TEXT("join() should join strings with separator"));
 
   List listMixedTypes;
-  listMixedTypes.append("value").append(42).append(true);
-  String joinedMixed = String(" | ").join(listMixedTypes);
-  TEST(joinedMixed.contains("value"), "join() should handle mixed types");
-  TEST(joinedMixed.contains("42"), "join() should convert int to string");
-  TEST(joinedMixed.contains("true"), "join() should convert bool to string");
+  listMixedTypes.append(ATTO_TEXT("value")).append(42).append(true);
+  String joinedMixed = String(ATTO_TEXT(" | ")).join(listMixedTypes);
+  TEST(joinedMixed.contains(ATTO_TEXT("value")), ATTO_TEXT("join() should handle mixed types"));
+  TEST(joinedMixed.contains(ATTO_TEXT("42")), ATTO_TEXT("join() should convert int to string"));
+  TEST(joinedMixed.contains(ATTO_TEXT("true")), ATTO_TEXT("join() should convert bool to string"));
 
   List emptyList;
-  String joinedEmpty = String(", ").join(emptyList);
+  String joinedEmpty = String(ATTO_TEXT(", ")).join(emptyList);
   TEST(joinedEmpty.isEmpty(),
-       "join() with empty list should return empty string");
+       ATTO_TEXT("join() with empty list should return empty string"));
 
   // Test split(sep, max)
-  String sSplit("a,b,c,d,e");
-  List splitParts = sSplit.split(",", 2);
-  TEST(splitParts.length() == 3, "split(sep, 2) should create 3 parts");
-  TEST(splitParts.at<String>(0) == "a", "First part should be \"a\"");
-  TEST(splitParts.at<String>(1) == "b", "Second part should be \"b\"");
-  TEST(splitParts.at<String>(2) == "c,d,e", "Third part should be remainder");
+  String sSplit(ATTO_TEXT("a,b,c,d,e"));
+  List splitParts = sSplit.split(ATTO_TEXT(","), 2);
+  TEST(splitParts.length() == 3, ATTO_TEXT("split(sep, 2) should create 3 parts"));
+  TEST(splitParts.at<String>(0) == ATTO_TEXT("a"), ATTO_TEXT("First part should be \"a\""));
+  TEST(splitParts.at<String>(1) == ATTO_TEXT("b"), ATTO_TEXT("Second part should be \"b\""));
+  TEST(splitParts.at<String>(2) == ATTO_TEXT("c,d,e"), ATTO_TEXT("Third part should be remainder"));
 
-  String sSplitOne("a,b,c");
-  List splitOne = sSplitOne.split(",", 1);
-  TEST(splitOne.length() == 2, "split(sep, 1) should create 2 parts");
-  TEST(splitOne.at<String>(0) == "a", "First part should be \"a\"");
-  TEST(splitOne.at<String>(1) == "b,c", "Second part should be remainder");
+  String sSplitOne(ATTO_TEXT("a,b,c"));
+  List splitOne = sSplitOne.split(ATTO_TEXT(","), 1);
+  TEST(splitOne.length() == 2, ATTO_TEXT("split(sep, 1) should create 2 parts"));
+  TEST(splitOne.at<String>(0) == ATTO_TEXT("a"), ATTO_TEXT("First part should be \"a\""));
+  TEST(splitOne.at<String>(1) == ATTO_TEXT("b,c"), ATTO_TEXT("Second part should be remainder"));
 
-  String sSplitMulti("apple::banana::cherry");
-  List splitMulti = sSplitMulti.split("::", 1);
-  TEST(splitMulti.length() == 2, "split() should handle multi-char separator");
-  TEST(splitMulti.at<String>(0) == "apple", "First part should be \"apple\"");
-  TEST(splitMulti.at<String>(1) == "banana::cherry",
-       "Remainder should contain remaining separators");
+  String sSplitMulti(ATTO_TEXT("apple::banana::cherry"));
+  List splitMulti = sSplitMulti.split(ATTO_TEXT("::"), 1);
+  TEST(splitMulti.length() == 2, ATTO_TEXT("split() should handle multi-char separator"));
+  TEST(splitMulti.at<String>(0) == ATTO_TEXT("apple"), ATTO_TEXT("First part should be \"apple\""));
+  TEST(splitMulti.at<String>(1) == ATTO_TEXT("banana::cherry"),
+       ATTO_TEXT("Remainder should contain remaining separators"));
 
   // Test split() - whitespace
-  String sWhitespace("  hello   world  test  ");
+  String sWhitespace(ATTO_TEXT("  hello   world  test  "));
   List splitWs = sWhitespace.split();
-  TEST(splitWs.length() == 3, "split() should split by whitespace");
-  TEST(splitWs.at<String>(0) == "hello", "First word should be \"hello\"");
-  TEST(splitWs.at<String>(1) == "world", "Second word should be \"world\"");
-  TEST(splitWs.at<String>(2) == "test", "Third word should be \"test\"");
+  TEST(splitWs.length() == 3, ATTO_TEXT("split() should split by whitespace"));
+  TEST(splitWs.at<String>(0) == ATTO_TEXT("hello"), ATTO_TEXT("First word should be \"hello\""));
+  TEST(splitWs.at<String>(1) == ATTO_TEXT("world"), ATTO_TEXT("Second word should be \"world\""));
+  TEST(splitWs.at<String>(2) == ATTO_TEXT("test"), ATTO_TEXT("Third word should be \"test\""));
 
-  String sTabs("tab\there\tthere");
+  String sTabs(ATTO_TEXT("tab\there\tthere"));
   List splitTabs = sTabs.split();
-  TEST(splitTabs.length() == 3, "split() should handle tabs");
+  TEST(splitTabs.length() == 3, ATTO_TEXT("split() should handle tabs"));
 
-  String sMultiWs("a  \t\n  b");
+  String sMultiWs(ATTO_TEXT("a  \t\n  b"));
   List splitMultiWs = sMultiWs.split();
   TEST(splitMultiWs.length() == 2,
-       "split() should treat consecutive whitespace as one");
+       ATTO_TEXT("split() should treat consecutive whitespace as one"));
 
   // Test format(list)
   List formatList;
-  formatList.append("World").append(42);
-  String formatted = String("Hello {0}! The answer is {1}.").format(formatList);
-  TEST(formatted == "Hello World! The answer is 42.",
-       "format(list) should substitute indexed placeholders");
+  formatList.append(ATTO_TEXT("World")).append(42);
+  String formatted = String(ATTO_TEXT("Hello {0}! The answer is {1}.")).format(formatList);
+  TEST(formatted == ATTO_TEXT("Hello World! The answer is 42."),
+       ATTO_TEXT("format(list) should substitute indexed placeholders"));
 
-  String formatOutOfBounds = String("{0} {5} {1}").format(formatList);
-  TEST(formatOutOfBounds.contains("{5}"),
-       "format(list) should leave out-of-bounds placeholders unchanged");
+  String formatOutOfBounds = String(ATTO_TEXT("{0} {5} {1}")).format(formatList);
+  TEST(formatOutOfBounds.contains(ATTO_TEXT("{5}")),
+       ATTO_TEXT("format(list) should leave out-of-bounds placeholders unchanged"));
 
   // Test format(map)
   Map formatMap;
-  formatMap.put("name", "Alice").put("age", 30);
-  String formattedMap = String("Name: {name}, Age: {age}").format(formatMap);
-  TEST(formattedMap == "Name: Alice, Age: 30",
-       "format(map) should substitute keyed placeholders");
+  formatMap.put(ATTO_TEXT("name"), ATTO_TEXT("Alice")).put(ATTO_TEXT("age"), 30);
+  String formattedMap = String(ATTO_TEXT("Name: {name}, Age: {age}")).format(formatMap);
+  TEST(formattedMap == ATTO_TEXT("Name: Alice, Age: 30"),
+       ATTO_TEXT("format(map) should substitute keyed placeholders"));
 
-  String formatMissingKey = String("{name} {unknown}").format(formatMap);
-  TEST(formatMissingKey.contains("{unknown}"),
-       "format(map) should leave unknown keys unchanged");
+  String formatMissingKey = String(ATTO_TEXT("{name} {unknown}")).format(formatMap);
+  TEST(formatMissingKey.contains(ATTO_TEXT("{unknown}")),
+       ATTO_TEXT("format(map) should leave unknown keys unchanged"));
 
   // Test String(list) - JSON
   List jsonList;
-  jsonList.append("hello").append(42).append(true).append(3.14f);
+  jsonList.append(ATTO_TEXT("hello")).append(42).append(true).append(3.14f);
   String jsonListStr(jsonList);
-  TEST(jsonListStr.contains("\"hello\""), "String(list) should quote strings");
-  TEST(jsonListStr.contains("42"), "String(list) should include integers");
-  TEST(jsonListStr.contains("true"), "String(list) should include booleans");
-  TEST(jsonListStr.contains("3.1"), "String(list) should include floats");
-  TEST(jsonListStr.startsWith("["), "String(list) should start with [");
-  TEST(jsonListStr.endsWith("]"), "String(list) should end with ]");
+  TEST(jsonListStr.contains(ATTO_TEXT("\"hello\"")), ATTO_TEXT("String(list) should quote strings"));
+  TEST(jsonListStr.contains(ATTO_TEXT("42")), ATTO_TEXT("String(list) should include integers"));
+  TEST(jsonListStr.contains(ATTO_TEXT("true")), ATTO_TEXT("String(list) should include booleans"));
+  TEST(jsonListStr.contains(ATTO_TEXT("3.1")), ATTO_TEXT("String(list) should include floats"));
+  TEST(jsonListStr.startsWith(ATTO_TEXT("[")), ATTO_TEXT("String(list) should start with ["));
+  TEST(jsonListStr.endsWith(ATTO_TEXT("]")), ATTO_TEXT("String(list) should end with ]"));
 
   List nestedList;
   List innerList;
   innerList.append(1).append(2);
-  nestedList.append("outer").append(innerList);
+  nestedList.append(ATTO_TEXT("outer")).append(innerList);
   String jsonNested(nestedList);
-  TEST(jsonNested.contains("[1,2]") || jsonNested.contains("[1,2]"),
-       "String(list) should handle nested lists");
+  TEST(jsonNested.contains(ATTO_TEXT("[1,2]")) || jsonNested.contains(ATTO_TEXT("[1,2]")),
+       ATTO_TEXT("String(list) should handle nested lists"));
 
   // Test String(map) - JSON
   Map jsonMap;
-  jsonMap.put("name", "Bob").put("age", 25).put("active", true);
+  jsonMap.put(ATTO_TEXT("name"), ATTO_TEXT("Bob")).put(ATTO_TEXT("age"), 25).put(ATTO_TEXT("active"), true);
   String jsonMapStr(jsonMap);
-  TEST(jsonMapStr.contains("\"name\""), "String(map) should quote keys");
-  TEST(jsonMapStr.contains("\"Bob\""),
-       "String(map) should quote string values");
-  TEST(jsonMapStr.contains("25"), "String(map) should include integer values");
-  TEST(jsonMapStr.contains("true"),
-       "String(map) should include boolean values");
-  TEST(jsonMapStr.startsWith("{"), "String(map) should start with {");
-  TEST(jsonMapStr.endsWith("}"), "String(map) should end with }");
+  TEST(jsonMapStr.contains(ATTO_TEXT("\"name\"")), ATTO_TEXT("String(map) should quote keys"));
+  TEST(jsonMapStr.contains(ATTO_TEXT("\"Bob\"")),
+       ATTO_TEXT("String(map) should quote string values"));
+  TEST(jsonMapStr.contains(ATTO_TEXT("25")), ATTO_TEXT("String(map) should include integer values"));
+  TEST(jsonMapStr.contains(ATTO_TEXT("true")),
+       ATTO_TEXT("String(map) should include boolean values"));
+  TEST(jsonMapStr.startsWith(ATTO_TEXT("{")), ATTO_TEXT("String(map) should start with {"));
+  TEST(jsonMapStr.endsWith(ATTO_TEXT("}")), ATTO_TEXT("String(map) should end with }"));
 
   // Test JSON escaping
   List escapeList;
-  escapeList.append("quote\"here").append("newline\nhere");
+  escapeList.append(ATTO_TEXT("quote\"here")).append(ATTO_TEXT("newline\nhere"));
   String escapedJson(escapeList);
-  TEST(escapedJson.contains("\\\""), "String(list) should escape quotes");
-  TEST(escapedJson.contains("\\n"), "String(list) should escape newlines");
+  TEST(escapedJson.contains(ATTO_TEXT("\\\"")), ATTO_TEXT("String(list) should escape quotes"));
+  TEST(escapedJson.contains(ATTO_TEXT("\\n")), ATTO_TEXT("String(list) should escape newlines"));
 
   // Test null handling in JSON
   List nullList;
@@ -172,15 +169,15 @@ void atto_main() {
   String jsonWithNull(nullList);
   // Empty String() might produce empty string or null depending on
   // implementation
-  TEST(jsonWithNull.contains("\"\"") || jsonWithNull.contains("null"),
-       "String(list) should handle null/empty values");
+  TEST(jsonWithNull.contains(ATTO_TEXT("\"\"")) || jsonWithNull.contains(ATTO_TEXT("null")),
+       ATTO_TEXT("String(list) should handle null/empty values"));
 
   // Report results
   if (errorCount == 0) {
-    Log("All extended String tests passed!");
+    Log(ATTO_TEXT("All extended String tests passed!"));
     Exit(0);
   } else {
-    LogError(errorCount, " test(s) failed");
+    LogError(errorCount, ATTO_TEXT(" test(s) failed"));
     Exit(errorCount);
   }
 }

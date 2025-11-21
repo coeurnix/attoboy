@@ -6,34 +6,34 @@ static int errorCount = 0;
 
 #define TEST(condition, message)                                               \
   if (!(condition)) {                                                          \
-    LogError("Test failed: ", message);                                        \
+    LogError(ATTO_TEXT("Test failed: "), message);                                        \
     errorCount++;                                                              \
   }
 
 void atto_main() {
-  Log("Running Buffer compression tests...");
+  Log(ATTO_TEXT("Running Buffer compression tests..."));
 
   // Test 1: Basic compress and decompress round-trip
-  Log("Step 1");
+  Log(ATTO_TEXT("Step 1"));
   {
-    String original("Hello, World! This is a test string.");
+    String original(ATTO_TEXT("Hello, World! This is a test string."));
     Buffer buf(original);
-    Log("Step 1.a");
+    Log(ATTO_TEXT("Step 1.a"));
     Buffer compressed = buf.compress();
-    Log("Step 1.b");
-    TEST(!compressed.isEmpty(), "Compressed buffer should not be empty");
-    Log("Step 1.c");
+    Log(ATTO_TEXT("Step 1.b"));
+    TEST(!compressed.isEmpty(), ATTO_TEXT("Compressed buffer should not be empty"));
+    Log(ATTO_TEXT("Step 1.c"));
     Buffer decompressed = compressed.decompress();
-    Log("Step 1.d");
+    Log(ATTO_TEXT("Step 1.d"));
     String result = decompressed.toString();
-    Log("Step 1.e");
-    TEST(result == original, "Decompressed data should match original");
+    Log(ATTO_TEXT("Step 1.e"));
+    TEST(result == original, ATTO_TEXT("Decompressed data should match original"));
   }
 
   // Test 2: Compress larger text with repetition
-  Log("Step 2");
+  Log(ATTO_TEXT("Step 2"));
   {
-    String repeated("The quick brown fox jumps over the lazy dog. ");
+    String repeated(ATTO_TEXT("The quick brown fox jumps over the lazy dog. "));
     String original = repeated.repeat(100);
     Buffer buf(original);
 
@@ -42,80 +42,80 @@ void atto_main() {
     int compressedLength = compressed.length();
 
     TEST(compressedLength < originalLength,
-         "Compressed data should be smaller than original for repetitive text");
+         ATTO_TEXT("Compressed data should be smaller than original for repetitive text"));
 
     Buffer decompressed = compressed.decompress();
     TEST(decompressed.toString() == original,
-         "Decompressed repetitive text should match original");
+         ATTO_TEXT("Decompressed repetitive text should match original"));
   }
 
   // Test 3: Compress empty buffer
-  Log("Step 3");
+  Log(ATTO_TEXT("Step 3"));
   {
     Buffer empty;
     Buffer compressed = empty.compress();
     TEST(compressed.isEmpty(),
-         "Compressing empty buffer should return empty buffer");
+         ATTO_TEXT("Compressing empty buffer should return empty buffer"));
   }
 
   // Test 4: Decompress empty buffer
-  Log("Step 4");
+  Log(ATTO_TEXT("Step 4"));
   {
     Buffer empty;
     Buffer decompressed = empty.decompress();
     TEST(decompressed.isEmpty(),
-         "Decompressing empty buffer should return empty buffer");
+         ATTO_TEXT("Decompressing empty buffer should return empty buffer"));
   }
 
   // Test 5: Multiple compress/decompress cycles
-  Log("Step 5");
+  Log(ATTO_TEXT("Step 5"));
   {
-    String original("Testing multiple compression cycles with some data.");
+    String original(ATTO_TEXT("Testing multiple compression cycles with some data."));
     Buffer buf(original);
 
     // First cycle
     Buffer compressed1 = buf.compress();
     Buffer decompressed1 = compressed1.decompress();
     TEST(decompressed1.toString() == original,
-         "First cycle should preserve data");
+         ATTO_TEXT("First cycle should preserve data"));
 
     // Second cycle on the decompressed data
     Buffer compressed2 = decompressed1.compress();
     Buffer decompressed2 = compressed2.decompress();
     TEST(decompressed2.toString() == original,
-         "Second cycle should preserve data");
+         ATTO_TEXT("Second cycle should preserve data"));
   }
 
   // Test 6: Compress small buffer
-  Log("Step 6");
+  Log(ATTO_TEXT("Step 6"));
   {
-    String small("Hi");
+    String small(ATTO_TEXT("Hi"));
     Buffer buf(small);
 
     Buffer compressed = buf.compress();
     Buffer decompressed = compressed.decompress();
 
     TEST(decompressed.toString() == small,
-         "Small text should compress and decompress correctly");
+         ATTO_TEXT("Small text should compress and decompress correctly"));
   }
 
   // Test 7: Compress buffer with various characters
-  Log("Step 7");
+  Log(ATTO_TEXT("Step 7"));
   {
-    String varied("ABCabc123!@#$%^&*()_+-=[]{}|;:',.<>?/~`");
+    String varied(ATTO_TEXT("ABCabc123!@#$%^&*()_+-=[]{}|;:',.<>?/~`"));
     Buffer buf(varied);
 
     Buffer compressed = buf.compress();
     Buffer decompressed = compressed.decompress();
 
     TEST(decompressed.toString() == varied,
-         "Varied characters should compress and decompress correctly");
+         ATTO_TEXT("Varied characters should compress and decompress correctly"));
   }
 
   // Test 8: Verify compression actually reduces size for suitable data
-  Log("Step 8");
+  Log(ATTO_TEXT("Step 8"));
   {
-    String pattern("A");
+    String pattern(ATTO_TEXT("A"));
     String original = pattern.repeat(1000);
     Buffer buf(original);
 
@@ -124,19 +124,19 @@ void atto_main() {
     int compressedLength = compressed.length();
 
     TEST(compressedLength < originalLength,
-         "Highly repetitive data should compress significantly");
+         ATTO_TEXT("Highly repetitive data should compress significantly"));
 
     Buffer decompressed = compressed.decompress();
     TEST(decompressed.toString() == original,
-         "Decompressed highly repetitive data should match");
+         ATTO_TEXT("Decompressed highly repetitive data should match"));
   }
 
   // Report results
   if (errorCount == 0) {
-    Log("All buffer compression tests passed!");
+    Log(ATTO_TEXT("All buffer compression tests passed!"));
     Exit(0);
   } else {
-    LogError(errorCount, " test(s) failed");
+    LogError(errorCount, ATTO_TEXT(" test(s) failed"));
     Exit(errorCount);
   }
 }

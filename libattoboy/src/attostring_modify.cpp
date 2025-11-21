@@ -10,10 +10,10 @@ String String::append(const String &substring) const {
     return String(*this);
 
   int newLen = impl->len + substring.impl->len;
-  LPWSTR newData = AllocString(newLen);
+  ATTO_LPSTR newData = AllocString(newLen);
 
-  lstrcpyW(newData, impl->data);
-  lstrcpyW(newData + impl->len, substring.impl->data);
+  ATTO_LSTRCPY(newData, impl->data);
+  ATTO_LSTRCPY(newData + impl->len, substring.impl->data);
 
   String result;
   FreeString(result.impl->data);
@@ -30,10 +30,10 @@ String String::prepend(const String &substring) const {
     return String(*this);
 
   int newLen = impl->len + substring.impl->len;
-  LPWSTR newData = AllocString(newLen);
+  ATTO_LPSTR newData = AllocString(newLen);
 
-  lstrcpyW(newData, substring.impl->data);
-  lstrcpyW(newData + substring.impl->len, impl->data);
+  ATTO_LSTRCPY(newData, substring.impl->data);
+  ATTO_LSTRCPY(newData + substring.impl->len, impl->data);
 
   String result;
   FreeString(result.impl->data);
@@ -56,11 +56,11 @@ String String::insert(int index, const String &substring) const {
     index = impl->len;
 
   int newLen = impl->len + substring.impl->len;
-  LPWSTR newData = AllocString(newLen);
+  ATTO_LPSTR newData = AllocString(newLen);
 
-  MyWcsNCpy(newData, impl->data, index);
-  lstrcpyW(newData + index, substring.impl->data);
-  lstrcpyW(newData + index + substring.impl->len, impl->data + index);
+  MyStrNCpy(newData, impl->data, index);
+  ATTO_LSTRCPY(newData + index, substring.impl->data);
+  ATTO_LSTRCPY(newData + index + substring.impl->len, impl->data + index);
 
   String result;
   FreeString(result.impl->data);
@@ -103,15 +103,15 @@ String String::remove(int start, int end) const {
     return String(*this);
 
   int newLen = impl->len - removeLen;
-  LPWSTR newData = AllocString(newLen);
+  ATTO_LPSTR newData = AllocString(newLen);
 
   if (start > 0) {
-    MyWcsNCpy(newData, impl->data, start);
+    MyStrNCpy(newData, impl->data, start);
   }
   if (actualEnd < impl->len) {
-    lstrcpyW(newData + start, impl->data + actualEnd);
+    ATTO_LSTRCPY(newData + start, impl->data + actualEnd);
   }
-  newData[newLen] = L'\0';
+  newData[newLen] = ATTO_TEXT('\0');
 
   String result;
   FreeString(result.impl->data);

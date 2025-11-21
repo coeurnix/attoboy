@@ -1,6 +1,7 @@
 #pragma once
 #include "attoboy/attoboy.h"
 #include "atto_internal_common.h"
+#include "attostring_internal.h"
 #include <windows.h>
 
 namespace attoboy {

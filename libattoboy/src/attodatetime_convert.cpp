@@ -1,4 +1,5 @@
 #include "attodatetime_internal.h"
+#include "attostring_internal.h"
 
 namespace attoboy {
 
@@ -30,9 +31,14 @@ String DateTime::toString() const {
     return String();
   }
 
-  wchar_t buffer[128];
+  ATTO_WCHAR buffer[128];
+#ifdef UNICODE
   wsprintfW(buffer, L"%04d-%02d-%02dT%02d:%02d:%02d.%03dZ", st.wYear, st.wMonth,
             st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+#else
+  wsprintfA(buffer, "%04d-%02d-%02dT%02d:%02d:%02d.%03dZ", st.wYear, st.wMonth,
+            st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+#endif
 
   return String(buffer);
 }

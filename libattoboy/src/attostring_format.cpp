@@ -10,29 +10,29 @@ static String IntToString(int value) {
   if (isNegative)
     value = -value;
 
-  wchar_t buffer[12];
+  ATTO_WCHAR buffer[12];
   int pos = 0;
 
   if (value == 0) {
-    buffer[pos++] = L'0';
+    buffer[pos++] = ATTO_TEXT('0');
   } else {
     while (value > 0) {
-      buffer[pos++] = L'0' + (value % 10);
+      buffer[pos++] = ATTO_TEXT('0') + (value % 10);
       value /= 10;
     }
   }
 
   if (isNegative) {
-    buffer[pos++] = L'-';
+    buffer[pos++] = ATTO_TEXT('-');
   }
 
   for (int i = 0; i < pos / 2; i++) {
-    wchar_t temp = buffer[i];
+    ATTO_WCHAR temp = buffer[i];
     buffer[i] = buffer[pos - 1 - i];
     buffer[pos - 1 - i] = temp;
   }
 
-  buffer[pos] = L'\0';
+  buffer[pos] = ATTO_TEXT('\0');
   return String(buffer);
 }
 
@@ -44,22 +44,22 @@ String String::format(const List &list) const {
   ReadLockGuard guard(&impl->lock);
 
   String result;
-  const wchar_t *data = impl->data;
+  const ATTO_WCHAR *data = impl->data;
   int len = impl->len;
 
   for (int i = 0; i < len; i++) {
-    if (data[i] == L'{') {
+    if (data[i] == ATTO_TEXT('{')) {
       int start = i + 1;
       int end = start;
 
-      while (end < len && data[end] >= L'0' && data[end] <= L'9') {
+      while (end < len && data[end] >= ATTO_TEXT('0') && data[end] <= ATTO_TEXT('9')) {
         end++;
       }
 
-      if (end > start && end < len && data[end] == L'}') {
+      if (end > start && end < len && data[end] == ATTO_TEXT('}')) {
         int index = 0;
         for (int j = start; j < end; j++) {
-          index = index * 10 + (data[j] - L'0');
+          index = index * 10 + (data[j] - ATTO_TEXT('0'));
         }
 
         if (index >= 0 && index < list.length()) {
@@ -95,15 +95,15 @@ String String::format(const List &list) const {
 
           result = result.append(replacement);
         } else {
-          result = result.append(L"{");
-          LPWSTR partial = AllocString(end - start);
+          result = result.append(ATTO_TEXT("{"));
+          ATTO_LPSTR partial = AllocString(end - start);
           if (partial) {
-            MyWcsNCpy(partial, data + start, end - start);
-            partial[end - start] = L'\0';
+            MyStrNCpy(partial, data + start, end - start);
+            partial[end - start] = ATTO_TEXT('\0');
             result = result.append(String(partial));
             FreeString(partial);
           }
-          result = result.append(L"}");
+          result = result.append(ATTO_TEXT("}"));
         }
 
         i = end;
@@ -111,7 +111,7 @@ String String::format(const List &list) const {
       }
     }
 
-    wchar_t ch[2] = {data[i], L'\0'};
+    ATTO_WCHAR ch[2] = {data[i], ATTO_TEXT('\0')};
     result = result.append(String(ch));
   }
 
@@ -126,23 +126,23 @@ String String::format(const Map &map) const {
   ReadLockGuard guard1(&impl->lock);
 
   String result;
-  const wchar_t *data = impl->data;
+  const ATTO_WCHAR *data = impl->data;
   int len = impl->len;
 
   for (int i = 0; i < len; i++) {
-    if (data[i] == L'{') {
+    if (data[i] == ATTO_TEXT('{')) {
       int start = i + 1;
       int end = start;
 
-      while (end < len && data[end] != L'}') {
+      while (end < len && data[end] != ATTO_TEXT('}')) {
         end++;
       }
 
-      if (end > start && end < len && data[end] == L'}') {
-        LPWSTR keyBuffer = AllocString(end - start);
+      if (end > start && end < len && data[end] == ATTO_TEXT('}')) {
+        ATTO_LPSTR keyBuffer = AllocString(end - start);
         if (keyBuffer) {
-          MyWcsNCpy(keyBuffer, data + start, end - start);
-          keyBuffer[end - start] = L'\0';
+          MyStrNCpy(keyBuffer, data + start, end - start);
+          keyBuffer[end - start] = ATTO_TEXT('\0');
           String key(keyBuffer);
           FreeString(keyBuffer);
 
@@ -178,9 +178,9 @@ String String::format(const Map &map) const {
 
             result = result.append(replacement);
           } else {
-            result = result.append(L"{");
+            result = result.append(ATTO_TEXT("{"));
             result = result.append(key);
-            result = result.append(L"}");
+            result = result.append(ATTO_TEXT("}"));
           }
         }
 
@@ -189,7 +189,7 @@ String String::format(const Map &map) const {
       }
     }
 
-    wchar_t ch[2] = {data[i], L'\0'};
+    ATTO_WCHAR ch[2] = {data[i], ATTO_TEXT('\0')};
     result = result.append(String(ch));
   }
 

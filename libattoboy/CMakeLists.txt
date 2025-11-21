@@ -6,6 +6,7 @@ project(attoboy VERSION 0.0.1 LANGUAGES CXX)
 # ------------------------------------------------------------------------------
 option(ATTO_BUILD_TESTS "Build test executables" ON)
 option(ATTO_BUILD_EXAMPLES "Build example executables" ON)
+option(ATTO_UNICODE "Enable Unicode (wide character) support" OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ------------------------------------------------------------------------------
@@ -26,8 +27,13 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-# Enable Unicode (Wide Character Support) for Windows API
-add_compile_definitions(UNICODE _UNICODE)
+# Enable Unicode (Wide Character Support) for Windows API if option is enabled
+if(ATTO_UNICODE)
+    add_compile_definitions(UNICODE _UNICODE)
+    message(STATUS "Unicode support: ENABLED")
+else()
+    message(STATUS "Unicode support: DISABLED (ANSI mode)")
+endif()
 
 # ------------------------------------------------------------------------------
 # Compiler & Linker Flags (Size Optimization, No STL, 32-bit, Stripped)
@@ -153,26 +159,38 @@ if(ATTO_BUILD_TESTS)
     endforeach()
 
     # Add a target to build and run all tests
-    set(CHECK_COMMANDS COMMAND ${CMAKE_COMMAND} -E echo "")
-    foreach(test_target ${TEST_TARGETS})
-        set(SCRIPT_FILE "${CMAKE_BINARY_DIR}/run_${test_target}.cmake")
-        set(EXE_FILE "${CMAKE_BINARY_DIR}/tests/${test_target}${CMAKE_EXECUTABLE_SUFFIX}")
+    set(CHECK_SCRIPT_FILE "${CMAKE_BINARY_DIR}/run_all_tests.cmake")
 
-        file(WRITE "${SCRIPT_FILE}" "
+    # Generate a single script that runs all tests and fails the build if any test fails
+    set(SCRIPT_CONTENT "
+SET(ANY_FAILED 0)
+")
+    foreach(test_target ${TEST_TARGETS})
+        set(EXE_FILE "${CMAKE_BINARY_DIR}/tests/${test_target}${CMAKE_EXECUTABLE_SUFFIX}")
+        set(SCRIPT_CONTENT "${SCRIPT_CONTENT}
 EXECUTE_PROCESS(
     COMMAND cmd.exe /c \"${EXE_FILE}\"
     RESULT_VARIABLE RESULT
 )
 IF(NOT RESULT EQUAL 0)
-    MESSAGE(FATAL_ERROR \"Running ${test_target} failed! Please run ${EXE_FILE} to see detailed error output.\")
+    SET(ANY_FAILED 1)
+    MESSAGE(\"Running ${test_target} failed! Please run ${EXE_FILE} to see detailed error output.\")
 ELSE()
     MESSAGE(\"Running ${test_target}... passed.\")
 ENDIF()
 ")
-        set(CHECK_COMMANDS ${CHECK_COMMANDS} COMMAND ${CMAKE_COMMAND} -P "${SCRIPT_FILE}")
     endforeach()
+    set(SCRIPT_CONTENT "${SCRIPT_CONTENT}
+IF(ANY_FAILED)
+    MESSAGE(FATAL_ERROR \"Some tests failed.\")
+ENDIF()
+")
+
+    file(WRITE "${CHECK_SCRIPT_FILE}" "${SCRIPT_CONTENT}")
+
     add_custom_target(check
-        ${CHECK_COMMANDS}
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -P "${CHECK_SCRIPT_FILE}"
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "Building and running all tests..."
     )
@@ -220,6 +238,7 @@ message(STATUS "Version:           ${PROJECT_VERSION}")
 message(STATUS "Build Type:        ${CMAKE_BUILD_TYPE}")
 message(STATUS "C++ Standard:      ${CMAKE_CXX_STANDARD}")
 message(STATUS "Compiler:          ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+message(STATUS "Unicode Mode:      ${ATTO_UNICODE}")
 message(STATUS "Build Tests:       ${ATTO_BUILD_TESTS}")
 message(STATUS "Build Examples:    ${ATTO_BUILD_EXAMPLES}")
 message(STATUS "")

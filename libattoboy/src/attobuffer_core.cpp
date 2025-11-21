@@ -30,9 +30,9 @@ Buffer::Buffer(const String &str) {
                                  sizeof(BufferImpl));
   InitializeSRWLock(&impl->lock);
 
-  const wchar_t *wstr = str.c_str();
+  const ATTO_CHAR *astr = str.c_str();
   int len = str.length();
-  int byteSize = len * sizeof(wchar_t);
+  int byteSize = len * sizeof(ATTO_CHAR);
 
   int capacity = byteSize > 512 ? byteSize : 512;
   impl->data = AllocBufferData(capacity);
@@ -40,7 +40,7 @@ Buffer::Buffer(const String &str) {
   impl->size = byteSize;
 
   if (impl->data && byteSize > 0) {
-    unsigned char *src = (unsigned char *)wstr;
+    unsigned char *src = (unsigned char *)astr;
     for (int i = 0; i < byteSize; i++) {
       impl->data[i] = src[i];
     }

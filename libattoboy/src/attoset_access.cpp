@@ -1,4 +1,5 @@
 #include "attoset_internal.h"
+#include "attostring_internal.h"
 
 namespace attoboy {
 
@@ -31,18 +32,11 @@ template <> bool Set::contains<String>(String value) const {
   return impl->values.contains<String>(value);
 }
 
-template <> bool Set::contains<const char *>(const char *value) const {
+template <> bool Set::contains<const ATTO_CHAR *>(const ATTO_CHAR *value) const {
   if (!impl)
     return false;
   ReadLockGuard guard(&impl->lock);
-  return impl->values.contains<const char *>(value);
-}
-
-template <> bool Set::contains<const wchar_t *>(const wchar_t *value) const {
-  if (!impl)
-    return false;
-  ReadLockGuard guard(&impl->lock);
-  return impl->values.contains<const wchar_t *>(value);
+  return impl->values.contains<const ATTO_CHAR *>(value);
 }
 
 // Remove implementations
@@ -79,23 +73,12 @@ void Set::remove_impl(float value) {
   }
 }
 
-void Set::remove_impl(const char *value) {
+void Set::remove_impl(const ATTO_CHAR *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->values.find<const char *>(value);
-  if (index >= 0) {
-    impl->values.remove(index);
-  }
-}
-
-void Set::remove_impl(const wchar_t *value) {
-  if (!impl)
-    return;
-  WriteLockGuard guard(&impl->lock);
-
-  int index = impl->values.find<const wchar_t *>(value);
+  int index = impl->values.find<const ATTO_CHAR *>(value);
   if (index >= 0) {
     impl->values.remove(index);
   }

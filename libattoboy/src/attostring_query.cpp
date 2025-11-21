@@ -40,8 +40,8 @@ String String::substring(int start, int end) const {
   FreeString(result.impl->data);
   result.impl->data = AllocString(newLen);
 
-  MyWcsNCpy(result.impl->data, impl->data + start, newLen);
-  result.impl->data[newLen] = L'\0';
+  MyStrNCpy(result.impl->data, impl->data + start, newLen);
+  result.impl->data[newLen] = ATTO_TEXT('\0');
   result.impl->len = newLen;
   return result;
 }
@@ -61,7 +61,7 @@ String String::at(int index) const {
   FreeString(result.impl->data);
   result.impl->data = AllocString(1);
   result.impl->data[0] = impl->data[index];
-  result.impl->data[1] = L'\0';
+  result.impl->data[1] = ATTO_TEXT('\0');
   result.impl->len = 1;
   return result;
 }
@@ -74,7 +74,7 @@ bool String::contains(const String &substring) const {
     return false;
   if (substring.impl->len == 0)
     return true;
-  return MyWcsStr(impl->data, substring.impl->data) != nullptr;
+  return MyStrStr(impl->data, substring.impl->data) != nullptr;
 }
 
 float String::toFloat() const {
@@ -85,26 +85,26 @@ float String::toFloat() const {
     return 0.0f;
   float res = 0.0f;
   int sign = 1;
-  WCHAR *p = impl->data;
+  ATTO_WCHAR *p = impl->data;
 
-  while (*p == L' ')
+  while (*p == ATTO_TEXT(' '))
     p++;
-  if (*p == L'-') {
+  if (*p == ATTO_TEXT('-')) {
     sign = -1;
     p++;
-  } else if (*p == L'+')
+  } else if (*p == ATTO_TEXT('+'))
     p++;
 
-  while (*p >= L'0' && *p <= L'9') {
-    res = res * 10.0f + (*p - L'0');
+  while (*p >= ATTO_TEXT('0') && *p <= ATTO_TEXT('9')) {
+    res = res * 10.0f + (*p - ATTO_TEXT('0'));
     p++;
   }
 
-  if (*p == L'.') {
+  if (*p == ATTO_TEXT('.')) {
     p++;
     float frac = 0.1f;
-    while (*p >= L'0' && *p <= L'9') {
-      res += (*p - L'0') * frac;
+    while (*p >= ATTO_TEXT('0') && *p <= ATTO_TEXT('9')) {
+      res += (*p - ATTO_TEXT('0')) * frac;
       frac *= 0.1f;
       p++;
     }
@@ -121,18 +121,18 @@ int String::toInteger() const {
     return 0;
   int res = 0;
   int sign = 1;
-  WCHAR *p = impl->data;
+  ATTO_WCHAR *p = impl->data;
 
-  while (*p == L' ')
+  while (*p == ATTO_TEXT(' '))
     p++;
-  if (*p == L'-') {
+  if (*p == ATTO_TEXT('-')) {
     sign = -1;
     p++;
-  } else if (*p == L'+')
+  } else if (*p == ATTO_TEXT('+'))
     p++;
 
-  while (*p >= L'0' && *p <= L'9') {
-    res = res * 10 + (*p - L'0');
+  while (*p >= ATTO_TEXT('0') && *p <= ATTO_TEXT('9')) {
+    res = res * 10 + (*p - ATTO_TEXT('0'));
     p++;
   }
   return res * sign;
@@ -144,15 +144,15 @@ bool String::toBool() const {
   ReadLockGuard guard(&impl->lock);
   if (!impl->data)
     return false;
-  if (lstrcmpiW(impl->data, L"true") == 0)
+  if (ATTO_LSTRCMPI(impl->data, ATTO_TEXT("true")) == 0)
     return true;
-  if (lstrcmpiW(impl->data, L"t") == 0)
+  if (ATTO_LSTRCMPI(impl->data, ATTO_TEXT("t")) == 0)
     return true;
-  if (lstrcmpiW(impl->data, L"1") == 0)
+  if (ATTO_LSTRCMPI(impl->data, ATTO_TEXT("1")) == 0)
     return true;
-  if (lstrcmpiW(impl->data, L"yes") == 0)
+  if (ATTO_LSTRCMPI(impl->data, ATTO_TEXT("yes")) == 0)
     return true;
-  if (lstrcmpiW(impl->data, L"on") == 0)
+  if (ATTO_LSTRCMPI(impl->data, ATTO_TEXT("on")) == 0)
     return true;
   return false;
 }
@@ -163,10 +163,10 @@ bool String::isNumber() const {
   ReadLockGuard guard(&impl->lock);
   if (!impl->data || impl->len == 0)
     return false;
-  WCHAR *p = impl->data;
-  while (*p == L' ')
+  ATTO_WCHAR *p = impl->data;
+  while (*p == ATTO_TEXT(' '))
     p++;
-  if (*p == L'-' || *p == L'+')
+  if (*p == ATTO_TEXT('-') || *p == ATTO_TEXT('+'))
     p++;
   if (!*p)
     return false;
@@ -175,9 +175,9 @@ bool String::isNumber() const {
   bool hasDot = false;
 
   while (*p) {
-    if (*p >= L'0' && *p <= L'9') {
+    if (*p >= ATTO_TEXT('0') && *p <= ATTO_TEXT('9')) {
       hasDigit = true;
-    } else if (*p == L'.') {
+    } else if (*p == ATTO_TEXT('.')) {
       if (hasDot)
         return false;
       hasDot = true;
@@ -199,7 +199,7 @@ bool String::startsWith(const String &substring) const {
     return false;
   if (substring.impl->len == 0)
     return true;
-  return MyWcsNCmp(impl->data, substring.impl->data, substring.impl->len) == 0;
+  return MyStrNCmp(impl->data, substring.impl->data, substring.impl->len) == 0;
 }
 
 bool String::endsWith(const String &substring) const {
@@ -212,7 +212,7 @@ bool String::endsWith(const String &substring) const {
     return false;
   if (substring.impl->len == 0)
     return true;
-  return MyWcsNCmp(impl->data + impl->len - substring.impl->len,
+  return MyStrNCmp(impl->data + impl->len - substring.impl->len,
                    substring.impl->data, substring.impl->len) == 0;
 }
 
@@ -230,8 +230,8 @@ int String::count(const String &substring) const {
   if (!substring.impl || substring.impl->len == 0)
     return 0;
   int count = 0;
-  WCHAR *p = impl->data;
-  while ((p = MyWcsStr(p, substring.impl->data)) != nullptr) {
+  ATTO_WCHAR *p = impl->data;
+  while ((p = MyStrStr(p, substring.impl->data)) != nullptr) {
     count++;
     p += substring.impl->len;
   }
@@ -248,7 +248,7 @@ bool String::equals(const String &other) const {
     return false;
   if (impl->len == 0)
     return true;
-  return MyWcsNCmp(impl->data, other.impl->data, impl->len) == 0;
+  return MyStrNCmp(impl->data, other.impl->data, impl->len) == 0;
 }
 
 int String::compare(const String &other) const {
@@ -263,7 +263,7 @@ int String::compare(const String &other) const {
   int minLen = impl->len < other.impl->len ? impl->len : other.impl->len;
 
   if (minLen > 0) {
-    int cmp = MyWcsNCmp(impl->data, other.impl->data, minLen);
+    int cmp = MyStrNCmp(impl->data, other.impl->data, minLen);
     if (cmp != 0)
       return cmp;
   }
@@ -287,7 +287,7 @@ int String::hash() const {
     return 0;
 
   unsigned int hash = 5381;
-  WCHAR *p = impl->data;
+  ATTO_WCHAR *p = impl->data;
   int c;
 
   while ((c = *p++)) {

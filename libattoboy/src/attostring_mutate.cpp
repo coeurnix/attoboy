@@ -10,22 +10,22 @@ String String::trim() const {
     return String(*this);
 
   int start = 0;
-  while (start < impl->len && impl->data[start] <= L' ')
+  while (start < impl->len && impl->data[start] <= ATTO_TEXT(' '))
     start++;
 
   int end = impl->len - 1;
-  while (end > start && impl->data[end] <= L' ')
+  while (end > start && impl->data[end] <= ATTO_TEXT(' '))
     end--;
 
   int newLen = end - start + 1;
   if (newLen < 0)
     newLen = 0;
 
-  LPWSTR newData = AllocString(newLen);
+  ATTO_LPSTR newData = AllocString(newLen);
   if (newLen > 0) {
-    MyWcsNCpy(newData, impl->data + start, newLen);
+    MyStrNCpy(newData, impl->data + start, newLen);
   }
-  newData[newLen] = L'\0';
+  newData[newLen] = ATTO_TEXT('\0');
 
   String result;
   FreeString(result.impl->data);
@@ -42,11 +42,11 @@ String String::replace(const String &target, const String &replacement) const {
     return String(*this);
 
   int count = 0;
-  WCHAR *p = impl->data;
+  ATTO_WCHAR *p = impl->data;
   int targetLen = target.impl->len;
   int replLen = replacement.impl ? replacement.impl->len : 0;
 
-  while ((p = MyWcsStr(p, target.impl->data)) != nullptr) {
+  while ((p = MyStrStr(p, target.impl->data)) != nullptr) {
     count++;
     p += targetLen;
   }
@@ -55,24 +55,24 @@ String String::replace(const String &target, const String &replacement) const {
     return String(*this);
 
   int newLen = impl->len + count * (replLen - targetLen);
-  LPWSTR newData = AllocString(newLen);
+  ATTO_LPSTR newData = AllocString(newLen);
 
-  WCHAR *src = impl->data;
-  WCHAR *dst = newData;
+  ATTO_WCHAR *src = impl->data;
+  ATTO_WCHAR *dst = newData;
 
   while (true) {
-    WCHAR *found = MyWcsStr(src, target.impl->data);
+    ATTO_WCHAR *found = MyStrStr(src, target.impl->data);
     if (!found) {
-      lstrcpyW(dst, src);
+      ATTO_LSTRCPY(dst, src);
       break;
     }
 
     int segmentLen = (int)(found - src);
-    MyWcsNCpy(dst, src, segmentLen);
+    MyStrNCpy(dst, src, segmentLen);
     dst += segmentLen;
 
     if (replLen > 0) {
-      lstrcpyW(dst, replacement.impl->data);
+      ATTO_LSTRCPY(dst, replacement.impl->data);
       dst += replLen;
     }
 
@@ -93,9 +93,9 @@ String String::lower() const {
   if (!impl->data)
     return String(*this);
 
-  LPWSTR newData = AllocString(impl->len);
-  lstrcpyW(newData, impl->data);
-  CharLowerW(newData);
+  ATTO_LPSTR newData = AllocString(impl->len);
+  ATTO_LSTRCPY(newData, impl->data);
+  ATTO_CHARLOWER(newData);
 
   String result;
   FreeString(result.impl->data);
@@ -111,9 +111,9 @@ String String::upper() const {
   if (!impl->data)
     return String(*this);
 
-  LPWSTR newData = AllocString(impl->len);
-  lstrcpyW(newData, impl->data);
-  CharUpperW(newData);
+  ATTO_LPSTR newData = AllocString(impl->len);
+  ATTO_LSTRCPY(newData, impl->data);
+  ATTO_CHARUPPER(newData);
 
   String result;
   FreeString(result.impl->data);
@@ -134,10 +134,10 @@ String String::repeat(int count) const {
     return String(*this);
 
   int newLen = impl->len * count;
-  LPWSTR newData = AllocString(newLen);
+  ATTO_LPSTR newData = AllocString(newLen);
 
   for (int i = 0; i < count; i++) {
-    lstrcpyW(newData + (i * impl->len), impl->data);
+    ATTO_LSTRCPY(newData + (i * impl->len), impl->data);
   }
 
   String result;
@@ -154,11 +154,11 @@ String String::reverse() const {
   if (impl->len <= 1)
     return String(*this);
 
-  LPWSTR newData = AllocString(impl->len);
+  ATTO_LPSTR newData = AllocString(impl->len);
   for (int i = 0; i < impl->len; i++) {
     newData[i] = impl->data[impl->len - 1 - i];
   }
-  newData[impl->len] = L'\0';
+  newData[impl->len] = ATTO_TEXT('\0');
 
   String result;
   FreeString(result.impl->data);
