@@ -861,8 +861,29 @@ public:
   /// data. The buffer must contain data compressed with the compress() method.
   Buffer decompress() const;
 
+  /// Encrypts this buffer's data using Windows CryptoAPI and returns a new
+  /// encrypted Buffer. Uses CRYPT_STRING_BINARY format for maximum space
+  /// efficiency. Only suitable for basic use cases; consider proper
+  /// cryptographic libraries for production security.
+  Buffer encrypt() const;
+
+  /// Decrypts this buffer in-place, assuming it was encrypted with encrypt().
+  /// Returns a reference to this buffer for chaining.
+  Buffer &decrypt();
+
+  /// Converts the buffer's binary data to standard Base64-encoded text and
+  /// returns it as a String. The resulting string is printable ASCII that can
+  /// be safely transmitted or stored.
+  String toBase64() const;
+
+  /// Creates a buffer from standard Base64-encoded string data.
+  /// Returns an empty buffer if the input is not valid Base64.
+  /// This is a static factory method to clearly distinguish from regular String
+  /// construction.
+  static Buffer fromBase64(const String &base64String);
+
+public:
   /// Converts the buffer's bytes to a String.
-  /// Interprets bytes as UTF-16LE wide characters.
   String toString() const;
 
   /// Returns a hash code for this buffer.

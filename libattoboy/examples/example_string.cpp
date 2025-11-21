@@ -22,11 +22,10 @@ void atto_main() {
 
   // Basic string operations
   Log(ATTO_TEXT("2. Concatenation and chaining:"));
-  String message = greeting.duplicate();
-  message.append(ATTO_TEXT(" ")).append(world).append(ATTO_TEXT("!"));
+  String message = greeting + ATTO_TEXT(" ") + world + ATTO_TEXT("!");
   Log(ATTO_TEXT("  "), message);
 
-  message.upper().replace(ATTO_TEXT("WORLD"), ATTO_TEXT("ATTOBOY"));
+  message = message.upper().replace(ATTO_TEXT("WORLD"), ATTO_TEXT("ATTOBOY"));
   Log(ATTO_TEXT("  Uppercase + replace: "), message, ATTO_TEXT("\n"));
 
   // String analysis
@@ -53,26 +52,24 @@ void atto_main() {
   String transform(ATTO_TEXT("Hello World"));
   Log(ATTO_TEXT("  Original: "), transform);
 
-  String lower = transform.duplicate();
-  lower.lower();
+  String lower = transform.lower();
   Log(ATTO_TEXT("  Lowercase: "), lower);
 
-  String upper = transform.duplicate();
-  upper.upper();
+  String upper = transform.upper();
   Log(ATTO_TEXT("  Uppercase: "), upper);
 
-  String reversed = transform.duplicate();
-  reversed.reverse();
+  String reversed = transform.reverse();
   Log(ATTO_TEXT("  Reversed: "), reversed, ATTO_TEXT("\n"));
 
   // Practical example: formatting user input
   Log(ATTO_TEXT("6. Practical example - cleaning input:"));
   String userInput(ATTO_TEXT("  john.doe@example.com  "));
   Log(ATTO_TEXT("  Raw input: '"), userInput, ATTO_TEXT("'"));
-  userInput.trim().lower();
+  userInput = userInput.trim().lower();
   Log(ATTO_TEXT("  Cleaned: '"), userInput, ATTO_TEXT("'"));
 
-  if (userInput.contains(ATTO_TEXT("@")) && userInput.contains(ATTO_TEXT("."))) {
+  if (userInput.contains(ATTO_TEXT("@")) &&
+      userInput.contains(ATTO_TEXT("."))) {
     Log(ATTO_TEXT("  Valid email format!"));
   } else {
     Log(ATTO_TEXT("  Invalid email format!"));
@@ -85,28 +82,35 @@ void atto_main() {
   String num2(ATTO_TEXT("3.14159"));
   String num3(ATTO_TEXT("not a number"));
 
-  Log(ATTO_TEXT("  '"), num1, ATTO_TEXT("' is number: "), num1.isNumber(), ATTO_TEXT(" -> "), num1.toInteger());
-  Log(ATTO_TEXT("  '"), num2, ATTO_TEXT("' is number: "), num2.isNumber(), ATTO_TEXT(" -> "), num2.toFloat());
-  Log(ATTO_TEXT("  '"), num3, ATTO_TEXT("' is number: "), num3.isNumber(), ATTO_TEXT("\n"));
+  Log(ATTO_TEXT("  '"), num1, ATTO_TEXT("' is number: "), num1.isNumber(),
+      ATTO_TEXT(" -> "), num1.toInteger());
+  Log(ATTO_TEXT("  '"), num2, ATTO_TEXT("' is number: "), num2.isNumber(),
+      ATTO_TEXT(" -> "), num2.toFloat());
+  Log(ATTO_TEXT("  '"), num3, ATTO_TEXT("' is number: "), num3.isNumber(),
+      ATTO_TEXT("\n"));
 
   // String manipulation
   Log(ATTO_TEXT("8. Advanced manipulation:"));
   String builder(ATTO_TEXT("X"));
-  builder.repeat(3);
+  builder = builder.repeat(3);
   Log(ATTO_TEXT("  Repeat 'X' 3 times: "), builder);
 
-  builder.prepend(ATTO_TEXT("[")).append(ATTO_TEXT("]"));
+  builder = builder.prepend(ATTO_TEXT("[")).append(ATTO_TEXT("]"));
   Log(ATTO_TEXT("  Add brackets: "), builder);
 
-  builder.insert(4, ATTO_TEXT("-"));
+  builder = builder.insert(4, ATTO_TEXT("-"));
   Log(ATTO_TEXT("  Insert '-' at index 4: "), builder, ATTO_TEXT("\n"));
 
   // Method chaining
   Log(ATTO_TEXT("9. Method chaining:"));
   String chain(ATTO_TEXT("  hello attoboy  "));
   Log(ATTO_TEXT("  Original: '"), chain, ATTO_TEXT("'"));
-  chain.trim().upper().replace(ATTO_TEXT(" "), ATTO_TEXT("_")).append(ATTO_TEXT("!"));
-  Log(ATTO_TEXT("  After trim().upper().replace().append(): '"), chain, ATTO_TEXT("'"));
+  chain = chain.trim()
+              .upper()
+              .replace(ATTO_TEXT(" "), ATTO_TEXT("_"))
+              .append(ATTO_TEXT("!"));
+  Log(ATTO_TEXT("  After trim().upper().replace().append(): '"), chain,
+      ATTO_TEXT("'"));
 
   Log(ATTO_TEXT("\n=== Demo Complete ==="));
   Exit(0);
