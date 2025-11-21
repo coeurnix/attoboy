@@ -917,6 +917,36 @@ String GetEnv(const String &name);
 /// Sets an environment variable. Returns true on success, false on failure.
 bool SetEnv(const String &name, const String &value);
 
+/// Allocates a block of memory of the specified size in bytes.
+/// Returns a pointer to the allocated memory, or nullptr on failure.
+void *Alloc(int size);
+
+/// Reallocates a previously allocated block of memory to a new size.
+/// Returns a pointer to the reallocated memory, or nullptr on failure.
+/// If ptr is nullptr, behaves like Alloc(). If size is 0, frees the memory.
+void *Realloc(void *ptr, int size);
+
+/// Frees a previously allocated block of memory.
+/// Does nothing if ptr is nullptr.
+void Free(void *ptr);
+
+/// Returns a random long long integer.
+long long Random();
+
+/// Returns a random double between 0.0 (inclusive) and 1.0 (exclusive).
+double RandomDouble();
+
+/// Returns a random long long integer between start (inclusive) and end (exclusive).
+/// If start >= end, returns start.
+long long RandomRange(long long start, long long end);
+
+/// Returns a random boolean value (true or false).
+bool RandomBool();
+
+/// Returns a random element from a list.
+/// Returns a null-type value if the list is empty.
+template <typename T> T RandomChoice(const List &list);
+
 // Logging Level Configuration:
 // Define one of the following to set the logging level:
 // - ATTOBOY_LOG_DEBUG_ENABLE: Enables Debug, Info, Warning, Error
@@ -985,6 +1015,16 @@ template <typename... Args> void LogError(const Args &...args) {
   String strings[] = {String(args)...};
   internal::LogImpl(strings, sizeof...(Args), String("ERROR "));
 #endif
+}
+
+/// Returns a random element from a list.
+/// Returns a null-type value if the list is empty.
+template <typename T> inline T RandomChoice(const List &list) {
+  if (list.isEmpty()) {
+    return T();
+  }
+  int index = static_cast<int>(RandomRange(0, list.length()));
+  return list.at<T>(index);
 }
 
 } // namespace attoboy
