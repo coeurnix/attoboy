@@ -91,12 +91,12 @@ Arguments &Arguments::addPositionalParameter(const String &name,
   return *this;
 }
 
-Arguments &Arguments::setHelp(const String &help) {
+Arguments &Arguments::setHelp(const String &helpText) {
   if (!impl)
     return *this;
 
   WriteLockGuard guard(&impl->lock);
-  *impl->helpText = help;
+  *impl->helpText = helpText;
 
   return *this;
 }

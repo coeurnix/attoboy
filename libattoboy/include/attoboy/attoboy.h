@@ -15,7 +15,7 @@ using ATTO_CHAR = char;
 
 namespace attoboy {
 
-/// Represents the type of a value stored in a container.
+/// Type identifier for values stored in containers.
 enum ValueType {
   TYPE_NULL = 0, ///< Null or uninitialized value
   TYPE_INVALID,  ///< Invalid or error state
@@ -43,47 +43,34 @@ class List;
 class Map;
 class Set;
 
-/// An easy-to-use, batteries-included immutable string class
+/// Immutable string class with batteries-included functionality.
 class String {
 public:
-  /// Creates an empty string with length 0.
+  /// Creates an empty string.
   String();
 
   /// Creates a string from a C-style string.
   String(const ATTO_CHAR *str);
 
-  /// Creates a deep copy of another string.
-  String(const String &other);
+  /// Creates a string from a boolean ("true" or "false").
+  String(bool value);
 
-  /// Destroys the string and releases allocated memory.
-  ~String();
+  /// Creates a string from an integer.
+  String(int value);
 
-  /// Assigns another string to this string (deep copy).
-  String &operator=(const String &other);
+  /// Creates a string from a long integer.
+  String(long long value);
 
-  /// Creates a string representation of a boolean ("true" or "false").
-  String(bool val);
+  /// Creates a string from a floating-point number.
+  String(float value);
 
-  /// Creates a string representation of an integer.
-  String(int val);
-
-  /// Creates a string representation of a long integer.
-  String(long long val);
-
-  /// Creates a string representation of a floating-point number.
-  String(float val);
-
-  /// Creates a JSON-style string from a list (e.g., ["value1",2,true]).
-  /// Handles all value types intelligently with proper JSON escaping.
+  /// Creates a JSON string from a list (e.g., ["value1",2,true]).
   String(const List &list);
 
-  /// Creates a JSON-style string from a map (e.g., {"key1":"value1","key2":2}).
-  /// Converts keys to strings if needed and handles values intelligently with
-  /// proper JSON escaping.
+  /// Creates a JSON string from a map (e.g., {"key":"value"}).
   String(const Map &map);
 
-  /// Creates a JSON-style string from a set (e.g., [1,2,3]).
-  /// Converts the set to a list and creates a JSON array representation.
+  /// Creates a JSON string from a set (e.g., [1,2,3]).
   String(const Set &set);
 
   /// Creates a string by concatenating multiple arguments.
@@ -93,69 +80,79 @@ public:
   String(const T &first, const U &second, const Args &...rest)
       : String(String(first) + String(second) + String(rest...)) {}
 
+  /// Copies another string.
+  String(const String &other);
+
+  /// Destroys the string and releases memory.
+  ~String();
+
+  /// Assigns another string to this string.
+  String &operator=(const String &other);
+
   /// Returns the number of characters in the string.
   int length() const;
 
-  /// Returns true if the string has a length of 0.
+  /// Returns true if the string is empty.
   bool isEmpty() const;
 
-  /// Returns a new string containing the single character at `index`.
+  /// Returns a pointer to the underlying C-style string.
+  const ATTO_CHAR *c_str() const;
+
+  /// Returns the character at index as a single-character string.
   /// Negative indices count from the end. Returns empty string if out of
   /// bounds.
   String at(int index) const;
 
-  /// Returns a new string containing characters from `start` (inclusive) to
-  /// `end` (exclusive). Negative indices count from the end of the string. If
-  /// `end` is -1 (default), extracts to the end of the string.
+  /// Returns a substring from start (inclusive) to end (exclusive).
+  /// Negative indices count from the end. If end is -1, extracts to the end.
   String substring(int start, int end = -1) const;
 
-  /// Returns a deep copy of this string.
+  /// Returns a copy of this string.
   String duplicate() const;
 
-  /// Returns true if this string contains the specified `substring`.
+  /// Returns true if this string contains the substring.
   bool contains(const String &substring) const;
 
-  /// Returns true if this string starts with the specified `substring`.
+  /// Returns true if this string starts with the substring.
   bool startsWith(const String &substring) const;
 
-  /// Returns true if this string ends with the specified `substring`.
+  /// Returns true if this string ends with the substring.
   bool endsWith(const String &substring) const;
 
-  /// Returns the number of non-overlapping occurrences of `substring`.
+  /// Returns the number of non-overlapping occurrences of substring.
   int count(const String &substring) const;
 
-  /// Returns true if the string represents a valid integer or decimal number.
+  /// Returns true if the string is a valid integer or decimal number.
   bool isNumber() const;
 
-  /// Parses the string as an integer. Returns 0 if invalid.
+  /// Converts the string to an integer. Returns 0 if invalid.
   int toInteger() const;
 
-  /// Parses the string as a floating-point number. Returns 0.0 if invalid.
+  /// Converts the string to a float. Returns 0.0 if invalid.
   float toFloat() const;
 
-  /// Returns true if string is "true", "t", "1", "yes", or "on"
-  /// (case-insensitive). Otherwise returns false.
+  /// Converts the string to a boolean.
+  /// Returns true for "true", "t", "1", "yes", "on" (case-insensitive).
   bool toBool() const;
 
-  /// Returns a new string with `substring` appended to the end.
+  /// Returns a new string with substring appended to the end.
   String append(const String &substring) const;
 
-  /// Returns a new string with `substring` prepended to the beginning.
+  /// Returns a new string with substring prepended to the beginning.
   String prepend(const String &substring) const;
 
-  /// Returns a new string with `substring` inserted at the specified `index`.
+  /// Returns a new string with substring inserted at index.
   /// Negative indices count from the end.
   String insert(int index, const String &substring) const;
 
-  /// Returns a new string with characters from `start` (inclusive) to `end`
-  /// (exclusive) removed. Negative indices count from the end.
+  /// Returns a new string with characters from start to end removed.
+  /// Negative indices count from the end.
   String remove(int start, int end) const;
 
-  /// Returns a new string with all occurrences of `target` replaced with
-  /// `replacement`.
+  /// Returns a new string with all occurrences of target replaced.
   String replace(const String &target, const String &replacement) const;
 
-  /// Returns a new string with all leading and trailing whitespace removed.
+  /// Returns a new string with leading and trailing whitespace removed.
   String trim() const;
 
   /// Returns a new string with all characters converted to uppercase.
@@ -167,92 +164,87 @@ public:
   /// Returns a new string with characters in reverse order.
   String reverse() const;
 
-  /// Returns a new string with the content repeated `count` times.
+  /// Returns a new string with the content repeated count times.
   String repeat(int count) const;
 
-  /// Returns true if this string is equal to the other string.
+  /// Returns true if this string equals the other string.
   bool equals(const String &other) const;
 
   /// Compares this string with another lexicographically.
   /// Returns negative if this < other, 0 if equal, positive if this > other.
   int compare(const String &other) const;
 
-  /// Returns true if this string is equal to the other string.
+  /// Returns true if this string equals the other string.
   bool operator==(const String &other) const;
 
-  /// Returns true if this string is not equal to the other string.
+  /// Returns true if this string does not equal the other string.
   bool operator!=(const String &other) const;
 
-  /// Returns a new string that is the concatenation of this string and other.
+  /// Returns the concatenation of this string and other.
   String operator+(const String &other) const;
 
   /// Returns a hash code for this string.
   int hash() const;
 
-  /// Splits this string into a list of strings by line breaks.
-  /// Handles both Windows (\\r\\n) and Unix (\\n) line endings.
+  /// Splits this string into a list by line breaks.
+  /// Handles both Windows (\r\n) and Unix (\n) line endings.
   List lines() const;
 
-  /// Joins all elements of the list using this string as the separator.
+  /// Joins all elements of list using this string as separator.
   /// Non-string elements are converted to strings automatically.
   String join(const List &list) const;
 
-  /// Splits this string by the separator into a list of strings.
-  /// The max parameter controls the maximum number of splits (default 1).
+  /// Splits this string by separator into a list.
+  /// The max parameter controls maximum splits (default 1).
   /// Returns up to max+2 parts (e.g., max=1 allows 1 split, yielding 2 parts).
-  List split(const String &sep, int max = 1) const;
+  List split(const String &separator, int max = 1) const;
 
-  /// Splits this string by whitespace into a list of strings.
+  /// Splits this string by whitespace into a list.
   /// Consecutive whitespace is treated as a single separator.
   List split() const;
 
-  /// Formats this string using list elements as substitutions.
+  /// Formats this string using list elements as replacements.
   /// Replaces {0}, {1}, etc. with corresponding list elements.
   String format(const List &list) const;
 
-  /// Formats this string using map values as substitutions.
+  /// Formats this string using map values as replacements.
   /// Replaces {key} with the corresponding value from the map.
   String format(const Map &map) const;
-
-  /// Returns a pointer to the underlying null-terminated string.
-  /// Returns an empty string literal if the string is empty.
-  const ATTO_CHAR *c_str() const;
 
 private:
   StringImpl *impl;
 };
 
-/// A dynamic array container that stores heterogeneous typed values.
-/// Supports storing bools, integers, doubles, strings, and nested lists.
+/// Dynamic array that stores mixed types of values.
 class List {
 public:
-  /// Creates an empty list with initial capacity of 8 elements.
+  /// Creates an empty list.
   List();
 
   /// Creates an empty list with the specified initial capacity.
   List(int capacity);
 
-  /// Creates a deep copy of another list.
-  List(const List &other);
-
-  /// Creates a list from a set, preserving all values.
-  List(const Set &set);
-
-  /// Creates a list with the specified values appended in order.
+  /// Creates a list with the specified values.
   template <typename... Args> List(const Args &...args) : List() {
     variadic_append(args...);
   }
 
-  /// Destroys the list and releases allocated memory.
+  /// Copies another list.
+  List(const List &other);
+
+  /// Creates a list from a set.
+  List(const Set &set);
+
+  /// Destroys the list and releases memory.
   ~List();
 
-  /// Assigns another list to this list (deep copy).
+  /// Assigns another list to this list.
   List &operator=(const List &other);
 
   /// Returns the number of elements in the list.
   int length() const;
 
-  /// Returns true if the list has no elements.
+  /// Returns true if the list is empty.
   bool isEmpty() const;
 
   /// Appends a value to the end of the list.
@@ -277,22 +269,19 @@ public:
     return *this;
   }
 
-  /// Removes and returns the value at the specified index.
-  /// Index is clamped to valid range. If list is empty, returns null-type
-  /// value. Shifts remaining elements down.
+  /// Removes and returns the value at index.
+  /// Index is clamped to valid range. Shifts remaining elements.
   template <typename T> T pop();
 
-  /// Returns the value at the specified index.
+  /// Returns the value at index.
   /// Index is clamped to valid range [0, length-1].
-  /// If list is empty, returns default-constructed value.
   template <typename T> T at(int index) const;
 
-  /// Returns the value at the specified index using [] operator.
+  /// Returns the value at index using [] operator.
   /// Index is clamped to valid range [0, length-1].
-  /// If list is empty, returns default-constructed value.
   template <typename T> T operator[](int index) const;
 
-  /// Sets the value at the specified index.
+  /// Sets the value at index.
   /// Index is clamped to valid range. If list is empty, appends the value.
   /// Returns a reference to this list for chaining.
   template <typename T> List &set(int index, T value) {
@@ -300,8 +289,8 @@ public:
     return *this;
   }
 
-  /// Removes the element at the specified index and shifts remaining elements.
-  /// Index is clamped to valid range. If list is empty, does nothing.
+  /// Removes the element at index and shifts remaining elements.
+  /// Index is clamped to valid range.
   /// Returns a reference to this list for chaining.
   List &remove(int index);
 
@@ -309,16 +298,15 @@ public:
   /// Returns a reference to this list for chaining.
   List &clear();
 
-  /// Finds the first occurrence of a value in the list.
-  /// Uses numeric coercion for comparison (e.g., int 5 equals double 5.0).
-  /// Returns the index of the value, or -1 if not found.
+  /// Returns the index of the first occurrence of value, or -1 if not found.
+  /// Uses numeric coercion (e.g., int 5 equals float 5.0).
   template <typename T> int find(T value) const;
 
-  /// Returns true if the list contains the specified value.
-  /// Uses numeric coercion for comparison (e.g., int 5 equals double 5.0).
+  /// Returns true if the list contains value.
+  /// Uses numeric coercion (e.g., int 5 equals float 5.0).
   template <typename T> bool contains(T value) const;
 
-  /// Reverses the order of elements in the list in-place.
+  /// Reverses the order of elements in place.
   /// Returns a reference to this list for chaining.
   List &reverse();
 
@@ -327,29 +315,27 @@ public:
   /// Returns a reference to this list for chaining.
   List &sort(bool ascending = true);
 
-  /// Returns the type of the value at the specified index.
+  /// Returns the type of the value at index.
   /// Returns TYPE_INVALID if index is out of bounds.
   ValueType typeAt(int index) const;
 
-  /// Returns a new list containing elements from start (inclusive) to end
-  /// (exclusive). Negative indices count from the end. Indices are clamped to
-  /// valid range.
+  /// Returns a new list containing elements from start to end.
+  /// Negative indices count from the end. Indices are clamped.
   List slice(int start, int end) const;
 
-  /// Appends all elements from another list to the end of this list.
+  /// Appends all elements from another list to this list.
   /// Returns a reference to this list for chaining.
   List &concat(const List &other);
 
-  /// Appends all values from a set to the end of this list.
+  /// Appends all values from a set to this list.
   /// Returns a reference to this list for chaining.
   List &concat(const Set &set);
 
-  /// Returns a shallow copy of this list
+  /// Returns a copy of this list.
   List duplicate() const;
 
-  /// Compares this list with another for equality.
-  /// Returns true if both lists have the same length, same types,
-  /// and same values in the same order.
+  /// Returns true if this list equals the other list.
+  /// Lists are equal if they have the same types and values in order.
   bool compare(const List &other) const;
 
   /// Returns true if this list equals the other list.
@@ -415,46 +401,45 @@ private:
   void variadic_append() {} // Base case
 };
 
-/// A key-value map container that stores heterogeneous typed keys and values.
-/// Keys must be unique (exclusive map). Insertion order is not guaranteed.
+/// Key-value map that stores mixed types.
+/// Keys must be unique. Insertion order is not guaranteed.
 class Map {
 public:
-  /// Creates an empty map with initial capacity of 8 key-value pairs.
+  /// Creates an empty map.
   Map();
 
   /// Creates an empty map with the specified initial capacity.
   Map(int capacity);
 
-  /// Creates a deep copy of another map.
-  Map(const Map &other);
-
   /// Creates a map with alternating key-value pairs.
-  /// If the number of arguments is odd, the last key gets a null value.
+  /// If argument count is odd, the last key gets a null value.
   template <typename... Args> Map(const Args &...args) : Map() {
     variadic_put_pairs(args...);
   }
 
-  /// Destroys the map and releases allocated memory.
+  /// Copies another map.
+  Map(const Map &other);
+
+  /// Destroys the map and releases memory.
   ~Map();
 
-  /// Assigns another map to this map (deep copy).
+  /// Assigns another map to this map.
   Map &operator=(const Map &other);
 
   /// Returns the number of key-value pairs in the map.
   int length() const;
 
-  /// Returns true if the map has no key-value pairs.
+  /// Returns true if the map is empty.
   bool isEmpty() const;
 
-  /// Returns the value associated with the key, or default value if not found.
-  /// The default value is a null-type value if not specified.
+  /// Returns the value for key, or defaultValue if not found.
   template <typename K, typename V> V get(K key, V defaultValue = V()) const;
 
-  /// Returns the value associated with the key using [] operator.
-  /// Returns a null-type value if the key is not found.
+  /// Returns the value for key using [] operator.
+  /// Returns a null-type value if key is not found.
   template <typename K, typename V> V operator[](K key) const;
 
-  /// Associates the key with the value. If key exists, updates its value.
+  /// Sets key to value. If key exists, updates its value.
   /// Returns a reference to this map for chaining.
   template <typename K, typename V> Map &put(K key, V value);
 
@@ -466,33 +451,33 @@ public:
   /// Returns a reference to this map for chaining.
   Map &clear();
 
-  /// Finds the first key associated with the specified value.
-  /// Returns a null-type value if the value is not found.
+  /// Returns the first key with the specified value.
+  /// Returns a null-type value if not found.
   template <typename K, typename V> K findValue(V value) const;
 
-  /// Returns true if the map contains the specified key.
+  /// Returns true if the map contains key.
   template <typename K> bool hasKey(K key) const;
 
-  /// Returns the type of the value associated with the key.
-  /// Returns TYPE_INVALID if the key is not found.
+  /// Returns the type of the value for key.
+  /// Returns TYPE_INVALID if key is not found.
   template <typename K> ValueType typeAt(K key) const;
 
-  /// Adds all key-value pairs from another map to this map.
-  /// If a key exists in both maps, the value from the other map is used.
+  /// Adds all key-value pairs from other to this map.
+  /// If a key exists in both, uses the value from other.
   /// Returns a reference to this map for chaining.
   Map &merge(const Map &other);
 
-  /// Returns a deep copy of this map.
+  /// Returns a copy of this map.
   Map duplicate() const;
 
-  /// Returns a copy of all keys in the map as a List.
+  /// Returns a list of all keys in the map.
   List keys() const;
 
-  /// Returns a copy of all values in the map as a List.
+  /// Returns a list of all values in the map.
   List values() const;
 
-  /// Compares this map with another for equality.
-  /// Returns true if both maps have the same keys and values.
+  /// Returns true if this map equals the other map.
+  /// Maps are equal if they have the same keys and values.
   bool compare(const Map &other) const;
 
   /// Returns true if this map equals the other map.
@@ -582,50 +567,50 @@ template <typename K> inline Map &Map::remove(K key) {
   return *this;
 }
 
-/// A set container that stores unique heterogeneous typed values.
-/// Values are exclusive (no duplicates). Insertion order is not guaranteed.
+/// Set that stores unique values of mixed types.
+/// Values are unique (no duplicates). Insertion order is not guaranteed.
 class Set {
 public:
-  /// Creates an empty set with initial capacity of 8 elements.
+  /// Creates an empty set.
   Set();
 
   /// Creates an empty set with the specified initial capacity.
   Set(int capacity);
 
-  /// Creates a deep copy of another set.
-  Set(const Set &other);
-
-  /// Creates a set from a list, removing duplicate values.
-  Set(const List &list);
-
-  /// Creates a set with the specified values added.
+  /// Creates a set with the specified values.
   template <typename... Args> Set(const Args &...args) : Set() {
     variadic_put(args...);
   }
 
-  /// Destroys the set and releases allocated memory.
+  /// Copies another set.
+  Set(const Set &other);
+
+  /// Creates a set from a list, removing duplicates.
+  Set(const List &list);
+
+  /// Destroys the set and releases memory.
   ~Set();
 
-  /// Assigns another set to this set (deep copy).
+  /// Assigns another set to this set.
   Set &operator=(const Set &other);
 
   /// Returns the number of unique values in the set.
   int length() const;
 
-  /// Returns true if the set has no values.
+  /// Returns true if the set is empty.
   bool isEmpty() const;
 
-  /// Adds one or more values to the set. Duplicates are ignored.
+  /// Adds a value to the set. Duplicates are ignored.
   /// Returns a reference to this set for chaining.
   template <typename T> Set &put(T value) {
     put_impl(value);
     return *this;
   }
 
-  /// Returns true if the set contains the specified value.
+  /// Returns true if the set contains value.
   template <typename T> bool contains(T value) const;
 
-  /// Removes the specified value from the set if it exists.
+  /// Removes value from the set if it exists.
   /// Returns a reference to this set for chaining.
   template <typename T> Set &remove(T value) {
     remove_impl(value);
@@ -636,29 +621,27 @@ public:
   /// Returns a reference to this set for chaining.
   Set &clear();
 
-  /// Adds all values from another set to this set (union operation).
+  /// Adds all values from other to this set (union operation).
   /// Duplicates are automatically ignored.
   /// Returns a reference to this set for chaining.
   Set &setUnion(const Set &other);
 
-  /// Keeps only values that exist in both this set and the other set.
-  /// Removes all values not in the intersection.
+  /// Keeps only values that exist in both this set and other (intersection).
   /// Returns a reference to this set for chaining.
   Set &intersect(const Set &other);
 
-  /// Removes all values that exist in the other set from this set.
+  /// Removes all values that exist in other from this set (difference).
   /// Returns a reference to this set for chaining.
   Set &subtract(const Set &other);
 
-  /// Returns a deep copy of this set.
+  /// Returns a copy of this set.
   Set duplicate() const;
 
-  /// Returns a List containing all values from this set.
+  /// Returns a list containing all values from this set.
   List toList() const;
 
-  /// Compares this set with another for equality.
-  /// Returns true if both sets have the same length and contain the same values
-  /// (order doesn't matter).
+  /// Returns true if this set equals the other set.
+  /// Sets are equal if they have the same values (order doesn't matter).
   bool compare(const Set &other) const;
 
   /// Returns true if this set equals the other set.
@@ -703,8 +686,7 @@ private:
   void variadic_put() {} // Base case
 };
 
-/// A date and time class supporting operations on dates/times with millisecond
-/// precision.
+/// Date and time with millisecond precision.
 class DateTime {
 public:
   /// Creates a DateTime representing the current date and time.
@@ -713,84 +695,80 @@ public:
   /// Creates a DateTime from milliseconds since Unix epoch (Jan 1, 1970).
   DateTime(long long millisSinceEpoch);
 
-  /// Creates a DateTime from an ISO-8601 formatted string
-  /// (YYYY-MM-DDTHH:MM:SS.fffZ).
+  /// Creates a DateTime from an ISO-8601 string (YYYY-MM-DDTHH:MM:SS.fffZ).
   DateTime(const String &iso8601);
 
-  /// Creates a deep copy of another DateTime.
+  /// Copies another DateTime.
   DateTime(const DateTime &other);
 
-  /// Destroys the DateTime and releases allocated memory.
+  /// Destroys the DateTime and releases memory.
   ~DateTime();
 
   /// Assigns another DateTime to this one.
   DateTime &operator=(const DateTime &other);
 
-  /// Adds (or subtracts if negative) milliseconds to this DateTime.
+  /// Adds milliseconds to this DateTime (negative to subtract).
   /// Returns a reference to this DateTime for chaining.
   DateTime &add(long long milliseconds);
 
-  /// Returns the difference in milliseconds between this and another DateTime.
-  /// Positive if this is later than other, negative otherwise.
+  /// Returns the difference in milliseconds between this and other.
+  /// Positive if this is later, negative if this is earlier.
   long long diff(const DateTime &other) const;
 
-  /// Compares this DateTime with another.
+  /// Compares this DateTime with other.
   /// Returns negative if this < other, 0 if equal, positive if this > other.
   int compare(const DateTime &other) const;
 
-  /// Returns true if this DateTime equals the other DateTime.
+  /// Returns true if this DateTime equals other.
   bool equals(const DateTime &other) const;
 
-  /// Returns true if this DateTime equals the other DateTime.
+  /// Returns true if this DateTime equals other.
   bool operator==(const DateTime &other) const;
 
-  /// Returns true if this DateTime does not equal the other DateTime.
+  /// Returns true if this DateTime does not equal other.
   bool operator!=(const DateTime &other) const;
 
-  /// Returns this DateTime as milliseconds since Unix epoch (Jan 1, 1970).
+  /// Returns milliseconds since Unix epoch (Jan 1, 1970).
   long long timestamp() const;
 
-  /// Returns this DateTime as an ISO-8601 formatted string
-  /// (YYYY-MM-DDTHH:MM:SS.fffZ).
+  /// Returns an ISO-8601 formatted string (YYYY-MM-DDTHH:MM:SS.fffZ).
   String toString() const;
 
 private:
   DateTimeImpl *impl;
 };
 
-/// A mutable byte buffer class for storing and manipulating binary data.
-/// Dynamically expands as needed.
+/// Mutable byte buffer for storing and manipulating binary data.
 class Buffer {
 public:
-  /// Creates an empty buffer with initial capacity of 512 bytes.
+  /// Creates an empty buffer.
   Buffer();
 
   /// Creates an empty buffer with the specified initial capacity.
-  Buffer(int size);
+  Buffer(int capacity);
 
-  /// Creates a buffer from a String, copying its underlying byte data.
+  /// Creates a buffer from a String, copying its byte data.
   Buffer(const String &str);
 
-  /// Creates a buffer by copying the specified number of bytes from a pointer.
+  /// Creates a buffer by copying bytes from a pointer.
   Buffer(const unsigned char *ptr, int size);
 
-  /// Creates a deep copy of another buffer.
+  /// Copies another buffer.
   Buffer(const Buffer &other);
 
-  /// Destroys the buffer and releases allocated memory.
+  /// Destroys the buffer and releases memory.
   ~Buffer();
 
-  /// Assigns another buffer to this buffer (deep copy).
+  /// Assigns another buffer to this buffer.
   Buffer &operator=(const Buffer &other);
 
-  /// Returns the number of bytes currently stored in the buffer.
+  /// Returns the number of bytes in the buffer.
   int length() const;
 
-  /// Returns true if the buffer contains no bytes.
+  /// Returns true if the buffer is empty.
   bool isEmpty() const;
 
   /// Returns a pointer to the buffer's data and its size.
-  /// The returned pointer is const and should not be modified.
   /// For empty buffers, returns nullptr and sets len to 0.
   const unsigned char *c_ptr(int *len) const;
 
@@ -798,106 +776,99 @@ public:
   /// Returns a reference to this buffer for chaining.
   Buffer &clear();
 
-  /// Compares this buffer with another for equality.
-  /// Returns true if both buffers have the same length and byte contents.
+  /// Returns true if this buffer equals other.
   bool compare(const Buffer &other) const;
 
-  /// Appends a string's byte data to the end of the buffer.
+  /// Appends a string's byte data to the end.
   /// Returns a reference to this buffer for chaining.
   Buffer &append(const String &str);
 
-  /// Appends another buffer's contents to the end of this buffer.
+  /// Appends another buffer's contents to the end.
   /// Returns a reference to this buffer for chaining.
   Buffer &append(const Buffer &other);
 
-  /// Appends the specified number of bytes from a pointer to the buffer.
+  /// Appends bytes from a pointer to the end.
   /// Returns a reference to this buffer for chaining.
   Buffer &append(const unsigned char *ptr, int size);
 
-  /// Prepends a string's byte data to the beginning of the buffer.
+  /// Prepends a string's byte data to the beginning.
   /// Returns a reference to this buffer for chaining.
   Buffer &prepend(const String &str);
 
-  /// Prepends another buffer's contents to the beginning of this buffer.
+  /// Prepends another buffer's contents to the beginning.
   /// Returns a reference to this buffer for chaining.
   Buffer &prepend(const Buffer &other);
 
-  /// Prepends the specified number of bytes from a pointer to the buffer.
+  /// Prepends bytes from a pointer to the beginning.
   /// Returns a reference to this buffer for chaining.
   Buffer &prepend(const unsigned char *ptr, int size);
 
-  /// Inserts a string's byte data at the specified index.
+  /// Inserts a string's byte data at index.
   /// Returns a reference to this buffer for chaining.
   Buffer &insert(int index, const String &str);
 
-  /// Inserts another buffer's contents at the specified index.
+  /// Inserts another buffer's contents at index.
   /// Returns a reference to this buffer for chaining.
   Buffer &insert(int index, const Buffer &other);
 
-  /// Inserts the specified number of bytes from a pointer at the given index.
+  /// Inserts bytes from a pointer at index.
   /// Returns a reference to this buffer for chaining.
   Buffer &insert(int index, const unsigned char *ptr, int size);
 
-  /// Returns a new buffer containing bytes from start (inclusive) to end
-  /// (exclusive). If end is -1, slices to the end of the buffer.
+  /// Returns a new buffer containing bytes from start to end.
+  /// If end is -1, slices to the end of the buffer.
   Buffer slice(int start, int end = -1) const;
 
-  /// Removes bytes from start (inclusive) to end (exclusive).
+  /// Removes bytes from start to end.
   /// If end is -1, removes to the end of the buffer.
   /// Returns a reference to this buffer for chaining.
   Buffer &remove(int start, int end = -1);
 
-  /// Reverses the order of bytes in the buffer in-place.
+  /// Reverses the order of bytes in place.
   /// Returns a reference to this buffer for chaining.
   Buffer &reverse();
 
-  /// Shrinks the buffer's capacity to match its current length, freeing unused
-  /// memory. Returns a reference to this buffer for chaining.
+  /// Shrinks the buffer's capacity to match its length, freeing unused memory.
+  /// Returns a reference to this buffer for chaining.
   Buffer &trim();
 
-  /// Returns a new buffer containing the compressed version of this buffer's
-  /// data. Uses XPRESS Huffman compression for efficient compression.
+  /// Returns a compressed version of this buffer.
+  /// Uses XPRESS Huffman compression.
   Buffer compress() const;
 
-  /// Returns a new buffer containing the decompressed version of this buffer's
-  /// data. The buffer must contain data compressed with the compress() method.
+  /// Returns a decompressed version of this buffer.
+  /// Buffer must contain data compressed with compress().
   Buffer decompress() const;
 
-  /// Encrypts or decrypts the buffer using the ChaCha20 stream cipher. The
-  /// operation is symmetric: applying it twice with the same key and nonce
-  /// restores the original data. Returns a new Buffer containing the
-  /// transformed data.
+  /// Encrypts or decrypts the buffer using ChaCha20 stream cipher.
+  /// The operation is symmetric: applying twice with the same key and nonce
+  /// restores the original data.
   ///
-  /// The key must be a String or Buffer of at least 32 bytes (256 bits).
-  /// The nonce must be a String or Buffer of at least 12 bytes (96 bits).
-  /// shorter input fails and returns an empty Buffer.
+  /// The key must be at least 32 bytes (256 bits).
+  /// The nonce must be at least 12 bytes (96 bits).
+  /// Returns an empty buffer if key or nonce is too short.
   Buffer crypt(const String &key, const String &nonce) const;
   Buffer crypt(const String &key, const Buffer &nonce) const;
   Buffer crypt(const Buffer &key, const String &nonce) const;
   Buffer crypt(const Buffer &key, const Buffer &nonce) const;
 
-  /// Converts the buffer's binary data to standard Base64-encoded text and
-  /// returns it as a String. The resulting string is printable ASCII that can
-  /// be safely transmitted or stored.
+  /// Converts the buffer to a Base64-encoded string.
   String toBase64() const;
 
-  /// Creates a buffer from standard Base64-encoded string data.
+  /// Creates a buffer from a Base64-encoded string.
   /// Returns an empty buffer if the input is not valid Base64.
-  /// This is a static factory method to clearly distinguish from regular String
-  /// construction.
   static Buffer fromBase64(const String &base64String);
 
-public:
   /// Converts the buffer's bytes to a String.
   String toString() const;
 
   /// Returns a hash code for this buffer.
   int hash() const;
 
-  /// Returns true if this buffer equals the other buffer.
+  /// Returns true if this buffer equals other.
   bool operator==(const Buffer &other) const;
 
-  /// Returns true if this buffer does not equal the other buffer.
+  /// Returns true if this buffer does not equal other.
   bool operator!=(const Buffer &other) const;
 
   /// Returns a new buffer with the string's bytes appended.
@@ -910,55 +881,53 @@ private:
   BufferImpl *impl;
 };
 
-/// A user-friendly command-line argument parser.
-/// Automatically captures command-line arguments and provides flexible parsing
-/// with support for flags, named parameters, and positional parameters.
+/// Command-line argument parser with support for flags, named parameters, and
+/// positional parameters.
 class Arguments {
 public:
-  /// Creates an Arguments parser and captures the current command-line.
+  /// Creates an Arguments parser and captures the command-line arguments.
   Arguments();
 
-  /// Creates a deep copy of another Arguments parser.
+  /// Copies another Arguments parser.
   Arguments(const Arguments &other);
 
-  /// Destroys the Arguments parser and releases allocated memory.
+  /// Destroys the Arguments parser and releases memory.
   ~Arguments();
 
-  /// Assigns another Arguments parser to this one (deep copy).
+  /// Assigns another Arguments parser to this one.
   Arguments &operator=(const Arguments &other);
 
   /// Adds a flag argument that is set to true when present.
-  /// Flags can be specified as -name or --longName (if provided).
-  /// They can also be explicitly set: -name=true, -name=false, -name=1,
-  /// -name=0, -name=on, -name=off (case-insensitive). Returns a reference to
-  /// this Arguments for chaining.
+  /// Flags can be specified as -name or --longName.
+  /// They can also be explicitly set: -name=true, -name=false, etc.
+  /// Returns a reference to this Arguments for chaining.
   Arguments &addFlag(const String &name, const String &description = String(),
                      bool defaultValue = false,
                      const String &longName = String());
 
   /// Adds a named parameter that requires a value.
-  /// Parameters can be specified with an equals sign: -name=value or
-  /// --longName=value, or with the value as the next argument: -name value
-  /// or --longName value. Returns a reference to this Arguments for chaining.
+  /// Parameters can be specified as -name=value, --longName=value,
+  /// -name value, or --longName value.
+  /// Returns a reference to this Arguments for chaining.
   Arguments &addParameter(const String &name,
                           const String &description = String(),
                           const String &defaultValue = String(),
                           const String &longName = String());
 
   /// Adds a positional parameter at the next position.
-  /// Positional parameters are filled from non-flag, non-named arguments in
-  /// the order they are added. Returns a reference to this Arguments for
-  /// chaining.
+  /// Positional parameters are filled from non-flag, non-named arguments
+  /// in the order they are added.
+  /// Returns a reference to this Arguments for chaining.
   Arguments &addPositionalParameter(const String &name,
                                     const String &description = String());
 
   /// Sets the help text to display when -h or --help is used.
   /// Returns a reference to this Arguments for chaining.
-  Arguments &setHelp(const String &help);
+  Arguments &setHelp(const String &helpText);
 
   /// Marks an argument as required.
-  /// If a required argument is not provided, parsing will fail and help will
-  /// be displayed. Returns a reference to this Arguments for chaining.
+  /// If a required argument is missing, parsing fails and help is displayed.
+  /// Returns a reference to this Arguments for chaining.
   Arguments &requireArgument(const String &name);
 
   /// Returns the value of the named argument, or empty string if not set.
@@ -970,38 +939,36 @@ public:
   /// has a default value.
   bool hasArgument(const String &name) const;
 
-  /// Parses the command-line arguments and returns a Map of argument names to
-  /// values. If help is requested (-h or --help) or required arguments are
-  /// missing, prints help text (unless suppressHelp is true) and returns an
-  /// empty Map. On success, returns a Map with all argument names and their
-  /// values.
+  /// Parses the command-line arguments and returns a Map of names to values.
+  /// If help is requested (-h or --help) or required arguments are missing,
+  /// prints help text (unless suppressHelp is true) and returns an empty Map.
   Map parseArguments(bool suppressHelp = false);
 
 private:
   ArgumentsImpl *impl;
 };
 
-/// A lightweight thread class for running functions in separate threads.
+/// Lightweight thread for running functions in separate threads.
 class Thread {
 public:
   /// Creates a thread that runs the specified function with an optional
-  /// argument. The function receives a void* argument and should return void*.
-  /// The thread starts running immediately upon construction.
+  /// argument. The function receives a void* argument and returns void*.
+  /// The thread starts running immediately.
   Thread(void *(*func)(void *), void *arg = nullptr);
 
-  /// Creates a deep copy of another thread (shares the same underlying thread).
+  /// Copies another thread (shares the same underlying thread).
   Thread(const Thread &other);
 
   /// Destroys the thread handle but does not terminate the thread.
-  /// Use await() or cancel() to ensure thread completion before destruction.
+  /// Use await() or cancel() to ensure completion before destruction.
   ~Thread();
 
   /// Assigns another thread to this thread (shares the same underlying thread).
   Thread &operator=(const Thread &other);
 
   /// Waits for the thread to complete and returns its return value.
-  /// This blocks until the thread finishes execution.
-  /// Returns nullptr if the thread has already been awaited or cancelled.
+  /// Blocks until the thread finishes execution.
+  /// Returns nullptr if already awaited or cancelled.
   void *await();
 
   /// Terminates the thread forcefully.
@@ -1010,18 +977,17 @@ public:
   void cancel();
 
   /// Returns true if the thread is currently running.
-  /// Returns false if the thread has completed, been awaited, or been
-  /// cancelled.
+  /// Returns false if completed, awaited, or cancelled.
   bool isRunning() const;
 
 private:
   ThreadImpl *impl;
 };
 
-/// A collection of mathematical functions and utilities.
+/// Mathematical functions and constants.
 class Math {
 public:
-  // Mathematical constants
+  // Constants
   static constexpr float PI = 3.14159265358979323846f;     ///< π
   static constexpr float E = 2.71828182845904523536f;      ///< Euler's number
   static constexpr float TAU = 6.28318530717958647693f;    ///< τ = 2π
@@ -1049,7 +1015,7 @@ public:
   /// Returns a null-type value if the list is empty.
   template <typename T> static T randomChoice(const List &list) noexcept;
 
-  // Basic math functions
+  // Basic arithmetic
 
   /// Returns the absolute value of x.
   static int abs(int x) noexcept;
@@ -1057,22 +1023,22 @@ public:
   /// Returns the absolute value of x.
   static float abs(float x) noexcept;
 
-  /// Returns the minimum of two integers.
+  /// Returns the minimum of a and b.
   static int min(int a, int b) noexcept;
 
-  /// Returns the minimum of two floats.
+  /// Returns the minimum of a and b.
   static float min(float a, float b) noexcept;
 
-  /// Returns the maximum of two integers.
+  /// Returns the maximum of a and b.
   static int max(int a, int b) noexcept;
 
-  /// Returns the maximum of two floats.
+  /// Returns the maximum of a and b.
   static float max(float a, float b) noexcept;
 
-  /// Returns x clamped to the range [minVal, maxVal].
+  /// Returns x clamped to [minVal, maxVal].
   static int clamp(int x, int minVal, int maxVal) noexcept;
 
-  /// Returns x clamped to the range [minVal, maxVal].
+  /// Returns x clamped to [minVal, maxVal].
   static float clamp(float x, float minVal, float maxVal) noexcept;
 
   /// Returns the sign of x: -1 if negative, 0 if zero, 1 if positive.
@@ -1090,7 +1056,7 @@ public:
   /// Returns true if x is a power of two.
   static bool isPowerOfTwo(int x) noexcept;
 
-  // Rounding functions
+  // Rounding
 
   /// Returns the largest integer less than or equal to x.
   static float floor(float x) noexcept;
@@ -1104,34 +1070,7 @@ public:
   /// Returns x rounded to the nearest integer (0.5 rounds up).
   static float round(float x) noexcept;
 
-  // Advanced math functions
-
-  /// Returns the square root of x. Returns 0 if x is negative.
-  static float sqrt(float x) noexcept;
-
-  /// Returns the sine of x (x in radians).
-  static float sin(float x) noexcept;
-
-  /// Returns the cosine of x (x in radians).
-  static float cos(float x) noexcept;
-
-  /// Returns the tangent of x (x in radians).
-  static float tan(float x) noexcept;
-
-  /// Returns the arctangent of y/x in radians, using signs to determine
-  /// quadrant.
-  static float atan2(float y, float x) noexcept;
-
-  /// Returns the arctangent of x in radians.
-  static float atan(float x) noexcept;
-
-  /// Returns the arcsine of x in radians.
-  static float asin(float x) noexcept;
-
-  /// Returns the hyperbolic cosine of x.
-  static float cosh(float x) noexcept;
-
-  // Exponential and logarithmic functions
+  // Exponential and logarithmic
 
   /// Returns 2 raised to the power of x.
   static float exp2(float x) noexcept;
@@ -1154,7 +1093,33 @@ public:
   /// Returns 2 raised to the power of x (integer version).
   static int pow2(int x) noexcept;
 
-  // Utility functions
+  // Trigonometric
+
+  /// Returns the square root of x. Returns 0 if x is negative.
+  static float sqrt(float x) noexcept;
+
+  /// Returns the sine of x (x in radians).
+  static float sin(float x) noexcept;
+
+  /// Returns the cosine of x (x in radians).
+  static float cos(float x) noexcept;
+
+  /// Returns the tangent of x (x in radians).
+  static float tan(float x) noexcept;
+
+  /// Returns the arctangent of y/x in radians, using signs for quadrant.
+  static float atan2(float y, float x) noexcept;
+
+  /// Returns the arctangent of x in radians.
+  static float atan(float x) noexcept;
+
+  /// Returns the arcsine of x in radians.
+  static float asin(float x) noexcept;
+
+  /// Returns the hyperbolic cosine of x.
+  static float cosh(float x) noexcept;
+
+  // Utility
 
   /// Returns the floating-point remainder of x / y.
   static float mod(float x, float y) noexcept;
@@ -1178,24 +1143,26 @@ public:
   static bool isNaN(float x) noexcept;
 };
 
+// System functions
+
 /// Terminates the process immediately with the specified exit code.
 void Exit(int exitCode);
 
-/// Sleeps the current thread for the specified number of milliseconds.
+/// Sleeps the current thread for the specified milliseconds.
 void Sleep(int milliseconds);
 
 /// Returns the value of an environment variable, or empty string if not set.
 String GetEnv(const String &name);
 
-/// Sets an environment variable. Returns true on success, false on failure.
+/// Sets an environment variable. Returns true on success.
 bool SetEnv(const String &name, const String &value);
 
 /// Allocates a block of memory of the specified size in bytes.
-/// Returns a pointer to the allocated memory, or nullptr on failure.
+/// Returns a pointer to the memory, or nullptr on failure.
 void *Alloc(int size);
 
-/// Reallocates a previously allocated block of memory to a new size.
-/// Returns a pointer to the reallocated memory, or nullptr on failure.
+/// Reallocates a block of memory to a new size.
+/// Returns a pointer to the memory, or nullptr on failure.
 /// If ptr is nullptr, behaves like Alloc(). If size is 0, frees the memory.
 void *Realloc(void *ptr, int size);
 
@@ -1203,16 +1170,14 @@ void *Realloc(void *ptr, int size);
 /// Does nothing if ptr is nullptr.
 void Free(void *ptr);
 
-// Logging Level Configuration:
-// Define one of the following to set the logging level:
+// Logging functions
+//
+// Logging levels (define one to set the level):
 // - ATTOBOY_LOG_DEBUG_ENABLE: Enables Debug, Info, Warning, Error
-// - ATTOBOY_LOG_INFO_ENABLE: Enables Info, Warning, Error (default if none
-// set)
+// - ATTOBOY_LOG_INFO_ENABLE: Enables Info, Warning, Error (default)
 // - ATTOBOY_LOG_WARNING_ENABLE: Enables Warning, Error
 // - ATTOBOY_LOG_ERROR_ENABLE: Enables Error only
 // - ATTOBOY_LOG_DISABLE: Disables all logging
-//
-// If no level is defined, INFO level is used by default.
 
 #if !defined(ATTOBOY_LOG_DISABLE)
 #if !defined(ATTOBOY_LOG_DEBUG_ENABLE) && !defined(ATTOBOY_LOG_INFO_ENABLE) && \

@@ -8,23 +8,23 @@ static inline bool IsWhitespace(ATTO_WCHAR c) {
   return c == ATTO_TEXT(' ') || c == ATTO_TEXT('\t') || c == ATTO_TEXT('\n') || c == ATTO_TEXT('\r');
 }
 
-List String::split(const String &sep, int max) const {
+List String::split(const String &separator, int max) const {
   List result;
 
-  if (!impl || !sep.impl) {
+  if (!impl || !separator.impl) {
     result.append(*this);
     return result;
   }
 
   ReadLockGuard guard1(&impl->lock);
-  ReadLockGuard guard2(&sep.impl->lock);
+  ReadLockGuard guard2(&separator.impl->lock);
 
   if (impl->len == 0) {
     result.append(String());
     return result;
   }
 
-  if (sep.impl->len == 0) {
+  if (separator.impl->len == 0) {
     result.append(*this);
     return result;
   }
@@ -34,8 +34,8 @@ List String::split(const String &sep, int max) const {
   }
 
   const ATTO_WCHAR *data = impl->data;
-  const ATTO_WCHAR *sepData = sep.impl->data;
-  int sepLen = sep.impl->len;
+  const ATTO_WCHAR *sepData = separator.impl->data;
+  int sepLen = separator.impl->len;
 
   int start = 0;
   int splitCount = 0;
