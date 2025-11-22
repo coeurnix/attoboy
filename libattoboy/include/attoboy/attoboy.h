@@ -38,6 +38,7 @@ class BufferImpl;
 class ArgumentsImpl;
 class ThreadImpl;
 class PathImpl;
+class FileImpl;
 
 // Forward declarations
 class List;
@@ -987,6 +988,8 @@ private:
 
 /// Immutable path to a file or I/O device on the system.
 class Path {
+  friend class File;
+
 public:
   /// Creates a path from a string.
   Path(const String &pathStr);
@@ -1145,6 +1148,118 @@ public:
 
 private:
   PathImpl *impl;
+};
+
+/// Stream-based file and socket I/O class.
+/// Supports regular files, named pipes, and TCP sockets.
+class File {
+public:
+  /// Opens a file at the specified path.
+  /// The file is opened for reading and writing.
+  File(const Path &path);
+
+  /// Opens a TCP socket connection to host at port.
+  File(const String &host, int port);
+
+  /// Copies another file (shares the same underlying handle).
+  File(const File &other);
+
+  /// Closes the file or socket and releases resources.
+  ~File();
+
+  /// Assigns another file to this file (shares the same underlying handle).
+  File &operator=(const File &other);
+
+  /// Returns the path of the file, or nullptr if this is a socket.
+  const ATTO_CHAR *getPath() const;
+
+  /// Returns the host of the socket, or nullptr if this is not a socket.
+  const ATTO_CHAR *getHost() const;
+
+  /// Returns the port of the socket, or -1 if this is not a socket.
+  int getPort() const;
+
+  /// Returns true if the file or socket was created/opened successfully.
+  bool isValid() const;
+
+  /// Returns true if the file or socket is currently open.
+  bool isOpen() const;
+
+  /// Closes the file or socket.
+  void close();
+
+  /// Reads all available data into a buffer.
+  /// Returns an empty buffer on error or if no data is available.
+  Buffer readAllToBuffer();
+
+  /// Reads up to count bytes into a buffer.
+  /// Returns an empty buffer on error or if no data is available.
+  Buffer readToBuffer(int count);
+
+  /// Reads all available data into a string.
+  /// Returns an empty string on error or if no data is available.
+  String readAllToString();
+
+  /// Reads up to count bytes into a string.
+  /// Returns an empty string on error or if no data is available.
+  String readToString(int count);
+
+  /// Returns true if data is available to read.
+  bool hasAvailable() const;
+
+  /// Returns the number of bytes available to read.
+  /// Returns 0 if no data is available or on error.
+  int getAvailableCount() const;
+
+  /// Writes the buffer contents to the file or socket.
+  /// Returns the number of bytes actually written, or -1 on error.
+  int write(const Buffer &buf);
+
+  /// Writes the string to the file or socket.
+  /// Returns the number of bytes actually written, or -1 on error.
+  int write(const String &str);
+
+  /// Writes up to count bytes from the buffer.
+  /// If count is -1, writes the entire buffer.
+  /// Returns the number of bytes actually written, or -1 on error.
+  int writeUpTo(const Buffer &buf, int count = -1);
+
+  /// Writes up to count bytes from the string.
+  /// If count is -1, writes the entire string.
+  /// Returns the number of bytes actually written, or -1 on error.
+  int writeUpTo(const String &str, int count = -1);
+
+  /// Flushes any buffered data to the file or socket.
+  /// Returns true on success.
+  bool flush();
+
+  /// Sets the read/write position for regular files.
+  /// Returns true on success, false if not supported or on error.
+  bool setPosition(long long pos);
+
+  /// Returns the current read/write position for regular files.
+  /// Returns -1 if not supported or on error.
+  long long getPosition() const;
+
+  /// Returns the end position (file size) for regular files.
+  /// Returns -1 if not supported or on error.
+  long long getEndPosition() const;
+
+  /// Returns true if at the end of the file.
+  /// Always returns false for sockets and pipes.
+  bool isAtEnd() const;
+
+  /// Returns true if this is a regular file.
+  bool isRegularFile() const;
+
+  /// Returns true if this is a TCP socket.
+  bool isSocket() const;
+
+  /// Returns true if this is a named pipe.
+  bool isNamedPipe() const;
+
+private:
+  FileImpl *impl;
 };
 
 /// Mathematical functions and constants.

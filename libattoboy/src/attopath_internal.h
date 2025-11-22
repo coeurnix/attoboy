@@ -74,4 +74,12 @@ static inline void FreePath(ATTO_LPSTR str) {
     HeapFree(GetProcessHeap(), 0, str);
 }
 
+static inline const ATTO_CHAR *GetPathString(const PathImpl *impl) {
+  return impl ? impl->pathStr : nullptr;
+}
+
+static inline int GetPathLength(const PathImpl *impl) {
+  return impl ? impl->len : 0;
+}
+
 } // namespace attoboy
