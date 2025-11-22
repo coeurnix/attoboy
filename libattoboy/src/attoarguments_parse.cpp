@@ -1,6 +1,18 @@
 #include "attoarguments_internal.h"
+#include "attostring_internal.h"
+#include <windows.h>
 
 namespace attoboy {
+
+static void PrintString(const String &s) {
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  DWORD written;
+#ifdef UNICODE
+  WriteConsoleW(hOut, s.c_str(), s.length(), &written, nullptr);
+#else
+  WriteConsoleA(hOut, s.c_str(), s.length(), &written, nullptr);
+#endif
+}
 
 static bool IsBoolValue(const String &value, bool *outValue) {
   String lower = value.lower();
@@ -223,25 +235,12 @@ Map Arguments::parseArguments(bool suppressHelp) {
       DWORD written;
 
       if (!impl->helpText->isEmpty()) {
-        const ATTO_CHAR *str = impl->helpText->c_str();
-#ifdef UNICODE
-        int len = lstrlenW(str);
-        WriteFile(hStdOut, str, len * sizeof(wchar_t), &written, nullptr);
-        WriteFile(hStdOut, L"\r\n\r\n", 4 * sizeof(wchar_t), &written, nullptr);
-#else
-        int len = lstrlenA(str);
-        WriteFile(hStdOut, str, len, &written, nullptr);
-        WriteFile(hStdOut, "\r\n\r\n", 4, &written, nullptr);
-#endif
+        PrintString(*(impl->helpText));
+        PrintString(String(ATTO_TEXT("\r\n\r\n")));
       }
 
       if (impl->argDefs->length() > 0) {
-#ifdef UNICODE
-        WriteFile(hStdOut, L"Options:\r\n", 10 * sizeof(wchar_t), &written,
-                  nullptr);
-#else
-        WriteFile(hStdOut, "Options:\r\n", 10, &written, nullptr);
-#endif
+        PrintString(String(ATTO_TEXT("Options:\r\n")));
 
         for (int i = 0; i < impl->argDefs->length(); i++) {
           Map argDef = impl->argDefs->at<Map>(i);
@@ -269,13 +268,7 @@ Map Arguments::parseArguments(bool suppressHelp) {
           }
 
           line = String(line, ATTO_TEXT("\r\n"));
-          const ATTO_CHAR *lineStr = line.c_str();
-#ifdef UNICODE
-          WriteFile(hStdOut, lineStr, lstrlenW(lineStr) * sizeof(wchar_t),
-                    &written, nullptr);
-#else
-          WriteFile(hStdOut, lineStr, lstrlenA(lineStr), &written, nullptr);
-#endif
+          PrintString(line);
         }
       }
     }

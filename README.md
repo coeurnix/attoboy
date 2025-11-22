@@ -20,7 +20,7 @@ Attoboy is a comprehensive, 'batteries-included' C++ library designed for buildi
 - [x] Math Functions
 - [x] Cryptography
 - [x] Command Line Arguments
-- [ ] Threads
+- [x] Threads
 - [ ] File I/O
 - [ ] Filesystems
 - [ ] Process Control

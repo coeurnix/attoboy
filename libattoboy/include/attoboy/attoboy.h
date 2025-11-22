@@ -36,6 +36,7 @@ class SetImpl;
 class DateTimeImpl;
 class BufferImpl;
 class ArgumentsImpl;
+class ThreadImpl;
 
 // Forward declarations
 class List;
@@ -702,8 +703,8 @@ private:
   void variadic_put() {} // Base case
 };
 
-/// A date and time class using Windows FileTime internally.
-/// Supports operations on dates/times with millisecond precision.
+/// A date and time class supporting operations on dates/times with millisecond
+/// precision.
 class DateTime {
 public:
   /// Creates a DateTime representing the current date and time.
@@ -980,6 +981,43 @@ private:
   ArgumentsImpl *impl;
 };
 
+/// A lightweight thread class for running functions in separate threads.
+class Thread {
+public:
+  /// Creates a thread that runs the specified function with an optional
+  /// argument. The function receives a void* argument and should return void*.
+  /// The thread starts running immediately upon construction.
+  Thread(void *(*func)(void *), void *arg = nullptr);
+
+  /// Creates a deep copy of another thread (shares the same underlying thread).
+  Thread(const Thread &other);
+
+  /// Destroys the thread handle but does not terminate the thread.
+  /// Use await() or cancel() to ensure thread completion before destruction.
+  ~Thread();
+
+  /// Assigns another thread to this thread (shares the same underlying thread).
+  Thread &operator=(const Thread &other);
+
+  /// Waits for the thread to complete and returns its return value.
+  /// This blocks until the thread finishes execution.
+  /// Returns nullptr if the thread has already been awaited or cancelled.
+  void *await();
+
+  /// Terminates the thread forcefully.
+  /// This is a hard termination and may leave resources in an inconsistent
+  /// state. Use with caution - prefer allowing threads to complete naturally.
+  void cancel();
+
+  /// Returns true if the thread is currently running.
+  /// Returns false if the thread has completed, been awaited, or been
+  /// cancelled.
+  bool isRunning() const;
+
+private:
+  ThreadImpl *impl;
+};
+
 /// A collection of mathematical functions and utilities.
 class Math {
 public:
@@ -1142,6 +1180,9 @@ public:
 
 /// Terminates the process immediately with the specified exit code.
 void Exit(int exitCode);
+
+/// Sleeps the current thread for the specified number of milliseconds.
+void Sleep(int milliseconds);
 
 /// Returns the value of an environment variable, or empty string if not set.
 String GetEnv(const String &name);
