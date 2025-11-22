@@ -37,6 +37,7 @@ class DateTimeImpl;
 class BufferImpl;
 class ArgumentsImpl;
 class ThreadImpl;
+class PathImpl;
 
 // Forward declarations
 class List;
@@ -982,6 +983,168 @@ public:
 
 private:
   ThreadImpl *impl;
+};
+
+/// Immutable path to a file or I/O device on the system.
+class Path {
+public:
+  /// Creates a path from a string.
+  Path(const String &pathStr);
+
+  /// Copies another path.
+  Path(const Path &other);
+
+  /// Destroys the path and releases memory.
+  ~Path();
+
+  /// Assigns another path to this path.
+  Path &operator=(const Path &other);
+
+  /// Returns true if the path exists on the filesystem.
+  bool exists() const;
+
+  /// Returns true if the path points to a regular file.
+  bool isRegularFile() const;
+
+  /// Returns true if the path points to a directory.
+  bool isDirectory() const;
+
+  /// Returns true if the path points to a named pipe.
+  bool isNamedPipe() const;
+
+  /// Returns true if the path points to a symbolic link.
+  bool isSymbolicLink() const;
+
+  /// Returns true if the path points to another type of device.
+  /// This includes physical disks, mailslots, and other special files.
+  bool isOther() const;
+
+  /// Returns the size of the file in bytes.
+  /// Returns 0 if the path doesn't exist or size is unavailable.
+  long long getSize() const;
+
+  /// Returns the creation time of the file or directory.
+  DateTime getCreatedOn() const;
+
+  /// Returns the last modification time of the file or directory.
+  DateTime getModifiedOn() const;
+
+  /// Returns the last access time of the file or directory.
+  DateTime getAccessedOn() const;
+
+  /// Returns true if the file or directory is read-only.
+  bool isReadOnly() const;
+
+  /// Sets the read-only attribute of the file or directory.
+  /// Returns true if successful.
+  bool setReadOnly(bool isReadOnly = true) const;
+
+  /// Returns true if the file or directory is hidden.
+  bool isHidden() const;
+
+  /// Sets the hidden attribute of the file or directory.
+  /// Returns true if successful.
+  bool setHidden(bool isHidden = true) const;
+
+  /// Moves this path to the destination path.
+  /// Returns true if successful.
+  bool moveTo(const Path &path) const;
+
+  /// Copies this path to the destination path.
+  /// Returns true if successful.
+  bool copyTo(const Path &path) const;
+
+  /// Deletes the file at this path.
+  /// Returns true if successful.
+  bool deleteFile() const;
+
+  /// Removes the directory at this path.
+  /// If deleteIfNotEmpty is true, recursively deletes directory contents.
+  /// Returns true if successful.
+  bool removeDirectory(bool deleteIfNotEmpty = false) const;
+
+  /// Creates a directory at this path.
+  /// If createParents is true, creates all parent directories as needed.
+  /// Returns true if successful.
+  bool makeDirectory(bool createParents = true) const;
+
+  /// Returns the target path if this is a symbolic link.
+  /// Returns a path to empty string if not a symbolic link.
+  Path getSymbolicLinkTarget() const;
+
+  /// Creates or updates this path as a symbolic link to the target.
+  /// Returns true if successful.
+  bool setSymbolicLinkTarget(const Path &target) const;
+
+  /// Returns the name of the file or directory (last component of path).
+  /// Returns empty string if path doesn't exist or has no name component.
+  String getName() const;
+
+  /// Returns true if this path equals the other path (case-insensitive).
+  bool equals(const Path &other) const;
+
+  /// Returns true if this path is within the specified directory path.
+  bool isWithin(const Path &path) const;
+
+  /// Returns a list of child path strings.
+  /// If recursive is true, walks all subdirectories.
+  List listChildren(bool recursive = false) const;
+
+  /// Returns the parent directory of this path.
+  /// Returns a path to empty string if no parent exists.
+  Path getParentDirectory() const;
+
+  /// Returns the file extension (e.g., "txt" for "file.txt").
+  /// Returns empty string if no extension.
+  String getExtension() const;
+
+  /// Returns true if this path has the specified extension (case-insensitive).
+  bool hasExtension(const String &ext) const;
+
+  /// Returns the filename without extension (e.g., "file" for "file.txt").
+  String getStem() const;
+
+  /// Reads the entire file contents as a String.
+  /// Returns empty string if the file doesn't exist or can't be read.
+  String readToString() const;
+
+  /// Reads the entire file contents as a Buffer.
+  /// Returns empty buffer if the file doesn't exist or can't be read.
+  Buffer readToBuffer() const;
+
+  /// Writes the string to the file, replacing existing contents.
+  /// Returns true if successful.
+  bool writeFromString(const String &str) const;
+
+  /// Writes the buffer to the file, replacing existing contents.
+  /// Returns true if successful.
+  bool writeFromBuffer(const Buffer &buf) const;
+
+  /// Appends the string to the end of the file.
+  /// Returns true if successful.
+  bool appendFromString(const String &str) const;
+
+  /// Appends the buffer to the end of the file.
+  /// Returns true if successful.
+  bool appendFromBuffer(const Buffer &buf) const;
+
+  /// Changes the current working directory to the specified path.
+  /// Returns true if successful.
+  static bool ChangeCurrentDirectory(const Path &path);
+
+  /// Returns a list of all volume drive letters (e.g., "C:", "D:").
+  static List ListVolumes();
+
+  /// Creates a temporary file with an optional prefix.
+  /// Returns the path to the created file.
+  static Path CreateTemporaryFile(const String &prefix = String());
+
+  /// Creates a temporary directory with an optional prefix.
+  /// Returns the path to the created directory.
+  static Path CreateTemporaryDirectory(const String &prefix = String());
+
+private:
+  PathImpl *impl;
 };
 
 /// Mathematical functions and constants.

@@ -208,26 +208,32 @@ ENDIF()
 
     if(PYTHON_EXECUTABLE)
         message(STATUS "Found Python: ${PYTHON_EXECUTABLE}")
-        set(PYTHON_TEST_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_arguments.py")
+        file(GLOB PYTHON_TEST_SCRIPTS "tests/*.py")
 
-        # Add Python test to the check script
-        set(SCRIPT_CONTENT "${SCRIPT_CONTENT}
-# Run Python-based argument tests
-IF(EXISTS \"${PYTHON_TEST_SCRIPT}\")
-    MESSAGE(\"\\nRunning Python-based argument tests...\")
+        # Build Python test script content
+        set(PYTHON_SCRIPT_CONTENT "
+# Run Python-based tests")
+        foreach(py_script ${PYTHON_TEST_SCRIPTS})
+            get_filename_component(py_script_name ${py_script} NAME)
+            set(PYTHON_SCRIPT_CONTENT "${PYTHON_SCRIPT_CONTENT}
+IF(EXISTS \"${py_script}\")
+    MESSAGE(\"Running Python test: ${py_script_name}...\")
     EXECUTE_PROCESS(
-        COMMAND \"${PYTHON_EXECUTABLE}\" \"${PYTHON_TEST_SCRIPT}\"
+        COMMAND \"${PYTHON_EXECUTABLE}\" \"${py_script}\"
         RESULT_VARIABLE RESULT
         WORKING_DIRECTORY \"${CMAKE_CURRENT_SOURCE_DIR}/tests\"
     )
     IF(NOT RESULT EQUAL 0)
         SET(ANY_FAILED 1)
-        MESSAGE(\"Python argument tests failed!\")
+        MESSAGE(\"Python test ${py_script_name} failed!\")
     ELSE()
-        MESSAGE(\"Python argument tests passed.\")
+        MESSAGE(\"Python test ${py_script_name} passed.\")
     ENDIF()
 ENDIF()
 ")
+        endforeach()
+
+        set(SCRIPT_CONTENT "${SCRIPT_CONTENT}${PYTHON_SCRIPT_CONTENT}")
         file(WRITE "${CHECK_SCRIPT_FILE}" "${SCRIPT_CONTENT}")
     else()
         message(STATUS "Python not found - Python tests will be skipped")
