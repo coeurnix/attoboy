@@ -256,12 +256,13 @@ static void FindChildrenRecursive(const ATTO_CHAR *path, List &result) {
     searchPath[i] = path[i];
   }
 
-  if (pathLen > 0 && searchPath[pathLen - 1] != '\\' &&
-      searchPath[pathLen - 1] != '/') {
-    searchPath[pathLen++] = '\\';
+  int searchLen = pathLen;
+  if (searchLen > 0 && searchPath[searchLen - 1] != '\\' &&
+      searchPath[searchLen - 1] != '/') {
+    searchPath[searchLen++] = '\\';
   }
-  searchPath[pathLen] = '*';
-  searchPath[pathLen + 1] = 0;
+  searchPath[searchLen] = '*';
+  searchPath[searchLen + 1] = 0;
 
   WIN32_FIND_DATA findData;
   HANDLE hFind = FindFirstFile(searchPath, &findData);
