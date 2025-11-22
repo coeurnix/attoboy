@@ -19,7 +19,7 @@ Attoboy is a comprehensive, 'batteries-included' C++ library designed for buildi
 - [x] Random Number Generation
 - [x] Math Functions
 - [x] Cryptography
-- [ ] Command Line Arguments
+- [x] Command Line Arguments
 - [ ] Threads
 - [ ] File I/O
 - [ ] Filesystems

@@ -35,6 +35,7 @@ class MapImpl;
 class SetImpl;
 class DateTimeImpl;
 class BufferImpl;
+class ArgumentsImpl;
 
 // Forward declarations
 class List;
@@ -906,6 +907,76 @@ public:
 
 private:
   BufferImpl *impl;
+};
+
+/// A user-friendly command-line argument parser.
+/// Automatically captures command-line arguments and provides flexible parsing
+/// with support for flags, named parameters, and positional parameters.
+class Arguments {
+public:
+  /// Creates an Arguments parser and captures the current command-line.
+  Arguments();
+
+  /// Creates a deep copy of another Arguments parser.
+  Arguments(const Arguments &other);
+
+  /// Destroys the Arguments parser and releases allocated memory.
+  ~Arguments();
+
+  /// Assigns another Arguments parser to this one (deep copy).
+  Arguments &operator=(const Arguments &other);
+
+  /// Adds a flag argument that is set to true when present.
+  /// Flags can be specified as -name or --longName (if provided).
+  /// They can also be explicitly set: -name=true, -name=false, -name=1,
+  /// -name=0, -name=on, -name=off (case-insensitive). Returns a reference to
+  /// this Arguments for chaining.
+  Arguments &addFlag(const String &name, const String &description = String(),
+                     bool defaultValue = false,
+                     const String &longName = String());
+
+  /// Adds a named parameter that requires a value.
+  /// Parameters must be specified with an equals sign: -name=value or
+  /// --longName=value. Returns a reference to this Arguments for chaining.
+  Arguments &addParameter(const String &name,
+                          const String &description = String(),
+                          const String &defaultValue = String(),
+                          const String &longName = String());
+
+  /// Adds a positional parameter at the next position.
+  /// Positional parameters are filled from non-flag, non-named arguments in
+  /// the order they are added. Returns a reference to this Arguments for
+  /// chaining.
+  Arguments &addPositionalParameter(const String &name,
+                                    const String &description = String());
+
+  /// Sets the help text to display when -h or --help is used.
+  /// Returns a reference to this Arguments for chaining.
+  Arguments &setHelp(const String &help);
+
+  /// Marks an argument as required.
+  /// If a required argument is not provided, parsing will fail and help will
+  /// be displayed. Returns a reference to this Arguments for chaining.
+  Arguments &requireArgument(const String &name);
+
+  /// Returns the value of the named argument, or empty string if not set.
+  /// Works for flags (returns "true" or "false"), parameters, and positional
+  /// parameters.
+  String getArgument(const String &name) const;
+
+  /// Returns true if the argument has been added and was set by the user or
+  /// has a default value.
+  bool hasArgument(const String &name) const;
+
+  /// Parses the command-line arguments and returns a Map of argument names to
+  /// values. If help is requested (-h or --help) or required arguments are
+  /// missing, prints help text (unless suppressHelp is true) and returns an
+  /// empty Map. On success, returns a Map with all argument names and their
+  /// values.
+  Map parseArguments(bool suppressHelp = false);
+
+private:
+  ArgumentsImpl *impl;
 };
 
 /// A collection of mathematical functions and utilities.

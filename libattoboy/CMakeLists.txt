@@ -149,6 +149,18 @@ if(ATTO_BUILD_TESTS)
 
     foreach(test_src ${TEST_SOURCES})
         get_filename_component(test_name ${test_src} NAME_WE)
+
+        # Skip python_* test helpers (they're run by Python test suite, not directly)
+        if(test_name MATCHES "^python_")
+            add_executable(${test_name} ${test_src})
+            target_link_libraries(${test_name} PRIVATE attoboy ${SYSTEM_LIBS})
+            set_target_properties(${test_name} PROPERTIES
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests"
+                OUTPUT_NAME "${test_name}"
+            )
+            continue()
+        endif()
+
         add_executable(${test_name} ${test_src})
         target_link_libraries(${test_name} PRIVATE attoboy ${SYSTEM_LIBS})
         set_target_properties(${test_name} PROPERTIES
@@ -187,6 +199,39 @@ ENDIF()
 ")
 
     file(WRITE "${CHECK_SCRIPT_FILE}" "${SCRIPT_CONTENT}")
+
+    # Find Python interpreter for running Python-based tests
+    find_program(PYTHON_EXECUTABLE
+        NAMES python3 python py
+        DOC "Python interpreter for running test scripts"
+    )
+
+    if(PYTHON_EXECUTABLE)
+        message(STATUS "Found Python: ${PYTHON_EXECUTABLE}")
+        set(PYTHON_TEST_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_arguments.py")
+
+        # Add Python test to the check script
+        set(SCRIPT_CONTENT "${SCRIPT_CONTENT}
+# Run Python-based argument tests
+IF(EXISTS \"${PYTHON_TEST_SCRIPT}\")
+    MESSAGE(\"\\nRunning Python-based argument tests...\")
+    EXECUTE_PROCESS(
+        COMMAND \"${PYTHON_EXECUTABLE}\" \"${PYTHON_TEST_SCRIPT}\"
+        RESULT_VARIABLE RESULT
+        WORKING_DIRECTORY \"${CMAKE_CURRENT_SOURCE_DIR}/tests\"
+    )
+    IF(NOT RESULT EQUAL 0)
+        SET(ANY_FAILED 1)
+        MESSAGE(\"Python argument tests failed!\")
+    ELSE()
+        MESSAGE(\"Python argument tests passed.\")
+    ENDIF()
+ENDIF()
+")
+        file(WRITE "${CHECK_SCRIPT_FILE}" "${SCRIPT_CONTENT}")
+    else()
+        message(STATUS "Python not found - Python tests will be skipped")
+    endif()
 
     add_custom_target(check
         COMMAND ${CMAKE_COMMAND} -E echo ""
