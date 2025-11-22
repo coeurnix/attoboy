@@ -85,11 +85,30 @@ Map Arguments::parseArguments(bool suppressHelp) {
             } else {
               results.put(defName, String(true));
             }
-          } else if (type == ARG_PARAMETER && eqPos >= 0) {
-            results.put(defName, argValue);
+          } else if (type == ARG_PARAMETER) {
+            String paramValue;
+            bool hasValue = false;
+
+            if (eqPos >= 0) {
+              paramValue = argValue;
+              hasValue = true;
+            } else if (i + 1 < impl->cmdLineArgs->length()) {
+              String nextArg = impl->cmdLineArgs->at<String>(i + 1);
+              if (!nextArg.startsWith(ATTO_TEXT("-"))) {
+                paramValue = nextArg;
+                hasValue = true;
+                i++;
+              }
+            }
+
+            if (hasValue) {
+              results.put(defName, paramValue);
+              found = true;
+              break;
+            }
           }
-          found = true;
-          break;
+          if (found)
+            break;
         }
       }
 
@@ -133,11 +152,30 @@ Map Arguments::parseArguments(bool suppressHelp) {
             } else {
               results.put(defName, String(true));
             }
-          } else if (type == ARG_PARAMETER && eqPos >= 0) {
-            results.put(defName, argValue);
+          } else if (type == ARG_PARAMETER) {
+            String paramValue;
+            bool hasValue = false;
+
+            if (eqPos >= 0) {
+              paramValue = argValue;
+              hasValue = true;
+            } else if (i + 1 < impl->cmdLineArgs->length()) {
+              String nextArg = impl->cmdLineArgs->at<String>(i + 1);
+              if (!nextArg.startsWith(ATTO_TEXT("-"))) {
+                paramValue = nextArg;
+                hasValue = true;
+                i++;
+              }
+            }
+
+            if (hasValue) {
+              results.put(defName, paramValue);
+              found = true;
+              break;
+            }
           }
-          found = true;
-          break;
+          if (found)
+            break;
         }
       }
 

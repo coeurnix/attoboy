@@ -131,6 +131,9 @@ def main():
     runner.run_test("Parameter with default value", ["-r=x"], 0)
     runner.run_test("Parameter with empty value -o=", ["-o=", "-r=x"], 0)
     runner.run_test("Parameter with spaces -o='my file.txt'", ["-o=my file.txt", "-r=x"], 0)
+    runner.run_test("Parameter with space separator -r 42", ["-r", "42"], 0)
+    runner.run_test("Parameter with space separator --output test.txt", ["--output", "test.txt", "-r=x"], 0)
+    runner.run_test("Mixed syntax: equals and space", ["-o=test.txt", "-r", "42"], 0)
 
     # Test 3: Positional parameters
     print("\n[3] Positional Parameter Tests")

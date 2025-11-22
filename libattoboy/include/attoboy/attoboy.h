@@ -936,8 +936,9 @@ public:
                      const String &longName = String());
 
   /// Adds a named parameter that requires a value.
-  /// Parameters must be specified with an equals sign: -name=value or
-  /// --longName=value. Returns a reference to this Arguments for chaining.
+  /// Parameters can be specified with an equals sign: -name=value or
+  /// --longName=value, or with the value as the next argument: -name value
+  /// or --longName value. Returns a reference to this Arguments for chaining.
   Arguments &addParameter(const String &name,
                           const String &description = String(),
                           const String &defaultValue = String(),
