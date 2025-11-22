@@ -15,26 +15,9 @@ static int errorCount = 0;
   } while (0)
 
 void atto_main() {
-  Log(ATTO_TEXT("Running File socket tests (debug version)..."));
+  Log(ATTO_TEXT("Running File socket tests (connecting to example.com:80)..."));
 
-  Arguments args;
-  args.addPositionalParameter(ATTO_TEXT("port"), ATTO_TEXT("Server port"));
-  Map argMap = args.parseArguments(true);
-
-  String portStr = args.getArgument(ATTO_TEXT("port"));
-  if (portStr.isEmpty()) {
-    LogError(ATTO_TEXT("Port argument required"));
-    Exit(1);
-  }
-
-  int port = portStr.toInteger();
-  if (port <= 0) {
-    LogError(ATTO_TEXT("Invalid port number"));
-    Exit(1);
-  }
-
-  Log(ATTO_TEXT("Connecting to 127.0.0.1:"), port);
-  File socketFile(String(ATTO_TEXT("127.0.0.1")), port);
+  File socketFile(String(ATTO_TEXT("example.com")), 80);
 
   TEST(socketFile.isValid(), ATTO_TEXT("Socket should be valid"));
   TEST(socketFile.isOpen(), ATTO_TEXT("Socket should be open"));
@@ -44,42 +27,33 @@ void atto_main() {
 
   const ATTO_CHAR *host = socketFile.getHost();
   TEST(host != nullptr, ATTO_TEXT("Socket should have host"));
-  if (host) {
-    Log(ATTO_TEXT("Host: "), host);
-  }
 
   int retrievedPort = socketFile.getPort();
-  TEST(retrievedPort == port, ATTO_TEXT("Socket should return correct port"));
-  Log(ATTO_TEXT("Port: "), retrievedPort);
+  TEST(retrievedPort == 80, ATTO_TEXT("Socket should return correct port"));
 
   TEST(socketFile.getPath() == nullptr,
        ATTO_TEXT("Socket should not have path"));
 
-  String testMessage(ATTO_TEXT("Hello, Server!"));
-  Log(ATTO_TEXT("Writing message: "), testMessage);
-  int written = socketFile.write(testMessage);
-  Log(ATTO_TEXT("Bytes written: "), written);
-  TEST(written > 0, ATTO_TEXT("Should write data to socket"));
+  String httpRequest(ATTO_TEXT("HEAD / HTTP/1.0\r\nHost: example.com\r\n\r\n"));
+  int written = socketFile.write(httpRequest);
+  TEST(written > 0, ATTO_TEXT("Should write HTTP request to socket"));
 
-  Log(ATTO_TEXT("Waiting 200ms for response..."));
-  Sleep(200);
+  Sleep(500);
 
-  Log(ATTO_TEXT("Checking for available data..."));
-  bool hasData = socketFile.hasAvailable();
-  Log(ATTO_TEXT("Has available: "), hasData ? ATTO_TEXT("yes") : ATTO_TEXT("no"));
-
-  if (hasData) {
+  if (socketFile.hasAvailable()) {
     int available = socketFile.getAvailableCount();
     Log(ATTO_TEXT("Available bytes: "), available);
 
     String response = socketFile.readAllToString();
-    Log(ATTO_TEXT("Response: "), response);
-    TEST(!response.isEmpty(), ATTO_TEXT("Should receive response from server"));
-    TEST(response.contains(ATTO_TEXT("received")) ||
-             response.contains(ATTO_TEXT("Server")),
-         ATTO_TEXT("Response should contain expected text"));
+    TEST(!response.isEmpty(), ATTO_TEXT("Should receive HTTP response"));
+    TEST(response.contains(ATTO_TEXT("HTTP")) ||
+             response.contains(ATTO_TEXT("200")),
+         ATTO_TEXT("Response should contain HTTP status"));
+    Log(ATTO_TEXT("Received response starting with: "),
+        response.substring(0, 50));
   } else {
     LogError(ATTO_TEXT("No data available from server"));
+    errorCount++;
   }
 
   socketFile.close();
