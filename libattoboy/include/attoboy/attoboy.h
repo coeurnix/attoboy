@@ -838,7 +838,7 @@ public:
   Buffer &trim();
 
   /// Returns a compressed version of this buffer.
-  /// Uses LZNT1 compression.
+  /// Uses LZ4 compression.
   Buffer compress() const;
 
   /// Returns a decompressed version of this buffer.
@@ -1222,6 +1222,9 @@ public:
   /// Opens a TCP socket connection to host at port.
   File(const String &host, int port);
 
+  /// Creates a listening server socket on the specified port.
+  File(int port);
+
   /// Copies another file (shares the same underlying handle).
   File(const File &other);
 
@@ -1316,8 +1319,16 @@ public:
   /// Returns true if this is a TCP socket.
   bool isSocket() const;
 
+  /// Returns true if this is a server socket.
+  bool isServerSocket() const;
+
   /// Returns true if this is a named pipe.
   bool isNamedPipe() const;
+
+  /// Accepts a client connection on a server socket.
+  /// Returns a new File representing the client connection.
+  /// Returns an invalid File if this is not a server socket or on error.
+  File accept();
 
   /// Returns true if this file equals the other file.
   bool equals(const File &other) const;

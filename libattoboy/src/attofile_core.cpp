@@ -170,6 +170,61 @@ File::File(const String &host, int port) {
   impl->isValid = true;
 }
 
+File::File(int port) {
+  impl = (FileImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+                               sizeof(FileImpl));
+  if (!impl)
+    return;
+  InitializeSRWLock(&impl->lock);
+
+  impl->type = FILE_TYPE_INVALID;
+  impl->handle = INVALID_HANDLE_VALUE;
+  impl->sock = INVALID_SOCKET;
+  impl->port = -1;
+
+  if (!InitWinsock()) {
+    impl->isValid = false;
+    return;
+  }
+
+  impl->port = port;
+
+  impl->sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (impl->sock == INVALID_SOCKET) {
+    impl->isValid = false;
+    return;
+  }
+
+  int optval = 1;
+  setsockopt(impl->sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval,
+             sizeof(optval));
+
+  struct sockaddr_in addr;
+  ZeroMemory(&addr, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = INADDR_ANY;
+  addr.sin_port = htons((u_short)port);
+
+  if (bind(impl->sock, (struct sockaddr *)&addr, sizeof(addr)) ==
+      SOCKET_ERROR) {
+    closesocket(impl->sock);
+    impl->sock = INVALID_SOCKET;
+    impl->isValid = false;
+    return;
+  }
+
+  if (listen(impl->sock, SOMAXCONN) == SOCKET_ERROR) {
+    closesocket(impl->sock);
+    impl->sock = INVALID_SOCKET;
+    impl->isValid = false;
+    return;
+  }
+
+  impl->type = FILE_TYPE_SERVER_SOCKET;
+  impl->isOpen = true;
+  impl->isValid = true;
+}
+
 File::File(const File &other) {
   impl = other.impl;
   if (impl) {
@@ -235,7 +290,7 @@ void File::close() {
   if (!impl->isOpen)
     return;
 
-  if (impl->type == FILE_TYPE_SOCKET) {
+  if (impl->type == FILE_TYPE_SOCKET || impl->type == FILE_TYPE_SERVER_SOCKET) {
     if (impl->sock != INVALID_SOCKET) {
       closesocket(impl->sock);
       impl->sock = INVALID_SOCKET;
@@ -268,6 +323,13 @@ bool File::isNamedPipe() const {
     return false;
   ReadLockGuard lock(&impl->lock);
   return impl->type == FILE_TYPE_NAMED_PIPE;
+}
+
+bool File::isServerSocket() const {
+  if (!impl)
+    return false;
+  ReadLockGuard lock(&impl->lock);
+  return impl->type == FILE_TYPE_SERVER_SOCKET;
 }
 
 } // namespace attoboy
