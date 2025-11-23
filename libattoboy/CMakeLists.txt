@@ -65,7 +65,7 @@ if(MSVC)
         /DEBUG:NONE        # Do not generate debug info (reduces binary size)
     )
     
-    set(SYSTEM_LIBS kernel32.lib ws2_32.lib advapi32.lib crypt32.lib)
+    set(SYSTEM_LIBS kernel32.lib ws2_32.lib advapi32.lib crypt32.lib secur32.lib)
     
 else()
     # GCC/Clang Compiler Options
@@ -90,7 +90,7 @@ else()
         -Wl,--defsym,main=_atto_main # makes "main()" still work
     )
 
-    set(SYSTEM_LIBS -lkernel32 -lws2_32 -ladvapi32 -lcrypt32)
+    set(SYSTEM_LIBS -lkernel32 -lws2_32 -ladvapi32 -lcrypt32 -lsecur32)
 endif()
 
 # ------------------------------------------------------------------------------

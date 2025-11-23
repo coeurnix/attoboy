@@ -34,7 +34,10 @@ void atto_main() {
   TEST(socketFile.getPath() == nullptr,
        ATTO_TEXT("Socket should not have path"));
 
-  String httpRequest(ATTO_TEXT("HEAD / HTTP/1.0\r\nHost: example.com\r\n\r\n"));
+  const char *httpRequestStr = "HEAD / HTTP/1.0\r\nHost: example.com\r\n\r\n";
+  int httpLen = 0;
+  while (httpRequestStr[httpLen]) httpLen++;
+  Buffer httpRequest((const unsigned char *)httpRequestStr, httpLen);
   int written = socketFile.write(httpRequest);
   TEST(written > 0, ATTO_TEXT("Should write HTTP request to socket"));
 
@@ -44,13 +47,19 @@ void atto_main() {
     int available = socketFile.getAvailableCount();
     Log(ATTO_TEXT("Available bytes: "), available);
 
-    String response = socketFile.readAllToString();
-    TEST(!response.isEmpty(), ATTO_TEXT("Should receive HTTP response"));
-    TEST(response.contains(ATTO_TEXT("HTTP")) ||
-             response.contains(ATTO_TEXT("200")),
+    Buffer responseBuffer = socketFile.readAllToBuffer();
+    TEST(!responseBuffer.isEmpty(), ATTO_TEXT("Should receive HTTP response"));
+
+    int len = 0;
+    const unsigned char *data = responseBuffer.c_ptr(&len);
+    bool hasHTTP = false;
+    bool has200 = false;
+    for (int i = 0; i < len - 3; i++) {
+      if (data[i] == 'H' && data[i+1] == 'T' && data[i+2] == 'T' && data[i+3] == 'P') hasHTTP = true;
+      if (data[i] == '2' && data[i+1] == '0' && data[i+2] == '0') has200 = true;
+    }
+    TEST(hasHTTP || has200,
          ATTO_TEXT("Response should contain HTTP status"));
-    Log(ATTO_TEXT("Received response starting with: "),
-        response.substring(0, 50));
   } else {
     LogError(ATTO_TEXT("No data available from server"));
     errorCount++;

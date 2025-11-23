@@ -14,7 +14,7 @@ void atto_main() {
   Log(ATTO_TEXT("Running String simple tests..."));
 
   // Test nullptr handling
-  const char *nullPtr = nullptr;
+  const ATTO_CHAR *nullPtr = nullptr;
   String sNull(nullPtr);
   TEST(sNull.equals(ATTO_TEXT("null")), ATTO_TEXT("String(nullptr) should create 'null' string"));
 

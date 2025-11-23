@@ -37,6 +37,7 @@ class DateTimeImpl;
 class BufferImpl;
 class ArgumentsImpl;
 class ThreadImpl;
+class MutexImpl;
 class PathImpl;
 class FileImpl;
 
@@ -982,8 +983,46 @@ public:
   /// Returns false if completed, awaited, or cancelled.
   bool isRunning() const;
 
+  /// Returns true if this thread equals the other thread.
+  bool equals(const Thread &other) const;
+
+  /// Returns true if this thread equals the other thread.
+  bool operator==(const Thread &other) const;
+
+  /// Returns true if this thread does not equal the other thread.
+  bool operator!=(const Thread &other) const;
+
 private:
   ThreadImpl *impl;
+};
+
+/// Mutex for protecting shared resources across threads.
+class Mutex {
+public:
+  /// Creates a mutex.
+  Mutex();
+
+  /// Copies another mutex (shares the same underlying mutex).
+  Mutex(const Mutex &other);
+
+  /// Destroys the mutex handle.
+  ~Mutex();
+
+  /// Assigns another mutex to this mutex (shares the same underlying mutex).
+  Mutex &operator=(const Mutex &other);
+
+  /// Locks the mutex, blocking until it becomes available.
+  void lock();
+
+  /// Unlocks the mutex, allowing other threads to acquire it.
+  void unlock();
+
+  /// Tries to lock the mutex without blocking.
+  /// Returns true if the lock was acquired, false otherwise.
+  bool tryLock();
+
+private:
+  MutexImpl *impl;
 };
 
 /// Immutable path to a file or I/O device on the system.
@@ -1085,6 +1124,12 @@ public:
 
   /// Returns true if this path equals the other path (case-insensitive).
   bool equals(const Path &other) const;
+
+  /// Returns true if this path equals the other path (case-insensitive).
+  bool operator==(const Path &other) const;
+
+  /// Returns true if this path does not equal the other path.
+  bool operator!=(const Path &other) const;
 
   /// Returns true if this path is within the specified directory path.
   bool isWithin(const Path &path) const;
@@ -1257,6 +1302,15 @@ public:
 
   /// Returns true if this is a named pipe.
   bool isNamedPipe() const;
+
+  /// Returns true if this file equals the other file.
+  bool equals(const File &other) const;
+
+  /// Returns true if this file equals the other file.
+  bool operator==(const File &other) const;
+
+  /// Returns true if this file does not equal the other file.
+  bool operator!=(const File &other) const;
 
 private:
   FileImpl *impl;
@@ -1447,6 +1501,15 @@ void *Realloc(void *ptr, int size);
 /// Frees a previously allocated block of memory.
 /// Does nothing if ptr is nullptr.
 void Free(void *ptr);
+
+/// Returns the current user's login name.
+String GetUserName();
+
+/// Returns the current user's full display name.
+String GetUserDisplayName();
+
+/// Returns the current process ID.
+int GetProcessId();
 
 // Logging functions
 //

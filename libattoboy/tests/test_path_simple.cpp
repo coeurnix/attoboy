@@ -70,6 +70,32 @@ void atto_main() {
   TEST(pathWithExt.getExtension() == ATTO_TEXT("pdf"), ATTO_TEXT("Extension should be 'pdf'"));
   TEST(pathWithExt.getStem() == ATTO_TEXT("document"), ATTO_TEXT("Stem should be 'document'"));
 
+  Log(ATTO_TEXT("Testing Path equality operators..."));
+  Path p1(ATTO_TEXT("C:\\test.txt"));
+  Path p2(ATTO_TEXT("C:\\test.txt"));
+  Path p3(ATTO_TEXT("c:\\test.txt"));
+  Path p4(ATTO_TEXT("C:\\other.txt"));
+
+  TEST(p1 == p2, ATTO_TEXT("operator== should work for identical paths"));
+  TEST(p1 == p3, ATTO_TEXT("operator== should be case-insensitive"));
+  TEST(!(p1 == p4), ATTO_TEXT("operator== should return false for different paths"));
+  TEST(p1 != p4, ATTO_TEXT("operator!= should work for different paths"));
+
+  Log(ATTO_TEXT("Testing File equality operators..."));
+  Path tempPath = Path::CreateTemporaryFile();
+  File f1(tempPath);
+  File f2 = f1;
+  File f3(tempPath);
+
+  TEST(f1 == f2, ATTO_TEXT("operator== should work for copied files"));
+  TEST(!(f1 == f3), ATTO_TEXT("operator== should return false for different file instances"));
+  TEST(f1 != f3, ATTO_TEXT("operator!= should work for different files"));
+
+  f1.close();
+  f2.close();
+  f3.close();
+  tempPath.deleteFile();
+
   if (errorCount == 0) {
     Log(ATTO_TEXT("All Path simple tests passed!"));
     Exit(0);

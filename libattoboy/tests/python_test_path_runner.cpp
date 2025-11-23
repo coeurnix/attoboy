@@ -8,8 +8,22 @@ static void PrintOutput(const String &s) {
   DWORD written;
   const ATTO_CHAR *str = s.c_str();
   int len = s.length();
+
+#ifdef UNICODE
+  int utf8Len = WideCharToMultiByte(CP_UTF8, 0, str, len, nullptr, 0, nullptr, nullptr);
+  if (utf8Len > 0) {
+    char *utf8Buf = (char *)HeapAlloc(GetProcessHeap(), 0, utf8Len + 1);
+    if (utf8Buf) {
+      WideCharToMultiByte(CP_UTF8, 0, str, len, utf8Buf, utf8Len, nullptr, nullptr);
+      WriteFile(hOut, utf8Buf, utf8Len, &written, nullptr);
+      HeapFree(GetProcessHeap(), 0, utf8Buf);
+    }
+  }
+  WriteFile(hOut, "\n", 1, &written, nullptr);
+#else
   WriteFile(hOut, str, len, &written, nullptr);
   WriteFile(hOut, "\n", 1, &written, nullptr);
+#endif
 }
 
 void atto_main() {

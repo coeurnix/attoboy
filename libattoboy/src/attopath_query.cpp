@@ -45,6 +45,14 @@ bool Path::equals(const Path &other) const {
   return ATTO_LSTRCMPI(impl->pathStr, other.impl->pathStr) == 0;
 }
 
+bool Path::operator==(const Path &other) const {
+  return equals(other);
+}
+
+bool Path::operator!=(const Path &other) const {
+  return !equals(other);
+}
+
 bool Path::isWithin(const Path &path) const {
   if (!impl || !impl->pathStr || !path.impl || !path.impl->pathStr)
     return false;
