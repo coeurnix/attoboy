@@ -1749,7 +1749,7 @@ template <typename... Args> void Log(const Args &...args) {
 template <typename... Args> void LogDebug(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE)
   String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String("DEBUG "));
+  internal::LogImpl(strings, sizeof...(Args), String(ATTO_TEXT("DEBUG ")));
 #endif
 }
 
@@ -1759,7 +1759,7 @@ template <typename... Args> void LogDebug(const Args &...args) {
 template <typename... Args> void LogInfo(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE) || defined(ATTOBOY_LOG_INFO_ENABLE)
   String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String("INFO "));
+  internal::LogImpl(strings, sizeof...(Args), String(ATTO_TEXT("INFO ")));
 #endif
 }
 
@@ -1770,7 +1770,7 @@ template <typename... Args> void LogWarning(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE) || defined(ATTOBOY_LOG_INFO_ENABLE) ||   \
     defined(ATTOBOY_LOG_WARNING_ENABLE)
   String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String("WARNING "));
+  internal::LogImpl(strings, sizeof...(Args), String(ATTO_TEXT("WARNING ")));
 #endif
 }
 
@@ -1779,7 +1779,7 @@ template <typename... Args> void LogWarning(const Args &...args) {
 template <typename... Args> void LogError(const Args &...args) {
 #if !defined(ATTOBOY_LOG_DISABLE)
   String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String("ERROR "));
+  internal::LogImpl(strings, sizeof...(Args), String(ATTO_TEXT("ERROR ")));
 #endif
 }
 

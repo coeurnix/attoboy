@@ -89,7 +89,63 @@ String Subprocess::Capture_impl(const Path &executable, const List &arguments) {
 
   WaitForSingleObject(impl->hProcess, INFINITE);
 
+#ifdef UNICODE
+  // Convert ANSI subprocess output to wide characters
+  int bufLen = 0;
+  const unsigned char *bufData = outputBuf.c_ptr(&bufLen);
+
+  if (bufLen == 0) {
+    HeapFree(GetProcessHeap(), 0, readBuf);
+    if (impl->hStdInWrite)
+      CloseHandle(impl->hStdInWrite);
+    if (impl->hStdOutRead)
+      CloseHandle(impl->hStdOutRead);
+    if (impl->hThread)
+      CloseHandle(impl->hThread);
+    if (impl->hProcess)
+      CloseHandle(impl->hProcess);
+    HeapFree(GetProcessHeap(), 0, impl);
+    return String();
+  }
+
+  int wideLen = MultiByteToWideChar(CP_ACP, 0, (const char *)bufData, bufLen, nullptr, 0);
+  if (wideLen == 0) {
+    HeapFree(GetProcessHeap(), 0, readBuf);
+    if (impl->hStdInWrite)
+      CloseHandle(impl->hStdInWrite);
+    if (impl->hStdOutRead)
+      CloseHandle(impl->hStdOutRead);
+    if (impl->hThread)
+      CloseHandle(impl->hThread);
+    if (impl->hProcess)
+      CloseHandle(impl->hProcess);
+    HeapFree(GetProcessHeap(), 0, impl);
+    return String();
+  }
+
+  wchar_t *wideBuf = (wchar_t *)HeapAlloc(GetProcessHeap(), 0, (wideLen + 1) * sizeof(wchar_t));
+  if (!wideBuf) {
+    HeapFree(GetProcessHeap(), 0, readBuf);
+    if (impl->hStdInWrite)
+      CloseHandle(impl->hStdInWrite);
+    if (impl->hStdOutRead)
+      CloseHandle(impl->hStdOutRead);
+    if (impl->hThread)
+      CloseHandle(impl->hThread);
+    if (impl->hProcess)
+      CloseHandle(impl->hProcess);
+    HeapFree(GetProcessHeap(), 0, impl);
+    return String();
+  }
+
+  MultiByteToWideChar(CP_ACP, 0, (const char *)bufData, bufLen, wideBuf, wideLen);
+  wideBuf[wideLen] = 0;
+
+  String result(wideBuf);
+  HeapFree(GetProcessHeap(), 0, wideBuf);
+#else
   String result = outputBuf.toString();
+#endif
 
   HeapFree(GetProcessHeap(), 0, readBuf);
 

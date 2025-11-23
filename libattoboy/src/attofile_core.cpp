@@ -26,6 +26,7 @@ File::File(const Path &path) {
   impl->handle = INVALID_HANDLE_VALUE;
   impl->sock = INVALID_SOCKET;
   impl->port = -1;
+  impl->refCount = 1;
 
   const ATTO_CHAR *pathCStr = nullptr;
   int pathLen = 0;
@@ -89,6 +90,7 @@ File::File(const String &host, int port) {
   impl->handle = INVALID_HANDLE_VALUE;
   impl->sock = INVALID_SOCKET;
   impl->port = -1;
+  impl->refCount = 1;
 
   if (!InitWinsock()) {
     impl->isValid = false;
@@ -181,6 +183,7 @@ File::File(int port) {
   impl->handle = INVALID_HANDLE_VALUE;
   impl->sock = INVALID_SOCKET;
   impl->port = -1;
+  impl->refCount = 1;
 
   if (!InitWinsock()) {
     impl->isValid = false;
@@ -228,22 +231,33 @@ File::File(int port) {
 File::File(const File &other) {
   impl = other.impl;
   if (impl) {
-    WriteLockGuard lock(&impl->lock);
+    InterlockedIncrement(&impl->refCount);
   }
 }
 
 File::~File() {
   if (impl) {
-    close();
-    FreeFileStr(impl->pathStr);
-    FreeFileStr(impl->hostStr);
-    HeapFree(GetProcessHeap(), 0, impl);
+    if (InterlockedDecrement(&impl->refCount) == 0) {
+      close();
+      FreeFileStr(impl->pathStr);
+      FreeFileStr(impl->hostStr);
+      HeapFree(GetProcessHeap(), 0, impl);
+    }
   }
 }
 
 File &File::operator=(const File &other) {
   if (this != &other) {
+    if (impl && InterlockedDecrement(&impl->refCount) == 0) {
+      close();
+      FreeFileStr(impl->pathStr);
+      FreeFileStr(impl->hostStr);
+      HeapFree(GetProcessHeap(), 0, impl);
+    }
     impl = other.impl;
+    if (impl) {
+      InterlockedIncrement(&impl->refCount);
+    }
   }
   return *this;
 }

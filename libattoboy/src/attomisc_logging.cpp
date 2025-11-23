@@ -22,19 +22,8 @@ static String GetCurrentDatetimeString() {
 static void PrintString(const String &s) {
   if (g_logToFile && g_logFileHandle) {
     DWORD written;
-#ifdef UNICODE
-    int utf8Len = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), nullptr, 0, nullptr, nullptr);
-    if (utf8Len > 0) {
-      char *utf8Buf = (char *)HeapAlloc(GetProcessHeap(), 0, utf8Len);
-      if (utf8Buf) {
-        WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), utf8Buf, utf8Len, nullptr, nullptr);
-        WriteFile(g_logFileHandle, utf8Buf, utf8Len, &written, nullptr);
-        HeapFree(GetProcessHeap(), 0, utf8Buf);
-      }
-    }
-#else
-    WriteFile(g_logFileHandle, s.c_str(), s.length(), &written, nullptr);
-#endif
+    DWORD bytesToWrite = s.length() * sizeof(ATTO_CHAR);
+    WriteFile(g_logFileHandle, s.c_str(), bytesToWrite, &written, nullptr);
     FlushFileBuffers(g_logFileHandle);
   } else {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);

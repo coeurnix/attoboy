@@ -40,10 +40,10 @@ File File::accept() {
   clientImpl->port = -1;
   clientImpl->isOpen = true;
   clientImpl->isValid = true;
+  clientImpl->refCount = 1;
 
   File result(Path(ATTO_TEXT("")));
-  if (result.impl) {
-    result.close();
+  if (result.impl && InterlockedDecrement(&result.impl->refCount) == 0) {
     FreeFileStr(result.impl->pathStr);
     result.impl->pathStr = nullptr;
     HeapFree(GetProcessHeap(), 0, result.impl);

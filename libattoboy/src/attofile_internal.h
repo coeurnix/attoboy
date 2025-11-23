@@ -39,6 +39,7 @@ struct FileImpl {
   bool isOpen;
   bool isValid;
   SRWLOCK lock;
+  volatile LONG refCount;
 };
 
 static inline ATTO_LPSTR AllocFileStr(int len) {
