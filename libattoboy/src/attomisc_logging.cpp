@@ -4,6 +4,9 @@
 
 namespace attoboy {
 
+static HANDLE g_logFileHandle = nullptr;
+static bool g_logToFile = false;
+
 static String GetCurrentDatetimeString() {
   SYSTEMTIME st;
   GetLocalTime(&st);
@@ -17,13 +20,58 @@ static String GetCurrentDatetimeString() {
 }
 
 static void PrintString(const String &s) {
-  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-  DWORD written;
+  if (g_logToFile && g_logFileHandle) {
+    DWORD written;
 #ifdef UNICODE
-  WriteConsoleW(hOut, s.c_str(), s.length(), &written, nullptr);
+    int utf8Len = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), nullptr, 0, nullptr, nullptr);
+    if (utf8Len > 0) {
+      char *utf8Buf = (char *)HeapAlloc(GetProcessHeap(), 0, utf8Len);
+      if (utf8Buf) {
+        WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), utf8Buf, utf8Len, nullptr, nullptr);
+        WriteFile(g_logFileHandle, utf8Buf, utf8Len, &written, nullptr);
+        HeapFree(GetProcessHeap(), 0, utf8Buf);
+      }
+    }
 #else
-  WriteConsoleA(hOut, s.c_str(), s.length(), &written, nullptr);
+    WriteFile(g_logFileHandle, s.c_str(), s.length(), &written, nullptr);
 #endif
+    FlushFileBuffers(g_logFileHandle);
+  } else {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD written;
+#ifdef UNICODE
+    WriteConsoleW(hOut, s.c_str(), s.length(), &written, nullptr);
+#else
+    WriteConsoleA(hOut, s.c_str(), s.length(), &written, nullptr);
+#endif
+  }
+}
+
+void EnableLoggingToFile(const String &path) {
+  if (g_logFileHandle) {
+    CloseHandle(g_logFileHandle);
+    g_logFileHandle = nullptr;
+  }
+
+  g_logFileHandle = CreateFile(path.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
+                                nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+  if (g_logFileHandle != INVALID_HANDLE_VALUE) {
+    SetFilePointer(g_logFileHandle, 0, nullptr, FILE_END);
+    g_logToFile = true;
+  } else {
+    g_logFileHandle = nullptr;
+    g_logToFile = false;
+  }
+}
+
+void EnableLoggingToConsole() {
+  if (g_logFileHandle) {
+    CloseHandle(g_logFileHandle);
+    g_logFileHandle = nullptr;
+  }
+
+  g_logToFile = false;
 }
 
 namespace internal {

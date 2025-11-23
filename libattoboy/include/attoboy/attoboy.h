@@ -41,6 +41,7 @@ class MutexImpl;
 class PathImpl;
 class FileImpl;
 class SubprocessImpl;
+class RegistryImpl;
 
 // Forward declarations
 class List;
@@ -837,7 +838,7 @@ public:
   Buffer &trim();
 
   /// Returns a compressed version of this buffer.
-  /// Uses XPRESS Huffman compression.
+  /// Uses LZNT1 compression.
   Buffer compress() const;
 
   /// Returns a decompressed version of this buffer.
@@ -1030,7 +1031,7 @@ private:
 class Path {
   friend class File;
   friend SubprocessImpl *CreateSubprocessImpl(const Path &, const List &, bool,
-                                               bool);
+                                              bool);
 
 public:
   /// Creates a path from a string.
@@ -1422,6 +1423,81 @@ private:
   static String Capture_impl(const Path &executable, const List &arguments);
 };
 
+/// Windows registry operations for reading and writing configuration data.
+class Registry {
+public:
+  /// Opens a registry key at the specified path.
+  /// The key is automatically opened when needed and closed on destruction.
+  /// Key path format: "HKEY_CURRENT_USER\\Software\\MyApp"
+  Registry(const String &key);
+
+  /// Copies another registry key handle (shares the same key).
+  Registry(const Registry &other);
+
+  /// Closes the registry key if open and releases resources.
+  ~Registry();
+
+  /// Assigns another registry to this registry.
+  Registry &operator=(const Registry &other);
+
+  /// Returns true if the registry key exists.
+  bool exists() const;
+
+  /// Creates the registry key if it doesn't exist.
+  /// Returns false if creation fails.
+  bool create();
+
+  /// Removes the registry key.
+  /// If isRecursive is true, removes the key and all subkeys.
+  /// Returns true if successful.
+  bool remove(bool isRecursive = true);
+
+  /// Returns true if the value exists in the key.
+  /// Empty name refers to the default value.
+  bool valueExists(const String &name = String()) const;
+
+  /// Returns the string value for the name.
+  /// Returns nullptr if the value doesn't exist or is not a string.
+  /// Empty name refers to the default value.
+  const ATTO_CHAR *getStringValue(const String &name = String()) const;
+
+  /// Returns the binary value for the name as a Buffer.
+  /// Returns nullptr if the value doesn't exist or is not binary.
+  /// Empty name refers to the default value.
+  const unsigned char *getBinaryValue(const String &name = String()) const;
+
+  /// Returns the integer value for the name.
+  /// Returns 0 if the value doesn't exist or is not an integer.
+  /// Empty name refers to the default value.
+  unsigned int getIntegerValue(const String &name = String()) const;
+
+  /// Sets a string value in the registry.
+  /// Returns true if successful.
+  bool setStringValue(const String &name, const String &str);
+
+  /// Sets a binary value in the registry.
+  /// Returns true if successful.
+  bool setBinaryValue(const String &name, const Buffer &buf);
+
+  /// Sets an integer value in the registry.
+  /// Returns true if successful.
+  bool setIntegerValue(const String &name, unsigned int num);
+
+  /// Deletes a value from the registry.
+  /// Empty name refers to the default value.
+  /// Returns true if successful.
+  bool deleteValue(const String &name = String());
+
+  /// Returns a list of all value names in this key.
+  List listValueNames() const;
+
+  /// Returns a list of all subkey names under this key.
+  List listSubkeys() const;
+
+private:
+  RegistryImpl *impl;
+};
+
 /// Mathematical functions and constants.
 class Math {
 public:
@@ -1616,6 +1692,17 @@ String GetUserDisplayName();
 
 /// Returns the current process ID.
 int GetProcessId();
+
+// Logging configuration functions
+
+/// Enables logging to a file at the specified path.
+/// File logging appends to the file and flushes after each log call.
+/// Mutually exclusive with EnableLoggingToConsole().
+void EnableLoggingToFile(const String &path);
+
+/// Enables logging to the console (default behavior).
+/// Mutually exclusive with EnableLoggingToFile().
+void EnableLoggingToConsole();
 
 // Logging functions
 //
