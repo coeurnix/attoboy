@@ -1,6 +1,7 @@
 #include "attopath_internal.h"
 #include "attostring_internal.h"
 #include "attolist_internal.h"
+#include <shlobj.h>
 
 namespace attoboy {
 
@@ -106,6 +107,62 @@ Path Path::CreateTemporaryDirectory(const String &prefix) {
   }
 
   return Path(String());
+}
+
+Path Path::GetHomeDirectory() {
+  ATTO_CHAR path[MAX_PATH];
+
+#ifdef UNICODE
+  if (SHGetFolderPathW(nullptr, CSIDL_PROFILE, nullptr, 0, path) != S_OK)
+    return Path(String());
+#else
+  if (SHGetFolderPathA(nullptr, CSIDL_PROFILE, nullptr, 0, path) != S_OK)
+    return Path(String());
+#endif
+
+  return Path(String(path));
+}
+
+Path Path::GetDocumentsDirectory() {
+  ATTO_CHAR path[MAX_PATH];
+
+#ifdef UNICODE
+  if (SHGetFolderPathW(nullptr, CSIDL_MYDOCUMENTS, nullptr, 0, path) != S_OK)
+    return Path(String());
+#else
+  if (SHGetFolderPathA(nullptr, CSIDL_MYDOCUMENTS, nullptr, 0, path) != S_OK)
+    return Path(String());
+#endif
+
+  return Path(String(path));
+}
+
+Path Path::GetRoamingAppDirectory() {
+  ATTO_CHAR path[MAX_PATH];
+
+#ifdef UNICODE
+  if (SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, 0, path) != S_OK)
+    return Path(String());
+#else
+  if (SHGetFolderPathA(nullptr, CSIDL_APPDATA, nullptr, 0, path) != S_OK)
+    return Path(String());
+#endif
+
+  return Path(String(path));
+}
+
+Path Path::GetLocalAppDirectory() {
+  ATTO_CHAR path[MAX_PATH];
+
+#ifdef UNICODE
+  if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, path) != S_OK)
+    return Path(String());
+#else
+  if (SHGetFolderPathA(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, path) != S_OK)
+    return Path(String());
+#endif
+
+  return Path(String(path));
 }
 
 } // namespace attoboy

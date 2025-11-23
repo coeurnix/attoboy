@@ -40,6 +40,7 @@ class ThreadImpl;
 class MutexImpl;
 class PathImpl;
 class FileImpl;
+class SubprocessImpl;
 
 // Forward declarations
 class List;
@@ -1028,6 +1029,8 @@ private:
 /// Immutable path to a file or I/O device on the system.
 class Path {
   friend class File;
+  friend SubprocessImpl *CreateSubprocessImpl(const Path &, const List &, bool,
+                                               bool);
 
 public:
   /// Creates a path from a string.
@@ -1191,6 +1194,18 @@ public:
   /// Returns the path to the created directory.
   static Path CreateTemporaryDirectory(const String &prefix = String());
 
+  /// Returns the current user's home directory path.
+  static Path GetHomeDirectory();
+
+  /// Returns the current user's documents directory path.
+  static Path GetDocumentsDirectory();
+
+  /// Returns the roaming application data directory path.
+  static Path GetRoamingAppDirectory();
+
+  /// Returns the local application data directory path.
+  static Path GetLocalAppDirectory();
+
 private:
   PathImpl *impl;
 };
@@ -1314,6 +1329,97 @@ public:
 
 private:
   FileImpl *impl;
+};
+
+/// Subprocess for executing programs and capturing their output.
+class Subprocess {
+public:
+  /// Starts a subprocess and returns immediately (fire and forget).
+  /// The subprocess runs independently and is not monitored.
+  /// Arguments can be passed as individual String parameters.
+  template <typename... Args>
+  static void Start(const Path &executable, const Args &...args) {
+    Start_impl(executable, List(String(args)...));
+  }
+
+  /// Runs a subprocess and waits for it to complete.
+  /// Returns the exit code.
+  /// Arguments can be passed as individual String parameters.
+  template <typename... Args>
+  static int Run(const Path &executable, const Args &...args) {
+    return Run_impl(executable, List(String(args)...));
+  }
+
+  /// Runs a subprocess, waits for it to complete, and captures its output.
+  /// Returns the combined stdout and stderr as a String.
+  /// Arguments can be passed as individual String parameters.
+  template <typename... Args>
+  static String Capture(const Path &executable, const Args &...args) {
+    return Capture_impl(executable, List(String(args)...));
+  }
+
+  /// Creates a subprocess with streaming I/O support.
+  /// You can read from stdout/stderr and write to stdin.
+  /// Arguments can be passed as individual String parameters.
+  template <typename... Args>
+  Subprocess(const Path &executable, const Args &...args)
+      : Subprocess(executable, List(String(args)...)) {}
+
+  /// Copies another subprocess (shares the same underlying process).
+  Subprocess(const Subprocess &other);
+
+  /// Destroys the subprocess handle but does not terminate the process.
+  ~Subprocess();
+
+  /// Assigns another subprocess to this subprocess.
+  Subprocess &operator=(const Subprocess &other);
+
+  /// Returns true if the subprocess was created successfully.
+  bool isValid() const;
+
+  /// Returns true if the subprocess is currently running.
+  bool isRunning() const;
+
+  /// Waits for the subprocess to complete and returns its exit code.
+  /// Blocks until the process finishes execution.
+  /// Returns -1 if the process was not created successfully.
+  int wait();
+
+  /// Returns true if output data is available to read.
+  bool hasAvailable() const;
+
+  /// Reads available output data into a buffer.
+  /// Returns an empty buffer on error or if no data is available.
+  Buffer readToBuffer();
+
+  /// Reads available output data into a string.
+  /// Returns an empty string on error or if no data is available.
+  String readToString();
+
+  /// Writes a buffer to the subprocess stdin.
+  /// Returns the number of bytes written, or -1 on error.
+  int write(const Buffer &buf);
+
+  /// Writes a string to the subprocess stdin.
+  /// Returns the number of bytes written, or -1 on error.
+  int write(const String &str);
+
+  /// Terminates the subprocess forcefully.
+  /// Returns true on success.
+  bool terminate();
+
+  /// Returns the process ID of the subprocess.
+  /// Returns -1 if the process was not created successfully.
+  int getProcessId() const;
+
+private:
+  SubprocessImpl *impl;
+
+  Subprocess(const Path &executable, const List &arguments);
+
+  static void Start_impl(const Path &executable, const List &arguments);
+  static int Run_impl(const Path &executable, const List &arguments);
+  static String Capture_impl(const Path &executable, const List &arguments);
 };
 
 /// Mathematical functions and constants.
