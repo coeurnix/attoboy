@@ -105,6 +105,8 @@ bool Path::writeFromString(const String &str) const {
   DWORD bytesWritten = 0;
 
   bool success = WriteFile(hFile, data, bytesToWrite, &bytesWritten, nullptr);
+  if (success)
+    FlushFileBuffers(hFile);
   CloseHandle(hFile);
 
   return success && (bytesWritten == bytesToWrite);
@@ -130,6 +132,8 @@ bool Path::writeFromBuffer(const Buffer &buf) const {
 
   DWORD bytesWritten = 0;
   bool success = WriteFile(hFile, data, len, &bytesWritten, nullptr);
+  if (success)
+    FlushFileBuffers(hFile);
   CloseHandle(hFile);
 
   return success && (bytesWritten == (DWORD)len);
@@ -152,6 +156,8 @@ bool Path::appendFromString(const String &str) const {
   DWORD bytesWritten = 0;
 
   bool success = WriteFile(hFile, data, bytesToWrite, &bytesWritten, nullptr);
+  if (success)
+    FlushFileBuffers(hFile);
   CloseHandle(hFile);
 
   return success && (bytesWritten == bytesToWrite);
@@ -177,6 +183,8 @@ bool Path::appendFromBuffer(const Buffer &buf) const {
 
   DWORD bytesWritten = 0;
   bool success = WriteFile(hFile, data, len, &bytesWritten, nullptr);
+  if (success)
+    FlushFileBuffers(hFile);
   CloseHandle(hFile);
 
   return success && (bytesWritten == (DWORD)len);

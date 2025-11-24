@@ -107,18 +107,25 @@ Path Path::getSymbolicLinkTarget() const {
   if (hFile == INVALID_HANDLE_VALUE)
     return Path(String());
 
-  BYTE buffer[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+  BYTE *buffer = (BYTE *)HeapAlloc(GetProcessHeap(), 0, MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+  if (!buffer) {
+    CloseHandle(hFile);
+    return Path(String());
+  }
+
   DWORD bytesReturned;
   bool success = DeviceIoControl(hFile, FSCTL_GET_REPARSE_POINT, nullptr, 0,
-                                 buffer, sizeof(buffer), &bytesReturned, nullptr);
+                                 buffer, MAXIMUM_REPARSE_DATA_BUFFER_SIZE, &bytesReturned, nullptr);
 
   if (!success) {
+    HeapFree(GetProcessHeap(), 0, buffer);
     CloseHandle(hFile);
     return Path(String());
   }
 
   REPARSE_DATA_BUFFER *reparseData = (REPARSE_DATA_BUFFER *)buffer;
   if (reparseData->ReparseTag != IO_REPARSE_TAG_SYMLINK) {
+    HeapFree(GetProcessHeap(), 0, buffer);
     CloseHandle(hFile);
     return Path(String());
   }
@@ -140,6 +147,7 @@ Path Path::getSymbolicLinkTarget() const {
   int targetLen = WideCharToMultiByte(CP_ACP, 0, targetPathW, targetLenW,
                                       targetPath, MAX_PATH - 1, nullptr, nullptr);
   if (targetLen == 0) {
+    HeapFree(GetProcessHeap(), 0, buffer);
     CloseHandle(hFile);
     return Path(String());
   }
@@ -154,6 +162,7 @@ Path Path::getSymbolicLinkTarget() const {
   }
   finalPath[targetLen] = 0;
 
+  HeapFree(GetProcessHeap(), 0, buffer);
   CloseHandle(hFile);
   return Path(String(finalPath));
 }

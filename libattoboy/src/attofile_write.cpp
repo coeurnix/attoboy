@@ -22,6 +22,7 @@ int File::write(const Buffer &buf) {
     DWORD bytesWritten = 0;
     if (!WriteFile(impl->handle, data, len, &bytesWritten, nullptr))
       return -1;
+    FlushFileBuffers(impl->handle);
     return (int)bytesWritten;
   }
 }
@@ -51,6 +52,7 @@ int File::write(const String &str) {
     DWORD bytesWritten = 0;
     if (!WriteFile(impl->handle, data, byteLen, &bytesWritten, nullptr))
       return -1;
+    FlushFileBuffers(impl->handle);
     return (int)bytesWritten;
   }
 }
@@ -83,6 +85,7 @@ int File::writeUpTo(const Buffer &buf, int count) {
     DWORD bytesWritten = 0;
     if (!WriteFile(impl->handle, data, count, &bytesWritten, nullptr))
       return -1;
+    FlushFileBuffers(impl->handle);
     return (int)bytesWritten;
   }
 }
@@ -120,6 +123,7 @@ int File::writeUpTo(const String &str, int count) {
     DWORD bytesWritten = 0;
     if (!WriteFile(impl->handle, data, count, &bytesWritten, nullptr))
       return -1;
+    FlushFileBuffers(impl->handle);
     return (int)bytesWritten;
   }
 }

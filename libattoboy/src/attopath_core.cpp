@@ -165,21 +165,26 @@ bool Path::isSymbolicLink() const {
   if (hFile == INVALID_HANDLE_VALUE)
     return false;
 
-  BYTE buffer[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-  DWORD bytesReturned;
-  bool isReparsePoint = DeviceIoControl(
-      hFile, FSCTL_GET_REPARSE_POINT, nullptr, 0, buffer, sizeof(buffer),
-      &bytesReturned, nullptr);
-
-  if (isReparsePoint) {
-    REPARSE_DATA_BUFFER *reparseData = (REPARSE_DATA_BUFFER *)buffer;
-    bool result = reparseData->ReparseTag == IO_REPARSE_TAG_SYMLINK;
+  BYTE *buffer = (BYTE *)HeapAlloc(GetProcessHeap(), 0, MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+  if (!buffer) {
     CloseHandle(hFile);
-    return result;
+    return false;
   }
 
+  DWORD bytesReturned;
+  bool isReparsePoint = DeviceIoControl(
+      hFile, FSCTL_GET_REPARSE_POINT, nullptr, 0, buffer, MAXIMUM_REPARSE_DATA_BUFFER_SIZE,
+      &bytesReturned, nullptr);
+
+  bool result = false;
+  if (isReparsePoint) {
+    REPARSE_DATA_BUFFER *reparseData = (REPARSE_DATA_BUFFER *)buffer;
+    result = reparseData->ReparseTag == IO_REPARSE_TAG_SYMLINK;
+  }
+
+  HeapFree(GetProcessHeap(), 0, buffer);
   CloseHandle(hFile);
-  return false;
+  return result;
 }
 
 bool Path::isOther() const {

@@ -4,6 +4,11 @@
 #include <attoboy/attoboy.h>
 #include "test_functions.h"
 
+#include <stdio.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef GetUserName  // Avoid conflict with attoboy::GetUserName
+
 using namespace attoboy;
 
 // Global tracking of tested functions
@@ -97,7 +102,6 @@ namespace TestFramework {
 
         // Create coverage data file
         String filename = String(test_name, ATTO_TEXT("_coverage.txt"));
-        Path coverage_file(filename);
 
         // Format: TESTED_COUNT TOTAL_COUNT function1,function2,function3
         String data = String(tested_funcs.length(), ATTO_TEXT(" "), FUNCTION_COUNT);
@@ -112,7 +116,9 @@ namespace TestFramework {
         }
         data = data + String(ATTO_TEXT("\n"));
 
-        coverage_file.writeFromString(data);
+        // Write coverage file - now with automatic flushing
+        Path coverage_path(filename);
+        coverage_path.writeFromString(data);
     }
 }
 
