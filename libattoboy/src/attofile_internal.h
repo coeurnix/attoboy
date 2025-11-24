@@ -9,17 +9,10 @@
 
 namespace attoboy {
 
-#ifdef UNICODE
-using ATTO_LPSTR = LPWSTR;
-using ATTO_WCHAR = WCHAR;
-#define ATTO_LSTRCPY lstrcpyW
-#define ATTO_LSTRLEN lstrlenW
-#else
 using ATTO_LPSTR = LPSTR;
 using ATTO_WCHAR = CHAR;
 #define ATTO_LSTRCPY lstrcpyA
 #define ATTO_LSTRLEN lstrlenA
-#endif
 
 enum FileType {
   FILE_TYPE_INVALID = 0,

@@ -49,15 +49,17 @@ File::File(const Path &path) {
   }
   ATTO_LSTRCPY(impl->pathStr, pathCStr);
 
-#ifdef UNICODE
-  impl->handle = CreateFileW(pathCStr, GENERIC_READ | GENERIC_WRITE,
+  WCHAR* pathWide = Utf8ToWide(pathCStr);
+  if (!pathWide) {
+    impl->isValid = false;
+    return;
+  }
+
+  impl->handle = CreateFileW(pathWide, GENERIC_READ | GENERIC_WRITE,
                              FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
                              OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-#else
-  impl->handle = CreateFileA(pathCStr, GENERIC_READ | GENERIC_WRITE,
-                             FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
-                             OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-#endif
+
+  FreeConvertedString(pathWide);
 
   if (impl->handle != INVALID_HANDLE_VALUE) {
     DWORD fileType = GetFileType(impl->handle);
@@ -119,12 +121,7 @@ File::File(const String &host, int port) {
   }
 
   char hostA[256];
-#ifdef UNICODE
-  WideCharToMultiByte(CP_ACP, 0, hostCStr, -1, hostA, sizeof(hostA), nullptr,
-                      nullptr);
-#else
   lstrcpyA(hostA, hostCStr);
-#endif
 
   char portStr[16];
   int portVal = port;

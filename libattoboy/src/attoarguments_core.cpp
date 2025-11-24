@@ -16,18 +16,8 @@ Arguments::Arguments() {
   if (impl->cmdLineArgs) new (impl->cmdLineArgs) List();
   if (impl->helpText) new (impl->helpText) String();
 
-#ifdef UNICODE
-  int argc;
-  LPWSTR *argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-  if (argv) {
-    for (int i = 0; i < argc; i++) {
-      impl->cmdLineArgs->append(String(argv[i]));
-    }
-    LocalFree(argv);
-  }
-#else
-  LPSTR cmdLine = GetCommandLineA();
-  if (!cmdLine) {
+  LPWSTR cmdLineWide = GetCommandLineW();
+  if (!cmdLineWide) {
     return;
   }
 
@@ -36,11 +26,11 @@ Arguments::Arguments() {
   bool inArg = false;
   int argStart = 0;
 
-  int len = lstrlenA(cmdLine);
+  int len = lstrlenW(cmdLineWide);
   for (int i = 0; i <= len; i++) {
-    char c = cmdLine[i];
+    WCHAR c = cmdLineWide[i];
 
-    if (c == '"') {
+    if (c == L'"') {
       inQuote = !inQuote;
       if (!inArg) {
         argStart = i + 1;
@@ -49,22 +39,27 @@ Arguments::Arguments() {
       continue;
     }
 
-    if (!inQuote && (c == ' ' || c == '\t' || c == '\0')) {
+    if (!inQuote && (c == L' ' || c == L'\t' || c == L'\0')) {
       if (inArg) {
         int argLen = i - argStart;
         if (argLen > 0) {
-          char *arg = (char *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
-                                        argLen + 1);
-          if (arg) {
+          WCHAR *argWide = (WCHAR *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+                                              (argLen + 1) * sizeof(WCHAR));
+          if (argWide) {
             int writePos = 0;
             for (int j = argStart; j < i; j++) {
-              if (cmdLine[j] != '"') {
-                arg[writePos++] = cmdLine[j];
+              if (cmdLineWide[j] != L'"') {
+                argWide[writePos++] = cmdLineWide[j];
               }
             }
-            arg[writePos] = '\0';
-            impl->cmdLineArgs->append(String(arg));
-            HeapFree(GetProcessHeap(), 0, arg);
+            argWide[writePos] = L'\0';
+
+            char* argUtf8 = WideToUtf8(argWide);
+            if (argUtf8) {
+              impl->cmdLineArgs->append(String(argUtf8));
+              FreeConvertedString(argUtf8);
+            }
+            HeapFree(GetProcessHeap(), 0, argWide);
           }
         }
         inArg = false;
@@ -74,7 +69,6 @@ Arguments::Arguments() {
       inArg = true;
     }
   }
-#endif
 }
 
 Arguments::Arguments(const Arguments &other) {

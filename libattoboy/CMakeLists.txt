@@ -6,7 +6,6 @@ project(attoboy VERSION 0.0.1 LANGUAGES C CXX)
 # ------------------------------------------------------------------------------
 option(ATTO_BUILD_TESTS "Build test executables" ON)
 option(ATTO_BUILD_EXAMPLES "Build example executables" ON)
-option(ATTO_UNICODE "Enable Unicode (wide character) support" OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ------------------------------------------------------------------------------
@@ -27,13 +26,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-# Enable Unicode (Wide Character Support) for Windows API if option is enabled
-if(ATTO_UNICODE)
-    add_compile_definitions(UNICODE _UNICODE)
-    message(STATUS "Unicode support: ENABLED")
-else()
-    message(STATUS "Unicode support: DISABLED (ANSI mode)")
-endif()
 
 # Prevent Windows headers from defining min/max macros that conflict with our functions
 add_compile_definitions(NOMINMAX)
@@ -197,11 +189,7 @@ if(ATTO_BUILD_TESTS)
         endif()
     endforeach()
 
-    if(ATTO_UNICODE)
-        message(STATUS "CTest enabled (UNICODE mode) - use 'ctest --output-on-failure' to run tests")
-    else()
-        message(STATUS "CTest enabled (ANSI mode) - use 'ctest --output-on-failure' to run tests")
-    endif()
+    message(STATUS "CTest enabled (UTF-8 mode) - use 'ctest --output-on-failure' to run tests")
 
     # Add custom 'coverage' target that runs CTest and shows aggregated coverage
     if(PYTHON_EXECUTABLE)
@@ -259,7 +247,7 @@ message(STATUS "Version:           ${PROJECT_VERSION}")
 message(STATUS "Build Type:        ${CMAKE_BUILD_TYPE}")
 message(STATUS "C++ Standard:      ${CMAKE_CXX_STANDARD}")
 message(STATUS "Compiler:          ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-message(STATUS "Unicode Mode:      ${ATTO_UNICODE}")
+message(STATUS "Encoding:          UTF-8")
 message(STATUS "Build Tests:       ${ATTO_BUILD_TESTS}")
 message(STATUS "Build Examples:    ${ATTO_BUILD_EXAMPLES}")
 message(STATUS "")

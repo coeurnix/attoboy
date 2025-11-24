@@ -130,41 +130,24 @@ Path Path::getSymbolicLinkTarget() const {
     return Path(String());
   }
 
-#ifdef UNICODE
-  WCHAR *targetPath = reparseData->SymbolicLinkReparseBuffer.PathBuffer +
-                      (reparseData->SymbolicLinkReparseBuffer.SubstituteNameOffset /
-                       sizeof(WCHAR));
-  int targetLen = reparseData->SymbolicLinkReparseBuffer.SubstituteNameLength /
-                  sizeof(WCHAR);
-#else
   WCHAR *targetPathW = reparseData->SymbolicLinkReparseBuffer.PathBuffer +
                        (reparseData->SymbolicLinkReparseBuffer.SubstituteNameOffset /
                         sizeof(WCHAR));
   int targetLenW = reparseData->SymbolicLinkReparseBuffer.SubstituteNameLength /
                    sizeof(WCHAR);
 
-  CHAR targetPath[MAX_PATH];
-  int targetLen = WideCharToMultiByte(CP_ACP, 0, targetPathW, targetLenW,
-                                      targetPath, MAX_PATH - 1, nullptr, nullptr);
-  if (targetLen == 0) {
+  char* targetPathUtf8 = WideToUtf8(targetPathW);
+  if (!targetPathUtf8) {
     HeapFree(GetProcessHeap(), 0, buffer);
     CloseHandle(hFile);
     return Path(String());
   }
-#endif
 
-  ATTO_CHAR finalPath[MAX_PATH];
-  if (targetLen >= MAX_PATH)
-    targetLen = MAX_PATH - 1;
-
-  for (int i = 0; i < targetLen; i++) {
-    finalPath[i] = targetPath[i];
-  }
-  finalPath[targetLen] = 0;
-
+  Path result = Path(String(targetPathUtf8));
+  FreeConvertedString(targetPathUtf8);
   HeapFree(GetProcessHeap(), 0, buffer);
   CloseHandle(hFile);
-  return Path(String(finalPath));
+  return result;
 }
 
 bool Path::setSymbolicLinkTarget(const Path &target) const {

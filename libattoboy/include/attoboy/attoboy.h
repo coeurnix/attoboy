@@ -4,14 +4,9 @@
 // Entry point for the application (bypasses CRT startup)
 extern "C" void atto_main();
 
-// Character type aliases and macros based on UNICODE configuration
-#ifdef UNICODE
-using ATTO_CHAR = wchar_t;
-#define ATTO_TEXT(x) L##x
-#else
+// Character type aliases and macros (UTF-8 encoding)
 using ATTO_CHAR = char;
 #define ATTO_TEXT(x) x
-#endif
 
 namespace attoboy {
 

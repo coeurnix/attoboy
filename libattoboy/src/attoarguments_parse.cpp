@@ -7,11 +7,7 @@ namespace attoboy {
 static void PrintString(const String &s) {
   HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
   DWORD written;
-#ifdef UNICODE
-  WriteConsoleW(hOut, s.c_str(), s.length(), &written, nullptr);
-#else
   WriteConsoleA(hOut, s.c_str(), s.length(), &written, nullptr);
-#endif
 }
 
 static bool IsBoolValue(const String &value, bool *outValue) {

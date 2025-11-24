@@ -138,12 +138,8 @@ void atto_main() {
         f.close();
 
         File f2(test_path);
-        // In UNICODE mode, each character is 2 bytes, so reading 10 bytes = 5 chars
-        #ifdef UNICODE
-        String partial = f2.readToString(10);
-        #else
+        // In ANSI mode, each character is 1 byte, so reading 5 bytes = 5 chars
         String partial = f2.readToString(5);
-        #endif
         REGISTER_TESTED(File_read_bytes);
         ASSERT_EQ(partial.length(), 5);
         ASSERT_EQ(partial, String(ATTO_TEXT("ABCDE")));

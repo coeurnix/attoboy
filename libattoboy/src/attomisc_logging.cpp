@@ -11,11 +11,7 @@ static String GetCurrentDatetimeString() {
   SYSTEMTIME st;
   GetLocalTime(&st);
   ATTO_WCHAR buf[32];
-#ifdef UNICODE
-  wsprintfW(buf, L"%02d:%02d:%02d", st.wHour, st.wMinute, st.wSecond);
-#else
   wsprintfA(buf, "%02d:%02d:%02d", st.wHour, st.wMinute, st.wSecond);
-#endif
   return String(static_cast<const ATTO_CHAR *>(buf));
 }
 
@@ -28,11 +24,7 @@ static void PrintString(const String &s) {
   } else {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD written;
-#ifdef UNICODE
-    WriteConsoleW(hOut, s.c_str(), s.length(), &written, nullptr);
-#else
     WriteConsoleA(hOut, s.c_str(), s.length(), &written, nullptr);
-#endif
   }
 }
 

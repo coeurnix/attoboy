@@ -20,11 +20,7 @@ String::String(const ATTO_CHAR *str) {
     int len = 4;
     impl->data = AllocString(len);
     if (impl->data) {
-#ifdef UNICODE
-      lstrcpyW(impl->data, nullStr);
-#else
       lstrcpyA(impl->data, nullStr);
-#endif
       impl->len = len;
     } else {
       impl->len = 0;
@@ -32,18 +28,10 @@ String::String(const ATTO_CHAR *str) {
     return;
   }
 
-#ifdef UNICODE
-  int len = lstrlenW(str);
-#else
   int len = lstrlenA(str);
-#endif
   impl->data = AllocString(len);
   if (impl->data) {
-#ifdef UNICODE
-    lstrcpyW(impl->data, str);
-#else
     lstrcpyA(impl->data, str);
-#endif
     impl->len = len;
   } else {
     impl->len = 0;
@@ -61,11 +49,7 @@ String::String(const String &other) {
       int len = other.impl->len;
       impl->data = AllocString(len);
       if (impl->data) {
-#ifdef UNICODE
-        lstrcpyW(impl->data, other.impl->data);
-#else
         lstrcpyA(impl->data, other.impl->data);
-#endif
         impl->len = len;
       } else {
         impl->len = 0;
@@ -101,11 +85,7 @@ String &String::operator=(const String &other) {
       int len = other.impl->len;
       impl->data = AllocString(len);
       if (impl->data) {
-#ifdef UNICODE
-        lstrcpyW(impl->data, other.impl->data);
-#else
         lstrcpyA(impl->data, other.impl->data);
-#endif
         impl->len = len;
       } else {
         impl->data = AllocString(0);

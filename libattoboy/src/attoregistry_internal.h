@@ -5,19 +5,11 @@
 
 namespace attoboy {
 
-#ifdef UNICODE
-using ATTO_LPSTR = LPWSTR;
-using ATTO_WCHAR = WCHAR;
-#define ATTO_LSTRCPY lstrcpyW
-#define ATTO_LSTRLEN lstrlenW
-#define ATTO_LSTRCMPI lstrcmpiW
-#else
 using ATTO_LPSTR = LPSTR;
 using ATTO_WCHAR = CHAR;
 #define ATTO_LSTRCPY lstrcpyA
 #define ATTO_LSTRLEN lstrlenA
 #define ATTO_LSTRCMPI lstrcmpiA
-#endif
 
 struct RegistryImpl {
   ATTO_LPSTR keyPath;

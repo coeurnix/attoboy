@@ -5,25 +5,13 @@
 
 namespace attoboy {
 
-#ifdef UNICODE
-  using ATTO_LPSTR = LPWSTR;
-  using ATTO_WCHAR = WCHAR;
-  #define ATTO_TEXT(x) L##x
-  #define ATTO_LSTRCPY lstrcpyW
-  #define ATTO_LSTRLEN lstrlenW
-  #define ATTO_LSTRCMPI lstrcmpiW
-  #define ATTO_CHARUPPER CharUpperW
-  #define ATTO_CHARLOWER CharLowerW
-#else
-  using ATTO_LPSTR = LPSTR;
-  using ATTO_WCHAR = CHAR;
-  #define ATTO_TEXT(x) x
-  #define ATTO_LSTRCPY lstrcpyA
-  #define ATTO_LSTRLEN lstrlenA
-  #define ATTO_LSTRCMPI lstrcmpiA
-  #define ATTO_CHARUPPER CharUpperA
-  #define ATTO_CHARLOWER CharLowerA
-#endif
+using ATTO_LPSTR = LPSTR;
+using ATTO_WCHAR = CHAR;
+#define ATTO_LSTRCPY lstrcpyA
+#define ATTO_LSTRLEN lstrlenA
+#define ATTO_LSTRCMPI lstrcmpiA
+#define ATTO_CHARUPPER CharUpperA
+#define ATTO_CHARLOWER CharLowerA
 
 struct StringImpl {
   ATTO_LPSTR data;

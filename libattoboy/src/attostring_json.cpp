@@ -37,11 +37,7 @@ static String EscapeJsonString(const String &str) {
     default:
       if (ch < 32) {
         ATTO_WCHAR buf[7];
-#ifdef UNICODE
-        wsprintfW(buf, L"\\u%04x", (int)ch);
-#else
         wsprintfA(buf, "\\u%04x", (int)ch);
-#endif
         result = result.append(buf);
       } else {
         ATTO_WCHAR temp[2] = {ch, ATTO_TEXT('\0')};
@@ -159,11 +155,7 @@ String::String(const List &list) {
     int len = json.impl->len;
     impl->data = AllocString(len);
     if (impl->data) {
-#ifdef UNICODE
-      lstrcpyW(impl->data, json.impl->data);
-#else
       lstrcpyA(impl->data, json.impl->data);
-#endif
       impl->len = len;
     } else {
       impl->data = AllocString(0);
@@ -187,11 +179,7 @@ String::String(const Map &map) {
     int len = json.impl->len;
     impl->data = AllocString(len);
     if (impl->data) {
-#ifdef UNICODE
-      lstrcpyW(impl->data, json.impl->data);
-#else
       lstrcpyA(impl->data, json.impl->data);
-#endif
       impl->len = len;
     } else {
       impl->data = AllocString(0);
@@ -216,11 +204,7 @@ String::String(const Set &set) {
     int len = json.impl->len;
     impl->data = AllocString(len);
     if (impl->data) {
-#ifdef UNICODE
-      lstrcpyW(impl->data, json.impl->data);
-#else
       lstrcpyA(impl->data, json.impl->data);
-#endif
       impl->len = len;
     } else {
       impl->data = AllocString(0);

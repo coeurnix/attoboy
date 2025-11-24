@@ -169,29 +169,9 @@ String Buffer::toBase64() const {
 
   *pos = '\0';
 
-#ifdef UNICODE
-  int wideLen = olen;
-  wchar_t *wideOut =
-      static_cast<wchar_t *>(Alloc((wideLen + 1) * sizeof(wchar_t)));
-  if (!wideOut) {
-    Free(out);
-    return String();
-  }
-
-  for (int i = 0; i < olen; i++) {
-    wideOut[i] = (wchar_t)(unsigned char)out[i];
-  }
-  wideOut[wideLen] = L'\0';
-
-  String result(wideOut);
-  Free(wideOut);
-  Free(out);
-  return result;
-#else
   String result(out);
   Free(out);
   return result;
-#endif
 }
 
 Buffer Buffer::fromBase64(const String &base64String) {
@@ -313,40 +293,9 @@ Buffer Buffer::crypt(const String &key, const String &nonce) const {
     return result;
   }
 
-#ifdef UNICODE
-  int keyByteLen = key.length();
-  int nonceByteLen = nonce.length();
-
-  unsigned char *keyBytes = (unsigned char *)Alloc(keyByteLen);
-  unsigned char *nonceBytes = (unsigned char *)Alloc(nonceByteLen);
-
-  if (!keyBytes || !nonceBytes) {
-    Free(keyBytes);
-    Free(nonceBytes);
-    return result;
-  }
-
-  const wchar_t *keyStr = key.c_str();
-  const wchar_t *nonceStr = nonce.c_str();
-
-  for (int i = 0; i < keyByteLen; i++) {
-    keyBytes[i] = (unsigned char)(keyStr[i] & 0xFF);
-  }
-  for (int i = 0; i < nonceByteLen; i++) {
-    nonceBytes[i] = (unsigned char)(nonceStr[i] & 0xFF);
-  }
-
-  crypt_impl(result.impl, impl, keyBytes, keyByteLen, nonceBytes, nonceByteLen);
-
-  Free(keyBytes);
-  Free(nonceBytes);
-
-  return result;
-#else
   crypt_impl(result.impl, impl, (const unsigned char *)key.c_str(), key.length(),
              (const unsigned char *)nonce.c_str(), nonce.length());
   return result;
-#endif
 }
 
 Buffer Buffer::crypt(const String &key, const Buffer &nonce) const {
@@ -355,29 +304,9 @@ Buffer Buffer::crypt(const String &key, const Buffer &nonce) const {
     return result;
   }
 
-#ifdef UNICODE
-  int keyByteLen = key.length();
-
-  unsigned char *keyBytes = (unsigned char *)Alloc(keyByteLen);
-  if (!keyBytes) {
-    return result;
-  }
-
-  const wchar_t *keyStr = key.c_str();
-  for (int i = 0; i < keyByteLen; i++) {
-    keyBytes[i] = (unsigned char)(keyStr[i] & 0xFF);
-  }
-
-  crypt_impl(result.impl, impl, keyBytes, keyByteLen, nonce.impl->data,
-             nonce.impl->size);
-
-  Free(keyBytes);
-  return result;
-#else
   crypt_impl(result.impl, impl, (const unsigned char *)key.c_str(), key.length(),
              nonce.impl->data, nonce.impl->size);
   return result;
-#endif
 }
 
 Buffer Buffer::crypt(const Buffer &key, const String &nonce) const {
@@ -386,29 +315,9 @@ Buffer Buffer::crypt(const Buffer &key, const String &nonce) const {
     return result;
   }
 
-#ifdef UNICODE
-  int nonceByteLen = nonce.length();
-
-  unsigned char *nonceBytes = (unsigned char *)Alloc(nonceByteLen);
-  if (!nonceBytes) {
-    return result;
-  }
-
-  const wchar_t *nonceStr = nonce.c_str();
-  for (int i = 0; i < nonceByteLen; i++) {
-    nonceBytes[i] = (unsigned char)(nonceStr[i] & 0xFF);
-  }
-
-  crypt_impl(result.impl, impl, key.impl->data, key.impl->size, nonceBytes,
-             nonceByteLen);
-
-  Free(nonceBytes);
-  return result;
-#else
   crypt_impl(result.impl, impl, key.impl->data, key.impl->size,
              (const unsigned char *)nonce.c_str(), nonce.length());
   return result;
-#endif
 }
 
 Buffer Buffer::crypt(const Buffer &key, const Buffer &nonce) const {

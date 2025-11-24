@@ -74,7 +74,7 @@ SubprocessImpl *CreateSubprocessImpl(const Path &executable,
     hStdErrWrite = hStdOutWrite;
   }
 
-  STARTUPINFO si;
+  STARTUPINFOW si;
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
 
@@ -90,10 +90,10 @@ SubprocessImpl *CreateSubprocessImpl(const Path &executable,
 
   const ATTO_CHAR *exePath = GetPathString(executable.impl);
   String cmdLine = BuildCommandLine(exePath, arguments);
-  int cmdLineLen = cmdLine.length();
-  ATTO_CHAR *cmdLineBuf =
-      (ATTO_CHAR *)HeapAlloc(GetProcessHeap(), 0, (cmdLineLen + 1) * sizeof(ATTO_CHAR));
-  if (!cmdLineBuf) {
+  const ATTO_CHAR* cmdLineCStr = cmdLine.c_str();
+
+  WCHAR* cmdLineWide = Utf8ToWide(cmdLineCStr);
+  if (!cmdLineWide) {
     if (hStdInRead)
       CloseHandle(hStdInRead);
     if (impl->hStdInWrite)
@@ -106,15 +106,10 @@ SubprocessImpl *CreateSubprocessImpl(const Path &executable,
     return nullptr;
   }
 
-  for (int i = 0; i < cmdLineLen; i++) {
-    cmdLineBuf[i] = cmdLine.c_str()[i];
-  }
-  cmdLineBuf[cmdLineLen] = 0;
+  BOOL result = CreateProcessW(nullptr, cmdLineWide, nullptr, nullptr, TRUE, 0,
+                                nullptr, nullptr, &si, &pi);
 
-  BOOL result = CreateProcess(nullptr, cmdLineBuf, nullptr, nullptr, TRUE, 0,
-                               nullptr, nullptr, &si, &pi);
-
-  HeapFree(GetProcessHeap(), 0, cmdLineBuf);
+  FreeConvertedString(cmdLineWide);
 
   if (hStdInRead)
     CloseHandle(hStdInRead);

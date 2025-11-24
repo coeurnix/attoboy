@@ -18,11 +18,7 @@ static void FloatToString(float val, ATTO_LPSTR buffer, int maxLen) {
   int intPart = (int)val;
   float fracPart = val - intPart;
 
-#ifdef UNICODE
-  int len = wsprintfW(buffer, L"%d", intPart);
-#else
   int len = wsprintfA(buffer, "%d", intPart);
-#endif
   buffer += len;
   maxLen -= len;
 
@@ -55,17 +51,9 @@ String::String(float val) {
   InitializeSRWLock(&impl->lock);
   ATTO_WCHAR buf[64];
   FloatToString(val, buf, 64);
-#ifdef UNICODE
-  int len = lstrlenW(buf);
-#else
   int len = lstrlenA(buf);
-#endif
   impl->data = AllocString(len);
-#ifdef UNICODE
-  lstrcpyW(impl->data, buf);
-#else
   lstrcpyA(impl->data, buf);
-#endif
   impl->len = len;
 }
 

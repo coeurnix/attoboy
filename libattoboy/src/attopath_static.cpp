@@ -110,59 +110,63 @@ Path Path::CreateTemporaryDirectory(const String &prefix) {
 }
 
 Path Path::GetHomeDirectory() {
-  ATTO_CHAR path[MAX_PATH];
+  WCHAR pathWide[MAX_PATH];
 
-#ifdef UNICODE
-  if (SHGetFolderPathW(nullptr, CSIDL_PROFILE, nullptr, 0, path) != S_OK)
+  if (SHGetFolderPathW(nullptr, CSIDL_PROFILE, nullptr, 0, pathWide) != S_OK)
     return Path(String());
-#else
-  if (SHGetFolderPathA(nullptr, CSIDL_PROFILE, nullptr, 0, path) != S_OK)
-    return Path(String());
-#endif
 
-  return Path(String(path));
+  char* pathUtf8 = WideToUtf8(pathWide);
+  if (!pathUtf8)
+    return Path(String());
+
+  Path result = Path(String(pathUtf8));
+  FreeConvertedString(pathUtf8);
+  return result;
 }
 
 Path Path::GetDocumentsDirectory() {
-  ATTO_CHAR path[MAX_PATH];
+  WCHAR pathWide[MAX_PATH];
 
-#ifdef UNICODE
-  if (SHGetFolderPathW(nullptr, CSIDL_MYDOCUMENTS, nullptr, 0, path) != S_OK)
+  if (SHGetFolderPathW(nullptr, CSIDL_MYDOCUMENTS, nullptr, 0, pathWide) != S_OK)
     return Path(String());
-#else
-  if (SHGetFolderPathA(nullptr, CSIDL_MYDOCUMENTS, nullptr, 0, path) != S_OK)
-    return Path(String());
-#endif
 
-  return Path(String(path));
+  char* pathUtf8 = WideToUtf8(pathWide);
+  if (!pathUtf8)
+    return Path(String());
+
+  Path result = Path(String(pathUtf8));
+  FreeConvertedString(pathUtf8);
+  return result;
 }
 
 Path Path::GetRoamingAppDirectory() {
-  ATTO_CHAR path[MAX_PATH];
+  WCHAR pathWide[MAX_PATH];
 
-#ifdef UNICODE
-  if (SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, 0, path) != S_OK)
+  if (SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, 0, pathWide) != S_OK)
     return Path(String());
-#else
-  if (SHGetFolderPathA(nullptr, CSIDL_APPDATA, nullptr, 0, path) != S_OK)
-    return Path(String());
-#endif
 
-  return Path(String(path));
+  char* pathUtf8 = WideToUtf8(pathWide);
+  if (!pathUtf8)
+    return Path(String());
+
+  Path result = Path(String(pathUtf8));
+  FreeConvertedString(pathUtf8);
+  return result;
 }
 
 Path Path::GetLocalAppDirectory() {
-  ATTO_CHAR path[MAX_PATH];
+  WCHAR pathWide[MAX_PATH];
 
-#ifdef UNICODE
-  if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, path) != S_OK)
+  if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, pathWide) != S_OK)
     return Path(String());
-#else
-  if (SHGetFolderPathA(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, path) != S_OK)
-    return Path(String());
-#endif
 
-  return Path(String(path));
+  char* pathUtf8 = WideToUtf8(pathWide);
+  if (!pathUtf8)
+    return Path(String());
+
+  Path result = Path(String(pathUtf8));
+  FreeConvertedString(pathUtf8);
+  return result;
 }
 
 } // namespace attoboy

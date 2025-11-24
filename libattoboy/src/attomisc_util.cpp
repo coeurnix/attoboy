@@ -1,5 +1,6 @@
 #include "attoboy/attoboy.h"
 #include "attostring_internal.h"
+#include "atto_internal_common.h"
 #include <windows.h>
 #include <lmcons.h>
 
@@ -22,36 +23,30 @@ void Sleep(int milliseconds) {
 }
 
 String GetUserName() {
-#ifdef UNICODE
   WCHAR buffer[UNLEN + 1];
   DWORD size = UNLEN + 1;
   if (::GetUserNameW(buffer, &size)) {
-    return String(buffer);
+    char* nameUtf8 = WideToUtf8(buffer);
+    if (nameUtf8) {
+      String result = String(nameUtf8);
+      FreeConvertedString(nameUtf8);
+      return result;
+    }
   }
-#else
-  CHAR buffer[UNLEN + 1];
-  DWORD size = UNLEN + 1;
-  if (::GetUserNameA(buffer, &size)) {
-    return String(buffer);
-  }
-#endif
   return String();
 }
 
 String GetUserDisplayName() {
-#ifdef UNICODE
   WCHAR buffer[256];
   DWORD size = 256;
   if (::GetUserNameExW(NameDisplay, buffer, &size)) {
-    return String(buffer);
+    char* nameUtf8 = WideToUtf8(buffer);
+    if (nameUtf8) {
+      String result = String(nameUtf8);
+      FreeConvertedString(nameUtf8);
+      return result;
+    }
   }
-#else
-  CHAR buffer[256];
-  DWORD size = 256;
-  if (::GetUserNameExA(NameDisplay, buffer, &size)) {
-    return String(buffer);
-  }
-#endif
   return String();
 }
 

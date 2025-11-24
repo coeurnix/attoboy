@@ -56,11 +56,7 @@ DateTime::DateTime(const String &iso8601) {
   const ATTO_CHAR *str = iso8601.c_str();
   SYSTEMTIME st = {0};
 
-#ifdef UNICODE
-  int len = lstrlenW(str);
-#else
   int len = lstrlenA(str);
-#endif
   if (len >= 19) {
     st.wYear = (str[0] - ATTO_TEXT('0')) * 1000 +
                (str[1] - ATTO_TEXT('0')) * 100 +

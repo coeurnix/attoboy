@@ -51,13 +51,8 @@ String DateTime::toString() const {
   }
 
   ATTO_WCHAR buffer[128];
-#ifdef UNICODE
-  wsprintfW(buffer, L"%04d-%02d-%02dT%02d:%02d:%02d.%03dZ", st.wYear, st.wMonth,
-            st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
-#else
   wsprintfA(buffer, "%04d-%02d-%02dT%02d:%02d:%02d.%03dZ", st.wYear, st.wMonth,
             st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
-#endif
 
   return String(buffer);
 }
