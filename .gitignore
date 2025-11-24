@@ -49,3 +49,4 @@ build/
 .cache
 nul
 *.log
+test_*.txt
