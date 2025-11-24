@@ -90,7 +90,12 @@ public:
   String &operator=(const String &other);
 
   /// Returns the number of characters in the string.
+  /// For UTF-8 strings, this counts Unicode codepoints, not bytes.
   int length() const;
+
+  /// Returns the number of bytes in the string.
+  /// This is the original behavior of length() before character-based indexing.
+  int byteLength() const;
 
   /// Returns true if the string is empty.
   bool isEmpty() const;
@@ -98,14 +103,24 @@ public:
   /// Returns a pointer to the underlying C-style string.
   const ATTO_CHAR *c_str() const;
 
-  /// Returns the character at index as a single-character string.
-  /// Negative indices count from the end. Returns empty string if out of
-  /// bounds.
+  /// Returns the character at index as a UTF-8 string.
+  /// Negative indices count from the end.
+  /// Returns empty string if index is out of character bounds.
   String at(int index) const;
 
-  /// Returns a substring from start (inclusive) to end (exclusive).
-  /// Negative indices count from the end. If end is -1, extracts to the end.
+  /// Returns a Byte at the specified byte index as a single-byte string.
+  /// This is the original behavior before character-based indexing.
+  String byteAt(int byteIndex) const;
+
+  /// Returns a UTF-8 substring from character start (inclusive) to end
+  /// (exclusive). Negative indices count from the end. If end is -1, extracts
+  /// to the end. All operations work on UTF-8 character boundaries.
   String substring(int start, int end = -1) const;
+
+  /// Returns a byte-based substring from start (inclusive) to end (exclusive).
+  /// Negative indices count from the end. If end is -1, extracts to the end.
+  /// This is the original behavior before character-based indexing.
+  String byteSubstring(int start, int end = -1) const;
 
   /// Returns a copy of this string.
   String duplicate() const;
@@ -141,12 +156,14 @@ public:
   /// Returns a new string with substring prepended to the beginning.
   String prepend(const String &substring) const;
 
-  /// Returns a new string with substring inserted at index.
+  /// Returns a new string with substring inserted at character index.
   /// Negative indices count from the end.
+  /// All operations work on UTF-8 character boundaries.
   String insert(int index, const String &substring) const;
 
   /// Returns a new string with characters from start to end removed.
   /// Negative indices count from the end.
+  /// All operations work on UTF-8 character boundaries.
   String remove(int start, int end) const;
 
   /// Returns a new string with all occurrences of target replaced.

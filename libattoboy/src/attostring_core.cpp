@@ -104,6 +104,13 @@ int String::length() const {
   if (!impl)
     return 0;
   ReadLockGuard guard(&impl->lock);
+  return countUTF8Characters(impl->data, impl->len);
+}
+
+int String::byteLength() const {
+  if (!impl)
+    return 0;
+  ReadLockGuard guard(&impl->lock);
   return impl->len;
 }
 

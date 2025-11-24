@@ -9,6 +9,55 @@ String String::substring(int start, int end) const {
   if (!impl->data)
     return String();
 
+  int charLen = countUTF8Characters(impl->data, impl->len);
+  if (start < 0)
+    start = charLen + start;
+  if (start < 0)
+    start = 0;
+  if (start > charLen)
+    start = charLen;
+
+  int actualEnd;
+  if (end == -1) {
+    actualEnd = charLen;
+  } else {
+    if (end < 0)
+      actualEnd = charLen + end;
+    else
+      actualEnd = end;
+  }
+
+  if (actualEnd < start)
+    actualEnd = start;
+  if (actualEnd > charLen)
+    actualEnd = charLen;
+
+  int startByte = getCharacterByteIndex(impl->data, start, impl->len);
+  int endByte = getCharacterByteIndex(impl->data, actualEnd, impl->len);
+  if (startByte < 0 || endByte < 0 || endByte < startByte)
+    return String();
+
+  int newLen = endByte - startByte;
+  if (newLen <= 0)
+    return String();
+
+  String result;
+  FreeString(result.impl->data);
+  result.impl->data = AllocString(newLen);
+
+  MyStrNCpy(result.impl->data, impl->data + startByte, newLen);
+  result.impl->data[newLen] = ATTO_TEXT('\0');
+  result.impl->len = newLen;
+  return result;
+}
+
+String String::byteSubstring(int start, int end) const {
+  if (!impl)
+    return String();
+  ReadLockGuard guard(&impl->lock);
+  if (!impl->data)
+    return String();
+
   int len = impl->len;
   if (start < 0)
     start = len + start;
@@ -52,15 +101,48 @@ String String::at(int index) const {
   ReadLockGuard guard(&impl->lock);
   if (!impl->data)
     return String();
+
+  int charLen = countUTF8Characters(impl->data, impl->len);
   if (index < 0)
-    index = impl->len + index;
-  if (index < 0 || index >= impl->len)
+    index = charLen + index;
+  if (index < 0 || index >= charLen)
+    return String();
+
+  int startByte = getCharacterByteIndex(impl->data, index, impl->len);
+  if (startByte < 0)
+    return String();
+
+  int charByteLen =
+      getCharacterLengthAtByteIndex(impl->data, startByte, impl->len);
+  if (charByteLen <= 0)
+    return String();
+
+  String result;
+  FreeString(result.impl->data);
+  result.impl->data = AllocString(charByteLen);
+  if (result.impl->data) {
+    MyStrNCpy(result.impl->data, impl->data + startByte, charByteLen);
+    result.impl->data[charByteLen] = ATTO_TEXT('\0');
+    result.impl->len = charByteLen;
+  }
+  return result;
+}
+
+String String::byteAt(int byteIndex) const {
+  if (!impl)
+    return String();
+  ReadLockGuard guard(&impl->lock);
+  if (!impl->data)
+    return String();
+  if (byteIndex < 0)
+    byteIndex = impl->len + byteIndex;
+  if (byteIndex < 0 || byteIndex >= impl->len)
     return String();
 
   String result;
   FreeString(result.impl->data);
   result.impl->data = AllocString(1);
-  result.impl->data[0] = impl->data[index];
+  result.impl->data[0] = impl->data[byteIndex];
   result.impl->data[1] = ATTO_TEXT('\0');
   result.impl->len = 1;
   return result;

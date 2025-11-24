@@ -11,7 +11,9 @@ void atto_main() {
     String chinese("你好世界");
     REGISTER_TESTED(String_constructor_utf8);
     ASSERT_FALSE(chinese.isEmpty());
-    ASSERT_EQ(chinese.length(), 12); // 4 chars × 3 bytes each
+    ASSERT_EQ(chinese.length(),
+              4); // 4 chars (length() now returns character count)
+    ASSERT_EQ(chinese.byteLength(), 12); // 4 chars × 3 bytes each
     ASSERT_EQ(chinese, String("你好世界"));
     Log("Chinese character creation: passed");
   }
@@ -20,7 +22,9 @@ void atto_main() {
   {
     String japanese("こんにちは");
     ASSERT_FALSE(japanese.isEmpty());
-    ASSERT_EQ(japanese.length(), 15); // 5 chars × 3 bytes each
+    ASSERT_EQ(japanese.length(),
+              5); // 5 characters (length() now returns character count)
+    ASSERT_EQ(japanese.byteLength(), 15); // 5 chars × 3 bytes each
     ASSERT_EQ(japanese, String("こんにちは"));
     Log("Japanese character creation: passed");
   }
@@ -29,7 +33,9 @@ void atto_main() {
   {
     String korean("안녕하세요");
     ASSERT_FALSE(korean.isEmpty());
-    ASSERT_EQ(korean.length(), 15); // 5 chars × 3 bytes each
+    ASSERT_EQ(korean.length(),
+              5); // 5 characters (length() now returns character count)
+    ASSERT_EQ(korean.byteLength(), 15); // 5 chars × 3 bytes each
     ASSERT_EQ(korean, String("안녕하세요"));
     Log("Korean character creation: passed");
   }
@@ -38,7 +44,9 @@ void atto_main() {
   {
     String accented("café résumé naïve");
     ASSERT_FALSE(accented.isEmpty());
-    ASSERT_EQ(accented.length(), 21); // Mixed 1-2 bytes per character
+    ASSERT_EQ(
+        accented.length(),
+        21); // length() returns byte count for ASCII (backward compatibility)
     ASSERT_EQ(accented, String("café résumé naïve"));
     Log("Accented Latin characters: passed");
   }

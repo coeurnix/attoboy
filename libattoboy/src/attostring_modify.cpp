@@ -48,19 +48,26 @@ String String::insert(int index, const String &substring) const {
   ReadLockGuard guard(&impl->lock);
   if (!substring.impl || substring.impl->len == 0)
     return String(*this);
+
+  int charLen = countUTF8Characters(impl->data, impl->len);
   if (index < 0)
-    index = impl->len + index;
+    index = charLen + index;
   if (index < 0)
     index = 0;
-  if (index > impl->len)
-    index = impl->len;
+  if (index > charLen)
+    index = charLen;
+
+  int byteIndex = getCharacterByteIndex(impl->data, index, impl->len);
+  if (byteIndex < 0)
+    byteIndex = impl->len;
 
   int newLen = impl->len + substring.impl->len;
   ATTO_LPSTR newData = AllocString(newLen);
 
-  MyStrNCpy(newData, impl->data, index);
-  ATTO_LSTRCPY(newData + index, substring.impl->data);
-  ATTO_LSTRCPY(newData + index + substring.impl->len, impl->data + index);
+  MyStrNCpy(newData, impl->data, byteIndex);
+  ATTO_LSTRCPY(newData + byteIndex, substring.impl->data);
+  ATTO_LSTRCPY(newData + byteIndex + substring.impl->len,
+               impl->data + byteIndex);
 
   String result;
   FreeString(result.impl->data);
@@ -76,40 +83,46 @@ String String::remove(int start, int end) const {
   if (impl->len == 0)
     return String(*this);
 
+  int charLen = countUTF8Characters(impl->data, impl->len);
   if (start < 0)
-    start = impl->len + start;
+    start = charLen + start;
   if (start < 0)
     start = 0;
-  if (start >= impl->len)
+  if (start >= charLen)
     return String(*this);
 
   int actualEnd;
   if (end == -1)
-    actualEnd = impl->len;
+    actualEnd = charLen;
   else {
     if (end < 0)
-      actualEnd = impl->len + end;
+      actualEnd = charLen + end;
     else
       actualEnd = end;
   }
 
   if (actualEnd < start)
     actualEnd = start;
-  if (actualEnd > impl->len)
-    actualEnd = impl->len;
+  if (actualEnd > charLen)
+    actualEnd = charLen;
 
-  int removeLen = actualEnd - start;
+  int startByte = getCharacterByteIndex(impl->data, start, impl->len);
+  int endByte = getCharacterByteIndex(impl->data, actualEnd, impl->len);
+  if (startByte < 0 || endByte < 0 || endByte < startByte)
+    return String(*this);
+
+  int removeLen = endByte - startByte;
   if (removeLen <= 0)
     return String(*this);
 
   int newLen = impl->len - removeLen;
   ATTO_LPSTR newData = AllocString(newLen);
 
-  if (start > 0) {
-    MyStrNCpy(newData, impl->data, start);
+  if (startByte > 0) {
+    MyStrNCpy(newData, impl->data, startByte);
   }
-  if (actualEnd < impl->len) {
-    ATTO_LSTRCPY(newData + start, impl->data + actualEnd);
+  if (endByte < impl->len) {
+    ATTO_LSTRCPY(newData + startByte, impl->data + endByte);
   }
   newData[newLen] = ATTO_TEXT('\0');
 
@@ -120,8 +133,6 @@ String String::remove(int start, int end) const {
   return result;
 }
 
-String String::operator+(const String &other) const {
-  return append(other);
-}
+String String::operator+(const String &other) const { return append(other); }
 
 } // namespace attoboy
