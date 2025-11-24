@@ -7,7 +7,7 @@ namespace attoboy {
 
 static String EscapeJsonString(const String &str) {
   String result;
-  int len = str.length();
+  int len = str.byteLength();
 
   for (int i = 0; i < len; i++) {
     ATTO_WCHAR ch = str.c_str()[i];

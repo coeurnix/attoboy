@@ -18,13 +18,13 @@ static String GetCurrentDatetimeString() {
 static void PrintString(const String &s) {
   if (g_logToFile && g_logFileHandle) {
     DWORD written;
-    DWORD bytesToWrite = s.length() * sizeof(ATTO_CHAR);
+    DWORD bytesToWrite = s.byteLength() * sizeof(ATTO_CHAR);
     WriteFile(g_logFileHandle, s.c_str(), bytesToWrite, &written, nullptr);
     FlushFileBuffers(g_logFileHandle);
   } else {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD written;
-    WriteConsoleA(hOut, s.c_str(), s.length(), &written, nullptr);
+    WriteConsoleA(hOut, s.c_str(), s.byteLength(), &written, nullptr);
   }
 }
 

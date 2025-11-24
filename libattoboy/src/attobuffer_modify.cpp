@@ -5,8 +5,7 @@ namespace attoboy {
 
 Buffer &Buffer::append(const String &str) {
   const ATTO_CHAR *wstr = str.c_str();
-  int len = str.length();
-  int byteSize = len * sizeof(ATTO_CHAR);
+  int byteSize = str.byteLength();
 
   if (byteSize <= 0)
     return *this;
@@ -67,8 +66,7 @@ Buffer &Buffer::append(const unsigned char *ptr, int size) {
 
 Buffer &Buffer::prepend(const String &str) {
   const ATTO_CHAR *wstr = str.c_str();
-  int len = str.length();
-  int byteSize = len * sizeof(ATTO_CHAR);
+  int byteSize = str.byteLength();
 
   if (byteSize <= 0)
     return *this;
@@ -141,8 +139,7 @@ Buffer &Buffer::prepend(const unsigned char *ptr, int size) {
 
 Buffer &Buffer::insert(int index, const String &str) {
   const ATTO_CHAR *wstr = str.c_str();
-  int len = str.length();
-  int byteSize = len * sizeof(ATTO_CHAR);
+  int byteSize = str.byteLength();
 
   if (byteSize <= 0)
     return *this;

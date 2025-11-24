@@ -62,35 +62,8 @@ String Buffer::toString() const {
     return String();
   }
 
-  int wcharCount = impl->size / sizeof(ATTO_WCHAR);
-
-  if (wcharCount == 0) {
-    return String();
-  }
-
-  ATTO_WCHAR *temp =
-      (ATTO_WCHAR *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
-                              (wcharCount + 1) * sizeof(ATTO_WCHAR));
-
-  if (!temp) {
-    return String();
-  }
-
-  for (int i = 0; i < wcharCount; i++) {
-    int byteOffset = i * sizeof(ATTO_WCHAR);
-    ATTO_WCHAR wc = 0;
-    unsigned char *wcBytes = (unsigned char *)&wc;
-    for (int j = 0; j < (int)sizeof(ATTO_WCHAR); j++) {
-      wcBytes[j] = impl->data[byteOffset + j];
-    }
-    temp[i] = wc;
-  }
-  temp[wcharCount] = 0;
-
-  String result(temp);
-  HeapFree(GetProcessHeap(), 0, temp);
-
-  return result;
+  // For UTF-8 strings stored as bytes, create String directly from the data
+  return String((const ATTO_CHAR *)impl->data, impl->size);
 }
 
 int Buffer::hash() const {

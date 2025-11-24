@@ -134,6 +134,41 @@ inline int getCharacterLengthAtByteIndex(const char *str, int byteIndex,
   }
 }
 
+inline int getByteCharacterIndex(const char *str, int byteIndex, int byteLen) {
+  if (!str || byteIndex < 0 || byteIndex > byteLen)
+    return -1;
+
+  int currentChar = 0;
+  int currentByte = 0;
+  const char *end = str + byteLen;
+
+  while (str < end && currentByte < byteIndex) {
+    unsigned char c = *str;
+    if (c < 0x80) {
+      str += 1;
+      currentByte += 1;
+    } else if ((c & 0xE0) == 0xC0) {
+      str += 2;
+      currentByte += 2;
+    } else if ((c & 0xF0) == 0xE0) {
+      str += 3;
+      currentByte += 3;
+    } else if ((c & 0xF8) == 0xF0) {
+      str += 4;
+      currentByte += 4;
+    } else {
+      str += 1;
+      currentByte += 1;
+    }
+    currentChar++;
+  }
+
+  if (currentByte == byteIndex) {
+    return currentChar;
+  }
+  return -1;
+}
+
 inline bool validateUTF8Sequence(const char *str, int byteLen) {
   if (!str)
     return false;

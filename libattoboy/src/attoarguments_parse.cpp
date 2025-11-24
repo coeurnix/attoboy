@@ -7,7 +7,7 @@ namespace attoboy {
 static void PrintString(const String &s) {
   HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
   DWORD written;
-  WriteConsoleA(hOut, s.c_str(), s.length(), &written, nullptr);
+  WriteConsoleA(hOut, s.c_str(), s.byteLength(), &written, nullptr);
 }
 
 static bool IsBoolValue(const String &value, bool *outValue) {

@@ -31,7 +31,7 @@ Buffer::Buffer(const String &str) {
   InitializeSRWLock(&impl->lock);
 
   const ATTO_CHAR *astr = str.c_str();
-  int len = str.length();
+  int len = str.byteLength();
   int byteSize = len * sizeof(ATTO_CHAR);
 
   int capacity = byteSize > 512 ? byteSize : 512;

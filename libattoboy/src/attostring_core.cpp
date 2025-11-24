@@ -38,6 +38,26 @@ String::String(const ATTO_CHAR *str) {
   }
 }
 
+String::String(const ATTO_CHAR *data, int size) {
+  impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+                                 sizeof(StringImpl));
+  InitializeSRWLock(&impl->lock);
+
+  if (!data || size <= 0) {
+    impl->data = AllocString(0);
+    impl->len = 0;
+    return;
+  }
+
+  impl->data = AllocString(size);
+  if (impl->data) {
+    memcpy(impl->data, data, size);
+    impl->len = size;
+  } else {
+    impl->len = 0;
+  }
+}
+
 String::String(const String &other) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));

@@ -64,6 +64,9 @@ public:
   /// Creates a string from a floating-point number.
   String(float value);
 
+  /// Creates a string from raw byte data and size (in bytes).
+  String(const ATTO_CHAR *data, int size);
+
   /// Creates a JSON string from a list (e.g., ["value1",2,true]).
   String(const List &list);
 
@@ -136,6 +139,11 @@ public:
 
   /// Returns the number of non-overlapping occurrences of substring.
   int count(const String &substring) const;
+
+  /// Returns the character index of the first occurrence of substring.
+  /// Returns -1 if substring is not found.
+  /// Negative start indices count from the end.
+  int getPositionOf(const String &substring, int start = 0) const;
 
   /// Returns true if the string is a valid integer or decimal number.
   bool isNumber() const;

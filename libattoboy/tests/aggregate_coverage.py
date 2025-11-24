@@ -6,7 +6,39 @@ Reads *_coverage.txt files and displays unified coverage statistics.
 
 import sys
 import os
+import re
 from pathlib import Path
+
+def read_all_functions(tests_dir):
+    """
+    Read all function names from test_functions.h
+    """
+    test_functions_h = Path(tests_dir) / "test_functions.h"
+    if not test_functions_h.exists():
+        return set()
+
+    all_funcs = []
+    in_macro = False
+
+    with open(test_functions_h, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+
+            if line.startswith('#define REGISTER_ALL_FUNCTIONS'):
+                in_macro = True
+                continue
+
+            if in_macro:
+                # Look for X(FunctionName) pattern
+                match = re.match(r'\s*X\((\w+)\)', line)
+                if match:
+                    all_funcs.append(match.group(1))
+
+                # Check if we've reached the end (no backslash continuation)
+                if line and not line.endswith('\\'):
+                    break
+
+    return set(all_funcs)
 
 def aggregate_coverage(coverage_dir):
     """
@@ -19,6 +51,16 @@ def aggregate_coverage(coverage_dir):
     if not coverage_files:
         print("No coverage files found!")
         return 1
+
+    # Get all functions from test_functions.h
+    tests_dir = Path(coverage_dir).parent / "libattoboy" / "tests"
+    if not tests_dir.exists():
+        tests_dir = Path(coverage_dir) / "tests"
+    if not tests_dir.exists():
+        # Try relative to coverage_dir
+        tests_dir = Path(coverage_dir).parent.parent / "libattoboy" / "tests"
+
+    all_functions = read_all_functions(tests_dir)
 
     # Collect all tested functions from all tests
     all_tested = set()
@@ -68,6 +110,9 @@ def aggregate_coverage(coverage_dir):
     tested_count = len(all_tested)
     percentage = (tested_count / total_functions) * 100.0
 
+    # Calculate untested functions
+    untested = sorted(all_functions - all_tested) if all_functions else []
+
     # Display results
     print()
     print("=" * 60)
@@ -80,6 +125,12 @@ def aggregate_coverage(coverage_dir):
     else:
         untested_count = total_functions - tested_count
         print(f"[WARN] {untested_count} function(s) remain untested")
+
+        if untested:
+            print()
+            print("Untested functions:")
+            for func in untested:
+                print(f"  - {func}")
 
     print("=" * 60)
     print()

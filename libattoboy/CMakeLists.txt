@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(attoboy VERSION 0.0.1 LANGUAGES C CXX)
+project(attoboy VERSION 0.0.2 LANGUAGES C CXX)
 
 # ------------------------------------------------------------------------------
 # Build Options

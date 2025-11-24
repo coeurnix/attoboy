@@ -320,6 +320,35 @@ int String::count(const String &substring) const {
   return count;
 }
 
+int String::getPositionOf(const String &substring, int start) const {
+  if (!impl)
+    return -1;
+  ReadLockGuard guard(&impl->lock);
+  if (!substring.impl || substring.impl->len == 0)
+    return 0;
+
+  int charLen = countUTF8Characters(impl->data, impl->len);
+  if (start < 0)
+    start = charLen + start;
+  if (start < 0)
+    start = 0;
+  if (start >= charLen)
+    return -1;
+
+  int startByte = getCharacterByteIndex(impl->data, start, impl->len);
+  if (startByte < 0)
+    return -1;
+
+  ATTO_WCHAR *p = MyStrStr(impl->data + startByte, substring.impl->data);
+  if (!p)
+    return -1;
+
+  // Convert byte position back to character position
+  int bytePos = p - impl->data;
+  int charPos = getByteCharacterIndex(impl->data, bytePos, impl->len);
+  return charPos >= 0 ? charPos : -1;
+}
+
 bool String::equals(const String &other) const {
   if (!impl)
     return false;

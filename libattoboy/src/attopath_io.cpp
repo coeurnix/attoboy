@@ -100,7 +100,7 @@ bool Path::writeFromString(const String &str) const {
     return false;
 
   const ATTO_CHAR *data = str.c_str();
-  int len = str.length();
+  int len = str.byteLength();
   DWORD bytesToWrite = len * sizeof(ATTO_CHAR);
   DWORD bytesWritten = 0;
 
@@ -151,7 +151,7 @@ bool Path::appendFromString(const String &str) const {
     return false;
 
   const ATTO_CHAR *data = str.c_str();
-  int len = str.length();
+  int len = str.byteLength();
   DWORD bytesToWrite = len * sizeof(ATTO_CHAR);
   DWORD bytesWritten = 0;
 

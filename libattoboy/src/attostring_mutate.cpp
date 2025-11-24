@@ -151,19 +151,20 @@ String String::reverse() const {
   if (!impl)
     return String();
   ReadLockGuard guard(&impl->lock);
-  if (impl->len <= 1)
+  if (!impl->data || impl->len == 0)
     return String(*this);
 
-  ATTO_LPSTR newData = AllocString(impl->len);
-  for (int i = 0; i < impl->len; i++) {
-    newData[i] = impl->data[impl->len - 1 - i];
-  }
-  newData[impl->len] = ATTO_TEXT('\0');
+  // For UTF-8, reverse at character level, not byte level
+  int charCount = countUTF8Characters(impl->data, impl->len);
+  if (charCount <= 1)
+    return String(*this);
 
+  // Extract characters and reverse them
   String result;
-  FreeString(result.impl->data);
-  result.impl->data = newData;
-  result.impl->len = impl->len;
+  for (int i = charCount - 1; i >= 0; i--) {
+    String charStr = at(i);
+    result = result + charStr;
+  }
   return result;
 }
 

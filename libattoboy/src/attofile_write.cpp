@@ -35,7 +35,7 @@ int File::write(const String &str) {
   if (!data)
     return 0;
 
-  int len = str.length();
+  int len = str.byteLength();
   if (len == 0)
     return 0;
 
@@ -98,7 +98,7 @@ int File::writeUpTo(const String &str, int count) {
   if (!data)
     return 0;
 
-  int len = str.length();
+  int len = str.byteLength();
   if (len == 0)
     return 0;
 

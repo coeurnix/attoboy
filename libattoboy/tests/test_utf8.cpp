@@ -44,9 +44,8 @@ void atto_main() {
   {
     String accented("café résumé naïve");
     ASSERT_FALSE(accented.isEmpty());
-    ASSERT_EQ(
-        accented.length(),
-        21); // length() returns byte count for ASCII (backward compatibility)
+    ASSERT_EQ(accented.length(),
+              17); // length() returns character count
     ASSERT_EQ(accented, String("café résumé naïve"));
     Log("Accented Latin characters: passed");
   }
@@ -74,12 +73,12 @@ void atto_main() {
     Log("UTF-8 concatenation: passed");
   }
 
-  // Test substring with multi-byte characters (byte-based indexing)
+  // Test substring with multi-byte characters (character-based indexing)
   {
     String chinese("你好世界编程");
-    String part1 = chinese.substring(0, 6);  // First 2 chars: 你好 (6 bytes)
-    String part2 = chinese.substring(6, 12); // Next 2 chars: 世界 (6 bytes)
-    String part3 = chinese.substring(12);    // Rest: 编程 (6 bytes)
+    String part1 = chinese.substring(0, 2); // First 2 chars: 你好
+    String part2 = chinese.substring(2, 4); // Next 2 chars: 世界
+    String part3 = chinese.substring(4);    // Rest: 编程
 
     ASSERT_EQ(part1, String("你好"));
     ASSERT_EQ(part2, String("世界"));
