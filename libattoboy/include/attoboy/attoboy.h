@@ -359,6 +359,22 @@ public:
   /// Returns a copy of this list.
   List duplicate() const;
 
+  /// Converts this list to a CSV string.
+  /// The list is expected to be a list of lists (rows).
+  /// If a cell is a collection (List, Map, Set), it is encoded as a JSON string.
+  String toCSVString() const;
+
+  /// Creates a list of lists from a CSV string.
+  /// Does not decode JSON strings; returns cells as string values.
+  static List FromCSVString(const String &csv);
+
+  /// Converts this list to a JSON array string.
+  /// Same as String(list).
+  String toJSONString() const;
+
+  /// Creates a list from a JSON array string.
+  static List FromJSONString(const String &json);
+
   /// Returns true if this list equals the other list.
   /// Lists are equal if they have the same types and values in order.
   bool compare(const List &other) const;
@@ -500,6 +516,13 @@ public:
 
   /// Returns a list of all values in the map.
   List values() const;
+
+  /// Converts this map to a JSON object string.
+  /// Same as String(map).
+  String toJSONString() const;
+
+  /// Creates a map from a JSON object string.
+  static Map FromJSONString(const String &json);
 
   /// Returns true if this map equals the other map.
   /// Maps are equal if they have the same keys and values.
@@ -664,6 +687,13 @@ public:
 
   /// Returns a list containing all values from this set.
   List toList() const;
+
+  /// Converts this set to a JSON array string.
+  /// Same as String(set).
+  String toJSONString() const;
+
+  /// Creates a set from a JSON array string.
+  static Set FromJSONString(const String &json);
 
   /// Returns true if this set equals the other set.
   /// Sets are equal if they have the same values (order doesn't matter).

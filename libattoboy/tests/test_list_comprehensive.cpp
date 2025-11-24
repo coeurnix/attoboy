@@ -411,6 +411,149 @@ void atto_main() {
         Log(ATTO_TEXT("Deeply nested List + JSON: passed"));
     }
 
+    // ========== JSON/CSV FUNCTIONS ==========
+
+    // List.toJSONString() basic
+    {
+        List l;
+        l.append(1).append(ATTO_TEXT("hello")).append(true);
+        String json = l.toJSONString();
+        REGISTER_TESTED(List_toJSONString);
+        ASSERT_TRUE(json.contains(ATTO_TEXT("[")));
+        ASSERT_TRUE(json.contains(ATTO_TEXT("hello")));
+        ASSERT_TRUE(json.contains(ATTO_TEXT("true")));
+        Log(ATTO_TEXT("List.toJSONString(): passed"));
+    }
+
+    // List.FromJSONString() basic
+    {
+        String json(ATTO_TEXT("[1,\"hello\",true,3.14]"));
+        List l = List::FromJSONString(json);
+        REGISTER_TESTED(List_FromJSONString);
+        ASSERT_EQ(l.length(), 4);
+        ASSERT_EQ(l.at<int>(0), 1);
+        ASSERT_EQ(l.at<String>(1), String(ATTO_TEXT("hello")));
+        ASSERT_EQ(l.at<bool>(2), true);
+        Log(ATTO_TEXT("List.FromJSONString(): passed"));
+    }
+
+    // List.FromJSONString() nested
+    {
+        String json(ATTO_TEXT("[[1,2],[3,4]]"));
+        List l = List::FromJSONString(json);
+        ASSERT_EQ(l.length(), 2);
+        List inner = l.at<List>(0);
+        ASSERT_EQ(inner.length(), 2);
+        ASSERT_EQ(inner.at<int>(0), 1);
+        ASSERT_EQ(inner.at<int>(1), 2);
+        Log(ATTO_TEXT("List.FromJSONString() nested: passed"));
+    }
+
+    // List.FromJSONString() with Map
+    {
+        String json(ATTO_TEXT("[{\"key\":\"value\"}]"));
+        List l = List::FromJSONString(json);
+        ASSERT_EQ(l.length(), 1);
+        Map m = l.at<Map>(0);
+        String val = m.get<String,String>(ATTO_TEXT("key"));
+        ASSERT_EQ(val, String(ATTO_TEXT("value")));
+        Log(ATTO_TEXT("List.FromJSONString() with Map: passed"));
+    }
+
+    // List.toCSVString() basic
+    {
+        List row1;
+        row1.append(ATTO_TEXT("Name")).append(ATTO_TEXT("Age")).append(ATTO_TEXT("City"));
+        List row2;
+        row2.append(ATTO_TEXT("Alice")).append(30).append(ATTO_TEXT("NYC"));
+        List csv;
+        csv.append(row1).append(row2);
+        String csvStr = csv.toCSVString();
+        REGISTER_TESTED(List_toCSVString);
+        ASSERT_TRUE(csvStr.contains(ATTO_TEXT("Name")));
+        ASSERT_TRUE(csvStr.contains(ATTO_TEXT("Alice")));
+        ASSERT_TRUE(csvStr.contains(ATTO_TEXT("30")));
+        Log(ATTO_TEXT("List.toCSVString(): passed"));
+    }
+
+    // List.FromCSVString() basic
+    {
+        String csvStr(ATTO_TEXT("Name,Age,City\r\nAlice,30,NYC\r\nBob,25,LA"));
+        List csv = List::FromCSVString(csvStr);
+        REGISTER_TESTED(List_FromCSVString);
+        ASSERT_EQ(csv.length(), 3);
+        List row1 = csv.at<List>(0);
+        ASSERT_EQ(row1.length(), 3);
+        ASSERT_EQ(row1.at<String>(0), String(ATTO_TEXT("Name")));
+        List row2 = csv.at<List>(1);
+        ASSERT_EQ(row2.at<String>(0), String(ATTO_TEXT("Alice")));
+        Log(ATTO_TEXT("List.FromCSVString(): passed"));
+    }
+
+    // List.toCSVString() with quotes
+    {
+        List row1;
+        row1.append(ATTO_TEXT("Quote \"test\"")).append(ATTO_TEXT("Comma,test"));
+        List csv;
+        csv.append(row1);
+        String csvStr = csv.toCSVString();
+        ASSERT_TRUE(csvStr.contains(ATTO_TEXT("\"\"")));
+        Log(ATTO_TEXT("List.toCSVString() with escapes: passed"));
+    }
+
+    // List.FromCSVString() with quotes
+    {
+        String csvStr(ATTO_TEXT("\"Quote \"\"test\"\"\",\"Comma,test\""));
+        List csv = List::FromCSVString(csvStr);
+        ASSERT_EQ(csv.length(), 1);
+        List row = csv.at<List>(0);
+        ASSERT_EQ(row.length(), 2);
+        String field1 = row.at<String>(0);
+        ASSERT_TRUE(field1.contains(ATTO_TEXT("Quote")));
+        Log(ATTO_TEXT("List.FromCSVString() with quotes: passed"));
+    }
+
+    // List.toCSVString() with nested collections
+    {
+        List inner;
+        inner.append(1).append(2).append(3);
+        List row1;
+        row1.append(ATTO_TEXT("data")).append(inner);
+        List csv;
+        csv.append(row1);
+        String csvStr = csv.toCSVString();
+        ASSERT_TRUE(csvStr.contains(ATTO_TEXT("[")));
+        Log(ATTO_TEXT("List.toCSVString() with nested: passed"));
+    }
+
+    // Round-trip JSON
+    {
+        List original;
+        original.append(1).append(ATTO_TEXT("test")).append(3.14f);
+        String json = original.toJSONString();
+        List restored = List::FromJSONString(json);
+        ASSERT_EQ(restored.length(), original.length());
+        ASSERT_EQ(restored.at<int>(0), 1);
+        ASSERT_EQ(restored.at<String>(1), String(ATTO_TEXT("test")));
+        Log(ATTO_TEXT("List JSON round-trip: passed"));
+    }
+
+    // Round-trip CSV
+    {
+        List row1;
+        row1.append(ATTO_TEXT("A")).append(ATTO_TEXT("B"));
+        List row2;
+        row2.append(ATTO_TEXT("C")).append(ATTO_TEXT("D"));
+        List original;
+        original.append(row1).append(row2);
+        String csvStr = original.toCSVString();
+        List restored = List::FromCSVString(csvStr);
+        ASSERT_EQ(restored.length(), 2);
+        List restoredRow1 = restored.at<List>(0);
+        ASSERT_EQ(restoredRow1.at<String>(0), String(ATTO_TEXT("A")));
+        Log(ATTO_TEXT("List CSV round-trip: passed"));
+    }
+
     Log(ATTO_TEXT("=== All List Tests Passed ==="));
     TestFramework::DisplayCoverage();
     TestFramework::WriteCoverageData(ATTO_TEXT("test_list_comprehensive"));

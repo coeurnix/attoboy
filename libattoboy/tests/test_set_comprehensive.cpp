@@ -324,6 +324,86 @@ void atto_main() {
         Log(ATTO_TEXT("Mixed collections in Set + JSON: passed"));
     }
 
+    // ========== JSON FUNCTIONS ==========
+
+    // Set.toJSONString() basic
+    {
+        Set s;
+        s.put(1).put(2).put(3);
+        String json = s.toJSONString();
+        REGISTER_TESTED(Set_toJSONString);
+        ASSERT_TRUE(json.contains(ATTO_TEXT("[")));
+        ASSERT_TRUE(json.contains(ATTO_TEXT("1")));
+        ASSERT_TRUE(json.contains(ATTO_TEXT("2")));
+        ASSERT_TRUE(json.contains(ATTO_TEXT("3")));
+        Log(ATTO_TEXT("Set.toJSONString(): passed"));
+    }
+
+    // Set.FromJSONString() basic
+    {
+        String json(ATTO_TEXT("[10,20,30,20,10]"));
+        Set s = Set::FromJSONString(json);
+        REGISTER_TESTED(Set_FromJSONString);
+        ASSERT_EQ(s.length(), 3);
+        ASSERT_TRUE(s.contains(10));
+        ASSERT_TRUE(s.contains(20));
+        ASSERT_TRUE(s.contains(30));
+        Log(ATTO_TEXT("Set.FromJSONString(): passed"));
+    }
+
+    // Set.FromJSONString() with strings
+    {
+        String json(ATTO_TEXT("[\"apple\",\"banana\",\"apple\"]"));
+        Set s = Set::FromJSONString(json);
+        ASSERT_EQ(s.length(), 2);
+        ASSERT_TRUE(s.contains(ATTO_TEXT("apple")));
+        ASSERT_TRUE(s.contains(ATTO_TEXT("banana")));
+        Log(ATTO_TEXT("Set.FromJSONString() with strings: passed"));
+    }
+
+    // Set.FromJSONString() mixed types
+    {
+        String json(ATTO_TEXT("[1,\"hello\",true,3.14]"));
+        Set s = Set::FromJSONString(json);
+        ASSERT_EQ(s.length(), 4);
+        ASSERT_TRUE(s.contains(1));
+        ASSERT_TRUE(s.contains(ATTO_TEXT("hello")));
+        ASSERT_TRUE(s.contains(true));
+        Log(ATTO_TEXT("Set.FromJSONString() mixed types: passed"));
+    }
+
+    // Round-trip JSON
+    {
+        Set original;
+        original.put(ATTO_TEXT("alpha")).put(ATTO_TEXT("beta")).put(ATTO_TEXT("gamma"));
+        String json = original.toJSONString();
+        Set restored = Set::FromJSONString(json);
+        ASSERT_EQ(restored.length(), 3);
+        ASSERT_TRUE(restored.contains(ATTO_TEXT("alpha")));
+        ASSERT_TRUE(restored.contains(ATTO_TEXT("beta")));
+        ASSERT_TRUE(restored.contains(ATTO_TEXT("gamma")));
+        Log(ATTO_TEXT("Set JSON round-trip: passed"));
+    }
+
+    // Empty Set JSON
+    {
+        Set s;
+        String json = s.toJSONString();
+        ASSERT_TRUE(json.contains(ATTO_TEXT("[")));
+        ASSERT_TRUE(json.contains(ATTO_TEXT("]")));
+        Set restored = Set::FromJSONString(json);
+        ASSERT_EQ(restored.length(), 0);
+        Log(ATTO_TEXT("Empty Set JSON: passed"));
+    }
+
+    // Set from JSON array ensures uniqueness
+    {
+        String json(ATTO_TEXT("[1,1,1,2,2,3]"));
+        Set s = Set::FromJSONString(json);
+        ASSERT_EQ(s.length(), 3);
+        Log(ATTO_TEXT("Set uniqueness from JSON: passed"));
+    }
+
     Log(ATTO_TEXT("=== All Set Tests Passed ==="));
     TestFramework::DisplayCoverage();
     TestFramework::WriteCoverageData(ATTO_TEXT("test_set_comprehensive"));

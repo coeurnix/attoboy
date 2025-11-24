@@ -351,6 +351,92 @@ void atto_main() {
         Log(ATTO_TEXT("Complex nested Map + JSON: passed"));
     }
 
+    // ========== JSON FUNCTIONS ==========
+
+    // Map.toJSONString() basic
+    {
+        Map m;
+        m.put(ATTO_TEXT("name"), ATTO_TEXT("Alice"));
+        m.put(ATTO_TEXT("age"), 30);
+        m.put(ATTO_TEXT("active"), true);
+        String json = m.toJSONString();
+        REGISTER_TESTED(Map_toJSONString);
+        ASSERT_TRUE(json.contains(ATTO_TEXT("{")));
+        ASSERT_TRUE(json.contains(ATTO_TEXT("name")));
+        ASSERT_TRUE(json.contains(ATTO_TEXT("Alice")));
+        Log(ATTO_TEXT("Map.toJSONString(): passed"));
+    }
+
+    // Map.FromJSONString() basic
+    {
+        String json(ATTO_TEXT("{\"name\":\"Bob\",\"age\":25,\"active\":false}"));
+        Map m = Map::FromJSONString(json);
+        REGISTER_TESTED(Map_FromJSONString);
+        ASSERT_EQ(m.length(), 3);
+        String name = m.get<String,String>(ATTO_TEXT("name"));
+        ASSERT_EQ(name, String(ATTO_TEXT("Bob")));
+        int age = m.get<String,int>(ATTO_TEXT("age"));
+        ASSERT_EQ(age, 25);
+        Log(ATTO_TEXT("Map.FromJSONString(): passed"));
+    }
+
+    // Map.FromJSONString() nested
+    {
+        String json(ATTO_TEXT("{\"person\":{\"name\":\"Carol\",\"age\":35}}"));
+        Map m = Map::FromJSONString(json);
+        ASSERT_EQ(m.length(), 1);
+        Map person = m.get<String,Map>(ATTO_TEXT("person"));
+        String name = person.get<String,String>(ATTO_TEXT("name"));
+        ASSERT_EQ(name, String(ATTO_TEXT("Carol")));
+        Log(ATTO_TEXT("Map.FromJSONString() nested: passed"));
+    }
+
+    // Map.FromJSONString() with List
+    {
+        String json(ATTO_TEXT("{\"numbers\":[1,2,3]}"));
+        Map m = Map::FromJSONString(json);
+        ASSERT_EQ(m.length(), 1);
+        List numbers = m.get<String,List>(ATTO_TEXT("numbers"));
+        ASSERT_EQ(numbers.length(), 3);
+        ASSERT_EQ(numbers.at<int>(0), 1);
+        Log(ATTO_TEXT("Map.FromJSONString() with List: passed"));
+    }
+
+    // Round-trip JSON
+    {
+        Map original;
+        original.put(ATTO_TEXT("key1"), ATTO_TEXT("value1"));
+        original.put(ATTO_TEXT("key2"), 42);
+        String json = original.toJSONString();
+        Map restored = Map::FromJSONString(json);
+        ASSERT_EQ(restored.length(), 2);
+        String val = restored.get<String,String>(ATTO_TEXT("key1"));
+        ASSERT_EQ(val, String(ATTO_TEXT("value1")));
+        Log(ATTO_TEXT("Map JSON round-trip: passed"));
+    }
+
+    // Map with numeric keys
+    {
+        Map m;
+        m.put(1, ATTO_TEXT("one"));
+        m.put(2, ATTO_TEXT("two"));
+        String json = m.toJSONString();
+        ASSERT_TRUE(json.contains(ATTO_TEXT("one")));
+        ASSERT_TRUE(json.contains(ATTO_TEXT("two")));
+        Log(ATTO_TEXT("Map with numeric keys JSON: passed"));
+    }
+
+    // Empty Map JSON
+    {
+        Map m;
+        String json = m.toJSONString();
+        ASSERT_TRUE(json.contains(ATTO_TEXT("{")));
+        ASSERT_TRUE(json.contains(ATTO_TEXT("}")));
+        Map restored = Map::FromJSONString(json);
+        ASSERT_EQ(restored.length(), 0);
+        Log(ATTO_TEXT("Empty Map JSON: passed"));
+    }
+
     Log(ATTO_TEXT("=== All Map Tests Passed ==="));
     TestFramework::DisplayCoverage();
     TestFramework::WriteCoverageData(ATTO_TEXT("test_map_comprehensive"));

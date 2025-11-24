@@ -103,6 +103,10 @@
   X(List_operator_eq)                                                          \
   X(List_operator_ne)                                                          \
   X(List_operator_plus)                                                        \
+  X(List_toCSVString)                                                          \
+  X(List_FromCSVString)                                                        \
+  X(List_toJSONString)                                                         \
+  X(List_FromJSONString)                                                       \
   X(Map_constructor_empty)                                                     \
   X(Map_constructor_capacity)                                                  \
   X(Map_constructor_variadic)                                                  \
@@ -126,6 +130,8 @@
   X(Map_compare)                                                               \
   X(Map_operator_eq)                                                           \
   X(Map_operator_ne)                                                           \
+  X(Map_toJSONString)                                                          \
+  X(Map_FromJSONString)                                                        \
   X(Set_constructor_empty)                                                     \
   X(Set_constructor_capacity)                                                  \
   X(Set_constructor_variadic)                                                  \
@@ -148,6 +154,8 @@
   X(Set_operator_eq)                                                           \
   X(Set_operator_ne)                                                           \
   X(Set_operator_plus)                                                         \
+  X(Set_toJSONString)                                                          \
+  X(Set_FromJSONString)                                                        \
   X(DateTime_constructor_empty)                                                \
   X(DateTime_constructor_timestamp)                                            \
   X(DateTime_constructor_components)                                           \
@@ -393,6 +401,6 @@
   X(Math_permutations)
 
 // Count of all registered functions
-#define FUNCTION_COUNT 386
+#define FUNCTION_COUNT 394
 
 #endif // TEST_FUNCTIONS_H

@@ -25,8 +25,8 @@ Attoboy is a comprehensive, 'batteries-included' C++ library designed for buildi
 - [x] Filesystems
 - [x] Stream I/O
 - [x] Subprocess Control
-- [ ] JSON
-- [ ] CSV
+- [x] JSON
+- [x] CSV
 - [ ] HTTP/HTTPS Requests
 - [ ] AI Chat Completions and Embeddings
 - [ ] TUI
