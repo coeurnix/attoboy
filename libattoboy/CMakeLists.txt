@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(attoboy VERSION 0.0.1 LANGUAGES CXX)
+project(attoboy VERSION 0.0.1 LANGUAGES C CXX)
 
 # ------------------------------------------------------------------------------
 # Build Options
@@ -35,6 +35,9 @@ else()
     message(STATUS "Unicode support: DISABLED (ANSI mode)")
 endif()
 
+# Prevent Windows headers from defining min/max macros that conflict with our functions
+add_compile_definitions(NOMINMAX)
+
 # ------------------------------------------------------------------------------
 # Compiler & Linker Flags (Size Optimization, No STL, 32-bit, Stripped)
 # ------------------------------------------------------------------------------
@@ -44,7 +47,6 @@ if(MSVC)
         /O1               # Optimize for size (minimize space)
         /Ob2              # Inline expansion level 2 (any suitable)
         /Os               # Favor small code
-        /GL               # Whole program optimization (enables cross-module optimizations)
         /Gy               # Enable function-level linking (allows linker to remove unused functions)
         /GS-              # Disable buffer security check (removes stack canary overhead)
         /GR-              # Disable RTTI (Run-Time Type Information)
@@ -52,7 +54,7 @@ if(MSVC)
         /wd4530           # Suppress warning C4530 about missing exception handling
         /Gs9999999        # Disable stack probes (avoids _chkstk dependency for small stacks)
     )
-    
+
     # MSVC Linker Options
     add_link_options(
         /MACHINE:X86       # Target 32-bit x86 architecture
@@ -60,9 +62,10 @@ if(MSVC)
         /NODEFAULTLIB      # Ignore all default libraries (CRT, STL, etc.)
         /OPT:REF           # Remove unreferenced functions and data
         /OPT:ICF           # Enable identical COMDAT folding (merge duplicate code)
-        /LTCG              # Link-time code generation (works with /GL)
         /ENTRY:atto_main   # Set entry point to atto_main (bypasses CRT startup)
         /DEBUG:NONE        # Do not generate debug info (reduces binary size)
+        /ALTERNATENAME:__allmul=___allmul     # Alias 2-underscore to 3-underscore symbol
+        /ALTERNATENAME:__aullshr=___aullshr   # Alias 2-underscore to 3-underscore symbol
     )
     
     set(SYSTEM_LIBS kernel32.lib ws2_32.lib advapi32.lib crypt32.lib secur32.lib shell32.lib)
@@ -171,7 +174,7 @@ if(ATTO_BUILD_TESTS)
                 COMMAND ${PYTHON_EXECUTABLE}
                     "${CMAKE_CURRENT_SOURCE_DIR}/tests/python_test_runner.py"
                     exit
-                    "${CMAKE_BINARY_DIR}/tests/${test_name}${CMAKE_EXECUTABLE_SUFFIX}"
+                    "$<TARGET_FILE:${test_name}>"
                     42
                 WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/libattoboy"
             )
@@ -181,7 +184,7 @@ if(ATTO_BUILD_TESTS)
                 COMMAND ${PYTHON_EXECUTABLE}
                     "${CMAKE_CURRENT_SOURCE_DIR}/tests/python_test_runner.py"
                     console
-                    "${CMAKE_BINARY_DIR}/tests/${test_name}${CMAKE_EXECUTABLE_SUFFIX}"
+                    "$<TARGET_FILE:${test_name}>"
                     "${CMAKE_BINARY_DIR}/libattoboy/test_logging_console_result.log"
                     "EnableLoggingToConsole test completed successfully"
                 WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/libattoboy"

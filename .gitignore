@@ -42,6 +42,7 @@
 
 # Build directories
 build/
+build_*/
 
 # IDE and editor folders
 .claude/
