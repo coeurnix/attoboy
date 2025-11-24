@@ -43,6 +43,8 @@ add_compile_definitions(NOMINMAX)
 # ------------------------------------------------------------------------------
 if(MSVC)
     # MSVC Compiler Options
+    string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REPLACE "/EHa"  "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     add_compile_options(
         /O1               # Optimize for size (minimize space)
         /Ob2              # Inline expansion level 2 (any suitable)
@@ -64,8 +66,6 @@ if(MSVC)
         /OPT:ICF           # Enable identical COMDAT folding (merge duplicate code)
         /ENTRY:atto_main   # Set entry point to atto_main (bypasses CRT startup)
         /DEBUG:NONE        # Do not generate debug info (reduces binary size)
-        /ALTERNATENAME:__allmul=___allmul     # Alias 2-underscore to 3-underscore symbol
-        /ALTERNATENAME:__aullshr=___aullshr   # Alias 2-underscore to 3-underscore symbol
     )
     
     set(SYSTEM_LIBS kernel32.lib ws2_32.lib advapi32.lib crypt32.lib secur32.lib shell32.lib)
@@ -123,6 +123,8 @@ add_custom_target(print_banner ALL
 # ------------------------------------------------------------------------------
 message(STATUS "Building library sources...")
 file(GLOB_RECURSE LIB_SOURCES "src/*.cpp")
+# Exclude MSVC intrinsics shim since we refactored to avoid 64-bit operations
+list(FILTER LIB_SOURCES EXCLUDE REGEX ".*atto00_intrinsics_msvc\.cpp$")
 add_library(attoboy STATIC ${LIB_SOURCES})
 add_dependencies(attoboy print_banner)
 
@@ -204,7 +206,7 @@ if(ATTO_BUILD_TESTS)
     # Add custom 'coverage' target that runs CTest and shows aggregated coverage
     if(PYTHON_EXECUTABLE)
         add_custom_target(coverage
-            COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+            COMMAND ${CMAKE_CTEST_COMMAND} --build-config Release --output-on-failure
             COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/aggregate_coverage.py" "${CMAKE_BINARY_DIR}/libattoboy"
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
             COMMENT "Running tests and aggregating coverage..."

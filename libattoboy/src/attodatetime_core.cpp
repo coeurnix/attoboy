@@ -23,12 +23,32 @@ DateTime::DateTime(long long millisSinceEpoch) {
 
   new (impl) DateTimeImpl();
 
+#ifdef _MSC_VER
+  // MSVC 32-bit build: avoid 64-bit multiplication that triggers __allmul
+  // Use ULARGE_INTEGER arithmetic which is safe in Windows API
+
+  const ULARGE_INTEGER UNIX_EPOCH_FILETIME = {
+      {0xD53E8000, 0x019DB1DE}}; // 116444736000000000LL
+
+  // Convert to 100ns units by multiplying by 10000
+  ULARGE_INTEGER millis100ns;
+  millis100ns.QuadPart = (ULONGLONG)millisSinceEpoch * 10000;
+
+  // Add the Unix epoch offset
+  ULARGE_INTEGER fileTime100ns;
+  fileTime100ns.QuadPart = UNIX_EPOCH_FILETIME.QuadPart + millis100ns.QuadPart;
+
+  impl->fileTime.dwLowDateTime = fileTime100ns.LowPart;
+  impl->fileTime.dwHighDateTime = fileTime100ns.HighPart;
+
+#else
+  // Non-MSVC builds: use the original simple implementation
   const long long UNIX_EPOCH_FILETIME = 116444736000000000LL;
-  long long fileTime100ns =
-      UNIX_EPOCH_FILETIME + (millisSinceEpoch * 10000LL);
+  long long fileTime100ns = UNIX_EPOCH_FILETIME + (millisSinceEpoch * 10000LL);
 
   impl->fileTime.dwLowDateTime = (DWORD)fileTime100ns;
   impl->fileTime.dwHighDateTime = (DWORD)(fileTime100ns >> 32);
+#endif
 }
 
 DateTime::DateTime(const String &iso8601) {
@@ -48,7 +68,8 @@ DateTime::DateTime(const String &iso8601) {
   int len = lstrlenA(str);
 #endif
   if (len >= 19) {
-    st.wYear = (str[0] - ATTO_TEXT('0')) * 1000 + (str[1] - ATTO_TEXT('0')) * 100 +
+    st.wYear = (str[0] - ATTO_TEXT('0')) * 1000 +
+               (str[1] - ATTO_TEXT('0')) * 100 +
                (str[2] - ATTO_TEXT('0')) * 10 + (str[3] - ATTO_TEXT('0'));
     st.wMonth = (str[5] - ATTO_TEXT('0')) * 10 + (str[6] - ATTO_TEXT('0'));
     st.wDay = (str[8] - ATTO_TEXT('0')) * 10 + (str[9] - ATTO_TEXT('0'));
@@ -57,7 +78,8 @@ DateTime::DateTime(const String &iso8601) {
     st.wSecond = (str[17] - ATTO_TEXT('0')) * 10 + (str[18] - ATTO_TEXT('0'));
 
     if (len >= 24 && str[19] == ATTO_TEXT('.')) {
-      st.wMilliseconds = (str[20] - ATTO_TEXT('0')) * 100 + (str[21] - ATTO_TEXT('0')) * 10 +
+      st.wMilliseconds = (str[20] - ATTO_TEXT('0')) * 100 +
+                         (str[21] - ATTO_TEXT('0')) * 10 +
                          (str[22] - ATTO_TEXT('0'));
     }
 

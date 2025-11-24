@@ -4,22 +4,23 @@ extern "C" {
 
 __declspec(naked) long long __allmul(long long a, long long b) {
   __asm {
-    push ebx
+    mov     eax, dword ptr [esp+4]    ; a.lo
+    mov     ecx, dword ptr [esp+12]   ; b.lo
+    mul     ecx                       ; EDX:EAX = a.lo * b.lo
 
-    mov eax, [esp+8]    ; a.lo
-    mov ecx, [esp+16]   ; b.lo
+    push    edx                       ; Save high 32 bits of lo*lo result
 
-    mov ebx, eax
-    mul ecx             ; EDX:EAX = a.lo * b.lo
+    mov     edx, dword ptr [esp+12]   ; a.hi (esp+8 + 4 due to push)
+    imul    edx, ecx                  ; EDX = a.hi * b.lo
 
-    imul ecx, [esp+12]  ; ECX = b.lo * a.hi
-    imul ebx, [esp+20]  ; EBX = a.lo * b.hi
-    add ecx, ebx        ; ECX = (b.lo * a.hi) + (a.lo * b.hi)
+    mov     ecx, dword ptr [esp+20]   ; b.hi (esp+16 + 4 due to push)
+    imul    ecx, dword ptr [esp+8]    ; ECX = b.hi * a.lo (esp+4 + 4 due to push)
 
-    add edx, ecx        ; EDX = high part
-                        ; EAX = low part (already set)
+    add     edx, ecx                  ; EDX = (a.hi * b.lo) + (b.hi * a.lo)
 
-    pop ebx
+    pop     ecx                       ; Restore high 32 bits of lo*lo result
+    add     edx, ecx                  ; Add to result
+
     ret
   }
 }

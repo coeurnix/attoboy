@@ -1,5 +1,5 @@
-#include "attopath_internal.h"
 #include "attodatetime_internal.h"
+#include "attopath_internal.h"
 
 namespace attoboy {
 
@@ -32,6 +32,20 @@ DateTime Path::getCreatedOn() const {
   if (!GetFileAttributesEx(impl->pathStr, GetFileExInfoStandard, &fileInfo))
     return DateTime(0LL);
 
+#ifdef _MSC_VER
+  // MSVC 32-bit build: avoid 64-bit operations
+  ULARGE_INTEGER uli;
+  uli.LowPart = fileInfo.ftCreationTime.dwLowDateTime;
+  uli.HighPart = fileInfo.ftCreationTime.dwHighDateTime;
+
+  // Convert 100ns ticks to milliseconds and subtract Unix epoch offset
+  long long millisSinceEpoch =
+      Div64((long long)uli.QuadPart, 10000LL) - 11644473600000LL;
+
+  return DateTime(millisSinceEpoch);
+
+#else
+  // Non-MSVC builds: use the original implementation
   ULARGE_INTEGER uli;
   uli.LowPart = fileInfo.ftCreationTime.dwLowDateTime;
   uli.HighPart = fileInfo.ftCreationTime.dwHighDateTime;
@@ -40,6 +54,7 @@ DateTime Path::getCreatedOn() const {
   long long millisSinceEpoch = Div64(ticks, 10000LL) - 11644473600000LL;
 
   return DateTime(millisSinceEpoch);
+#endif
 }
 
 DateTime Path::getModifiedOn() const {
@@ -52,6 +67,20 @@ DateTime Path::getModifiedOn() const {
   if (!GetFileAttributesEx(impl->pathStr, GetFileExInfoStandard, &fileInfo))
     return DateTime(0LL);
 
+#ifdef _MSC_VER
+  // MSVC 32-bit build: avoid 64-bit operations
+  ULARGE_INTEGER uli;
+  uli.LowPart = fileInfo.ftLastWriteTime.dwLowDateTime;
+  uli.HighPart = fileInfo.ftLastWriteTime.dwHighDateTime;
+
+  // Convert 100ns ticks to milliseconds and subtract Unix epoch offset
+  long long millisSinceEpoch =
+      Div64((long long)uli.QuadPart, 10000LL) - 11644473600000LL;
+
+  return DateTime(millisSinceEpoch);
+
+#else
+  // Non-MSVC builds: use the original implementation
   ULARGE_INTEGER uli;
   uli.LowPart = fileInfo.ftLastWriteTime.dwLowDateTime;
   uli.HighPart = fileInfo.ftLastWriteTime.dwHighDateTime;
@@ -60,6 +89,7 @@ DateTime Path::getModifiedOn() const {
   long long millisSinceEpoch = Div64(ticks, 10000LL) - 11644473600000LL;
 
   return DateTime(millisSinceEpoch);
+#endif
 }
 
 DateTime Path::getAccessedOn() const {
@@ -72,6 +102,20 @@ DateTime Path::getAccessedOn() const {
   if (!GetFileAttributesEx(impl->pathStr, GetFileExInfoStandard, &fileInfo))
     return DateTime(0LL);
 
+#ifdef _MSC_VER
+  // MSVC 32-bit build: avoid 64-bit operations
+  ULARGE_INTEGER uli;
+  uli.LowPart = fileInfo.ftLastAccessTime.dwLowDateTime;
+  uli.HighPart = fileInfo.ftLastAccessTime.dwHighDateTime;
+
+  // Convert 100ns ticks to milliseconds and subtract Unix epoch offset
+  long long millisSinceEpoch =
+      Div64((long long)uli.QuadPart, 10000LL) - 11644473600000LL;
+
+  return DateTime(millisSinceEpoch);
+
+#else
+  // Non-MSVC builds: use the original implementation
   ULARGE_INTEGER uli;
   uli.LowPart = fileInfo.ftLastAccessTime.dwLowDateTime;
   uli.HighPart = fileInfo.ftLastAccessTime.dwHighDateTime;
@@ -80,6 +124,7 @@ DateTime Path::getAccessedOn() const {
   long long millisSinceEpoch = Div64(ticks, 10000LL) - 11644473600000LL;
 
   return DateTime(millisSinceEpoch);
+#endif
 }
 
 bool Path::isReadOnly() const {
