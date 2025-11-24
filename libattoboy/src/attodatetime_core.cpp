@@ -24,17 +24,12 @@ DateTime::DateTime(long long millisSinceEpoch) {
   new (impl) DateTimeImpl();
 
 #ifdef _MSC_VER
-  // MSVC 32-bit build: avoid 64-bit multiplication that triggers __allmul
-  // Use ULARGE_INTEGER arithmetic which is safe in Windows API
-
   const ULARGE_INTEGER UNIX_EPOCH_FILETIME = {
       {0xD53E8000, 0x019DB1DE}}; // 116444736000000000LL
 
-  // Convert to 100ns units by multiplying by 10000
   ULARGE_INTEGER millis100ns;
   millis100ns.QuadPart = (ULONGLONG)millisSinceEpoch * 10000;
 
-  // Add the Unix epoch offset
   ULARGE_INTEGER fileTime100ns;
   fileTime100ns.QuadPart = UNIX_EPOCH_FILETIME.QuadPart + millis100ns.QuadPart;
 
@@ -42,7 +37,6 @@ DateTime::DateTime(long long millisSinceEpoch) {
   impl->fileTime.dwHighDateTime = fileTime100ns.HighPart;
 
 #else
-  // Non-MSVC builds: use the original simple implementation
   const long long UNIX_EPOCH_FILETIME = 116444736000000000LL;
   long long fileTime100ns = UNIX_EPOCH_FILETIME + (millisSinceEpoch * 10000LL);
 

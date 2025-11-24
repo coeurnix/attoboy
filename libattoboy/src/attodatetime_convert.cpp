@@ -10,7 +10,6 @@ long long DateTime::timestamp() const {
   ReadLockGuard guard(&impl->lock);
 
 #ifdef _MSC_VER
-  // MSVC 32-bit build: avoid 64-bit subtraction that might trigger intrinsics
   ULARGE_INTEGER uli;
   uli.LowPart = impl->fileTime.dwLowDateTime;
   uli.HighPart = impl->fileTime.dwHighDateTime;
@@ -18,18 +17,15 @@ long long DateTime::timestamp() const {
   const ULARGE_INTEGER UNIX_EPOCH_FILETIME = {
       {0xD53E8000, 0x019DB1DE}}; // 116444736000000000LL
 
-  // Subtract the Unix epoch offset
   ULARGE_INTEGER fileTimeSinceEpoch;
   fileTimeSinceEpoch.QuadPart = uli.QuadPart - UNIX_EPOCH_FILETIME.QuadPart;
 
-  // Convert from 100ns to milliseconds
   long long millisSinceEpoch =
       Div64((long long)fileTimeSinceEpoch.QuadPart, 10000LL);
 
   return millisSinceEpoch;
 
 #else
-  // Non-MSVC builds: use the original simple implementation
   ULARGE_INTEGER uli;
   uli.LowPart = impl->fileTime.dwLowDateTime;
   uli.HighPart = impl->fileTime.dwHighDateTime;

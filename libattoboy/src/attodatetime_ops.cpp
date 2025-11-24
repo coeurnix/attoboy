@@ -9,12 +9,10 @@ DateTime &DateTime::add(long long milliseconds) {
   WriteLockGuard guard(&impl->lock);
 
 #ifdef _MSC_VER
-  // MSVC 32-bit build: avoid 64-bit multiplication that triggers __allmul
   ULARGE_INTEGER uli;
   uli.LowPart = impl->fileTime.dwLowDateTime;
   uli.HighPart = impl->fileTime.dwHighDateTime;
 
-  // Add (milliseconds * 10000) to the FILETIME
   ULARGE_INTEGER add100ns;
   ULARGE_INTEGER ms;
   ms.QuadPart = (ULONGLONG)milliseconds;
@@ -27,7 +25,6 @@ DateTime &DateTime::add(long long milliseconds) {
   impl->fileTime.dwHighDateTime = result.HighPart;
 
 #else
-  // Non-MSVC builds: use the original implementation
   ULARGE_INTEGER uli;
   uli.LowPart = impl->fileTime.dwLowDateTime;
   uli.HighPart = impl->fileTime.dwHighDateTime;
@@ -51,22 +48,18 @@ long long DateTime::diff(const DateTime &other) const {
   ReadLockGuard guardOther(&other.impl->lock);
 
 #ifdef _MSC_VER
-  // MSVC 32-bit build: avoid 64-bit subtraction that triggers intrinsics
   ULARGE_INTEGER uliThis, uliOther;
   uliThis.LowPart = impl->fileTime.dwLowDateTime;
   uliThis.HighPart = impl->fileTime.dwHighDateTime;
   uliOther.LowPart = other.impl->fileTime.dwLowDateTime;
   uliOther.HighPart = other.impl->fileTime.dwHighDateTime;
 
-  // Compute difference in 100ns units
   ULARGE_INTEGER diff100ns;
   diff100ns.QuadPart = uliThis.QuadPart - uliOther.QuadPart;
 
-  // Convert to milliseconds
   return Div64((long long)diff100ns.QuadPart, 10000LL);
 
 #else
-  // Non-MSVC builds: use the original implementation
   ULARGE_INTEGER uliThis, uliOther;
   uliThis.LowPart = impl->fileTime.dwLowDateTime;
   uliThis.HighPart = impl->fileTime.dwHighDateTime;
