@@ -138,114 +138,79 @@ add_custom_command(TARGET attoboy POST_BUILD
 )
 
 # ------------------------------------------------------------------------------
-# Tests (Built as Exes in build/tests/)
+# Tests (Built as Exes in build/tests/ with CTest)
 # ------------------------------------------------------------------------------
 if(ATTO_BUILD_TESTS)
-    message(STATUS "Building tests...")
+    message(STATUS "Building tests with CTest integration...")
+
     file(GLOB TEST_SOURCES "tests/*.cpp")
 
-    # List to keep track of test targets for the 'check' dependency
-    set(TEST_TARGETS "")
+    # Find Python for cooperative tests
+    find_program(PYTHON_EXECUTABLE
+        NAMES python3 python py
+        DOC "Python interpreter for cooperative tests"
+    )
 
+    # Add test executables matching the current build configuration
     foreach(test_src ${TEST_SOURCES})
         get_filename_component(test_name ${test_src} NAME_WE)
 
-        # Skip python_* test helpers (they're run by Python test suite, not directly)
-        if(test_name MATCHES "^python_")
-            add_executable(${test_name} ${test_src})
-            target_link_libraries(${test_name} PRIVATE attoboy ${SYSTEM_LIBS})
-            set_target_properties(${test_name} PROPERTIES
-                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests"
-                OUTPUT_NAME "${test_name}"
-            )
-            continue()
-        endif()
-
+        # Build the executable
         add_executable(${test_name} ${test_src})
         target_link_libraries(${test_name} PRIVATE attoboy ${SYSTEM_LIBS})
+        target_include_directories(${test_name} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
         set_target_properties(${test_name} PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests"
             OUTPUT_NAME "${test_name}"
         )
-        list(APPEND TEST_TARGETS ${test_name})
+
+        # Determine how to run the test
+        if(test_name STREQUAL "test_exit" AND PYTHON_EXECUTABLE)
+            # Python-cooperative test: validate exit code
+            add_test(NAME ${test_name}
+                COMMAND ${PYTHON_EXECUTABLE}
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tests/python_test_runner.py"
+                    exit
+                    "${CMAKE_BINARY_DIR}/tests/${test_name}${CMAKE_EXECUTABLE_SUFFIX}"
+                    42
+                WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/libattoboy"
+            )
+        elseif(test_name STREQUAL "test_logging_console" AND PYTHON_EXECUTABLE)
+            # Python-cooperative test: validate console logging behavior
+            add_test(NAME ${test_name}
+                COMMAND ${PYTHON_EXECUTABLE}
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tests/python_test_runner.py"
+                    console
+                    "${CMAKE_BINARY_DIR}/tests/${test_name}${CMAKE_EXECUTABLE_SUFFIX}"
+                    "${CMAKE_BINARY_DIR}/libattoboy/test_logging_console_result.log"
+                    "EnableLoggingToConsole test completed successfully"
+                WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/libattoboy"
+            )
+        else()
+            # Standard CTest: run executable directly
+            add_test(NAME ${test_name} COMMAND ${test_name})
+        endif()
     endforeach()
 
-    # Add a target to build and run all tests
-    set(CHECK_SCRIPT_FILE "${CMAKE_BINARY_DIR}/run_all_tests.cmake")
-
-    # Generate a single script that runs all tests and fails the build if any test fails
-    set(SCRIPT_CONTENT "
-SET(ANY_FAILED 0)
-")
-    foreach(test_target ${TEST_TARGETS})
-        set(EXE_FILE "${CMAKE_BINARY_DIR}/tests/${test_target}${CMAKE_EXECUTABLE_SUFFIX}")
-        set(SCRIPT_CONTENT "${SCRIPT_CONTENT}
-EXECUTE_PROCESS(
-    COMMAND cmd.exe /c \"${EXE_FILE}\"
-    RESULT_VARIABLE RESULT
-)
-IF(NOT RESULT EQUAL 0)
-    SET(ANY_FAILED 1)
-    MESSAGE(\"Running ${test_target} failed! Please run ${EXE_FILE} to see detailed error output.\")
-ELSE()
-    MESSAGE(\"Running ${test_target}... passed.\")
-ENDIF()
-")
-    endforeach()
-    set(SCRIPT_CONTENT "${SCRIPT_CONTENT}
-IF(ANY_FAILED)
-    MESSAGE(FATAL_ERROR \"Some tests failed.\")
-ENDIF()
-")
-
-    file(WRITE "${CHECK_SCRIPT_FILE}" "${SCRIPT_CONTENT}")
-
-    # Find Python interpreter for running Python-based tests
-    find_program(PYTHON_EXECUTABLE
-        NAMES python3 python py
-        DOC "Python interpreter for running test scripts"
-    )
-
-    if(PYTHON_EXECUTABLE)
-        message(STATUS "Found Python: ${PYTHON_EXECUTABLE}")
-        file(GLOB PYTHON_TEST_SCRIPTS "tests/*.py")
-
-        # Build Python test script content
-        set(PYTHON_SCRIPT_CONTENT "
-# Run Python-based tests")
-        foreach(py_script ${PYTHON_TEST_SCRIPTS})
-            get_filename_component(py_script_name ${py_script} NAME)
-            set(PYTHON_SCRIPT_CONTENT "${PYTHON_SCRIPT_CONTENT}
-IF(EXISTS \"${py_script}\")
-    MESSAGE(\"Running Python test: ${py_script_name}...\")
-    EXECUTE_PROCESS(
-        COMMAND \"${PYTHON_EXECUTABLE}\" \"${py_script}\"
-        RESULT_VARIABLE RESULT
-        WORKING_DIRECTORY \"${CMAKE_CURRENT_SOURCE_DIR}/tests\"
-    )
-    IF(NOT RESULT EQUAL 0)
-        SET(ANY_FAILED 1)
-        MESSAGE(\"Python test ${py_script_name} failed!\")
-    ELSE()
-        MESSAGE(\"Python test ${py_script_name} passed.\")
-    ENDIF()
-ENDIF()
-")
-        endforeach()
-
-        set(SCRIPT_CONTENT "${SCRIPT_CONTENT}${PYTHON_SCRIPT_CONTENT}")
-        file(WRITE "${CHECK_SCRIPT_FILE}" "${SCRIPT_CONTENT}")
+    if(ATTO_UNICODE)
+        message(STATUS "CTest enabled (UNICODE mode) - use 'ctest --output-on-failure' to run tests")
     else()
-        message(STATUS "Python not found - Python tests will be skipped")
+        message(STATUS "CTest enabled (ANSI mode) - use 'ctest --output-on-failure' to run tests")
     endif()
 
-    add_custom_target(check
-        COMMAND ${CMAKE_COMMAND} -E echo ""
-        COMMAND ${CMAKE_COMMAND} -P "${CHECK_SCRIPT_FILE}"
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMENT "Building and running all tests..."
-    )
-    add_dependencies(check ${TEST_TARGETS})
+    # Add custom 'coverage' target that runs CTest and shows aggregated coverage
+    if(PYTHON_EXECUTABLE)
+        add_custom_target(coverage
+            COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+            COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/aggregate_coverage.py" "${CMAKE_BINARY_DIR}/libattoboy"
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMENT "Running tests and aggregating coverage..."
+            USES_TERMINAL
+        )
+        message(STATUS "Custom 'coverage' target enabled - use 'cmake --build build --target coverage'")
+    else()
+        message(STATUS "Python not found - coverage aggregation will be skipped")
+    endif()
 endif()
 
 # ------------------------------------------------------------------------------

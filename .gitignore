@@ -48,3 +48,4 @@ build/
 .vscode/
 .cache
 nul
+*.log
