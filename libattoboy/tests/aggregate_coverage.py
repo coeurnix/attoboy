@@ -26,25 +26,35 @@ def aggregate_coverage(coverage_dir):
 
     for coverage_file in coverage_files:
         try:
-            with open(coverage_file, 'r') as f:
-                line = f.read().strip()
-                if not line:
-                    continue
+            # Try to detect encoding - could be UTF-8 (ANSI) or UTF-16LE (UNICODE)
+            with open(coverage_file, 'rb') as f:
+                raw_data = f.read()
 
-                parts = line.split(' ', 2)
-                tested_count = int(parts[0])
-                total_count = int(parts[1])
+            # Check for UTF-16LE BOM or null bytes indicating UTF-16LE
+            if raw_data.startswith(b'\xff\xfe') or (len(raw_data) > 1 and raw_data[1] == 0):
+                # UTF-16LE encoding (UNICODE mode)
+                line = raw_data.decode('utf-16le').strip()
+            else:
+                # UTF-8 encoding (ANSI mode)
+                line = raw_data.decode('utf-8').strip()
 
-                # Set total functions count (should be same across all tests)
-                if total_functions is None:
-                    total_functions = total_count
-                elif total_functions != total_count:
-                    print(f"WARNING: Inconsistent total count in {coverage_file.name}: {total_count} vs {total_functions}")
+            if not line:
+                continue
 
-                # Parse tested functions
-                if len(parts) > 2 and parts[2]:
-                    tested_funcs = parts[2].split(',')
-                    all_tested.update(tested_funcs)
+            parts = line.split(' ', 2)
+            tested_count = int(parts[0])
+            total_count = int(parts[1])
+
+            # Set total functions count (should be same across all tests)
+            if total_functions is None:
+                total_functions = total_count
+            elif total_functions != total_count:
+                print(f"WARNING: Inconsistent total count in {coverage_file.name}: {total_count} vs {total_functions}")
+
+            # Parse tested functions
+            if len(parts) > 2 and parts[2]:
+                tested_funcs = parts[2].split(',')
+                all_tested.update(tested_funcs)
 
         except Exception as e:
             print(f"Error reading {coverage_file.name}: {e}")
