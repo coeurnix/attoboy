@@ -1,6 +1,6 @@
+#include "attolist_internal.h"
 #include "attopath_internal.h"
 #include "attostring_internal.h"
-#include "attolist_internal.h"
 
 namespace attoboy {
 
@@ -45,13 +45,9 @@ bool Path::equals(const Path &other) const {
   return ATTO_LSTRCMPI(impl->pathStr, other.impl->pathStr) == 0;
 }
 
-bool Path::operator==(const Path &other) const {
-  return equals(other);
-}
+bool Path::operator==(const Path &other) const { return equals(other); }
 
-bool Path::operator!=(const Path &other) const {
-  return !equals(other);
-}
+bool Path::operator!=(const Path &other) const { return !equals(other); }
 
 bool Path::isWithin(const Path &path) const {
   if (!impl || !impl->pathStr || !path.impl || !path.impl->pathStr)
@@ -252,6 +248,14 @@ String Path::getStem() const {
   stem[stemLen] = 0;
 
   return String(stem);
+}
+
+String Path::toString() const {
+  if (!impl || !impl->pathStr)
+    return String();
+
+  ReadLockGuard guard(&impl->lock);
+  return String(impl->pathStr);
 }
 
 static void FindChildrenRecursive(const ATTO_CHAR *path, List &result) {

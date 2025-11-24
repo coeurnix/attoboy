@@ -1145,6 +1145,9 @@ public:
   /// Returns empty string if no extension.
   String getExtension() const;
 
+  /// Returns the path as a String.
+  String toString() const;
+
   /// Returns true if this path has the specified extension (case-insensitive).
   bool hasExtension(const String &ext) const;
 

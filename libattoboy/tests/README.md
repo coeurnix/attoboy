@@ -10,7 +10,6 @@ The testing system uses a CTest-based framework that:
 - Automatically tracks coverage of all functions from `attoboy.h`
 - Provides assertion macros for writing tests
 - Displays coverage reports showing tested vs. untested functions
-- Supports both ANSI and UNICODE build configurations (tests match library build mode)
 
 ## Framework Components
 
@@ -96,20 +95,20 @@ Example:
 
 void atto_main() {
     // Enable file logging for reliable output capture
-    EnableLoggingToFile(ATTO_TEXT("my_test.log"));
+    EnableLoggingToFile("my_test.log");
 
-    Log(ATTO_TEXT("Testing MyFunction"));
+    Log("Testing MyFunction");
 
     String result = MyFunction();
     REGISTER_TESTED(MyFunction);
 
     ASSERT_FALSE(result.isEmpty());
-    ASSERT_EQ(result, String(ATTO_TEXT("expected")));
+    ASSERT_EQ(result, String("expected"));
 
     TestFramework::DisplayCoverage();
 
     // Write machine-readable coverage data for aggregation
-    TestFramework::WriteCoverageData(ATTO_TEXT("my_test"));
+    TestFramework::WriteCoverageData("my_test");
 
     Exit(0);
 }
@@ -132,9 +131,9 @@ Some functions require external validation (e.g., exit codes, console output). U
 **Example: Testing Exit() with exit code validation**
 ```cpp
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_exit.log"));
+    EnableLoggingToFile("test_exit.log");
     REGISTER_TESTED(Exit);
-    TestFramework::WriteCoverageData(ATTO_TEXT("test_exit"));
+    TestFramework::WriteCoverageData("test_exit");
     Exit(42);  // Python validates exit code is 42
 }
 ```
@@ -172,19 +171,6 @@ The system tracks all utility functions from `attoboy.h`. As you expand coverage
 - Call `WriteCoverageData()` to contribute to overall statistics
 - Run `cmake --build build --target coverage` to see progress
 - Coverage reports show: "X/Y functions (Z%) - Untested: [list]"
-
-## Configuration Modes
-
-The library builds in either ANSI or UNICODE mode (controlled by `ATTO_UNICODE` CMake option).
-Tests are compiled and run in the same mode as the library.
-
-To test UNICODE mode:
-```bash
-cmake -DATTO_UNICODE=ON build
-cmake --build build --config Release
-cd build
-ctest --output-on-failure
-```
 
 ## Next Steps
 
