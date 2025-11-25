@@ -20,7 +20,7 @@ void atto_main() {
 
     if (!response) {
       LogError("Test 1 FAILED: No response received");
-      return;
+      Exit(1);
     }
 
     Log("Response:", *response);
@@ -36,7 +36,8 @@ void atto_main() {
     REGISTER_TESTED(AI_getResponseTokensUsed);
     REGISTER_TESTED(AI_getTotalTokensUsed);
 
-    Log("Tokens - Prompt:", promptTokens, "Response:", responseTokens, "Total:", totalTokens);
+    Log("Tokens - Prompt:", promptTokens, "Response:", responseTokens,
+        "Total:", totalTokens);
     ASSERT_TRUE(promptTokens > 0);
     ASSERT_TRUE(responseTokens > 0);
     ASSERT_EQ(totalTokens, promptTokens + responseTokens);
@@ -55,7 +56,7 @@ void atto_main() {
 
     if (!emb) {
       LogError("Test 2 FAILED: No embedding received");
-      return;
+      Exit(1);
     }
 
     int dims = emb->getDimensions();
@@ -81,7 +82,7 @@ void atto_main() {
 
     if (!emb1 || !emb2) {
       LogError("Test 3 FAILED: Could not create embeddings");
-      return;
+      Exit(1);
     }
 
     float similarity = emb1->compare(*emb2);
@@ -107,7 +108,7 @@ void atto_main() {
 
     if (!conv) {
       LogError("Test 4 FAILED: Could not create conversation");
-      return;
+      Exit(1);
     }
 
     String *response = conv->ask(String("First message"));
@@ -116,7 +117,7 @@ void atto_main() {
     if (!response) {
       LogError("Test 4 FAILED: No conversation response");
       delete conv;
-      return;
+      Exit(1);
     }
 
     Log("Conversation response:", *response);
@@ -124,7 +125,7 @@ void atto_main() {
 
     List messages = conv->getConversationList();
     REGISTER_TESTED(Conversation_getConversationList);
-    ASSERT_EQ(messages.length(), 2);  // User message + assistant response
+    ASSERT_EQ(messages.length(), 2); // User message + assistant response
 
     delete response;
     delete conv;
@@ -141,5 +142,5 @@ void atto_main() {
   TestFramework::DisplayCoverage();
 
   // Clean exit
-  ExitProcess(0);
+  Exit(0);
 }

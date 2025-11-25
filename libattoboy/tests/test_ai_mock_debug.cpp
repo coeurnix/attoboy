@@ -17,14 +17,14 @@ void atto_main() {
 
   if (!response) {
     LogError("Test FAILED: No response received");
-    EnableLoggingToConsole();  // Close log file
-    ExitProcess(1);
+    EnableLoggingToConsole(); // Close log file
+    Exit(1);
   }
 
   Log("Response received:", *response);
   delete response;
 
   Log("Test completed successfully");
-  EnableLoggingToConsole();  // Close log file
-  ExitProcess(0);
+  EnableLoggingToConsole(); // Close log file
+  Exit(0);
 }

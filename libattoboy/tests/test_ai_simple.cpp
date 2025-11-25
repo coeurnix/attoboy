@@ -8,7 +8,7 @@ void atto_main() {
   if (apiKey.isEmpty()) {
     LogError("OPENAI_API_KEY not set");
     SaveCoverage("test_ai_simple");
-    return;
+    Exit(1);
   }
 
   String baseUrl = String("https://api.openai.com/v1/");
@@ -32,15 +32,15 @@ void atto_main() {
       LogError("Test 1: FAILED");
       TestFramework::DisplayCoverage();
       SaveCoverage("test_ai_simple");
-      return;
+      Exit(1);
     }
   }
 
   Log("");
   Log("=== Test completed successfully! ===");
   TestFramework::DisplayCoverage();
-  //SaveCoverage("test_ai_simple");  // Temporarily disabled for testing
-  EnableLoggingToConsole();  // Close log file before exit
+  // SaveCoverage("test_ai_simple");  // Temporarily disabled for testing
+  EnableLoggingToConsole(); // Close log file before exit
 
-  ExitProcess(0); // Explicit exit after cleanup
+  Exit(0); // Explicit exit after cleanup
 }

@@ -8,11 +8,11 @@ void atto_main() {
   if (apiKey.isEmpty()) {
     LogError("OPENAI_API_KEY environment variable not set. Skipping tests.");
     SaveCoverage("test_ai_comprehensive");
-    return;
+    Exit(1);
   }
 
   String baseUrl = String("https://api.openai.com/v1/");
-  String chatModel = String("gpt-5-mini-2025-08-07");
+  String chatModel = String("gpt-5-nano-2025-08-07");
   String embeddingModel = String("text-embedding-3-small");
 
   // Test 1: AI constructor and getters
@@ -135,7 +135,7 @@ void atto_main() {
       Log("Test 5: PASSED");
     } else {
       LogError("Test 5: FAILED - No response received");
-      return;
+      Exit(1);
     }
   }
 
@@ -155,7 +155,7 @@ void atto_main() {
       Log("Test 6: PASSED");
     } else {
       LogError("Test 6: FAILED - No response received");
-      return;
+      Exit(1);
     }
   }
 
@@ -169,7 +169,7 @@ void atto_main() {
         ai.ask(String("Tell me a very long story about space exploration."));
     if (!response) {
       LogWarning("Test 7: FAILED - No response received (skipping)");
-      return;
+      Exit(1);
     }
     Log("Response:", *response);
 
@@ -193,7 +193,7 @@ void atto_main() {
     ai.setJsonMode(true);
 
     String *response = ai.ask(String(
-        "Return a JSON object with keys 'name' and 'age' for a fictional "
+        "Exit(1) a JSON object with keys 'name' and 'age' for a fictional "
         "person."));
     if (response) {
       Log("Response:", *response);
@@ -208,7 +208,7 @@ void atto_main() {
       Log("Test 8: PASSED");
     } else {
       LogError("Test 8: FAILED - No response received");
-      return;
+      Exit(1);
     }
   }
 
@@ -234,7 +234,7 @@ void atto_main() {
       Log("Test 9: PASSED");
     } else {
       LogError("Test 9: FAILED - No embedding received");
-      return;
+      Exit(1);
     }
   }
 
@@ -259,7 +259,7 @@ void atto_main() {
       Log("Test 10: PASSED");
     } else {
       LogError("Test 10: FAILED - No embedding received");
-      return;
+      Exit(1);
     }
   }
 
@@ -288,7 +288,7 @@ void atto_main() {
       Log("Test 11: PASSED");
     } else {
       LogError("Test 11: FAILED - Embeddings not created");
-      return;
+      Exit(1);
     }
   }
 
@@ -326,7 +326,7 @@ void atto_main() {
       Log("Test 12: PASSED");
     } else {
       LogError("Test 12: FAILED - Conversation not created");
-      return;
+      Exit(1);
     }
   }
 
@@ -348,7 +348,7 @@ void atto_main() {
       Log("Test 13: PASSED");
     } else {
       LogError("Test 13: FAILED - Conversation not created");
-      return;
+      Exit(1);
     }
   }
 
@@ -384,11 +384,11 @@ void atto_main() {
       } else {
         delete conv;
         LogError("Test 14: FAILED - No response received");
-        return;
+        Exit(1);
       }
     } else {
       LogError("Test 14: FAILED - Conversation not created");
-      return;
+      Exit(1);
     }
   }
 
@@ -406,7 +406,7 @@ void atto_main() {
       } else {
         delete conv;
         LogError("Test 15: FAILED - No response 1 received");
-        return;
+        Exit(1);
       }
 
       String *response2 = conv->ask(String("What is my favorite color?"));
@@ -423,11 +423,11 @@ void atto_main() {
       } else {
         delete conv;
         LogError("Test 15: FAILED - No response 2 received");
-        return;
+        Exit(1);
       }
     } else {
       LogError("Test 15: FAILED - Conversation not created");
-      return;
+      Exit(1);
     }
   }
 
@@ -456,7 +456,7 @@ void atto_main() {
       Log("Test 16: PASSED");
     } else {
       LogError("Test 16: FAILED - Conversation not created");
-      return;
+      Exit(1);
     }
   }
 
@@ -499,21 +499,21 @@ void atto_main() {
             delete conv1;
             LogError("Test 17: FAILED - No response from duplicated "
                      "conversation");
-            return;
+            Exit(1);
           }
         } else {
           delete conv1;
           LogError("Test 17: FAILED - Conversation not duplicated");
-          return;
+          Exit(1);
         }
       } else {
         delete conv1;
         LogError("Test 17: FAILED - No initial response");
-        return;
+        Exit(1);
       }
     } else {
       LogError("Test 17: FAILED - Conversation not created");
-      return;
+      Exit(1);
     }
   }
 
@@ -528,5 +528,5 @@ void atto_main() {
   SaveCoverage("test_ai_comprehensive");
   EnableLoggingToConsole(); // Close log file before exit
 
-  ExitProcess(0); // Explicit exit after cleanup
+  Exit(0); // Explicit exit after cleanup
 }

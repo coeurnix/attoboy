@@ -1,14 +1,14 @@
 #include "test_framework.h"
 
 void atto_main() {
-  EnableLoggingToFile("test_ai_live.log", true);  // Truncate log file
+  EnableLoggingToFile("test_ai_live.log", true); // Truncate log file
   Log("=== Live AI Test (Quick API Verification) ===");
 
   String apiKey = GetEnv(String("OPENAI_API_KEY"));
   if (apiKey.isEmpty()) {
     LogError("OPENAI_API_KEY not set - skipping live test");
     EnableLoggingToConsole();
-    ExitProcess(0);  // Success - just skip if no key
+    Exit(0); // Success - just skip if no key
   }
 
   String baseUrl = String("https://api.openai.com/v1/");
@@ -22,7 +22,7 @@ void atto_main() {
   if (!response) {
     LogError("FAILED: No response from live API");
     EnableLoggingToConsole();
-    ExitProcess(1);
+    Exit(1);
   }
 
   Log("Response:", *response);
@@ -31,11 +31,11 @@ void atto_main() {
     Log("SUCCESS: Live API responded correctly");
     delete response;
     EnableLoggingToConsole();
-    ExitProcess(0);
+    Exit(0);
   } else {
     LogError("FAILED: Response didn't contain 'hello'");
     delete response;
     EnableLoggingToConsole();
-    ExitProcess(1);
+    Exit(1);
   }
 }

@@ -9,7 +9,7 @@ void atto_main() {
   Log("1. Got API key, length:", apiKey.length());
   if (apiKey.isEmpty()) {
     LogError("OPENAI_API_KEY not set");
-    return;
+    Exit(1);
   }
 
   String baseUrl = String("https://api.openai.com/v1/");
@@ -64,7 +64,7 @@ void atto_main() {
 
     Log("17. Calling doPost (timeout 10 seconds)...");
     WebResponse response = request.doPost(requestBody, 10000);
-    Log("18. doPost returned");
+    Log("18. doPost Exit(1)ed");
     Log("19. Response is NOT nullptr");
 
     int statusCode = response.getStatusCode();
@@ -83,7 +83,7 @@ void atto_main() {
 
     if (!succeeded) {
       LogError("25. Request did not succeed");
-      return;
+      Exit(1);
     }
 
     Log("25. Getting JSON...");
@@ -91,7 +91,7 @@ void atto_main() {
 
     if (!jsonResponse) {
       LogError("26. JSON is nullptr!");
-      return;
+      Exit(1);
     }
     Log("26. JSON is NOT nullptr");
 
@@ -109,12 +109,12 @@ void atto_main() {
         String errMsg = errorObj.get<String, String>("message");
         LogError("Error message:", errMsg);
       }
-      return;
+      Exit(1);
     }
 
     if (!jsonResponse->hasKey("choices")) {
       LogError("28. JSON does not have 'choices' key!");
-      return;
+      Exit(1);
     }
     Log("28. JSON has 'choices' key");
 
@@ -123,7 +123,7 @@ void atto_main() {
 
     if (choices.isEmpty()) {
       LogError("30. Choices list is empty!");
-      return;
+      Exit(1);
     }
 
     Map firstChoice = choices.at<Map>(0);
@@ -131,7 +131,7 @@ void atto_main() {
 
     if (!firstChoice.hasKey("message")) {
       LogError("31. First choice does not have 'message' key!");
-      return;
+      Exit(1);
     }
 
     Map message = firstChoice.get<String, Map>("message");
@@ -139,7 +139,7 @@ void atto_main() {
 
     if (!message.hasKey("content")) {
       LogError("32. Message does not have 'content' key!");
-      return;
+      Exit(1);
     }
 
     String content = message.get<String, String>("content");
@@ -150,6 +150,6 @@ void atto_main() {
     Log("Response:", content);
   } // WebResponse destroyed here
 
-  EnableLoggingToConsole();  // Close log file before exit
-  ExitProcess(0); // Explicit exit after cleanup
+  EnableLoggingToConsole(); // Close log file before exit
+  Exit(0);                  // Explicit exit after cleanup
 }

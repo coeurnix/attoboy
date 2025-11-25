@@ -7,7 +7,7 @@ void atto_main() {
   String apiKey = GetEnv(String("OPENAI_API_KEY"));
   if (apiKey.isEmpty()) {
     LogError("OPENAI_API_KEY not set");
-    return;
+    Exit(1);
   }
 
   Log("API Key length:", apiKey.length());
@@ -81,5 +81,5 @@ void atto_main() {
     }
   } // WebResponse destroyed here
 
-  ExitProcess(0); // Explicit exit after cleanup
+  Exit(0); // Explicit exit after cleanup
 }
