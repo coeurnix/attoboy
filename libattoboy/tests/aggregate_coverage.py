@@ -86,6 +86,7 @@ def aggregate_coverage(coverage_dir):
     # Collect all tested functions from all tests
     all_tested = set()
     total_functions = None
+    total_tested_count = 0  # Sum of tested counts from all files
 
     for coverage_file in coverage_files:
         try:
@@ -114,7 +115,10 @@ def aggregate_coverage(coverage_dir):
             elif total_functions != total_count:
                 print(f"WARNING: Inconsistent total count in {coverage_file.name}: {total_count} vs {total_functions}")
 
-            # Parse tested functions
+            # Add to total tested count regardless of function names
+            total_tested_count += tested_count
+
+            # Parse tested functions if available
             if len(parts) > 2 and parts[2]:
                 tested_funcs = parts[2].split(',')
                 all_tested.update(tested_funcs)
@@ -128,11 +132,15 @@ def aggregate_coverage(coverage_dir):
         return 1
 
     # Calculate overall coverage
-    tested_count = len(all_tested)
+    # Use sum of counts if no function names available, otherwise use deduplicated set
+    if all_tested:
+        tested_count = len(all_tested)
+    else:
+        tested_count = total_tested_count
     percentage = (tested_count / total_functions) * 100.0
 
-    # Calculate untested functions
-    untested = sorted(all_functions - all_tested) if all_functions else []
+    # Calculate untested functions (only if we have function names)
+    untested = sorted(all_functions - all_tested) if all_functions and all_tested else []
 
     # Display results
     print()

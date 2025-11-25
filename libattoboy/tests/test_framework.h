@@ -10,28 +10,39 @@
 
 using namespace attoboy;
 
-// Simplified test framework for nostdlib mode
-// Coverage tracking temporarily disabled due to static initialization issues
+// Test framework with dynamic coverage tracking
+// Uses attoboy's Set to avoid static initialization issues in nostdlib mode
 namespace TestFramework {
 
-// Mark a function as tested (no-op in simplified mode)
+static Set *tested_functions = nullptr;
+static int test_count = 0;
+
+// Mark a function as tested
 inline void MarkTested(const ATTO_CHAR *name) {
-  // No-op: coverage tracking disabled in nostdlib mode
+  if (!tested_functions) {
+    tested_functions = new Set();
+  }
+  tested_functions->put(String(name));
 }
 
-// Display coverage (reports N/A in simplified mode)
+// Display coverage
 inline void DisplayCoverage() {
   Log(ATTO_TEXT(""));
   Log(ATTO_TEXT("=== Test Coverage Report ==="));
-  Log(ATTO_TEXT("Coverage: N/A (disabled in nostdlib mode)"));
+  int tested_count = tested_functions ? tested_functions->length() : 0;
+  Log(ATTO_TEXT("Coverage: "), tested_count, ATTO_TEXT(" / "), FUNCTION_COUNT);
   Log(ATTO_TEXT("============================"));
   Log(ATTO_TEXT(""));
 }
 
-// Write coverage data (creates empty file in simplified mode)
+// Write coverage data
 inline void WriteCoverageData(const String &test_name) {
+  int tested_count = tested_functions ? tested_functions->length() : 0;
+
+  String data =
+      String(tested_count, ATTO_TEXT(" "), FUNCTION_COUNT, ATTO_TEXT("\n"));
+
   String filename = String(test_name, ATTO_TEXT("_coverage.txt"));
-  String data = String(ATTO_TEXT("0 "), FUNCTION_COUNT, ATTO_TEXT("\n"));
   Path coverage_path(filename);
   coverage_path.writeFromString(data);
 }
