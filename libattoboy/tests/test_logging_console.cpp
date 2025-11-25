@@ -7,7 +7,7 @@
 
 void atto_main() {
     // Start with file logging to write initial coverage data
-    EnableLoggingToFile(ATTO_TEXT("test_logging_console_setup.log"));
+    EnableLoggingToFile(ATTO_TEXT("test_logging_console_setup.log"), true);
 
     Log(ATTO_TEXT("=== Testing EnableLoggingToConsole Function ==="));
     Log(ATTO_TEXT("Phase 1: File logging"));
@@ -23,7 +23,7 @@ void atto_main() {
     Log(ATTO_TEXT("Phase 2: Console logging - message 3"));
 
     // Switch back to file logging to write results
-    EnableLoggingToFile(ATTO_TEXT("test_logging_console_result.log"));
+    EnableLoggingToFile(ATTO_TEXT("test_logging_console_result.log"), true);
     Log(ATTO_TEXT("Phase 3: Back to file logging"));
     Log(ATTO_TEXT("EnableLoggingToConsole test completed successfully"));
 

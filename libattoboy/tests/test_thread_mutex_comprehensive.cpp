@@ -39,7 +39,7 @@ void* longRunning(void* arg) {
 }
 
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_thread_mutex_comprehensive.log"));
+    EnableLoggingToFile(ATTO_TEXT("test_thread_mutex_comprehensive.log"), true);
     Log(ATTO_TEXT("=== Comprehensive Thread and Mutex Class Tests ==="));
 
     // ========== THREAD TESTS ==========

@@ -1637,43 +1637,50 @@ public:
   WebRequest &operator=(const WebRequest &other);
 
   /// Performs an HTTP GET request.
-  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
+  /// request succeeded. Returns empty WebResponse if already called.
   /// timeout is in milliseconds (-1 for infinite).
-  const WebResponse *doGet(int timeout = -1);
+  WebResponse doGet(int timeout = -1);
 
   /// Performs an HTTP POST request with no body.
-  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
+  /// request succeeded. Returns empty WebResponse if already called.
   /// timeout is in milliseconds (-1 for infinite).
-  const WebResponse *doPost(int timeout = -1);
+  WebResponse doPost(int timeout = -1);
 
   /// Performs an HTTP POST request with a JSON-encoded Map body.
   /// Automatically sets Content-Type to "application/json" if not specified.
-  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
+  /// request succeeded. Returns empty WebResponse if already called.
   /// timeout is in milliseconds (-1 for infinite).
-  const WebResponse *doPost(const Map &map, int timeout = -1);
+  WebResponse doPost(const Map &map, int timeout = -1);
 
   /// Performs an HTTP POST request with a JSON-encoded List body.
   /// Automatically sets Content-Type to "application/json" if not specified.
-  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
+  /// request succeeded. Returns empty WebResponse if already called.
   /// timeout is in milliseconds (-1 for infinite).
-  const WebResponse *doPost(const List &list, int timeout = -1);
+  WebResponse doPost(const List &list, int timeout = -1);
 
   /// Performs an HTTP POST request with a Buffer body.
-  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
+  /// request succeeded. Returns empty WebResponse if already called.
   /// timeout is in milliseconds (-1 for infinite).
-  const WebResponse *doPost(const Buffer &buf, int timeout = -1);
+  WebResponse doPost(const Buffer &buf, int timeout = -1);
 
   /// Performs an HTTP POST request with a String body.
-  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
+  /// request succeeded. Returns empty WebResponse if already called.
   /// timeout is in milliseconds (-1 for infinite).
-  const WebResponse *doPost(const String &str, int timeout = -1);
+  WebResponse doPost(const String &str, int timeout = -1);
 
   /// Performs an HTTP request with the specified method and Buffer body.
   /// This is a catch-all for PUT, PATCH, DELETE, etc.
-  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
+  /// request succeeded. Returns empty WebResponse if already called.
   /// timeout is in milliseconds (-1 for infinite).
-  const WebResponse *doRequest(const String &method, const Buffer &buf,
-                                int timeout = -1);
+  WebResponse doRequest(const String &method, const Buffer &buf,
+                        int timeout = -1);
 
   /// Returns the URL for this request.
   String getUrl() const;
@@ -1750,8 +1757,9 @@ public:
   /// Continues the conversation with a new user prompt.
   /// Automatically includes the entire conversation history in the API call.
   /// Updates token usage for this conversation.
+  /// timeout: Request timeout in milliseconds (-1 for infinite, default).
   /// Returns the assistant's response, or nullptr on error.
-  String *ask(const String &prompt);
+  String *ask(const String &prompt, int timeout = -1);
 
   /// Returns a copy of the conversation history as a List of Strings.
   /// Even indices (0, 2, 4...) are user prompts.
@@ -1862,14 +1870,16 @@ public:
   /// Sends a single chat completion request with the given prompt.
   /// Includes the system prompt if set.
   /// Updates token usage counters.
+  /// timeout: Request timeout in milliseconds (-1 for infinite, default).
   /// Returns the assistant's response, or nullptr on error.
-  String *ask(const String &prompt);
+  String *ask(const String &prompt, int timeout = -1);
 
   /// Creates an embedding vector for the given text.
   /// If dimensions is -1, uses the model's default dimensionality.
   /// Updates token usage counters.
+  /// timeout: Request timeout in milliseconds (-1 for infinite, default).
   /// Returns an Embedding object, or nullptr on error.
-  Embedding *createEmbedding(const String &str, int dimensions = -1);
+  Embedding *createEmbedding(const String &str, int dimensions = -1, int timeout = -1);
 
   /// Creates a new Conversation with this AI's configuration.
   /// The Conversation maintains its own message history and token counters.
@@ -2078,9 +2088,10 @@ int GetProcessId();
 // Logging configuration functions
 
 /// Enables logging to a file at the specified path.
-/// File logging appends to the file and flushes after each log call.
+/// By default, appends to existing file. Set truncate=true to overwrite.
+/// File logging flushes after each log call.
 /// Mutually exclusive with EnableLoggingToConsole().
-void EnableLoggingToFile(const String &path);
+void EnableLoggingToFile(const String &path, bool truncate = false);
 
 /// Enables logging to the console (default behavior).
 /// Mutually exclusive with EnableLoggingToFile().

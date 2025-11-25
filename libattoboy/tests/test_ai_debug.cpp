@@ -59,28 +59,27 @@ void atto_main() {
     String requestJson = requestBody.toJSONString();
     Log("Request JSON:", requestJson);
 
-    WebRequest req(url, nullptr, &headers);
-    const WebResponse *resp = req.doPost(requestBody, -1);
+    {
+      WebRequest req(url, nullptr, &headers);
+      WebResponse resp = req.doPost(requestBody, -1);
 
-    if (resp) {
       Log("WebResponse received");
-      Log("Status code:", resp->getStatusCode());
-      Log("Status reason:", resp->getStatusReason());
-      Log("Succeeded:", resp->succeeded() ? "true" : "false");
+      Log("Status code:", resp.getStatusCode());
+      Log("Status reason:", resp.getStatusReason());
+      Log("Succeeded:", resp.succeeded() ? "true" : "false");
 
-      String respBody = resp->asString();
+      String respBody = resp.asString();
       Log("Response body:", respBody);
 
-      const Map *jsonResp = resp->asJson();
+      const Map *jsonResp = resp.asJson();
       if (jsonResp) {
         Log("JSON parsed successfully");
         Log("JSON keys:", jsonResp->keys().length());
       } else {
         LogError("JSON parsing failed");
       }
-    } else {
-      LogError("WebResponse is nullptr");
     }
-  }
-  Exit(0);
+  } // WebResponse destroyed here
+
+  ExitProcess(0); // Explicit exit after cleanup
 }

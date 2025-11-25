@@ -1,7 +1,7 @@
 #include "test_framework.h"
 
 void atto_main() {
-  EnableLoggingToFile("test_webrequest_basic.log");
+  EnableLoggingToFile("test_webrequest_basic.log", true);
   Log("Testing WebRequest basic functionality");
 
   // Test constructor and getters (no network calls)

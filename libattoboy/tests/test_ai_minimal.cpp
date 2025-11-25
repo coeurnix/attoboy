@@ -36,27 +36,26 @@ void atto_main() {
   Log(requestBody.toJSONString());
 
   Log("Creating WebRequest...");
-  WebRequest req(url, nullptr, &headers);
+  {
+    WebRequest req(url, nullptr, &headers);
 
-  Log("Calling doPost (timeout 10 seconds)...");
-  const WebResponse *resp = req.doPost(requestBody, 10000);
+    Log("Calling doPost (timeout 10 seconds)...");
+    WebResponse resp = req.doPost(requestBody, 10000);
 
-  if (resp) {
     Log("Response received!");
-    Log("Status code:", resp->getStatusCode());
-    Log("Succeeded:", resp->succeeded() ? "true" : "false");
+    Log("Status code:", resp.getStatusCode());
+    Log("Succeeded:", resp.succeeded() ? "true" : "false");
 
-    if (resp->succeeded()) {
-      String body = resp->asString();
+    if (resp.succeeded()) {
+      String body = resp.asString();
       Log("Body length:", body.length());
       Log("Body:", body);
     } else {
       Log("Request failed");
-      String body = resp->asString();
+      String body = resp.asString();
       Log("Error body:", body);
     }
-  } else {
-    LogError("No response received (nullptr)");
-  }
-  Exit(0);
+  } // WebResponse destroyed here
+
+  ExitProcess(0); // Explicit exit after cleanup
 }

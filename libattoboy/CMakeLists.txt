@@ -186,6 +186,11 @@ if(ATTO_BUILD_TESTS)
         else()
             # Standard CTest: run executable directly
             add_test(NAME ${test_name} COMMAND ${test_name})
+
+            # Label tests that require live API access
+            if(test_name MATCHES "^test_(ai|webrequest)_(comprehensive|simple|verbose|minimal|live)$")
+                set_tests_properties(${test_name} PROPERTIES LABELS "live_api")
+            endif()
         endif()
     endforeach()
 
@@ -194,13 +199,25 @@ if(ATTO_BUILD_TESTS)
     # Add custom 'coverage' target that runs CTest and shows aggregated coverage
     if(PYTHON_EXECUTABLE)
         add_custom_target(coverage
-            COMMAND ${CMAKE_CTEST_COMMAND} --build-config Release --output-on-failure
+            COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_tests_with_mock.py"
+                ${CMAKE_CTEST_COMMAND} --build-config Release --output-on-failure --label-exclude live_api
             COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/aggregate_coverage.py" "${CMAKE_BINARY_DIR}/libattoboy"
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            COMMENT "Running tests and aggregating coverage..."
+            COMMENT "Running tests with mock server (excluding live API tests) and aggregating coverage..."
+            USES_TERMINAL
+        )
+        add_custom_target(coverage_live
+            COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_tests_with_mock.py"
+                ${CMAKE_CTEST_COMMAND} --build-config Release --output-on-failure
+            COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/aggregate_coverage.py" "${CMAKE_BINARY_DIR}/libattoboy"
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMENT "Running ALL tests with mock server (including live API) and aggregating coverage..."
             USES_TERMINAL
         )
         message(STATUS "Custom 'coverage' target enabled - use 'cmake --build build --target coverage'")
+        message(STATUS "  (Automatically starts/stops mock server for AI/WebRequest tests)")
+        message(STATUS "Custom 'coverage_live' target for live API tests - use 'cmake --build build --target coverage_live'")
+        message(STATUS "  (Requires OPENAI_API_KEY environment variable)")
     else()
         message(STATUS "Python not found - coverage aggregation will be skipped")
     endif()

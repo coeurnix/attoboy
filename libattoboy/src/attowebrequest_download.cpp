@@ -12,16 +12,13 @@ bool WebRequest::Download(const String &url, const String &savePath,
     return false;
 
   WebRequest req(url, params, headers);
-  const WebResponse *resp = req.doGet(timeout);
+  WebResponse resp = req.doGet(timeout);
 
-  if (!resp || !resp->succeeded()) {
-    if (resp)
-      delete resp;
+  if (!resp.succeeded()) {
     return false;
   }
 
-  Buffer data = resp->asBuffer();
-  delete resp;
+  Buffer data = resp.asBuffer();
 
   bool success = filePath.writeFromBuffer(data);
   return success;

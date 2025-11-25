@@ -1,7 +1,7 @@
 #include "test_framework.h"
 
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_registry_comprehensive.log"));
+    EnableLoggingToFile(ATTO_TEXT("test_registry_comprehensive.log"), true);
     Log(ATTO_TEXT("=== Comprehensive Registry Class Tests ==="));
 
     // Use a test key under HKEY_CURRENT_USER for safety

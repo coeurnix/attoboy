@@ -1,7 +1,7 @@
 #include "test_framework.h"
 
 void atto_main() {
-  EnableLoggingToFile("test_utf8.log");
+  EnableLoggingToFile("test_utf8.log", true);
   Log("=== Comprehensive UTF-8 Support Tests ===");
 
   // ========== BASIC UTF-8 STRING TESTS ==========

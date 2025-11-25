@@ -1,7 +1,7 @@
 #include "test_framework.h"
 
 void atto_main() {
-  EnableLoggingToFile("test_webrequest_comprehensive.log");
+  EnableLoggingToFile("test_webrequest_comprehensive.log", true);
   Log("=== Comprehensive WebRequest and WebResponse Tests ===");
 
   // Test 1: Basic WebRequest construction
@@ -53,65 +53,64 @@ void atto_main() {
   {
     Log("Test 3: HTTP GET request");
     WebRequest req(String("http://example.com"));
-    const WebResponse *resp = req.doGet(10000);
+    WebResponse resp = req.doGet(10000);
     REGISTER_TESTED(WebRequest_doGet);
 
-    if (resp) {
+    if (resp.succeeded()) {
       Log("GET request succeeded");
 
       // Test response methods
-      int statusCode = resp->getStatusCode();
+      int statusCode = resp.getStatusCode();
       REGISTER_TESTED(WebResponse_getStatusCode);
       Log("Status code:", statusCode);
       ASSERT_TRUE(statusCode == 200 || statusCode == 301);
 
-      String statusReason = resp->getStatusReason();
+      String statusReason = resp.getStatusReason();
       REGISTER_TESTED(WebResponse_getStatusReason);
       ASSERT_FALSE(statusReason.isEmpty());
       Log("Status reason:", statusReason);
 
-      bool succeeded = resp->succeeded();
+      bool succeeded = resp.succeeded();
       REGISTER_TESTED(WebResponse_succeeded);
       Log("Succeeded:", succeeded ? "true" : "false");
 
-      String respUrl = resp->getUrl();
+      String respUrl = resp.getUrl();
       REGISTER_TESTED(WebResponse_getUrl);
       ASSERT_TRUE(respUrl.contains(String("example.com")));
       Log("Response URL:", respUrl);
 
-      Map respHeaders = resp->getResponseHeaders();
+      Map respHeaders = resp.getResponseHeaders();
       REGISTER_TESTED(WebResponse_getResponseHeaders);
       ASSERT_FALSE(respHeaders.isEmpty());
       Log("Response headers count:", respHeaders.length());
 
-      String body = resp->asString();
+      String body = resp.asString();
       REGISTER_TESTED(WebResponse_asString);
       Log("Body byte length:", body.byteLength());
       ASSERT_TRUE(body.byteLength() > 0);
 
-      Buffer bodyBuf = resp->asBuffer();
+      Buffer bodyBuf = resp.asBuffer();
       REGISTER_TESTED(WebResponse_asBuffer);
       ASSERT_TRUE(bodyBuf.length() > 0);
 
       // asJson returns nullptr for HTML, but test the method exists
-      const Map *jsonData = resp->asJson();
+      const Map *jsonData = resp.asJson();
       REGISTER_TESTED(WebResponse_asJson);
       (void)jsonData; // May be null for HTML
 
       // Test copy and assignment
-      WebResponse respCopy = *resp;
+      WebResponse respCopy = resp;
       REGISTER_TESTED(WebResponse_constructor_copy);
 
-      WebResponse respCopy2 = *resp;
+      WebResponse respCopy2 = resp;
       respCopy2 = respCopy;
       REGISTER_TESTED(WebResponse_operator_assign);
 
-      delete resp;
       REGISTER_TESTED(WebResponse_destructor);
 
       Log("Test 3: PASSED");
     } else {
-      Log("WARNING: GET request returned nullptr (network issue?)");
+      Log("WARNING: GET request did not succeed (network issue?)");
       // Still register as tested even if network failed
       REGISTER_TESTED(WebResponse_getStatusCode);
       REGISTER_TESTED(WebResponse_getStatusReason);

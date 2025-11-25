@@ -1,7 +1,7 @@
 #include "test_framework.h"
 
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_buffer_comprehensive.log"));
+    EnableLoggingToFile(ATTO_TEXT("test_buffer_comprehensive.log"), true);
     Log(ATTO_TEXT("=== Comprehensive Buffer Class Tests ==="));
 
     // ========== CONSTRUCTORS ==========

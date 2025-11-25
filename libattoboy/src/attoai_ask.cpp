@@ -3,7 +3,7 @@
 
 namespace attoboy {
 
-String *AI::ask(const String &prompt) {
+String *AI::ask(const String &prompt, int timeout) {
   if (!impl)
     return nullptr;
 
@@ -49,7 +49,7 @@ String *AI::ask(const String &prompt) {
   requestBody.put("messages", messages);
 
   if (maxTokens > 0) {
-    requestBody.put("max_tokens", maxTokens);
+    requestBody.put("max_completion_tokens", maxTokens);
   }
 
   if (jsonMode) {
@@ -59,13 +59,13 @@ String *AI::ask(const String &prompt) {
   }
 
   WebRequest request(url, nullptr, &headers);
-  const WebResponse *response = request.doPost(requestBody, -1);
+  WebResponse response = request.doPost(requestBody, timeout);
 
-  if (!response || !response->succeeded()) {
+  if (!response.succeeded()) {
     return nullptr;
   }
 
-  const Map *jsonResponse = response->asJson();
+  const Map *jsonResponse = response.asJson();
   if (!jsonResponse) {
     return nullptr;
   }

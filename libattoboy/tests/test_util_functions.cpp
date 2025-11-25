@@ -2,7 +2,7 @@
 
 void atto_main() {
     // Enable file logging for reliable output capture
-    EnableLoggingToFile(ATTO_TEXT("test_util_functions.log"));
+    EnableLoggingToFile(ATTO_TEXT("test_util_functions.log"), true);
 
     Log(ATTO_TEXT("=== Running Utility Functions Tests ==="));
 

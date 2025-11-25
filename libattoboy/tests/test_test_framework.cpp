@@ -2,7 +2,7 @@
 
 void atto_main() {
     // Enable file logging for reliable output capture
-    EnableLoggingToFile(ATTO_TEXT("test_test_framework.log"));
+    EnableLoggingToFile(ATTO_TEXT("test_test_framework.log"), true);
 
     Log(ATTO_TEXT("=== Running Test Framework Validation ==="));
 

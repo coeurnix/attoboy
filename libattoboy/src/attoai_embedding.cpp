@@ -3,7 +3,7 @@
 
 namespace attoboy {
 
-Embedding *AI::createEmbedding(const String &str, int dimensions) {
+Embedding *AI::createEmbedding(const String &str, int dimensions, int timeout) {
   if (!impl)
     return nullptr;
 
@@ -31,13 +31,13 @@ Embedding *AI::createEmbedding(const String &str, int dimensions) {
   }
 
   WebRequest request(url, nullptr, &headers);
-  const WebResponse *response = request.doPost(requestBody, -1);
+  WebResponse response = request.doPost(requestBody, timeout);
 
-  if (!response || !response->succeeded()) {
+  if (!response.succeeded()) {
     return nullptr;
   }
 
-  const Map *jsonResponse = response->asJson();
+  const Map *jsonResponse = response.asJson();
   if (!jsonResponse) {
     return nullptr;
   }
@@ -75,8 +75,9 @@ Embedding *AI::createEmbedding(const String &str, int dimensions) {
   EmbeddingImpl *embImpl =
       (EmbeddingImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(EmbeddingImpl));
-  if (!embImpl)
+  if (!embImpl) {
     return nullptr;
+  }
 
   InitializeSRWLock(&embImpl->lock);
   embImpl->refCount = 1;

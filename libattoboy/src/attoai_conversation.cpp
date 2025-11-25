@@ -63,7 +63,7 @@ Conversation &Conversation::operator=(const Conversation &other) {
   return *this;
 }
 
-String *Conversation::ask(const String &prompt) {
+String *Conversation::ask(const String &prompt, int timeout) {
   if (!impl || !impl->ai)
     return nullptr;
 
@@ -118,7 +118,7 @@ String *Conversation::ask(const String &prompt) {
   }
 
   if (maxTokens > 0) {
-    requestBody.put("max_tokens", maxTokens);
+    requestBody.put("max_completion_tokens", maxTokens);
   }
 
   if (jsonMode) {
@@ -132,13 +132,13 @@ String *Conversation::ask(const String &prompt) {
   headers.put("Content-Type", "application/json");
 
   WebRequest request(url, nullptr, &headers);
-  const WebResponse *response = request.doPost(requestBody, -1);
+  WebResponse response = request.doPost(requestBody, timeout);
 
-  if (!response || !response->succeeded()) {
+  if (!response.succeeded()) {
     return nullptr;
   }
 
-  const Map *jsonResponse = response->asJson();
+  const Map *jsonResponse = response.asJson();
   if (!jsonResponse) {
     return nullptr;
   }

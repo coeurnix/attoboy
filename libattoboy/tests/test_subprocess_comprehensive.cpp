@@ -1,7 +1,7 @@
 #include "test_framework.h"
 
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_subprocess_comprehensive.log"));
+    EnableLoggingToFile(ATTO_TEXT("test_subprocess_comprehensive.log"), true);
     Log(ATTO_TEXT("=== Comprehensive Subprocess Class Tests ==="));
 
     // We'll use cmd.exe /c echo for testing since it's available on Windows

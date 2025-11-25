@@ -1,7 +1,7 @@
 #include "test_framework.h"
 
 void atto_main() {
-  EnableLoggingToFile("test_webrequest_simple.log");
+  EnableLoggingToFile("test_webrequest_simple.log", true);
   Log("Testing WebRequest basic construction");
 
   Log("Creating simple WebRequest");

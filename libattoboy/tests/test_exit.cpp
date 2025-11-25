@@ -6,7 +6,7 @@
 
 void atto_main() {
     // Enable file logging
-    EnableLoggingToFile(ATTO_TEXT("test_exit.log"));
+    EnableLoggingToFile(ATTO_TEXT("test_exit.log"), true);
 
     Log(ATTO_TEXT("=== Testing Exit Function ==="));
     Log(ATTO_TEXT("This test will exit with code 42"));

@@ -1,7 +1,7 @@
 #include "test_framework.h"
 
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_file_comprehensive.log"));
+    EnableLoggingToFile(ATTO_TEXT("test_file_comprehensive.log"), true);
     Log(ATTO_TEXT("=== Comprehensive File Class Tests ==="));
 
     // Test file paths

@@ -229,53 +229,53 @@ PerformRequest(WebRequestImpl *reqImpl, const WCHAR *method,
   return respImpl;
 }
 
-const WebResponse *WebRequest::doGet(int timeout) {
+WebResponse WebRequest::doGet(int timeout) {
   if (!impl)
-    return nullptr;
+    return WebResponse();
 
   WriteLockGuard lock(&impl->lock);
   if (impl->hasCompleted)
-    return nullptr;
+    return WebResponse();
 
   impl->response = PerformRequest(impl, L"GET", nullptr, 0, timeout);
   impl->hasCompleted = true;
 
   if (!impl->response)
-    return nullptr;
+    return WebResponse();
 
-  WebResponse *resp = new WebResponse();
-  resp->impl = impl->response;
+  WebResponse resp;
+  resp.impl = impl->response;
   InterlockedIncrement(&impl->response->refCount);
   return resp;
 }
 
-const WebResponse *WebRequest::doPost(int timeout) {
+WebResponse WebRequest::doPost(int timeout) {
   if (!impl)
-    return nullptr;
+    return WebResponse();
 
   WriteLockGuard lock(&impl->lock);
   if (impl->hasCompleted)
-    return nullptr;
+    return WebResponse();
 
   impl->response = PerformRequest(impl, L"POST", nullptr, 0, timeout);
   impl->hasCompleted = true;
 
   if (!impl->response)
-    return nullptr;
+    return WebResponse();
 
-  WebResponse *resp = new WebResponse();
-  resp->impl = impl->response;
+  WebResponse resp;
+  resp.impl = impl->response;
   InterlockedIncrement(&impl->response->refCount);
   return resp;
 }
 
-const WebResponse *WebRequest::doPost(const Map &map, int timeout) {
+WebResponse WebRequest::doPost(const Map &map, int timeout) {
   if (!impl)
-    return nullptr;
+    return WebResponse();
 
   WriteLockGuard lock(&impl->lock);
   if (impl->hasCompleted)
-    return nullptr;
+    return WebResponse();
 
   if (!impl->headers->hasKey<String>(String("Content-Type"))) {
     impl->headers->put(String("Content-Type"), String("application/json"));
@@ -290,21 +290,21 @@ const WebResponse *WebRequest::doPost(const Map &map, int timeout) {
   impl->hasCompleted = true;
 
   if (!impl->response)
-    return nullptr;
+    return WebResponse();
 
-  WebResponse *resp = new WebResponse();
-  resp->impl = impl->response;
+  WebResponse resp;
+  resp.impl = impl->response;
   InterlockedIncrement(&impl->response->refCount);
   return resp;
 }
 
-const WebResponse *WebRequest::doPost(const List &list, int timeout) {
+WebResponse WebRequest::doPost(const List &list, int timeout) {
   if (!impl)
-    return nullptr;
+    return WebResponse();
 
   WriteLockGuard lock(&impl->lock);
   if (impl->hasCompleted)
-    return nullptr;
+    return WebResponse();
 
   if (!impl->headers->hasKey<String>(String("Content-Type"))) {
     impl->headers->put(String("Content-Type"), String("application/json"));
@@ -319,21 +319,21 @@ const WebResponse *WebRequest::doPost(const List &list, int timeout) {
   impl->hasCompleted = true;
 
   if (!impl->response)
-    return nullptr;
+    return WebResponse();
 
-  WebResponse *resp = new WebResponse();
-  resp->impl = impl->response;
+  WebResponse resp;
+  resp.impl = impl->response;
   InterlockedIncrement(&impl->response->refCount);
   return resp;
 }
 
-const WebResponse *WebRequest::doPost(const Buffer &buf, int timeout) {
+WebResponse WebRequest::doPost(const Buffer &buf, int timeout) {
   if (!impl)
-    return nullptr;
+    return WebResponse();
 
   WriteLockGuard lock(&impl->lock);
   if (impl->hasCompleted)
-    return nullptr;
+    return WebResponse();
 
   int len = 0;
   const unsigned char *data = buf.c_ptr(&len);
@@ -343,21 +343,21 @@ const WebResponse *WebRequest::doPost(const Buffer &buf, int timeout) {
   impl->hasCompleted = true;
 
   if (!impl->response)
-    return nullptr;
+    return WebResponse();
 
-  WebResponse *resp = new WebResponse();
-  resp->impl = impl->response;
+  WebResponse resp;
+  resp.impl = impl->response;
   InterlockedIncrement(&impl->response->refCount);
   return resp;
 }
 
-const WebResponse *WebRequest::doPost(const String &str, int timeout) {
+WebResponse WebRequest::doPost(const String &str, int timeout) {
   if (!impl)
-    return nullptr;
+    return WebResponse();
 
   WriteLockGuard lock(&impl->lock);
   if (impl->hasCompleted)
-    return nullptr;
+    return WebResponse();
 
   const char *data = str.c_str();
   int len = str.byteLength();
@@ -367,26 +367,26 @@ const WebResponse *WebRequest::doPost(const String &str, int timeout) {
   impl->hasCompleted = true;
 
   if (!impl->response)
-    return nullptr;
+    return WebResponse();
 
-  WebResponse *resp = new WebResponse();
-  resp->impl = impl->response;
+  WebResponse resp;
+  resp.impl = impl->response;
   InterlockedIncrement(&impl->response->refCount);
   return resp;
 }
 
-const WebResponse *WebRequest::doRequest(const String &method,
-                                         const Buffer &buf, int timeout) {
+WebResponse WebRequest::doRequest(const String &method,
+                                  const Buffer &buf, int timeout) {
   if (!impl)
-    return nullptr;
+    return WebResponse();
 
   WriteLockGuard lock(&impl->lock);
   if (impl->hasCompleted)
-    return nullptr;
+    return WebResponse();
 
   WCHAR *methodWide = Utf8ToWide(method.c_str());
   if (!methodWide)
-    return nullptr;
+    return WebResponse();
 
   int len = 0;
   const unsigned char *data = buf.c_ptr(&len);
@@ -397,10 +397,10 @@ const WebResponse *WebRequest::doRequest(const String &method,
   FreeConvertedString(methodWide);
 
   if (!impl->response)
-    return nullptr;
+    return WebResponse();
 
-  WebResponse *resp = new WebResponse();
-  resp->impl = impl->response;
+  WebResponse resp;
+  resp.impl = impl->response;
   InterlockedIncrement(&impl->response->refCount);
   return resp;
 }
