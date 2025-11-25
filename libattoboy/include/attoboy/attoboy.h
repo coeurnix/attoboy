@@ -39,12 +39,18 @@ class SubprocessImpl;
 class RegistryImpl;
 class WebRequestImpl;
 class WebResponseImpl;
+class AIImpl;
+class EmbeddingImpl;
+class ConversationImpl;
 
 // Forward declarations
 class List;
 class Map;
 class Set;
 class WebResponse;
+class AI;
+class Embedding;
+class Conversation;
 
 /// Immutable string class with batteries-included functionality.
 class String {
@@ -1694,6 +1700,184 @@ public:
 
 private:
   WebRequestImpl *impl;
+};
+
+/// Embedding vector for semantic similarity comparisons.
+class Embedding {
+  friend class AI;
+
+public:
+  /// Copies another Embedding (shares the same underlying data).
+  Embedding(const Embedding &other);
+
+  /// Destroys the Embedding and releases resources.
+  ~Embedding();
+
+  /// Assigns another Embedding to this Embedding.
+  Embedding &operator=(const Embedding &other);
+
+  /// Compares this embedding with another using cosine similarity.
+  /// Returns a value between -1.0 and 1.0, where 1.0 indicates identical
+  /// embeddings. Caches the magnitude calculation for subsequent comparisons.
+  float compare(const Embedding &other) const;
+
+  /// Returns a pointer to the raw float array containing the embedding values.
+  /// The array has getDimensions() elements and is owned by the Embedding.
+  const float *getRawArray() const;
+
+  /// Returns the number of dimensions in this embedding.
+  int getDimensions() const;
+
+private:
+  EmbeddingImpl *impl;
+  Embedding();
+};
+
+/// Conversational AI context that maintains message history.
+class Conversation {
+  friend class AI;
+
+public:
+  /// Copies another Conversation (shares the same underlying conversation).
+  Conversation(const Conversation &other);
+
+  /// Destroys the Conversation and releases resources.
+  ~Conversation();
+
+  /// Assigns another Conversation to this Conversation.
+  Conversation &operator=(const Conversation &other);
+
+  /// Continues the conversation with a new user prompt.
+  /// Automatically includes the entire conversation history in the API call.
+  /// Updates token usage for this conversation.
+  /// Returns the assistant's response, or nullptr on error.
+  String *ask(const String &prompt);
+
+  /// Returns a copy of the conversation history as a List of Strings.
+  /// Even indices (0, 2, 4...) are user prompts.
+  /// Odd indices (1, 3, 5...) are assistant responses.
+  List getConversationList() const;
+
+  /// Replaces the conversation history with a new List of Strings.
+  /// Even indices should be user prompts, odd indices should be responses.
+  /// Resets token usage counters for this conversation.
+  /// Returns true on success.
+  bool setConversationList(const List &list);
+
+  /// Creates a copy of this Conversation with the same message history.
+  /// Allows branching a conversation to explore different paths.
+  /// Returns a new Conversation, or nullptr on error.
+  Conversation *duplicate() const;
+
+  /// Returns a copy of the AI instance managing this conversation.
+  /// Returns a new AI object, or nullptr on error.
+  const AI *getAI() const;
+
+  /// Returns the number of prompt tokens used by this conversation.
+  int getPromptTokensUsed() const;
+
+  /// Returns the number of response tokens used by this conversation.
+  int getResponseTokensUsed() const;
+
+  /// Returns the total tokens (prompt + response) used by this conversation.
+  int getTotalTokensUsed() const;
+
+private:
+  ConversationImpl *impl;
+  Conversation();
+};
+
+/// AI client for OpenAI-compatible chat completion and embedding APIs.
+class AI {
+  friend class Conversation;
+
+public:
+  /// Creates an AI client with the specified configuration.
+  /// The baseUrl should point to an OpenAI-compatible API endpoint.
+  /// The apiKey is used for authentication with the Bearer token scheme.
+  /// The model specifies which AI model to use for requests.
+  AI(const String &baseUrl, const String &apiKey, const String &model);
+
+  /// Copies another AI (shares the same underlying configuration).
+  AI(const AI &other);
+
+  /// Destroys the AI and releases resources.
+  ~AI();
+
+  /// Assigns another AI to this AI.
+  AI &operator=(const AI &other);
+
+  /// Sets the model to use for API requests.
+  /// Returns a reference to this AI for chaining.
+  AI &setModel(const String &model);
+
+  /// Sets the system prompt for chat completions.
+  /// Pass nullptr to clear the system prompt.
+  /// Returns a reference to this AI for chaining.
+  AI &setSystemPrompt(const String *prompt);
+
+  /// Sets the maximum tokens for chat completion responses.
+  /// Pass -1 to disable the limit and use the model's default.
+  /// Returns a reference to this AI for chaining.
+  AI &setMaxTokens(int max = -1);
+
+  /// Enables or disables JSON response mode.
+  /// When enabled, the API is instructed to return JSON-formatted responses.
+  /// The response is still returned as a String that needs parsing.
+  /// Returns a reference to this AI for chaining.
+  AI &setJsonMode(bool isJsonMode = false);
+
+  /// Returns the current model name.
+  String getModel() const;
+
+  /// Returns the current system prompt, or nullptr if not set.
+  /// Caller must delete the returned String.
+  const String *getSystemPrompt() const;
+
+  /// Returns the base URL for API requests.
+  String getBaseUrl() const;
+
+  /// Returns the API key.
+  String getAPIKey() const;
+
+  /// Returns the cumulative number of prompt tokens used.
+  /// This counter persists across multiple requests until reset.
+  int getPromptTokensUsed() const;
+
+  /// Returns the cumulative number of response tokens used.
+  /// This counter persists across multiple requests until reset.
+  int getResponseTokensUsed() const;
+
+  /// Returns the cumulative total tokens (prompt + response) used.
+  /// This counter persists across multiple requests until reset.
+  int getTotalTokensUsed() const;
+
+  /// Resets all token usage counters to zero.
+  void resetTokenTracking();
+
+  /// Returns the finish reason from the last API call.
+  /// Common values: "stop" (normal completion), "length" (max tokens reached).
+  String getFinishReason() const;
+
+  /// Sends a single chat completion request with the given prompt.
+  /// Includes the system prompt if set.
+  /// Updates token usage counters.
+  /// Returns the assistant's response, or nullptr on error.
+  String *ask(const String &prompt);
+
+  /// Creates an embedding vector for the given text.
+  /// If dimensions is -1, uses the model's default dimensionality.
+  /// Updates token usage counters.
+  /// Returns an Embedding object, or nullptr on error.
+  Embedding *createEmbedding(const String &str, int dimensions = -1);
+
+  /// Creates a new Conversation with this AI's configuration.
+  /// The Conversation maintains its own message history and token counters.
+  /// Returns a Conversation object, or nullptr on error.
+  Conversation *createConversation();
+
+private:
+  AIImpl *impl;
 };
 
 /// Mathematical functions and constants.

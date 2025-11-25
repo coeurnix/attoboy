@@ -425,9 +425,46 @@
   X(WebRequest_getParams)                                                      \
   X(WebRequest_getHeaders)                                                     \
   X(WebRequest_hasCompleted)                                                   \
-  X(WebRequest_Download)
+  X(WebRequest_Download)                                                       \
+  X(AI_constructor)                                                            \
+  X(AI_constructor_copy)                                                       \
+  X(AI_destructor)                                                             \
+  X(AI_operator_assign)                                                        \
+  X(AI_setModel)                                                               \
+  X(AI_setSystemPrompt)                                                        \
+  X(AI_setMaxTokens)                                                           \
+  X(AI_setJsonMode)                                                            \
+  X(AI_getModel)                                                               \
+  X(AI_getSystemPrompt)                                                        \
+  X(AI_getBaseUrl)                                                             \
+  X(AI_getAPIKey)                                                              \
+  X(AI_getPromptTokensUsed)                                                    \
+  X(AI_getResponseTokensUsed)                                                  \
+  X(AI_getTotalTokensUsed)                                                     \
+  X(AI_resetTokenTracking)                                                     \
+  X(AI_getFinishReason)                                                        \
+  X(AI_ask)                                                                    \
+  X(AI_createEmbedding)                                                        \
+  X(AI_createConversation)                                                     \
+  X(Embedding_constructor_copy)                                                \
+  X(Embedding_destructor)                                                      \
+  X(Embedding_operator_assign)                                                 \
+  X(Embedding_compare)                                                         \
+  X(Embedding_getRawArray)                                                     \
+  X(Embedding_getDimensions)                                                   \
+  X(Conversation_constructor_copy)                                             \
+  X(Conversation_destructor)                                                   \
+  X(Conversation_operator_assign)                                              \
+  X(Conversation_ask)                                                          \
+  X(Conversation_getConversationList)                                          \
+  X(Conversation_setConversationList)                                          \
+  X(Conversation_duplicate)                                                    \
+  X(Conversation_getAI)                                                        \
+  X(Conversation_getPromptTokensUsed)                                          \
+  X(Conversation_getResponseTokensUsed)                                        \
+  X(Conversation_getTotalTokensUsed)
 
 // Count of all registered functions
-#define FUNCTION_COUNT 421
+#define FUNCTION_COUNT 460
 
 #endif // TEST_FUNCTIONS_H
