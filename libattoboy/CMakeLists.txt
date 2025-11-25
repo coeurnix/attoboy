@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(attoboy VERSION 0.0.2 LANGUAGES C CXX)
+project(attoboy VERSION 0.0.3 LANGUAGES C CXX)
 
 # ------------------------------------------------------------------------------
 # Build Options
@@ -38,6 +38,7 @@ if(MSVC)
     string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     string(REPLACE "/EHa"  "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     add_compile_options(
+        /utf-8            # Source files are UTF-8 encoded
         /O1               # Optimize for size (minimize space)
         /Ob2              # Inline expansion level 2 (any suitable)
         /Os               # Favor small code
@@ -60,12 +61,14 @@ if(MSVC)
         /DEBUG:NONE        # Do not generate debug info (reduces binary size)
     )
     
-    set(SYSTEM_LIBS kernel32.lib ws2_32.lib advapi32.lib crypt32.lib secur32.lib shell32.lib winhttp.lib)
+    set(SYSTEM_LIBS kernel32.lib user32.lib ws2_32.lib advapi32.lib crypt32.lib secur32.lib shell32.lib winhttp.lib)
 
 else()
     # GCC/Clang Compiler Options
     add_compile_options(
         -m32                              # Generate 32-bit x86 code
+        -finput-charset=UTF-8             # Source files are UTF-8 encoded
+        -fexec-charset=UTF-8              # String literals are UTF-8 encoded
         -Os                               # Optimize for size (balance of -O2 with size focus)
         -ffunction-sections               # Place each function in its own section (enables --gc-sections)
         -fdata-sections                   # Place each data item in its own section (enables --gc-sections)
@@ -83,9 +86,10 @@ else()
         -nostdlib                    # Do not use standard system startup files or libraries
         -Wl,--entry=_atto_main       # Set entry point to atto_main (bypasses CRT startup)
         -Wl,--defsym,main=_atto_main # makes "main()" still work
+        -Wl,--stack,8388608          # Set stack size to 8MB (default is very small with nostdlib)
     )
 
-    set(SYSTEM_LIBS -lkernel32 -lws2_32 -ladvapi32 -lcrypt32 -lsecur32 -lshell32 -lwinhttp)
+    set(SYSTEM_LIBS -lkernel32 -luser32 -lws2_32 -ladvapi32 -lcrypt32 -lsecur32 -lshell32 -lwinhttp)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -154,6 +158,9 @@ if(ATTO_BUILD_TESTS)
 
         # Build the executable
         add_executable(${test_name} ${test_src})
+        if(NOT MSVC)
+            target_compile_options(${test_name} PRIVATE -fno-exceptions -fno-rtti)
+        endif()
         target_link_libraries(${test_name} PRIVATE attoboy ${SYSTEM_LIBS})
         target_include_directories(${test_name} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
         set_target_properties(${test_name} PROPERTIES
@@ -199,6 +206,7 @@ if(ATTO_BUILD_TESTS)
     # Add custom 'coverage' target that runs CTest and shows aggregated coverage
     if(PYTHON_EXECUTABLE)
         add_custom_target(coverage
+            COMMAND ${PYTHON_EXECUTABLE} -c "import pathlib; [f.unlink() for f in pathlib.Path('${CMAKE_BINARY_DIR}/libattoboy').glob('*_coverage.txt')]"
             COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_tests_with_mock.py"
                 ${CMAKE_CTEST_COMMAND} --build-config Release --output-on-failure --label-exclude live_api
             COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/aggregate_coverage.py" "${CMAKE_BINARY_DIR}/libattoboy"
@@ -207,6 +215,7 @@ if(ATTO_BUILD_TESTS)
             USES_TERMINAL
         )
         add_custom_target(coverage_live
+            COMMAND ${PYTHON_EXECUTABLE} -c "import pathlib; [f.unlink() for f in pathlib.Path('${CMAKE_BINARY_DIR}/libattoboy').glob('*_coverage.txt')]"
             COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_tests_with_mock.py"
                 ${CMAKE_CTEST_COMMAND} --build-config Release --output-on-failure
             COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/aggregate_coverage.py" "${CMAKE_BINARY_DIR}/libattoboy"

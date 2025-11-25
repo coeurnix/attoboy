@@ -354,51 +354,45 @@
   X(Registry_setInt)                                                           \
   X(Registry_deleteValue)                                                      \
   X(Registry_subKeys)                                                          \
+  X(Math_random)                                                               \
+  X(Math_randomFloat)                                                          \
+  X(Math_randomRange)                                                          \
+  X(Math_randomBool)                                                           \
+  X(Math_randomChoice)                                                         \
   X(Math_abs)                                                                  \
   X(Math_min)                                                                  \
   X(Math_max)                                                                  \
   X(Math_clamp)                                                                \
   X(Math_sign)                                                                 \
+  X(Math_isEven)                                                               \
+  X(Math_isOdd)                                                                \
+  X(Math_isPowerOfTwo)                                                         \
   X(Math_floor)                                                                \
   X(Math_ceil)                                                                 \
-  X(Math_round)                                                                \
   X(Math_trunc)                                                                \
-  X(Math_frac)                                                                 \
-  X(Math_mod)                                                                  \
-  X(Math_sqrt)                                                                 \
-  X(Math_pow)                                                                  \
-  X(Math_exp)                                                                  \
+  X(Math_round)                                                                \
+  X(Math_exp2)                                                                 \
+  X(Math_log2)                                                                 \
   X(Math_log)                                                                  \
   X(Math_log10)                                                                \
-  X(Math_log2)                                                                 \
+  X(Math_exp)                                                                  \
+  X(Math_pow)                                                                  \
+  X(Math_pow2)                                                                 \
+  X(Math_sqrt)                                                                 \
   X(Math_sin)                                                                  \
   X(Math_cos)                                                                  \
   X(Math_tan)                                                                  \
-  X(Math_asin)                                                                 \
-  X(Math_acos)                                                                 \
-  X(Math_atan)                                                                 \
   X(Math_atan2)                                                                \
-  X(Math_sinh)                                                                 \
+  X(Math_atan)                                                                 \
+  X(Math_asin)                                                                 \
   X(Math_cosh)                                                                 \
-  X(Math_tanh)                                                                 \
-  X(Math_radians)                                                              \
-  X(Math_degrees)                                                              \
+  X(Math_mod)                                                                  \
   X(Math_lerp)                                                                 \
-  X(Math_smoothstep)                                                           \
-  X(Math_map)                                                                  \
-  X(Math_distance)                                                             \
-  X(Math_distance3)                                                            \
-  X(Math_randomSeed)                                                           \
-  X(Math_random)                                                               \
-  X(Math_randomRange)                                                          \
-  X(Math_randomChoice)                                                         \
-  X(Math_isPrime)                                                              \
-  X(Math_gcd)                                                                  \
-  X(Math_lcm)                                                                  \
-  X(Math_factorial)                                                            \
-  X(Math_fibonacci)                                                            \
-  X(Math_combinations)                                                         \
-  X(Math_permutations)                                                         \
+  X(Math_step)                                                                 \
+  X(Math_degToRad)                                                             \
+  X(Math_radToDeg)                                                             \
+  X(Math_isFinite)                                                             \
+  X(Math_isNaN)                                                                \
   X(WebResponse_constructor_copy)                                              \
   X(WebResponse_destructor)                                                    \
   X(WebResponse_operator_assign)                                               \
@@ -465,6 +459,6 @@
   X(Conversation_getTotalTokensUsed)
 
 // Count of all registered functions
-#define FUNCTION_COUNT 460
+#define FUNCTION_COUNT 452
 
 #endif // TEST_FUNCTIONS_H

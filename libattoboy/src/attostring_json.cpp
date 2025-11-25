@@ -155,7 +155,8 @@ String::String(const List &list) {
     int len = json.impl->len;
     impl->data = AllocString(len);
     if (impl->data) {
-      lstrcpyA(impl->data, json.impl->data);
+      memcpy(impl->data, json.impl->data, len);
+      impl->data[len] = '\0';
       impl->len = len;
     } else {
       impl->data = AllocString(0);
@@ -179,7 +180,8 @@ String::String(const Map &map) {
     int len = json.impl->len;
     impl->data = AllocString(len);
     if (impl->data) {
-      lstrcpyA(impl->data, json.impl->data);
+      memcpy(impl->data, json.impl->data, len);
+      impl->data[len] = '\0';
       impl->len = len;
     } else {
       impl->data = AllocString(0);
@@ -204,7 +206,8 @@ String::String(const Set &set) {
     int len = json.impl->len;
     impl->data = AllocString(len);
     if (impl->data) {
-      lstrcpyA(impl->data, json.impl->data);
+      memcpy(impl->data, json.impl->data, len);
+      impl->data[len] = '\0';
       impl->len = len;
     } else {
       impl->data = AllocString(0);

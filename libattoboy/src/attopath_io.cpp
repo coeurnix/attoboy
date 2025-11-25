@@ -10,7 +10,7 @@ String Path::readToString() const {
 
   ReadLockGuard guard(&impl->lock);
 
-  HANDLE hFile = CreateFile(impl->pathStr, GENERIC_READ, FILE_SHARE_READ, nullptr,
+  HANDLE hFile = CreateFileA(impl->pathStr, GENERIC_READ, FILE_SHARE_READ, nullptr,
                             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
     return String();
@@ -56,7 +56,7 @@ Buffer Path::readToBuffer() const {
 
   ReadLockGuard guard(&impl->lock);
 
-  HANDLE hFile = CreateFile(impl->pathStr, GENERIC_READ, FILE_SHARE_READ, nullptr,
+  HANDLE hFile = CreateFileA(impl->pathStr, GENERIC_READ, FILE_SHARE_READ, nullptr,
                             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
     return Buffer();
@@ -94,7 +94,7 @@ bool Path::writeFromString(const String &str) const {
 
   ReadLockGuard guard(&impl->lock);
 
-  HANDLE hFile = CreateFile(impl->pathStr, GENERIC_WRITE, 0, nullptr,
+  HANDLE hFile = CreateFileA(impl->pathStr, GENERIC_WRITE, 0, nullptr,
                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
     return false;
@@ -118,7 +118,7 @@ bool Path::writeFromBuffer(const Buffer &buf) const {
 
   ReadLockGuard guard(&impl->lock);
 
-  HANDLE hFile = CreateFile(impl->pathStr, GENERIC_WRITE, 0, nullptr,
+  HANDLE hFile = CreateFileA(impl->pathStr, GENERIC_WRITE, 0, nullptr,
                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
     return false;
@@ -145,7 +145,7 @@ bool Path::appendFromString(const String &str) const {
 
   ReadLockGuard guard(&impl->lock);
 
-  HANDLE hFile = CreateFile(impl->pathStr, FILE_APPEND_DATA, 0, nullptr,
+  HANDLE hFile = CreateFileA(impl->pathStr, FILE_APPEND_DATA, 0, nullptr,
                             OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
     return false;
@@ -169,7 +169,7 @@ bool Path::appendFromBuffer(const Buffer &buf) const {
 
   ReadLockGuard guard(&impl->lock);
 
-  HANDLE hFile = CreateFile(impl->pathStr, FILE_APPEND_DATA, 0, nullptr,
+  HANDLE hFile = CreateFileA(impl->pathStr, FILE_APPEND_DATA, 0, nullptr,
                             OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
   if (hFile == INVALID_HANDLE_VALUE)
     return false;

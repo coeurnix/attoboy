@@ -10,9 +10,18 @@ static bool g_logToFile = false;
 static String GetCurrentDatetimeString() {
   SYSTEMTIME st;
   GetLocalTime(&st);
-  ATTO_WCHAR buf[32];
-  wsprintfA(buf, "%02d:%02d:%02d", st.wHour, st.wMinute, st.wSecond);
-  return String(static_cast<const ATTO_CHAR *>(buf));
+  char buf[32];
+  char *p = buf;
+  *p++ = '0' + (st.wHour / 10);
+  *p++ = '0' + (st.wHour % 10);
+  *p++ = ':';
+  *p++ = '0' + (st.wMinute / 10);
+  *p++ = '0' + (st.wMinute % 10);
+  *p++ = ':';
+  *p++ = '0' + (st.wSecond / 10);
+  *p++ = '0' + (st.wSecond % 10);
+  *p = '\0';
+  return String(buf);
 }
 
 static void PrintString(const String &s) {
@@ -43,7 +52,7 @@ void EnableLoggingToFile(const String &path, bool truncate) {
   }
 
   DWORD creationDisposition = truncate ? CREATE_ALWAYS : OPEN_ALWAYS;
-  g_logFileHandle = CreateFile(path.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
+  g_logFileHandle = CreateFileA(path.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
                                 nullptr, creationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (g_logFileHandle != INVALID_HANDLE_VALUE) {

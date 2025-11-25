@@ -11,14 +11,15 @@ from pathlib import Path
 
 def read_all_functions(tests_dir):
     """
-    Read all function names from test_functions.h
+    Read all function names from test_functions.h and verify FUNCTION_COUNT
     """
     test_functions_h = Path(tests_dir) / "test_functions.h"
     if not test_functions_h.exists():
-        return set()
+        return set(), None
 
     all_funcs = []
     in_macro = False
+    function_count = None
 
     with open(test_functions_h, 'r', encoding='utf-8') as f:
         for line in f:
@@ -36,9 +37,16 @@ def read_all_functions(tests_dir):
 
                 # Check if we've reached the end (no backslash continuation)
                 if line and not line.endswith('\\'):
-                    break
+                    in_macro = False
+                continue
 
-    return set(all_funcs)
+            # Look for FUNCTION_COUNT definition
+            if line.startswith('#define FUNCTION_COUNT'):
+                match = re.match(r'#define FUNCTION_COUNT\s+(\d+)', line)
+                if match:
+                    function_count = int(match.group(1))
+
+    return set(all_funcs), function_count
 
 def aggregate_coverage(coverage_dir):
     """
@@ -59,8 +67,21 @@ def aggregate_coverage(coverage_dir):
     if not tests_dir.exists():
         # Try relative to coverage_dir
         tests_dir = Path(coverage_dir).parent.parent / "libattoboy" / "tests"
+    if not tests_dir.exists():
+        # Try from build directory
+        tests_dir = Path("..") / "libattoboy" / "tests"
 
-    all_functions = read_all_functions(tests_dir)
+    all_functions, expected_count = read_all_functions(tests_dir)
+
+    # Sanity check: verify FUNCTION_COUNT matches actual function count
+    if expected_count is not None and len(all_functions) != expected_count:
+        print(f"ERROR: FUNCTION_COUNT mismatch in test_functions.h!")
+        print(f"  FUNCTION_COUNT = {expected_count}")
+        print(f"  Actual functions defined = {len(all_functions)}")
+        print(f"  Difference = {len(all_functions) - expected_count}")
+        print()
+        print("Please update FUNCTION_COUNT in test_functions.h to match the actual number of functions.")
+        return 1
 
     # Collect all tested functions from all tests
     all_tested = set()

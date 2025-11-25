@@ -94,7 +94,7 @@ bool Path::isRegularFile() const {
     return false;
 
   if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
-    HANDLE hFile = CreateFile(impl->pathStr, 0, FILE_SHARE_READ, nullptr,
+    HANDLE hFile = CreateFileA(impl->pathStr, 0, FILE_SHARE_READ, nullptr,
                               OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
     if (hFile == INVALID_HANDLE_VALUE)
       return false;
@@ -159,7 +159,7 @@ bool Path::isSymbolicLink() const {
     return false;
 
   HANDLE hFile =
-      CreateFile(impl->pathStr, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+      CreateFileA(impl->pathStr, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
                  OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
                  nullptr);
   if (hFile == INVALID_HANDLE_VALUE)

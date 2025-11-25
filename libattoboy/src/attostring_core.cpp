@@ -69,7 +69,8 @@ String::String(const String &other) {
       int len = other.impl->len;
       impl->data = AllocString(len);
       if (impl->data) {
-        lstrcpyA(impl->data, other.impl->data);
+        memcpy(impl->data, other.impl->data, len);
+        impl->data[len] = '\0';
         impl->len = len;
       } else {
         impl->len = 0;
@@ -105,7 +106,8 @@ String &String::operator=(const String &other) {
       int len = other.impl->len;
       impl->data = AllocString(len);
       if (impl->data) {
-        lstrcpyA(impl->data, other.impl->data);
+        memcpy(impl->data, other.impl->data, len);
+        impl->data[len] = '\0';
         impl->len = len;
       } else {
         impl->data = AllocString(0);

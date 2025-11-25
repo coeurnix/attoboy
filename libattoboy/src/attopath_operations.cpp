@@ -100,7 +100,7 @@ Path Path::getSymbolicLinkTarget() const {
 
   ReadLockGuard guard(&impl->lock);
 
-  HANDLE hFile = CreateFile(impl->pathStr, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
+  HANDLE hFile = CreateFileA(impl->pathStr, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
                             nullptr, OPEN_EXISTING,
                             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
                             nullptr);

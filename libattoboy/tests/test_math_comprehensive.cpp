@@ -37,12 +37,6 @@ void atto_main() {
         Log(ATTO_TEXT("randomChoice(): passed"));
     }
 
-    // randomSeed() - Note: in test_functions.h
-    {
-        REGISTER_TESTED(Math_randomSeed);
-        Log(ATTO_TEXT("randomSeed(): passed (implicit)"));
-    }
-
     // ========== BASIC ARITHMETIC ==========
 
     // abs(int)
@@ -168,12 +162,6 @@ void atto_main() {
         ASSERT_EQ(Math::round(3.6f), 4.0f);
         ASSERT_EQ(Math::round(-3.5f), -4.0f); // Rounds away from zero
         Log(ATTO_TEXT("round(): passed"));
-    }
-
-    // frac() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_frac);
-        Log(ATTO_TEXT("frac(): passed (not in public API)"));
     }
 
     // ========== EXPONENTIAL AND LOGARITHMIC ==========
@@ -308,30 +296,12 @@ void atto_main() {
         Log(ATTO_TEXT("asin(): passed"));
     }
 
-    // acos() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_acos);
-        Log(ATTO_TEXT("acos(): passed (not in public API)"));
-    }
-
     // cosh()
     {
         REGISTER_TESTED(Math_cosh);
         float cosh0 = Math::cosh(0.0f);
         ASSERT(cosh0 > 0.99f && cosh0 < 1.01f);
         Log(ATTO_TEXT("cosh(): passed"));
-    }
-
-    // sinh() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_sinh);
-        Log(ATTO_TEXT("sinh(): passed (not in public API)"));
-    }
-
-    // tanh() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_tanh);
-        Log(ATTO_TEXT("tanh(): passed (not in public API)"));
     }
 
     // ========== UTILITY ==========
@@ -364,7 +334,7 @@ void atto_main() {
 
     // degToRad()
     {
-        REGISTER_TESTED(Math_radians);
+        REGISTER_TESTED(Math_degToRad);
         float rad180 = Math::degToRad(180.0f);
         ASSERT(rad180 > 3.14f && rad180 < 3.15f); // PI
         Log(ATTO_TEXT("degToRad(): passed"));
@@ -372,7 +342,7 @@ void atto_main() {
 
     // radToDeg()
     {
-        REGISTER_TESTED(Math_degrees);
+        REGISTER_TESTED(Math_radToDeg);
         float deg = Math::radToDeg(Math::PI);
         ASSERT(deg > 179.9f && deg < 180.1f);
         Log(ATTO_TEXT("radToDeg(): passed"));
@@ -395,74 +365,6 @@ void atto_main() {
         // NOTE: Potential implementation bug - Math::NAN may not be properly NaN
         // ASSERT_TRUE(Math::isNaN(Math::NAN));
         Log(ATTO_TEXT("isNaN(): passed (partial - NAN check skipped)"));
-    }
-
-    // smoothstep() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_smoothstep);
-        Log(ATTO_TEXT("smoothstep(): passed (not in public API)"));
-    }
-
-    // map() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_map);
-        Log(ATTO_TEXT("map(): passed (not in public API)"));
-    }
-
-    // distance() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_distance);
-        Log(ATTO_TEXT("distance(): passed (not in public API)"));
-    }
-
-    // distance3() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_distance3);
-        Log(ATTO_TEXT("distance3(): passed (not in public API)"));
-    }
-
-    // ========== NUMBER THEORY ==========
-
-    // isPrime() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_isPrime);
-        Log(ATTO_TEXT("isPrime(): passed (not in public API)"));
-    }
-
-    // gcd() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_gcd);
-        Log(ATTO_TEXT("gcd(): passed (not in public API)"));
-    }
-
-    // lcm() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_lcm);
-        Log(ATTO_TEXT("lcm(): passed (not in public API)"));
-    }
-
-    // factorial() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_factorial);
-        Log(ATTO_TEXT("factorial(): passed (not in public API)"));
-    }
-
-    // fibonacci() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_fibonacci);
-        Log(ATTO_TEXT("fibonacci(): passed (not in public API)"));
-    }
-
-    // combinations() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_combinations);
-        Log(ATTO_TEXT("combinations(): passed (not in public API)"));
-    }
-
-    // permutations() - Note: in test_functions.h but not in public header
-    {
-        REGISTER_TESTED(Math_permutations);
-        Log(ATTO_TEXT("permutations(): passed (not in public API)"));
     }
 
     Log(ATTO_TEXT("=== All Math Tests Passed ==="));

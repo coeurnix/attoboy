@@ -4,116 +4,34 @@
 #include "test_functions.h"
 #include <attoboy/attoboy.h>
 
-
-#include <stdio.h>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #undef GetUserName // Avoid conflict with attoboy::GetUserName
 
 using namespace attoboy;
 
-// Global tracking of tested functions
+// Simplified test framework for nostdlib mode
+// Coverage tracking temporarily disabled due to static initialization issues
 namespace TestFramework {
-struct FunctionRegistry {
-  const ATTO_CHAR *name;
-  bool tested;
-};
 
-// Initialize registry with all functions
-static FunctionRegistry g_functions[FUNCTION_COUNT] = {
-#define X(name) {ATTO_TEXT(#name), false},
-    REGISTER_ALL_FUNCTIONS
-#undef X
-};
-
-// Mark a function as tested
+// Mark a function as tested (no-op in simplified mode)
 inline void MarkTested(const ATTO_CHAR *name) {
-  for (int i = 0; i < FUNCTION_COUNT; ++i) {
-    // Simple string comparison
-    const ATTO_CHAR *a = g_functions[i].name;
-    const ATTO_CHAR *b = name;
-    bool match = true;
-    while (*a && *b) {
-      if (*a != *b) {
-        match = false;
-        break;
-      }
-      ++a;
-      ++b;
-    }
-    if (match && *a == *b) {
-      g_functions[i].tested = true;
-      return;
-    }
-  }
+  // No-op: coverage tracking disabled in nostdlib mode
 }
 
-// Calculate and display coverage
+// Display coverage (reports N/A in simplified mode)
 inline void DisplayCoverage() {
-  int tested_count = 0;
-  List untested;
-
-  for (int i = 0; i < FUNCTION_COUNT; ++i) {
-    if (g_functions[i].tested) {
-      tested_count++;
-    } else {
-      untested.append(String(g_functions[i].name));
-    }
-  }
-
-  float percentage =
-      (static_cast<float>(tested_count) / FUNCTION_COUNT) * 100.0f;
-
   Log(ATTO_TEXT(""));
   Log(ATTO_TEXT("=== Test Coverage Report ==="));
-  String coverage_msg(ATTO_TEXT("Coverage: "), tested_count, ATTO_TEXT("/"),
-                      FUNCTION_COUNT, ATTO_TEXT(" functions ("), percentage,
-                      ATTO_TEXT("%)"));
-  Log(coverage_msg);
-
-  if (untested.length() > 0) {
-    String untested_list = ATTO_TEXT(" - Untested: ");
-    for (int i = 0; i < untested.length(); ++i) {
-      untested_list = untested_list + untested.at<String>(i);
-      if (i < untested.length() - 1) {
-        untested_list = untested_list + String(ATTO_TEXT(", "));
-      }
-    }
-    Log(untested_list);
-  } else {
-    Log(ATTO_TEXT(" - All functions tested!"));
-  }
+  Log(ATTO_TEXT("Coverage: N/A (disabled in nostdlib mode)"));
   Log(ATTO_TEXT("============================"));
   Log(ATTO_TEXT(""));
 }
 
-// Write coverage data in machine-readable format for aggregation
+// Write coverage data (creates empty file in simplified mode)
 inline void WriteCoverageData(const String &test_name) {
-  // Build list of tested functions
-  List tested_funcs;
-  for (int i = 0; i < FUNCTION_COUNT; ++i) {
-    if (g_functions[i].tested) {
-      tested_funcs.append(String(g_functions[i].name));
-    }
-  }
-
-  // Create coverage data file
   String filename = String(test_name, ATTO_TEXT("_coverage.txt"));
-
-  // Format: TESTED_COUNT TOTAL_COUNT function1,function2,function3
-  String data = String(tested_funcs.length(), ATTO_TEXT(" "), FUNCTION_COUNT);
-  if (tested_funcs.length() > 0) {
-    data = data + String(ATTO_TEXT(" "));
-    for (int i = 0; i < tested_funcs.length(); ++i) {
-      data = data + tested_funcs.at<String>(i);
-      if (i < tested_funcs.length() - 1) {
-        data = data + String(ATTO_TEXT(","));
-      }
-    }
-  }
-  data = data + String(ATTO_TEXT("\n"));
-
-  // Write coverage file - now with automatic flushing
+  String data = String(ATTO_TEXT("0 "), FUNCTION_COUNT, ATTO_TEXT("\n"));
   Path coverage_path(filename);
   coverage_path.writeFromString(data);
 }
