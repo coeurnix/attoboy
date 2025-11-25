@@ -37,11 +37,14 @@ class PathImpl;
 class FileImpl;
 class SubprocessImpl;
 class RegistryImpl;
+class WebRequestImpl;
+class WebResponseImpl;
 
 // Forward declarations
 class List;
 class Map;
 class Set;
+class WebResponse;
 
 /// Immutable string class with batteries-included functionality.
 class String {
@@ -1560,6 +1563,137 @@ public:
 
 private:
   RegistryImpl *impl;
+};
+
+/// HTTP response from a web request.
+class WebResponse {
+  friend class WebRequest;
+
+public:
+  /// Copies another WebResponse (shares the same underlying response).
+  WebResponse(const WebResponse &other);
+
+  /// Destroys the WebResponse and releases resources.
+  ~WebResponse();
+
+  /// Assigns another WebResponse to this WebResponse.
+  WebResponse &operator=(const WebResponse &other);
+
+  /// Returns true if the HTTP status code is in the 200-299 range.
+  bool succeeded() const;
+
+  /// Returns the final URL after any redirects.
+  String getUrl() const;
+
+  /// Returns the HTTP status code (e.g., 200, 404, 500).
+  int getStatusCode() const;
+
+  /// Returns the HTTP status reason phrase (e.g., "OK", "Not Found").
+  String getStatusReason() const;
+
+  /// Returns a map of response headers.
+  /// Header names are keys, header values are the map values.
+  Map getResponseHeaders() const;
+
+  /// Parses the response body as JSON and returns a Map.
+  /// Returns nullptr if the response is not a JSON object.
+  /// JSON arrays or other types will return nullptr.
+  const Map *asJson() const;
+
+  /// Returns the response body as a String.
+  String asString() const;
+
+  /// Returns the response body as a Buffer.
+  Buffer asBuffer() const;
+
+private:
+  WebResponseImpl *impl;
+
+  WebResponse();
+};
+
+/// HTTP request builder for making web requests using WinHTTP.
+class WebRequest {
+public:
+  /// Creates a web request with the specified URL.
+  /// Optional params are appended as query string parameters.
+  /// Optional headers are sent with the request.
+  WebRequest(const String &url, const Map *params = nullptr,
+             const Map *headers = nullptr);
+
+  /// Copies another WebRequest (shares the same underlying request).
+  WebRequest(const WebRequest &other);
+
+  /// Destroys the WebRequest and releases resources.
+  ~WebRequest();
+
+  /// Assigns another WebRequest to this WebRequest.
+  WebRequest &operator=(const WebRequest &other);
+
+  /// Performs an HTTP GET request.
+  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// timeout is in milliseconds (-1 for infinite).
+  const WebResponse *doGet(int timeout = -1);
+
+  /// Performs an HTTP POST request with no body.
+  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// timeout is in milliseconds (-1 for infinite).
+  const WebResponse *doPost(int timeout = -1);
+
+  /// Performs an HTTP POST request with a JSON-encoded Map body.
+  /// Automatically sets Content-Type to "application/json" if not specified.
+  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// timeout is in milliseconds (-1 for infinite).
+  const WebResponse *doPost(const Map &map, int timeout = -1);
+
+  /// Performs an HTTP POST request with a JSON-encoded List body.
+  /// Automatically sets Content-Type to "application/json" if not specified.
+  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// timeout is in milliseconds (-1 for infinite).
+  const WebResponse *doPost(const List &list, int timeout = -1);
+
+  /// Performs an HTTP POST request with a Buffer body.
+  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// timeout is in milliseconds (-1 for infinite).
+  const WebResponse *doPost(const Buffer &buf, int timeout = -1);
+
+  /// Performs an HTTP POST request with a String body.
+  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// timeout is in milliseconds (-1 for infinite).
+  const WebResponse *doPost(const String &str, int timeout = -1);
+
+  /// Performs an HTTP request with the specified method and Buffer body.
+  /// This is a catch-all for PUT, PATCH, DELETE, etc.
+  /// Returns a WebResponse, or nullptr if a request has already been made.
+  /// timeout is in milliseconds (-1 for infinite).
+  const WebResponse *doRequest(const String &method, const Buffer &buf,
+                                int timeout = -1);
+
+  /// Returns the URL for this request.
+  String getUrl() const;
+
+  /// Returns the query parameters map.
+  /// Returns an empty map if no parameters were specified.
+  Map getParams() const;
+
+  /// Returns the headers map.
+  /// Returns an empty map if no headers were specified.
+  Map getHeaders() const;
+
+  /// Returns true if a request has been completed.
+  /// A request can only be made once per WebRequest instance.
+  bool hasCompleted() const;
+
+  /// Downloads a file from the specified URL to the local filesystem.
+  /// Returns true if successful, false on error.
+  /// If overwrite is false, fails if the file already exists.
+  /// timeout is in milliseconds (-1 for infinite).
+  static bool Download(const String &url, const String &savePath,
+                       const Map *params = nullptr, const Map *headers = nullptr,
+                       bool overwrite = true, int timeout = -1);
+
+private:
+  WebRequestImpl *impl;
 };
 
 /// Mathematical functions and constants.

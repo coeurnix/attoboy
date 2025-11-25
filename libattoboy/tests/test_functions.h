@@ -398,9 +398,36 @@
   X(Math_factorial)                                                            \
   X(Math_fibonacci)                                                            \
   X(Math_combinations)                                                         \
-  X(Math_permutations)
+  X(Math_permutations)                                                         \
+  X(WebResponse_constructor_copy)                                              \
+  X(WebResponse_destructor)                                                    \
+  X(WebResponse_operator_assign)                                               \
+  X(WebResponse_succeeded)                                                     \
+  X(WebResponse_getUrl)                                                        \
+  X(WebResponse_getStatusCode)                                                 \
+  X(WebResponse_getStatusReason)                                               \
+  X(WebResponse_getResponseHeaders)                                            \
+  X(WebResponse_asJson)                                                        \
+  X(WebResponse_asString)                                                      \
+  X(WebResponse_asBuffer)                                                      \
+  X(WebRequest_constructor)                                                    \
+  X(WebRequest_constructor_copy)                                               \
+  X(WebRequest_destructor)                                                     \
+  X(WebRequest_operator_assign)                                                \
+  X(WebRequest_doGet)                                                          \
+  X(WebRequest_doPost_empty)                                                   \
+  X(WebRequest_doPost_map)                                                     \
+  X(WebRequest_doPost_list)                                                    \
+  X(WebRequest_doPost_buffer)                                                  \
+  X(WebRequest_doPost_string)                                                  \
+  X(WebRequest_doRequest)                                                      \
+  X(WebRequest_getUrl)                                                         \
+  X(WebRequest_getParams)                                                      \
+  X(WebRequest_getHeaders)                                                     \
+  X(WebRequest_hasCompleted)                                                   \
+  X(WebRequest_Download)
 
 // Count of all registered functions
-#define FUNCTION_COUNT 394
+#define FUNCTION_COUNT 421
 
 #endif // TEST_FUNCTIONS_H
