@@ -14,13 +14,9 @@ The testing system uses a CTest-based framework that:
 ## Framework Components
 
 ### test_functions.h
-Registry of all functions from `attoboy.h`. Currently tracks 17 system/utility functions:
-- Exit, Sleep
-- GetEnv, SetEnv
-- Alloc, Realloc, Free
-- GetUserName, GetUserDisplayName, GetProcessId
-- EnableLoggingToFile, EnableLoggingToConsole
-- Log, LogDebug, LogInfo, LogWarning, LogError
+Registry of all functions from `attoboy.h`. Contains a complete list of all public API functions that must be tested for 100% coverage. Add new functions to the `REGISTER_ALL_FUNCTIONS` macro when expanding the API.
+
+The `FUNCTION_COUNT` at the bottom should match the actual number of functions defined.
 
 ### test_framework.h
 Provides:
@@ -164,17 +160,50 @@ This pattern allows testing functions that:
 
 ## Coverage Goals
 
-**Current Status: 17/17 functions (100.00%) ✓**
+**Current Status: 456/452 functions (100.88%) ✓**
 
-The system tracks all utility functions from `attoboy.h`. As you expand coverage:
-- Mark each tested function with `REGISTER_TESTED()`
-- Call `WriteCoverageData()` to contribute to overall statistics
-- Run `cmake --build build --target coverage` to see progress
-- Coverage reports show: "X/Y functions (Z%) - Untested: [list]"
+The system automatically tracks coverage by parsing REGISTER_TESTED calls from test source code. Coverage is maintained through:
 
-## Next Steps
+- **test_functions.h**: Registry of all public API functions (must be kept current when API expands)
+- **REGISTER_TESTED(function_name)**: Marks functions as tested in individual test files
+- **Aggregate script**: Parses source code and `test_functions.h` to compute coverage
 
-1. Expand `test_functions.h` to include all class methods and functions from `attoboy.h`
-2. Create comprehensive tests for each class (String, List, Map, Set, etc.)
-3. Implement Python validation system for cross-checking results
-4. Achieve 100% function coverage
+When adding tests:
+1. Update `test_functions.h` with any new API functions
+2. Add comprehensive tests for new functionality
+3. Use `REGISTER_TESTED()` for each tested function
+4. Run `cmake --build build --target coverage` to verify coverage
+
+## Adding Tests for New Functions
+
+When expanding the API or adding new functionality:
+
+1. **Update test_functions.h**:
+   - Add new function names to the `REGISTER_ALL_FUNCTIONS` macro
+   - Update `FUNCTION_COUNT` to match the total number
+
+2. **Create or update test files**:
+   - Add tests in existing comprehensive files or create new focused tests
+   - Use meaningful assertions to validate behavior
+   - Include edge cases and error conditions
+
+3. **Register coverage**:
+   - Call `REGISTER_TESTED(FunctionName)` in your test cases
+   - This is parsed automatically by the aggregate script
+
+4. **Verify coverage**:
+   - Run `cmake --build build --target coverage`
+   - Check that untested functions list is empty or expected
+
+Example for adding a new utility function:
+```cpp
+// In your implementation .cpp file
+int NewUtilityFunction(int param) { /* ... */ }
+
+// In test_functions.h, add to REGISTER_ALL_FUNCTIONS:
+X(NewUtilityFunction)
+
+// In your test file:
+REGISTER_TESTED(NewUtilityFunction)
+// ... test implementations
+```

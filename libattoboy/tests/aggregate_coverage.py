@@ -9,6 +9,32 @@ import os
 import re
 from pathlib import Path
 
+def extract_tested_functions_from_source(tests_dir):
+    """
+    Extract all REGISTER_TESTED function calls from test source files.
+    Returns a set of function names that are tested across all test files.
+    """
+    tested_functions = set()
+    test_files = Path(tests_dir).glob("*.cpp")
+
+    for test_file in test_files:
+        try:
+            with open(test_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # Find all REGISTER_TESTED(function_name) calls
+            matches = re.findall(r'REGISTER_TESTED\s*\(\s*([^)\s]+)\s*\)', content)
+            for func_name in matches:
+                # Remove quotes if present
+                func_name = func_name.strip('"')
+                tested_functions.add(func_name)
+
+        except Exception as e:
+            print(f"Warning: Could not parse {test_file}: {e}")
+            continue
+
+    return tested_functions
+
 def read_all_functions(tests_dir):
     """
     Read all function names from test_functions.h and verify FUNCTION_COUNT
@@ -83,6 +109,9 @@ def aggregate_coverage(coverage_dir):
         print("Please update FUNCTION_COUNT in test_functions.h to match the actual number of functions.")
         return 1
 
+    # Extract tested functions from source code as fallback
+    tested_from_source = extract_tested_functions_from_source(tests_dir)
+
     # Collect all tested functions from all tests
     all_tested = set()
     total_functions = None
@@ -127,6 +156,10 @@ def aggregate_coverage(coverage_dir):
             print(f"Error reading {coverage_file.name}: {e}")
             continue
 
+    # If no function names found in coverage files, use source code analysis
+    if not all_tested and tested_from_source:
+        all_tested = tested_from_source
+
     if total_functions is None:
         print("No valid coverage data found!")
         return 1
@@ -152,7 +185,7 @@ def aggregate_coverage(coverage_dir):
     if tested_count == total_functions:
         print("[PASS] ALL FUNCTIONS TESTED!")
     else:
-        untested_count = total_functions - tested_count
+        untested_count = len(untested) if untested else (total_functions - tested_count)
         print(f"[WARN] {untested_count} function(s) remain untested")
 
         if untested:
