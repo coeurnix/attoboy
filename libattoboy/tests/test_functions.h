@@ -32,6 +32,7 @@
   X(String_constructor_map)                                                    \
   X(String_constructor_set)                                                    \
   X(String_constructor_variadic)                                               \
+  X(String_constructor_utf8)                                                   \
   X(String_constructor_copy)                                                   \
   X(String_destructor)                                                         \
   X(String_operator_assign)                                                    \
@@ -214,6 +215,8 @@
   X(Buffer_crypt_buffer_iv)                                                    \
   X(Buffer_toBase64)                                                           \
   X(Buffer_fromBase64)                                                         \
+  X(Buffer_toString)                                                           \
+  X(Buffer_append)                                                             \
   X(Arguments_constructor)                                                     \
   X(Arguments_destructor)                                                      \
   X(Arguments_operator_assign)                                                 \
@@ -290,6 +293,7 @@
   X(Path_readToString)                                                         \
   X(Path_readToBuffer)                                                         \
   X(Path_writeFromBuffer)                                                      \
+  X(Path_writeFromString)                                                      \
   X(Path_appendFromString)                                                     \
   X(Path_appendFromBuffer)                                                     \
   X(Path_ListVolumes)                                                          \
@@ -459,6 +463,6 @@
   X(Conversation_getTotalTokensUsed)
 
 // Count of all registered functions
-#define FUNCTION_COUNT 452
+#define FUNCTION_COUNT 456
 
 #endif // TEST_FUNCTIONS_H

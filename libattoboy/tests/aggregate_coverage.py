@@ -160,6 +160,9 @@ def aggregate_coverage(coverage_dir):
     if not all_tested and tested_from_source:
         all_tested = tested_from_source
 
+    # Determine which functions remain untested
+    official_not_tested = all_functions - all_tested
+
     if total_functions is None:
         print("No valid coverage data found!")
         return 1
