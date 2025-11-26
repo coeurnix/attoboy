@@ -20,13 +20,12 @@ void atto_main() {
     AI ai(baseUrl, apiKey, chatModel);
     REGISTER_TESTED(AI_constructor);
 
-    String *response = ai.ask(String("Say hello"));
+    String response = ai.ask(String("Say hello"));
     REGISTER_TESTED(AI_ask);
 
-    if (response) {
-      Log("SUCCESS! Response:", *response);
-      ASSERT_FALSE(response->isEmpty());
-      delete response;
+    if (!response.isEmpty()) {
+      Log("SUCCESS! Response:", response);
+      ASSERT_FALSE(response.isEmpty());
       Log("Test 1: PASSED");
     } else {
       LogError("Test 1: FAILED");

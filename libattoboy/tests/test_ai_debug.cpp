@@ -23,14 +23,13 @@ void atto_main() {
   Log("API Key (first 10 chars):", ai.getAPIKey().substring(0, 10));
 
   Log("Sending test request...");
-  String *response = ai.ask(String("Say 'hello' and nothing else."));
+  String response = ai.ask(String("Say 'hello' and nothing else."));
 
-  if (response) {
-    Log("SUCCESS! Response:", *response);
+  if (!response.isEmpty()) {
+    Log("SUCCESS! Response:", response);
     Log("Finish reason:", ai.getFinishReason());
     Log("Tokens - Prompt:", ai.getPromptTokensUsed(),
         "Response:", ai.getResponseTokensUsed());
-    delete response;
   } else {
     LogError("FAILED - No response received");
 

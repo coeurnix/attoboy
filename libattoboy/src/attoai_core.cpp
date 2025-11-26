@@ -113,13 +113,13 @@ String AI::getModel() const {
   return String(impl->model);
 }
 
-const String *AI::getSystemPrompt() const {
+String AI::getSystemPrompt() const {
   if (!impl)
-    return nullptr;
+    return String();
   ReadLockGuard lock(&impl->lock);
   if (!impl->systemPrompt)
-    return nullptr;
-  return new String(impl->systemPrompt);
+    return String();
+  return String(impl->systemPrompt);
 }
 
 String AI::getBaseUrl() const {

@@ -17,24 +17,22 @@ void atto_main() {
   Log("Testing live API with one simple call...");
   AI ai(baseUrl, apiKey, chatModel);
 
-  String *response = ai.ask(String("Respond with exactly: hello"));
+  String response = ai.ask(String("Respond with exactly: hello"));
 
-  if (!response) {
+  if (response.isEmpty()) {
     LogError("FAILED: No response from live API");
     EnableLoggingToConsole();
     Exit(1);
   }
 
-  Log("Response:", *response);
+  Log("Response:", response);
 
-  if (response->lower().contains(String("hello"))) {
+  if (response.lower().contains(String("hello"))) {
     Log("SUCCESS: Live API responded correctly");
-    delete response;
     EnableLoggingToConsole();
     Exit(0);
   } else {
     LogError("FAILED: Response didn't contain 'hello'");
-    delete response;
     EnableLoggingToConsole();
     Exit(1);
   }

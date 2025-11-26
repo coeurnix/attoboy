@@ -13,9 +13,9 @@ void atto_main() {
   Log("AI instance created");
 
   Log("Creating conversation...");
-  Conversation *conv = ai.createConversation();
+  Conversation conv = ai.createConversation();
 
-  if (!conv) {
+  if (conv.getTotalTokensUsed() < 0) {
     LogError("FAILED: Could not create conversation");
     EnableLoggingToConsole();
     ExitProcess(1);
@@ -24,30 +24,24 @@ void atto_main() {
   Log("Conversation created");
 
   Log("Asking conversation a question...");
-  String *response = conv->ask(String("First message"));
+  String response = conv.ask(String("First message"));
 
-  if (!response) {
+  if (response.isEmpty()) {
     LogError("FAILED: No conversation response");
-    delete conv;
     EnableLoggingToConsole();
     ExitProcess(1);
   }
 
-  Log("Conversation response:", *response);
+  Log("Conversation response:", response);
 
-  List messages = conv->getConversationList();
+  List messages = conv.getConversationList();
   Log("Message count:", messages.length());
 
   if (messages.length() != 2) {
     LogError("FAILED: Expected 2 messages, got", messages.length());
-    delete response;
-    delete conv;
     EnableLoggingToConsole();
     ExitProcess(1);
   }
-
-  delete response;
-  delete conv;
 
   Log("Test PASSED");
   EnableLoggingToConsole();

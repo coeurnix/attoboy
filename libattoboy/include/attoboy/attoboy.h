@@ -51,6 +51,7 @@ class WebResponseImpl;
 class AIImpl;
 class EmbeddingImpl;
 class ConversationImpl;
+class ConsoleImpl;
 
 class List;
 class Map;
@@ -220,6 +221,11 @@ public:
 private:
   StringImpl *impl;
 };
+
+/// String concatenation operator for natural syntax: "Hello " + myString
+inline String operator+(const char *lhs, const String &rhs) {
+  return String(lhs) + rhs;
+}
 
 /// Dynamic array storing mixed types (bool, int, float, String, List, Map,
 /// Set). Elements are accessed by index; negative indices count from end.
@@ -1295,8 +1301,8 @@ public:
   /// Assigns another conversation (shares the underlying conversation).
   Conversation &operator=(const Conversation &other);
 
-  /// Sends a message and returns the response, or nullptr on error.
-  String *ask(const String &prompt, int timeout = -1);
+  /// Sends a message and returns the response. Check isEmpty() on error.
+  String ask(const String &prompt, int timeout = -1);
 
   /// Returns the conversation history (even=user, odd=assistant).
   List getConversationList() const;
@@ -1304,9 +1310,9 @@ public:
   bool setConversationList(const List &list);
 
   /// Creates a copy of this conversation for branching.
-  Conversation *duplicate() const;
-  /// Returns a copy of the AI instance managing this conversation.
-  const AI *getAI() const;
+  Conversation duplicate() const;
+  /// Returns the AI instance managing this conversation.
+  AI getAI() const;
 
   /// Returns the number of prompt tokens used.
   int getPromptTokensUsed() const;
@@ -1346,8 +1352,8 @@ public:
 
   /// Returns the current model name.
   String getModel() const;
-  /// Returns the system prompt (caller must delete), or nullptr if not set.
-  const String *getSystemPrompt() const;
+  /// Returns the system prompt. Check isEmpty() to see if set.
+  String getSystemPrompt() const;
   /// Returns the base URL.
   String getBaseUrl() const;
   /// Returns the API key.
@@ -1364,16 +1370,214 @@ public:
   /// Returns the finish reason from the last call (e.g., "stop", "length").
   String getFinishReason() const;
 
-  /// Sends a single prompt and returns the response, or nullptr on error.
-  String *ask(const String &prompt, int timeout = -1);
-  /// Creates an embedding vector, or nullptr on error.
-  Embedding *createEmbedding(const String &str, int dimensions = -1,
-                             int timeout = -1);
+  /// Sends a single prompt and returns the response. Check isEmpty() on error.
+  String ask(const String &prompt, int timeout = -1);
+  /// Creates an embedding vector. Check getDimensions() == 0 on error.
+  Embedding createEmbedding(const String &str, int dimensions = -1,
+                            int timeout = -1);
   /// Creates a new multi-turn conversation.
-  Conversation *createConversation();
+  Conversation createConversation();
 
 private:
   AIImpl *impl;
+};
+
+//------------------------------------------------------------------------------
+// Console UI
+//------------------------------------------------------------------------------
+
+/// Console colors (classic 16-color palette, Windows 7 compatible).
+enum ConsoleColor {
+  /// Black (0).
+  CON_BLACK = 0,
+  /// Dark blue.
+  CON_DARK_BLUE,
+  /// Dark green.
+  CON_DARK_GREEN,
+  /// Dark cyan.
+  CON_DARK_CYAN,
+  /// Dark red.
+  CON_DARK_RED,
+  /// Dark magenta.
+  CON_DARK_MAGENTA,
+  /// Dark yellow (brown).
+  CON_DARK_YELLOW,
+  /// Gray (light gray).
+  CON_GRAY,
+  /// Dark gray.
+  CON_DARK_GRAY,
+  /// Bright blue.
+  CON_BLUE,
+  /// Bright green.
+  CON_GREEN,
+  /// Bright cyan.
+  CON_CYAN,
+  /// Bright red.
+  CON_RED,
+  /// Bright magenta.
+  CON_MAGENTA,
+  /// Bright yellow.
+  CON_YELLOW,
+  /// White.
+  CON_WHITE
+};
+
+/// Text alignment modes for formatted console output.
+enum ConsoleAlign {
+  /// Left-aligned (default).
+  CON_ALIGN_LEFT = 0,
+  /// Center-aligned.
+  CON_ALIGN_CENTER,
+  /// Right-aligned.
+  CON_ALIGN_RIGHT,
+  /// Justified (stretched to fill width).
+  CON_ALIGN_JUSTIFY
+};
+
+/// Configuration for interactive console input.
+/// All fields have sensible defaults; set only what you need.
+struct ConsoleInput {
+  /// Tab completion candidates (nullptr for no completion).
+  const List *completions;
+  /// Command history buffer (read/write, nullptr for no history).
+  /// History is automatically updated with each input.
+  List *history;
+  /// Mask input with asterisks for password entry.
+  bool password;
+  /// Allow multi-line input (Shift+Enter or Ctrl+Enter inserts newline).
+  bool multiline;
+  /// Prompt shown for continuation lines in multiline mode.
+  String continuation;
+
+  /// Creates default input options (no completion, no history, single-line,
+  /// visible).
+  ConsoleInput();
+  /// Creates a copy of another ConsoleInput.
+  ConsoleInput(const ConsoleInput &other);
+  /// Destroys the ConsoleInput.
+  ~ConsoleInput();
+  /// Assigns another ConsoleInput to this one.
+  ConsoleInput &operator=(const ConsoleInput &other);
+};
+
+/// Interactive console UI with colors, formatted output, REPL-style input,
+/// animated progress bars, and interactive menus.
+///
+/// Features:
+/// - Beautiful 16-color output with sensible defaults
+/// - Automatic handling of console resize (UI elements reflow cleanly)
+/// - Rich input with history, tab completion, multiline, and password mode
+/// - Word-wrapping and text alignment helpers
+/// - Smooth animated progress bars that resize gracefully
+/// - Keyboard and mouse-driven menus with highlighting
+/// - Non-blocking global hotkey support
+///
+/// Uses RAII to manage console state; original settings are restored on
+/// destruction. Only one Console instance should exist at a time.
+class Console {
+public:
+  /// Initializes the console for interactive use.
+  /// Enables mouse input, sets up resize handling, and configures UTF-8 output.
+  Console();
+  /// Restores the original console state and settings.
+  ~Console();
+  /// Console cannot be copied.
+  Console(const Console &) = delete;
+  /// Console cannot be assigned.
+  Console &operator=(const Console &) = delete;
+
+  //-- Properties --
+
+  /// Returns the console width in characters.
+  int width() const;
+  /// Returns the console height in characters.
+  int height() const;
+
+  //-- Basic Output --
+
+  /// Prints text with optional foreground and background colors.
+  Console &print(const String &text, ConsoleColor fg = CON_WHITE,
+                 ConsoleColor bg = CON_BLACK);
+  /// Prints text followed by a newline.
+  Console &println(const String &text = "", ConsoleColor fg = CON_WHITE,
+                   ConsoleColor bg = CON_BLACK);
+  /// Clears the entire console screen.
+  Console &clear();
+
+  //-- Formatted Output --
+
+  /// Prints text aligned within the specified width.
+  /// If width is -1, uses the current console width.
+  Console &printAligned(const String &text, int width,
+                        ConsoleAlign align = CON_ALIGN_LEFT,
+                        ConsoleColor fg = CON_WHITE,
+                        ConsoleColor bg = CON_BLACK);
+  /// Prints text with automatic word wrapping.
+  /// If width is -1, uses the current console width.
+  Console &printWrapped(const String &text, int width = -1,
+                        ConsoleColor fg = CON_WHITE,
+                        ConsoleColor bg = CON_BLACK);
+
+  //-- Cursor Control --
+
+  /// Moves the cursor to the specified position (0-based coordinates).
+  Console &setCursor(int x, int y);
+  /// Shows the text cursor.
+  Console &showCursor();
+  /// Hides the text cursor.
+  Console &hideCursor();
+
+  //-- Input --
+
+  /// Reads a line of input with optional prompt and advanced options.
+  /// Supports up/down arrow history, tab completion with hints, and more.
+  /// Returns empty string if input is cancelled (Ctrl+C).
+  String input(const String &prompt = "",
+               const ConsoleInput *options = nullptr);
+  /// Reads a single key press (blocking).
+  /// Returns a descriptive name: "A", "Enter", "Space", "Ctrl+C", "Alt+X",
+  /// "F1", etc.
+  String readKey();
+
+  //-- Progress Bar --
+
+  /// Shows or updates an animated progress bar at the bottom of the console.
+  /// percent: 0.0 to 1.0 for determinate, or -1.0 for indeterminate spinner.
+  /// The bar animates smoothly between values and resizes with the console.
+  Console &progress(float percent, const String &label = "");
+  /// Hides the progress bar and restores the line.
+  Console &progressHide();
+
+  //-- Interactive Menu --
+
+  /// Shows an interactive menu and returns the selected index (0-based).
+  /// Returns -1 if cancelled (Escape key).
+  /// Supports arrow keys, number keys (1-9), mouse hover/click, and
+  /// first-letter jump.
+  int menu(const List &options, const String &title = "");
+
+  //-- Global Hotkeys --
+
+  /// Registers a non-blocking global hotkey callback.
+  /// Key format examples: "Ctrl+Q", "Alt+X", "Shift+F1", "F12", "Ctrl+Shift+S".
+  /// The callback is invoked asynchronously when the key is pressed.
+  Console &onHotkey(const String &key, void (*callback)(void *),
+                    void *arg = nullptr);
+  /// Unregisters a previously registered hotkey.
+  Console &offHotkey(const String &key);
+
+  //-- Static Text Utilities --
+
+  /// Returns text padded and aligned to the specified width.
+  /// Useful for building formatted output or tables.
+  static String Align(const String &text, int width,
+                      ConsoleAlign align = CON_ALIGN_LEFT);
+  /// Returns text word-wrapped to fit the specified width.
+  /// Preserves existing line breaks and wraps at word boundaries.
+  static String Wrap(const String &text, int width);
+
+private:
+  ConsoleImpl *impl;
 };
 
 //------------------------------------------------------------------------------

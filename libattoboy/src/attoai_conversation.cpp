@@ -3,15 +3,15 @@
 
 namespace attoboy {
 
-Conversation *AI::createConversation() {
+Conversation AI::createConversation() {
   if (!impl)
-    return nullptr;
+    return Conversation();
 
   ConversationImpl *convImpl =
       (ConversationImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                     sizeof(ConversationImpl));
   if (!convImpl)
-    return nullptr;
+    return Conversation();
 
   InitializeSRWLock(&convImpl->lock);
   convImpl->refCount = 1;
@@ -20,8 +20,8 @@ Conversation *AI::createConversation() {
   convImpl->promptTokensUsed = 0;
   convImpl->responseTokensUsed = 0;
 
-  Conversation *conv = new Conversation();
-  conv->impl = convImpl;
+  Conversation conv;
+  conv.impl = convImpl;
   return conv;
 }
 
@@ -63,9 +63,9 @@ Conversation &Conversation::operator=(const Conversation &other) {
   return *this;
 }
 
-String *Conversation::ask(const String &prompt, int timeout) {
+String Conversation::ask(const String &prompt, int timeout) {
   if (!impl || !impl->ai)
-    return nullptr;
+    return String();
 
   String url;
   String authHeader;
@@ -82,13 +82,12 @@ String *Conversation::ask(const String &prompt, int timeout) {
     authHeader = String("Bearer ").append(impl->ai->getAPIKey());
     model = impl->ai->getModel();
 
-    const String *systemPrompt = impl->ai->getSystemPrompt();
-    if (systemPrompt) {
+    String systemPrompt = impl->ai->getSystemPrompt();
+    if (!systemPrompt.isEmpty()) {
       Map systemMsg;
       systemMsg.put("role", "system");
-      systemMsg.put("content", *systemPrompt);
+      systemMsg.put("content", systemPrompt);
       apiMessages.append(systemMsg);
-      delete systemPrompt;
     }
 
     for (int i = 0; i < impl->messages->length(); i++) {
@@ -135,12 +134,12 @@ String *Conversation::ask(const String &prompt, int timeout) {
   WebResponse response = request.doPost(requestBody, timeout);
 
   if (!response.succeeded()) {
-    return nullptr;
+    return String();
   }
 
   const Map *jsonResponse = response.asJson();
   if (!jsonResponse) {
-    return nullptr;
+    return String();
   }
 
   if (jsonResponse->hasKey("usage")) {
@@ -169,12 +168,12 @@ String *Conversation::ask(const String &prompt, int timeout) {
   }
 
   if (!jsonResponse->hasKey("choices")) {
-    return nullptr;
+    return String();
   }
 
   List choices = jsonResponse->get<String, List>("choices");
   if (choices.isEmpty()) {
-    return nullptr;
+    return String();
   }
 
   Map firstChoice = choices.at<Map>(0);
@@ -187,12 +186,12 @@ String *Conversation::ask(const String &prompt, int timeout) {
   }
 
   if (!firstChoice.hasKey("message")) {
-    return nullptr;
+    return String();
   }
 
   Map message = firstChoice.get<String, Map>("message");
   if (!message.hasKey("content")) {
-    return nullptr;
+    return String();
   }
 
   String content = message.get<String, String>("content");
@@ -203,7 +202,7 @@ String *Conversation::ask(const String &prompt, int timeout) {
     impl->messages->append(content);
   }
 
-  return new String(content);
+  return content;
 }
 
 List Conversation::getConversationList() const {
@@ -227,9 +226,9 @@ bool Conversation::setConversationList(const List &list) {
   return true;
 }
 
-Conversation *Conversation::duplicate() const {
+Conversation Conversation::duplicate() const {
   if (!impl)
-    return nullptr;
+    return Conversation();
 
   ReadLockGuard lock(&impl->lock);
 
@@ -237,7 +236,7 @@ Conversation *Conversation::duplicate() const {
       (ConversationImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                     sizeof(ConversationImpl));
   if (!newImpl)
-    return nullptr;
+    return Conversation();
 
   InitializeSRWLock(&newImpl->lock);
   newImpl->refCount = 1;
@@ -246,18 +245,18 @@ Conversation *Conversation::duplicate() const {
   newImpl->promptTokensUsed = impl->promptTokensUsed;
   newImpl->responseTokensUsed = impl->responseTokensUsed;
 
-  Conversation *newConv = new Conversation();
-  newConv->impl = newImpl;
+  Conversation newConv;
+  newConv.impl = newImpl;
   return newConv;
 }
 
-const AI *Conversation::getAI() const {
+AI Conversation::getAI() const {
   if (!impl)
-    return nullptr;
+    return AI("", "", "");
   ReadLockGuard lock(&impl->lock);
   if (!impl->ai)
-    return nullptr;
-  return new AI(*impl->ai);
+    return AI("", "", "");
+  return AI(*impl->ai);
 }
 
 int Conversation::getPromptTokensUsed() const {

@@ -460,9 +460,34 @@
   X(Conversation_getAI)                                                        \
   X(Conversation_getPromptTokensUsed)                                          \
   X(Conversation_getResponseTokensUsed)                                        \
-  X(Conversation_getTotalTokensUsed)
+  X(Conversation_getTotalTokensUsed)                                           \
+  X(ConsoleInput_constructor_empty)                                            \
+  X(ConsoleInput_constructor_copy)                                             \
+  X(ConsoleInput_destructor)                                                   \
+  X(ConsoleInput_operator_assign)                                              \
+  X(Console_constructor_empty)                                                 \
+  X(Console_destructor)                                                        \
+  X(Console_width)                                                             \
+  X(Console_height)                                                            \
+  X(Console_print)                                                             \
+  X(Console_println)                                                           \
+  X(Console_clear)                                                             \
+  X(Console_printAligned)                                                      \
+  X(Console_printWrapped)                                                      \
+  X(Console_setCursor)                                                         \
+  X(Console_showCursor)                                                        \
+  X(Console_hideCursor)                                                        \
+  X(Console_readKey)                                                           \
+  X(Console_input)                                                             \
+  X(Console_progress)                                                          \
+  X(Console_progressHide)                                                      \
+  X(Console_menu)                                                              \
+  X(Console_onHotkey)                                                          \
+  X(Console_offHotkey)                                                         \
+  X(Console_Align)                                                             \
+  X(Console_Wrap)
 
 // Count of all registered functions
-#define FUNCTION_COUNT 456
+#define FUNCTION_COUNT 481
 
 #endif // TEST_FUNCTIONS_H

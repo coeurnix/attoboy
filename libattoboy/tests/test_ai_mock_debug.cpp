@@ -13,16 +13,15 @@ void atto_main() {
   Log("AI instance created");
 
   Log("Calling AI.ask()...");
-  String *response = ai.ask(String("Hello, test!"));
+  String response = ai.ask(String("Hello, test!"));
 
-  if (!response) {
+  if (response.isEmpty()) {
     LogError("Test FAILED: No response received");
     EnableLoggingToConsole(); // Close log file
     Exit(1);
   }
 
-  Log("Response received:", *response);
-  delete response;
+  Log("Response received:", response);
 
   Log("Test completed successfully");
   EnableLoggingToConsole(); // Close log file

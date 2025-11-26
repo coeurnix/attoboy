@@ -3,9 +3,9 @@
 
 namespace attoboy {
 
-String *AI::ask(const String &prompt, int timeout) {
+String AI::ask(const String &prompt, int timeout) {
   if (!impl)
-    return nullptr;
+    return String();
 
   String url;
   String authHeader;
@@ -62,12 +62,12 @@ String *AI::ask(const String &prompt, int timeout) {
   WebResponse response = request.doPost(requestBody, timeout);
 
   if (!response.succeeded()) {
-    return nullptr;
+    return String();
   }
 
   const Map *jsonResponse = response.asJson();
   if (!jsonResponse) {
-    return nullptr;
+    return String();
   }
 
   if (jsonResponse->hasKey("usage")) {
@@ -84,12 +84,12 @@ String *AI::ask(const String &prompt, int timeout) {
   }
 
   if (!jsonResponse->hasKey("choices")) {
-    return nullptr;
+    return String();
   }
 
   List choices = jsonResponse->get<String, List>("choices");
   if (choices.isEmpty()) {
-    return nullptr;
+    return String();
   }
 
   Map firstChoice = choices.at<Map>(0);
@@ -102,16 +102,16 @@ String *AI::ask(const String &prompt, int timeout) {
   }
 
   if (!firstChoice.hasKey("message")) {
-    return nullptr;
+    return String();
   }
 
   Map message = firstChoice.get<String, Map>("message");
   if (!message.hasKey("content")) {
-    return nullptr;
+    return String();
   }
 
   String content = message.get<String, String>("content");
-  return new String(content);
+  return content;
 }
 
 } // namespace attoboy

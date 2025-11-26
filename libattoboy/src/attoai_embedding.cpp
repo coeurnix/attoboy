@@ -3,9 +3,9 @@
 
 namespace attoboy {
 
-Embedding *AI::createEmbedding(const String &str, int dimensions, int timeout) {
+Embedding AI::createEmbedding(const String &str, int dimensions, int timeout) {
   if (!impl)
-    return nullptr;
+    return Embedding();
 
   String url;
   String authHeader;
@@ -34,12 +34,12 @@ Embedding *AI::createEmbedding(const String &str, int dimensions, int timeout) {
   WebResponse response = request.doPost(requestBody, timeout);
 
   if (!response.succeeded()) {
-    return nullptr;
+    return Embedding();
   }
 
   const Map *jsonResponse = response.asJson();
   if (!jsonResponse) {
-    return nullptr;
+    return Embedding();
   }
 
   if (jsonResponse->hasKey("usage")) {
@@ -52,22 +52,22 @@ Embedding *AI::createEmbedding(const String &str, int dimensions, int timeout) {
   }
 
   if (!jsonResponse->hasKey("data")) {
-    return nullptr;
+    return Embedding();
   }
 
   List data = jsonResponse->get<String, List>("data");
   if (data.isEmpty()) {
-    return nullptr;
+    return Embedding();
   }
 
   Map firstEmbedding = data.at<Map>(0);
   if (!firstEmbedding.hasKey("embedding")) {
-    return nullptr;
+    return Embedding();
   }
 
   List embeddingList = firstEmbedding.get<String, List>("embedding");
   if (embeddingList.isEmpty()) {
-    return nullptr;
+    return Embedding();
   }
 
   int embDim = embeddingList.length();
@@ -76,7 +76,7 @@ Embedding *AI::createEmbedding(const String &str, int dimensions, int timeout) {
       (EmbeddingImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(EmbeddingImpl));
   if (!embImpl) {
-    return nullptr;
+    return Embedding();
   }
 
   InitializeSRWLock(&embImpl->lock);
@@ -89,15 +89,15 @@ Embedding *AI::createEmbedding(const String &str, int dimensions, int timeout) {
                                      embDim * sizeof(float));
   if (!embImpl->data) {
     HeapFree(GetProcessHeap(), 0, embImpl);
-    return nullptr;
+    return Embedding();
   }
 
   for (int i = 0; i < embDim; i++) {
     embImpl->data[i] = embeddingList.at<float>(i);
   }
 
-  Embedding *emb = new Embedding();
-  emb->impl = embImpl;
+  Embedding emb;
+  emb.impl = embImpl;
   return emb;
 }
 

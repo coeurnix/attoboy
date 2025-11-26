@@ -11,8 +11,8 @@ void atto_main() {
   AI ai(baseUrl, apiKey, embeddingModel);
 
   Log("Creating embedding 1...");
-  Embedding *emb1 = ai.createEmbedding(String("cat"));
-  if (!emb1) {
+  Embedding emb1 = ai.createEmbedding(String("cat"));
+  if (emb1.getDimensions() == 0) {
     LogError("Failed to create embedding 1");
     EnableLoggingToConsole();
     ExitProcess(1);
@@ -20,16 +20,15 @@ void atto_main() {
   Log("Embedding 1 created");
 
   Log("Creating embedding 2...");
-  Embedding *emb2 = ai.createEmbedding(String("kitten"));
-  if (!emb2) {
+  Embedding emb2 = ai.createEmbedding(String("kitten"));
+  if (emb2.getDimensions() == 0) {
     LogError("Failed to create embedding 2");
-    delete emb1;
     EnableLoggingToConsole();
     ExitProcess(1);
   }
   Log("Embedding 2 created");
 
-  float similarity = emb1->compare(*emb2);
+  float similarity = emb1.compare(emb2);
   Log("Similarity between 'cat' and 'kitten':", similarity);
 
   // Check if it's in range
@@ -38,9 +37,6 @@ void atto_main() {
   } else {
     LogError("Similarity is OUT OF RANGE! Expected >0.99 and <=1.0");
   }
-
-  delete emb1;
-  delete emb2;
 
   EnableLoggingToConsole();
   ExitProcess(0);

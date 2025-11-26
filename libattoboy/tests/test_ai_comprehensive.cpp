@@ -33,9 +33,9 @@ void atto_main() {
     REGISTER_TESTED(AI_getAPIKey);
     ASSERT_FALSE(key.isEmpty());
 
-    const String *sysPrompt = ai.getSystemPrompt();
+    String sysPrompt = ai.getSystemPrompt();
     REGISTER_TESTED(AI_getSystemPrompt);
-    ASSERT_TRUE(sysPrompt == nullptr);
+    ASSERT_TRUE(sysPrompt.isEmpty());
 
     Log("Test 1: PASSED");
   }
@@ -69,10 +69,9 @@ void atto_main() {
     String systemPrompt = String("You are a helpful assistant.");
     ai.setSystemPrompt(&systemPrompt);
     REGISTER_TESTED(AI_setSystemPrompt);
-    const String *sp = ai.getSystemPrompt();
-    ASSERT_TRUE(sp != nullptr);
-    ASSERT_TRUE(sp->equals(systemPrompt));
-    delete sp;
+    String sp = ai.getSystemPrompt();
+    ASSERT_FALSE(sp.isEmpty());
+    ASSERT_TRUE(sp.equals(systemPrompt));
 
     ai.setMaxTokens(100);
     REGISTER_TESTED(AI_setMaxTokens);
@@ -111,12 +110,12 @@ void atto_main() {
     Log("Test 5: AI.ask() basic functionality");
     AI ai(baseUrl, apiKey, chatModel);
 
-    String *response = ai.ask(String("Say 'hello' and nothing else."));
+    String response = ai.ask(String("Say 'hello' and nothing else."));
     REGISTER_TESTED(AI_ask);
 
-    if (response) {
-      Log("Response:", *response);
-      ASSERT_FALSE(response->isEmpty());
+    if (!response.isEmpty()) {
+      Log("Response:", response);
+      ASSERT_FALSE(response.isEmpty());
 
       String finishReason = ai.getFinishReason();
       REGISTER_TESTED(AI_getFinishReason);
@@ -131,7 +130,6 @@ void atto_main() {
       ASSERT_TRUE(responseTokens > 0);
       ASSERT_EQ(totalTokens, promptTokens + responseTokens);
 
-      delete response;
       Log("Test 5: PASSED");
     } else {
       LogError("Test 5: FAILED - No response received");
@@ -147,11 +145,10 @@ void atto_main() {
         String("You are a pirate. Always respond like a pirate.");
     ai.setSystemPrompt(&systemPrompt);
 
-    String *response = ai.ask(String("What is your favorite color?"));
-    if (response) {
-      Log("Response:", *response);
-      ASSERT_FALSE(response->isEmpty());
-      delete response;
+    String response = ai.ask(String("What is your favorite color?"));
+    if (!response.isEmpty()) {
+      Log("Response:", response);
+      ASSERT_FALSE(response.isEmpty());
       Log("Test 6: PASSED");
     } else {
       LogError("Test 6: FAILED - No response received");
@@ -165,24 +162,23 @@ void atto_main() {
     AI ai(baseUrl, apiKey, chatModel);
     ai.setMaxTokens(200);
 
-    String *response =
+    String response =
         ai.ask(String("Tell me a very long story about space exploration."));
-    if (!response) {
+    if (response.isEmpty()) {
       LogWarning("Test 7: FAILED - No response received (skipping)");
       Exit(1);
     }
-    Log("Response:", *response);
+    Log("Response:", response);
 
     // GPT-5 models may return empty content if all tokens are used for
     // reasoning
     String finishReason = ai.getFinishReason();
     Log("Finish reason:", finishReason);
-    if (response->isEmpty()) {
+    if (response.isEmpty()) {
       Log("Note: Response is empty (GPT-5 used all tokens for internal "
           "reasoning)");
     }
 
-    delete response;
     Log("Test 7: PASSED");
   }
 
@@ -192,19 +188,18 @@ void atto_main() {
     AI ai(baseUrl, apiKey, chatModel);
     ai.setJsonMode(true);
 
-    String *response = ai.ask(String(
+    String response = ai.ask(String(
         "Exit(1) a JSON object with keys 'name' and 'age' for a fictional "
         "person."));
-    if (response) {
-      Log("Response:", *response);
-      ASSERT_FALSE(response->isEmpty());
-      ASSERT_TRUE(response->contains(String("{")));
-      ASSERT_TRUE(response->contains(String("}")));
+    if (!response.isEmpty()) {
+      Log("Response:", response);
+      ASSERT_FALSE(response.isEmpty());
+      ASSERT_TRUE(response.contains(String("{")));
+      ASSERT_TRUE(response.contains(String("}")));
 
-      Map jsonMap = Map::FromJSONString(*response);
+      Map jsonMap = Map::FromJSONString(response);
       ASSERT_FALSE(jsonMap.isEmpty());
 
-      delete response;
       Log("Test 8: PASSED");
     } else {
       LogError("Test 8: FAILED - No response received");
@@ -217,20 +212,19 @@ void atto_main() {
     Log("Test 9: AI.createEmbedding() basic functionality");
     AI ai(baseUrl, apiKey, embeddingModel);
 
-    Embedding *emb = ai.createEmbedding(String("Hello world"));
+    Embedding emb = ai.createEmbedding(String("Hello world"));
     REGISTER_TESTED(AI_createEmbedding);
 
-    if (emb) {
-      int dims = emb->getDimensions();
+    if (emb.getDimensions() > 0) {
+      int dims = emb.getDimensions();
       REGISTER_TESTED(Embedding_getDimensions);
       Log("Embedding dimensions:", dims);
       ASSERT_TRUE(dims > 0);
 
-      const float *rawArray = emb->getRawArray();
+      const float *rawArray = emb.getRawArray();
       REGISTER_TESTED(Embedding_getRawArray);
       ASSERT_TRUE(rawArray != nullptr);
 
-      delete emb;
       Log("Test 9: PASSED");
     } else {
       LogError("Test 9: FAILED - No embedding received");
@@ -243,19 +237,18 @@ void atto_main() {
     Log("Test 10: Embedding copy and assignment");
     AI ai(baseUrl, apiKey, embeddingModel);
 
-    Embedding *emb1 = ai.createEmbedding(String("Test"));
-    if (emb1) {
-      Embedding emb2 = *emb1;
+    Embedding emb1 = ai.createEmbedding(String("Test"));
+    if (emb1.getDimensions() > 0) {
+      Embedding emb2 = emb1;
       REGISTER_TESTED(Embedding_constructor_copy);
 
-      Embedding emb3 = *emb1;
-      emb3 = *emb1;
+      Embedding emb3 = emb1;
+      emb3 = emb1;
       REGISTER_TESTED(Embedding_operator_assign);
 
-      ASSERT_EQ(emb2.getDimensions(), emb1->getDimensions());
-      ASSERT_EQ(emb3.getDimensions(), emb1->getDimensions());
+      ASSERT_EQ(emb2.getDimensions(), emb1.getDimensions());
+      ASSERT_EQ(emb3.getDimensions(), emb1.getDimensions());
 
-      delete emb1;
       Log("Test 10: PASSED");
     } else {
       LogError("Test 10: FAILED - No embedding received");
@@ -268,23 +261,20 @@ void atto_main() {
     Log("Test 11: Embedding.compare()");
     AI ai(baseUrl, apiKey, embeddingModel);
 
-    Embedding *emb1 = ai.createEmbedding(String("cat"));
-    Embedding *emb2 = ai.createEmbedding(String("kitten"));
-    Embedding *emb3 = ai.createEmbedding(String("computer"));
+    Embedding emb1 = ai.createEmbedding(String("cat"));
+    Embedding emb2 = ai.createEmbedding(String("kitten"));
+    Embedding emb3 = ai.createEmbedding(String("computer"));
 
-    if (emb1 && emb2 && emb3) {
-      float similarity12 = emb1->compare(*emb2);
+    if (emb1.getDimensions() > 0 && emb2.getDimensions() > 0 && emb3.getDimensions() > 0) {
+      float similarity12 = emb1.compare(emb2);
       REGISTER_TESTED(Embedding_compare);
       Log("Similarity (cat vs kitten):", similarity12);
 
-      float similarity13 = emb1->compare(*emb3);
+      float similarity13 = emb1.compare(emb3);
       Log("Similarity (cat vs computer):", similarity13);
 
       ASSERT_TRUE(similarity12 > similarity13);
 
-      delete emb1;
-      delete emb2;
-      delete emb3;
       Log("Test 11: PASSED");
     } else {
       LogError("Test 11: FAILED - Embeddings not created");
@@ -297,32 +287,29 @@ void atto_main() {
     Log("Test 12: AI.createConversation()");
     AI ai(baseUrl, apiKey, chatModel);
 
-    Conversation *conv = ai.createConversation();
+    Conversation conv = ai.createConversation();
     REGISTER_TESTED(AI_createConversation);
 
-    if (conv) {
-      const AI *convAI = conv->getAI();
+    if (conv.getTotalTokensUsed() >= 0) {
+      AI convAI = conv.getAI();
       REGISTER_TESTED(Conversation_getAI);
-      ASSERT_TRUE(convAI != nullptr);
-      delete convAI;
 
-      List messages = conv->getConversationList();
+      List messages = conv.getConversationList();
       REGISTER_TESTED(Conversation_getConversationList);
       ASSERT_TRUE(messages.isEmpty());
 
-      int promptTokens = conv->getPromptTokensUsed();
+      int promptTokens = conv.getPromptTokensUsed();
       REGISTER_TESTED(Conversation_getPromptTokensUsed);
       ASSERT_EQ(promptTokens, 0);
 
-      int responseTokens = conv->getResponseTokensUsed();
+      int responseTokens = conv.getResponseTokensUsed();
       REGISTER_TESTED(Conversation_getResponseTokensUsed);
       ASSERT_EQ(responseTokens, 0);
 
-      int totalTokens = conv->getTotalTokensUsed();
+      int totalTokens = conv.getTotalTokensUsed();
       REGISTER_TESTED(Conversation_getTotalTokensUsed);
       ASSERT_EQ(totalTokens, 0);
 
-      delete conv;
       Log("Test 12: PASSED");
     } else {
       LogError("Test 12: FAILED - Conversation not created");
@@ -335,16 +322,15 @@ void atto_main() {
     Log("Test 13: Conversation copy and assignment");
     AI ai(baseUrl, apiKey, chatModel);
 
-    Conversation *conv1 = ai.createConversation();
-    if (conv1) {
-      Conversation conv2 = *conv1;
+    Conversation conv1 = ai.createConversation();
+    if (conv1.getTotalTokensUsed() >= 0) {
+      Conversation conv2 = conv1;
       REGISTER_TESTED(Conversation_constructor_copy);
 
-      Conversation conv3 = *conv1;
-      conv3 = *conv1;
+      Conversation conv3 = conv1;
+      conv3 = conv1;
       REGISTER_TESTED(Conversation_operator_assign);
 
-      delete conv1;
       Log("Test 13: PASSED");
     } else {
       LogError("Test 13: FAILED - Conversation not created");
@@ -357,16 +343,16 @@ void atto_main() {
     Log("Test 14: Conversation.ask() single turn");
     AI ai(baseUrl, apiKey, chatModel);
 
-    Conversation *conv = ai.createConversation();
-    if (conv) {
-      String *response = conv->ask(String("What is 2+2?"));
+    Conversation conv = ai.createConversation();
+    if (conv.getTotalTokensUsed() >= 0) {
+      String response = conv.ask(String("What is 2+2?"));
       REGISTER_TESTED(Conversation_ask);
 
-      if (response) {
-        Log("Response:", *response);
-        ASSERT_FALSE(response->isEmpty());
+      if (!response.isEmpty()) {
+        Log("Response:", response);
+        ASSERT_FALSE(response.isEmpty());
 
-        List messages = conv->getConversationList();
+        List messages = conv.getConversationList();
         ASSERT_EQ(messages.length(), 2);
         String userMsg = messages.at<String>(0);
         String assistantMsg = messages.at<String>(1);
@@ -374,15 +360,12 @@ void atto_main() {
         Log("User:", userMsg);
         Log("Assistant:", assistantMsg);
 
-        int totalTokens = conv->getTotalTokensUsed();
+        int totalTokens = conv.getTotalTokensUsed();
         Log("Total tokens:", totalTokens);
         ASSERT_TRUE(totalTokens > 0);
 
-        delete response;
-        delete conv;
         Log("Test 14: PASSED");
       } else {
-        delete conv;
         LogError("Test 14: FAILED - No response received");
         Exit(1);
       }
@@ -397,31 +380,26 @@ void atto_main() {
     Log("Test 15: Conversation.ask() multi-turn");
     AI ai(baseUrl, apiKey, chatModel);
 
-    Conversation *conv = ai.createConversation();
-    if (conv) {
-      String *response1 = conv->ask(String("My favorite color is blue."));
-      if (response1) {
-        Log("Response 1:", *response1);
-        delete response1;
+    Conversation conv = ai.createConversation();
+    if (conv.getTotalTokensUsed() >= 0) {
+      String response1 = conv.ask(String("My favorite color is blue."));
+      if (!response1.isEmpty()) {
+        Log("Response 1:", response1);
       } else {
-        delete conv;
         LogError("Test 15: FAILED - No response 1 received");
         Exit(1);
       }
 
-      String *response2 = conv->ask(String("What is my favorite color?"));
-      if (response2) {
-        Log("Response 2:", *response2);
-        ASSERT_TRUE(response2->lower().contains(String("blue")));
+      String response2 = conv.ask(String("What is my favorite color?"));
+      if (!response2.isEmpty()) {
+        Log("Response 2:", response2);
+        ASSERT_TRUE(response2.lower().contains(String("blue")));
 
-        List messages = conv->getConversationList();
+        List messages = conv.getConversationList();
         ASSERT_EQ(messages.length(), 4);
 
-        delete response2;
-        delete conv;
         Log("Test 15: PASSED");
       } else {
-        delete conv;
         LogError("Test 15: FAILED - No response 2 received");
         Exit(1);
       }
@@ -436,23 +414,22 @@ void atto_main() {
     Log("Test 16: Conversation.setConversationList()");
     AI ai(baseUrl, apiKey, chatModel);
 
-    Conversation *conv = ai.createConversation();
-    if (conv) {
+    Conversation conv = ai.createConversation();
+    if (conv.getTotalTokensUsed() >= 0) {
       List newMessages;
       newMessages.append(String("Hello"));
       newMessages.append(String("Hi there!"));
       newMessages.append(String("How are you?"));
       newMessages.append(String("I'm doing well, thank you!"));
 
-      bool success = conv->setConversationList(newMessages);
+      bool success = conv.setConversationList(newMessages);
       REGISTER_TESTED(Conversation_setConversationList);
       ASSERT_TRUE(success);
 
-      List retrievedMessages = conv->getConversationList();
+      List retrievedMessages = conv.getConversationList();
       ASSERT_EQ(retrievedMessages.length(), 4);
       ASSERT_TRUE(retrievedMessages.at<String>(0).equals(String("Hello")));
 
-      delete conv;
       Log("Test 16: PASSED");
     } else {
       LogError("Test 16: FAILED - Conversation not created");
@@ -465,49 +442,41 @@ void atto_main() {
     Log("Test 17: Conversation.duplicate()");
     AI ai(baseUrl, apiKey, chatModel);
 
-    Conversation *conv1 = ai.createConversation();
-    if (conv1) {
-      String *response1 = conv1->ask(String("My name is Alice."));
-      if (response1) {
-        delete response1;
+    Conversation conv1 = ai.createConversation();
+    if (conv1.getTotalTokensUsed() >= 0) {
+      String response1 = conv1.ask(String("My name is Alice."));
+      if (!response1.isEmpty()) {
 
-        Conversation *conv2 = conv1->duplicate();
+        Conversation conv2 = conv1.duplicate();
         REGISTER_TESTED(Conversation_duplicate);
 
-        if (conv2) {
-          List messages1 = conv1->getConversationList();
-          List messages2 = conv2->getConversationList();
+        if (conv2.getTotalTokensUsed() >= 0) {
+          List messages1 = conv1.getConversationList();
+          List messages2 = conv2.getConversationList();
           ASSERT_EQ(messages1.length(), messages2.length());
 
-          String *response2 = conv2->ask(String("What is my name?"));
-          if (response2) {
-            Log("Response:", *response2);
-            ASSERT_TRUE(response2->lower().contains(String("alice")));
+          String response2 = conv2.ask(String("What is my name?"));
+          if (!response2.isEmpty()) {
+            Log("Response:", response2);
+            ASSERT_TRUE(response2.lower().contains(String("alice")));
 
-            List messages2After = conv2->getConversationList();
+            List messages2After = conv2.getConversationList();
             ASSERT_EQ(messages2After.length(), 4);
 
-            List messages1After = conv1->getConversationList();
+            List messages1After = conv1.getConversationList();
             ASSERT_EQ(messages1After.length(), 2);
 
-            delete response2;
-            delete conv2;
-            delete conv1;
             Log("Test 17: PASSED");
           } else {
-            delete conv2;
-            delete conv1;
             LogError("Test 17: FAILED - No response from duplicated "
                      "conversation");
             Exit(1);
           }
         } else {
-          delete conv1;
           LogError("Test 17: FAILED - Conversation not duplicated");
           Exit(1);
         }
       } else {
-        delete conv1;
         LogError("Test 17: FAILED - No initial response");
         Exit(1);
       }
