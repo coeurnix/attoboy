@@ -1,24 +1,37 @@
 #ifndef ATTOBOY_H
 #define ATTOBOY_H
 
-// Entry point for the application (bypasses CRT startup)
+//==============================================================================
+// libattoboy - Batteries-Included C++ for Tiny Windows Executables
+//==============================================================================
+//
+// A lightweight C++17 library for building extremely small 32-bit Windows
+// utilities. Designed for simplicity and minimal binary size, libattoboy
+// provides high-level abstractions for strings, collections, files, networking,
+// threading, AI, and TUI—all without the STL, CRT, or libc. Uses UTF-8
+// encoding, RAII patterns, and thread-safe designs throughout.
+//
+// Quick Start:
+//   - Define atto_main() as your entry point (replaces main())
+//   - Use String, List, Map, Set for data handling
+//   - Use Path/File for filesystem and network I/O
+//   - Use WebRequest for HTTP, AI for LLM integration
+//
+// Build Notes:
+//   - No exceptions, RTTI, or virtual functions
+//   - Links only against Windows API
+//   - Compatible with MSVC and MinGW
+//
+//==============================================================================
+
+/// Application entry point. Define this instead of main().
 extern "C" void atto_main();
 
 namespace attoboy {
 
-/// Type identifier for values stored in containers.
-enum ValueType {
-  TYPE_NULL = 0, ///< Null or uninitialized value
-  TYPE_INVALID,  ///< Invalid or error state
-  TYPE_BOOL,     ///< Boolean value (true/false)
-  TYPE_INT,      ///< Integer value (32-bit)
-  TYPE_FLOAT,    ///< Floating-point value (single precision)
-  TYPE_STRING,   ///< String value (attoboy::String)
-  TYPE_LIST,     ///< List value (attoboy::List)
-  TYPE_MAP,      ///< Map value (attoboy::Map)
-  TYPE_SET,      ///< Set value (attoboy::Set)
-  TYPE_UNKNOWN   ///< Unknown or unrecognized type
-};
+//------------------------------------------------------------------------------
+// Forward Declarations
+//------------------------------------------------------------------------------
 
 class StringImpl;
 class ListImpl;
@@ -39,7 +52,6 @@ class AIImpl;
 class EmbeddingImpl;
 class ConversationImpl;
 
-// Forward declarations
 class List;
 class Map;
 class Set;
@@ -48,349 +60,261 @@ class AI;
 class Embedding;
 class Conversation;
 
-/// Immutable string class with batteries-included functionality.
+//------------------------------------------------------------------------------
+// Core Types
+//------------------------------------------------------------------------------
+
+/// Type tags for values in containers (List, Map, Set).
+enum ValueType {
+  /// Null or uninitialized value.
+  TYPE_NULL = 0,
+  /// Invalid or error state.
+  TYPE_INVALID,
+  /// Boolean value.
+  TYPE_BOOL,
+  /// 32-bit integer value.
+  TYPE_INT,
+  /// Single-precision floating-point value.
+  TYPE_FLOAT,
+  /// String value (attoboy::String).
+  TYPE_STRING,
+  /// List value (attoboy::List).
+  TYPE_LIST,
+  /// Map value (attoboy::Map).
+  TYPE_MAP,
+  /// Set value (attoboy::Set).
+  TYPE_SET,
+  /// Unrecognized type.
+  TYPE_UNKNOWN
+};
+
+/// Immutable UTF-8 string with rich text manipulation.
+/// Supports automatic conversion from bool, int, float, and collections.
+/// All character-based operations respect UTF-8 codepoint boundaries.
 class String {
 public:
   /// Creates an empty string.
   String();
-
-  /// Creates a string from a C-style string.
+  /// Creates a string from a null-terminated C string.
   String(const char *str);
-
   /// Creates a string from a boolean ("true" or "false").
   String(bool value);
-
   /// Creates a string from an integer.
   String(int value);
-
-  /// Creates a string from a long integer.
+  /// Creates a string from a 64-bit integer.
   String(long long value);
-
-  /// Creates a string from a floating-point number.
+  /// Creates a string from a float.
   String(float value);
-
-  /// Creates a string from raw byte data and size (in bytes).
+  /// Creates a string from raw bytes and length.
   String(const char *data, int size);
-
-  /// Creates a JSON string from a list (e.g., ["value1",2,true]).
+  /// Creates a JSON array string from a list (e.g., [1,"a",true]).
   String(const List &list);
-
-  /// Creates a JSON string from a map (e.g., {"key":"value"}).
+  /// Creates a JSON object string from a map (e.g., {"k":"v"}).
   String(const Map &map);
-
-  /// Creates a JSON string from a set (e.g., [1,2,3]).
+  /// Creates a JSON array string from a set.
   String(const Set &set);
 
-  /// Creates a string by concatenating multiple arguments.
-  /// Each argument is converted to a String and concatenated in order.
-  /// Requires at least 2 arguments.
+  /// Concatenates multiple values into one string.
   template <typename T, typename U, typename... Args>
   String(const T &first, const U &second, const Args &...rest)
       : String(String(first) + String(second) + String(rest...)) {}
 
-  /// Copies another string.
+  /// Creates a copy of another string.
   String(const String &other);
-
-  /// Destroys the string and releases memory.
+  /// Destroys the string and frees memory.
   ~String();
-
   /// Assigns another string to this string.
   String &operator=(const String &other);
 
-  /// Returns the number of characters in the string.
-  /// For UTF-8 strings, this counts Unicode codepoints, not bytes.
+  /// Returns the number of UTF-8 characters in the string.
   int length() const;
-
   /// Returns the number of bytes in the string.
-  /// This is the original behavior of length() before character-based indexing.
   int byteLength() const;
-
   /// Returns true if the string is empty.
   bool isEmpty() const;
-
-  /// Returns a pointer to the underlying C-style string.
+  /// Returns a pointer to the null-terminated C string.
   const char *c_str() const;
-
-  /// Returns the character at index as a UTF-8 string.
-  /// Negative indices count from the end.
-  /// Returns empty string if index is out of character bounds.
+  /// Returns the character at index as a string. Negative indices count from
+  /// end.
   String at(int index) const;
+  /// Returns a single byte at index as a string. Negative indices count from
+  /// end.
+  String byteAt(int index) const;
 
-  /// Returns a Byte at the specified byte index as a single-byte string.
-  /// This is the original behavior before character-based indexing.
-  String byteAt(int byteIndex) const;
-
-  /// Returns a UTF-8 substring from character start (inclusive) to end
-  /// (exclusive). Negative indices count from the end. If end is -1, extracts
-  /// to the end. All operations work on UTF-8 character boundaries.
+  /// Returns a substring from start to end (exclusive). Negative indices count
+  /// from end.
   String substring(int start, int end = -1) const;
-
-  /// Returns a byte-based substring from start (inclusive) to end (exclusive).
-  /// Negative indices count from the end. If end is -1, extracts to the end.
-  /// This is the original behavior before character-based indexing.
+  /// Returns a byte-based substring from start to end (exclusive).
   String byteSubstring(int start, int end = -1) const;
-
   /// Returns a copy of this string.
   String duplicate() const;
 
   /// Returns true if this string contains the substring.
-  bool contains(const String &substring) const;
-
+  bool contains(const String &sub) const;
   /// Returns true if this string starts with the substring.
-  bool startsWith(const String &substring) const;
-
+  bool startsWith(const String &sub) const;
   /// Returns true if this string ends with the substring.
-  bool endsWith(const String &substring) const;
-
+  bool endsWith(const String &sub) const;
   /// Returns the number of non-overlapping occurrences of substring.
-  int count(const String &substring) const;
-
-  /// Returns the character index of the first occurrence of substring.
-  /// Returns -1 if substring is not found.
-  /// Negative start indices count from the end.
-  int getPositionOf(const String &substring, int start = 0) const;
+  int count(const String &sub) const;
+  /// Returns the character index of substring, or -1 if not found.
+  int getPositionOf(const String &sub, int start = 0) const;
 
   /// Returns true if the string is a valid integer or decimal number.
   bool isNumber() const;
-
   /// Converts the string to an integer. Returns 0 if invalid.
   int toInteger() const;
-
   /// Converts the string to a float. Returns 0.0 if invalid.
   float toFloat() const;
-
-  /// Converts the string to a boolean.
-  /// Returns true for "true", "t", "1", "yes", "on" (case-insensitive).
+  /// Returns true for "true", "yes", "1", "on" (case-insensitive).
   bool toBool() const;
 
-  /// Returns a new string with substring appended to the end.
-  String append(const String &substring) const;
-
-  /// Returns a new string with substring prepended to the beginning.
-  String prepend(const String &substring) const;
-
-  /// Returns a new string with substring inserted at character index.
-  /// Negative indices count from the end.
-  /// All operations work on UTF-8 character boundaries.
-  String insert(int index, const String &substring) const;
-
+  /// Returns a new string with the substring appended.
+  String append(const String &s) const;
+  /// Returns a new string with the substring prepended.
+  String prepend(const String &s) const;
+  /// Returns a new string with the substring inserted at index.
+  String insert(int index, const String &s) const;
   /// Returns a new string with characters from start to end removed.
-  /// Negative indices count from the end.
-  /// All operations work on UTF-8 character boundaries.
   String remove(int start, int end) const;
-
   /// Returns a new string with all occurrences of target replaced.
   String replace(const String &target, const String &replacement) const;
-
   /// Returns a new string with leading and trailing whitespace removed.
   String trim() const;
-
-  /// Returns a new string with all characters converted to uppercase.
+  /// Returns a new string with all characters uppercase.
   String upper() const;
-
-  /// Returns a new string with all characters converted to lowercase.
+  /// Returns a new string with all characters lowercase.
   String lower() const;
-
   /// Returns a new string with characters in reverse order.
   String reverse() const;
-
-  /// Returns a new string with the content repeated count times.
+  /// Returns a new string with content repeated count times.
   String repeat(int count) const;
 
   /// Returns true if this string equals the other string.
   bool equals(const String &other) const;
-
-  /// Compares this string with another lexicographically.
-  /// Returns negative if this < other, 0 if equal, positive if this > other.
+  /// Compares lexicographically. Returns <0, 0, or >0.
   int compare(const String &other) const;
-
   /// Returns true if this string equals the other string.
   bool operator==(const String &other) const;
-
   /// Returns true if this string does not equal the other string.
   bool operator!=(const String &other) const;
-
   /// Returns the concatenation of this string and other.
   String operator+(const String &other) const;
-
   /// Returns a hash code for this string.
   int hash() const;
 
-  /// Splits this string into a list by line breaks.
-  /// Handles both Windows (\r\n) and Unix (\n) line endings.
+  /// Splits this string by newlines into a list.
   List lines() const;
-
-  /// Joins all elements of list using this string as separator.
-  /// Non-string elements are converted to strings automatically.
+  /// Joins list elements using this string as separator.
   String join(const List &list) const;
-
-  /// Splits this string by separator into a list.
-  /// The max parameter controls maximum splits (default 1).
-  /// Returns up to max+2 parts (e.g., max=1 allows 1 split, yielding 2 parts).
-  List split(const String &separator, int max = 1) const;
-
-  /// Splits this string by whitespace into a list.
-  /// Consecutive whitespace is treated as a single separator.
+  /// Splits by separator into a list. max controls maximum splits.
+  List split(const String &sep, int max = 1) const;
+  /// Splits by whitespace into a list.
   List split() const;
 
-  /// Formats this string using list elements as replacements.
-  /// Replaces {0}, {1}, etc. with corresponding list elements.
+  /// Replaces {0}, {1}, etc. with list elements.
   String format(const List &list) const;
-
-  /// Formats this string using map values as replacements.
-  /// Replaces {key} with the corresponding value from the map.
+  /// Replaces {key} placeholders with map values.
   String format(const Map &map) const;
 
 private:
   StringImpl *impl;
 };
 
-/// Dynamic array that stores mixed types of values.
+/// Dynamic array storing mixed types (bool, int, float, String, List, Map,
+/// Set). Elements are accessed by index; negative indices count from end.
 class List {
 public:
   /// Creates an empty list.
   List();
-
-  /// Creates an empty list with the specified initial capacity.
+  /// Creates an empty list with reserved capacity.
   List(int capacity);
 
-  /// Creates a list with the specified values.
+  /// Creates a list with the given values: List(1, "two", 3.0f)
   template <typename... Args> List(const Args &...args) : List() {
     variadic_append(args...);
   }
 
-  /// Copies another list.
+  /// Creates a copy of another list.
   List(const List &other);
-
   /// Creates a list from a set.
   List(const Set &set);
-
-  /// Destroys the list and releases memory.
+  /// Destroys the list and frees memory.
   ~List();
-
   /// Assigns another list to this list.
   List &operator=(const List &other);
 
   /// Returns the number of elements in the list.
   int length() const;
-
   /// Returns true if the list is empty.
   bool isEmpty() const;
 
-  /// Appends a value to the end of the list.
-  /// Returns a reference to this list for chaining.
+  /// Appends a value to the end. Returns this list for chaining.
   template <typename T> List &append(T value) {
     append_impl(value);
     return *this;
   }
-
-  /// Prepends a value to the beginning of the list.
-  /// Returns a reference to this list for chaining.
+  /// Prepends a value to the beginning. Returns this list for chaining.
   template <typename T> List &prepend(T value) {
     prepend_impl(value);
     return *this;
   }
-
-  /// Inserts a value at the specified index.
-  /// If index is beyond the end, appends. If index < 0, prepends.
-  /// Returns a reference to this list for chaining.
+  /// Inserts a value at index. Returns this list for chaining.
   template <typename T> List &insert(int index, T value) {
     insert_impl(index, value);
     return *this;
   }
-
-  /// Removes and returns the value at index.
-  /// Index is clamped to valid range. Shifts remaining elements.
-  template <typename T> T pop();
-
-  /// Returns the value at index.
-  /// Index is clamped to valid range [0, length-1].
-  template <typename T> T at(int index) const;
-
-  /// Returns the value at index using [] operator.
-  /// Index is clamped to valid range [0, length-1].
-  template <typename T> T operator[](int index) const;
-
-  /// Sets the value at index.
-  /// Index is clamped to valid range. If list is empty, appends the value.
-  /// Returns a reference to this list for chaining.
+  /// Sets the value at index. Returns this list for chaining.
   template <typename T> List &set(int index, T value) {
     set_impl(index, value);
     return *this;
   }
-
-  /// Removes the element at index and shifts remaining elements.
-  /// Index is clamped to valid range.
-  /// Returns a reference to this list for chaining.
+  /// Removes the element at index. Returns this list for chaining.
   List &remove(int index);
-
-  /// Removes all elements from the list.
-  /// Returns a reference to this list for chaining.
+  /// Removes all elements. Returns this list for chaining.
   List &clear();
-
-  /// Returns the index of the first occurrence of value, or -1 if not found.
-  /// Uses numeric coercion (e.g., int 5 equals float 5.0).
-  template <typename T> int find(T value) const;
-
-  /// Returns true if the list contains value.
-  /// Uses numeric coercion (e.g., int 5 equals float 5.0).
-  template <typename T> bool contains(T value) const;
-
-  /// Reverses the order of elements in place.
-  /// Returns a reference to this list for chaining.
+  /// Reverses element order in place. Returns this list for chaining.
   List &reverse();
-
-  /// Sorts the list in ascending or descending order.
-  /// Uses best-effort cross-type comparison with numeric coercion.
-  /// Returns a reference to this list for chaining.
+  /// Sorts elements. Returns this list for chaining.
   List &sort(bool ascending = true);
-
-  /// Returns the type of the value at index.
-  /// Returns TYPE_INVALID if index is out of bounds.
-  ValueType typeAt(int index) const;
-
-  /// Returns a new list containing elements from start to end.
-  /// Negative indices count from the end. Indices are clamped.
-  List slice(int start, int end) const;
-
-  /// Appends all elements from another list to this list.
-  /// Returns a reference to this list for chaining.
+  /// Appends all elements from another list. Returns this list for chaining.
   List &concat(const List &other);
-
-  /// Appends all values from a set to this list.
-  /// Returns a reference to this list for chaining.
+  /// Appends all values from a set. Returns this list for chaining.
   List &concat(const Set &set);
 
+  /// Removes and returns the element at index.
+  template <typename T> T pop();
+  /// Returns the element at index.
+  template <typename T> T at(int index) const;
+  /// Returns the element at index.
+  template <typename T> T operator[](int index) const;
+  /// Returns the type of the element at index.
+  ValueType typeAt(int index) const;
+  /// Returns a new list with elements from start to end.
+  List slice(int start, int end) const;
   /// Returns a copy of this list.
   List duplicate() const;
 
-  /// Converts this list to a CSV string.
-  /// The list is expected to be a list of lists (rows).
-  /// If a cell is a collection (List, Map, Set), it is encoded as a JSON
-  /// string.
+  /// Returns the index of the first occurrence of value, or -1.
+  template <typename T> int find(T value) const;
+  /// Returns true if the list contains the value.
+  template <typename T> bool contains(T value) const;
+
+  /// Converts a list of lists to a CSV string.
   String toCSVString() const;
-
   /// Creates a list of lists from a CSV string.
-  /// Does not decode JSON strings; returns cells as string values.
   static List FromCSVString(const String &csv);
-
   /// Converts this list to a JSON array string.
-  /// Same as String(list).
   String toJSONString() const;
-
   /// Creates a list from a JSON array string.
   static List FromJSONString(const String &json);
 
   /// Returns true if this list equals the other list.
-  /// Lists are equal if they have the same types and values in order.
   bool compare(const List &other) const;
-
   /// Returns true if this list equals the other list.
   bool operator==(const List &other) const;
-
   /// Returns true if this list does not equal the other list.
   bool operator!=(const List &other) const;
-
   /// Returns a new list with the value appended.
   template <typename T> List operator+(T value) const {
     List result = duplicate();
@@ -400,8 +324,6 @@ public:
 
 private:
   ListImpl *impl;
-
-  // Implementation methods for different types
   void append_impl(bool value);
   void append_impl(int value);
   void append_impl(float value);
@@ -410,7 +332,6 @@ private:
   void append_impl(const List &value);
   void append_impl(const Map &value);
   void append_impl(const Set &value);
-
   void prepend_impl(bool value);
   void prepend_impl(int value);
   void prepend_impl(float value);
@@ -419,7 +340,6 @@ private:
   void prepend_impl(const List &value);
   void prepend_impl(const Map &value);
   void prepend_impl(const Set &value);
-
   void insert_impl(int index, bool value);
   void insert_impl(int index, int value);
   void insert_impl(int index, float value);
@@ -428,7 +348,6 @@ private:
   void insert_impl(int index, const List &value);
   void insert_impl(int index, const Map &value);
   void insert_impl(int index, const Set &value);
-
   void set_impl(int index, bool value);
   void set_impl(int index, int value);
   void set_impl(int index, float value);
@@ -437,113 +356,80 @@ private:
   void set_impl(int index, const List &value);
   void set_impl(int index, const Map &value);
   void set_impl(int index, const Set &value);
-
-  // Variadic helper for constructor
   template <typename T, typename... Args>
   void variadic_append(const T &first, const Args &...rest) {
     append(first);
     variadic_append(rest...);
   }
-
-  void variadic_append() {} // Base case
+  void variadic_append() {}
 };
 
-/// Key-value map that stores mixed types.
-/// Keys must be unique. Insertion order is not guaranteed.
+/// Key-value map with mixed types for both keys and values.
+/// Keys must be unique. Order is not guaranteed.
 class Map {
 public:
   /// Creates an empty map.
   Map();
-
-  /// Creates an empty map with the specified initial capacity.
+  /// Creates an empty map with reserved capacity.
   Map(int capacity);
 
-  /// Creates a map with alternating key-value pairs.
-  /// If argument count is odd, the last key gets a null value.
+  /// Creates a map with key-value pairs: Map("name", "Alice", "age", 30)
   template <typename... Args> Map(const Args &...args) : Map() {
     variadic_put_pairs(args...);
   }
 
-  /// Copies another map.
+  /// Creates a copy of another map.
   Map(const Map &other);
-
-  /// Destroys the map and releases memory.
+  /// Destroys the map and frees memory.
   ~Map();
-
   /// Assigns another map to this map.
   Map &operator=(const Map &other);
 
-  /// Returns the number of key-value pairs in the map.
+  /// Returns the number of key-value pairs.
   int length() const;
-
   /// Returns true if the map is empty.
   bool isEmpty() const;
 
   /// Returns the value for key, or defaultValue if not found.
   template <typename K, typename V> V get(K key, V defaultValue = V()) const;
-
-  /// Returns the value for key using [] operator.
-  /// Returns a null-type value if key is not found.
+  /// Returns the value for key, or null-type if not found.
   template <typename K, typename V> V operator[](K key) const;
-
-  /// Sets key to value. If key exists, updates its value.
-  /// Returns a reference to this map for chaining.
-  template <typename K, typename V> Map &put(K key, V value);
-
-  /// Removes the key-value pair with the specified key.
-  /// Returns a reference to this map for chaining.
-  template <typename K> Map &remove(K key);
-
-  /// Removes all key-value pairs from the map.
-  /// Returns a reference to this map for chaining.
-  Map &clear();
-
-  /// Returns the first key with the specified value.
-  /// Returns a null-type value if not found.
-  template <typename K, typename V> K findValue(V value) const;
-
-  /// Returns true if the map contains key.
+  /// Returns true if the map contains the key.
   template <typename K> bool hasKey(K key) const;
-
-  /// Returns the type of the value for key.
-  /// Returns TYPE_INVALID if key is not found.
+  /// Returns the type of the value for key, or TYPE_INVALID if not found.
   template <typename K> ValueType typeAt(K key) const;
+  /// Returns the first key with the given value, or null-type if not found.
+  template <typename K, typename V> K findValue(V value) const;
+  /// Returns a list of all keys.
+  List keys() const;
+  /// Returns a list of all values.
+  List values() const;
 
-  /// Adds all key-value pairs from other to this map.
-  /// If a key exists in both, uses the value from other.
-  /// Returns a reference to this map for chaining.
+  /// Sets key to value. Returns this map for chaining.
+  template <typename K, typename V> Map &put(K key, V value);
+  /// Removes the key-value pair. Returns this map for chaining.
+  template <typename K> Map &remove(K key);
+  /// Removes all key-value pairs. Returns this map for chaining.
+  Map &clear();
+  /// Merges another map into this one. Returns this map for chaining.
   Map &merge(const Map &other);
-
   /// Returns a copy of this map.
   Map duplicate() const;
 
-  /// Returns a list of all keys in the map.
-  List keys() const;
-
-  /// Returns a list of all values in the map.
-  List values() const;
-
   /// Converts this map to a JSON object string.
-  /// Same as String(map).
   String toJSONString() const;
-
   /// Creates a map from a JSON object string.
   static Map FromJSONString(const String &json);
 
   /// Returns true if this map equals the other map.
-  /// Maps are equal if they have the same keys and values.
   bool compare(const Map &other) const;
-
   /// Returns true if this map equals the other map.
   bool operator==(const Map &other) const;
-
   /// Returns true if this map does not equal the other map.
   bool operator!=(const Map &other) const;
 
 private:
   MapImpl *impl;
-
-  // Implementation methods for different types
   void put_impl(bool key, bool value);
   void put_impl(bool key, int value);
   void put_impl(bool key, float value);
@@ -552,7 +438,6 @@ private:
   void put_impl(bool key, const List &value);
   void put_impl(bool key, const Map &value);
   void put_impl(bool key, const Set &value);
-
   void put_impl(int key, bool value);
   void put_impl(int key, int value);
   void put_impl(int key, float value);
@@ -561,7 +446,6 @@ private:
   void put_impl(int key, const List &value);
   void put_impl(int key, const Map &value);
   void put_impl(int key, const Set &value);
-
   void put_impl(float key, bool value);
   void put_impl(float key, int value);
   void put_impl(float key, float value);
@@ -570,7 +454,6 @@ private:
   void put_impl(float key, const List &value);
   void put_impl(float key, const Map &value);
   void put_impl(float key, const Set &value);
-
   void put_impl(const char *key, bool value);
   void put_impl(const char *key, int value);
   void put_impl(const char *key, float value);
@@ -579,7 +462,6 @@ private:
   void put_impl(const char *key, const List &value);
   void put_impl(const char *key, const Map &value);
   void put_impl(const char *key, const Set &value);
-
   void put_impl(const String &key, bool value);
   void put_impl(const String &key, int value);
   void put_impl(const String &key, float value);
@@ -588,129 +470,99 @@ private:
   void put_impl(const String &key, const List &value);
   void put_impl(const String &key, const Map &value);
   void put_impl(const String &key, const Set &value);
-
   void remove_impl(bool key);
   void remove_impl(int key);
   void remove_impl(float key);
   void remove_impl(const char *key);
   void remove_impl(const String &key);
-
-  // Variadic helper for constructor - handles alternating key-value pairs
   template <typename K, typename V, typename... Args>
   void variadic_put_pairs(const K &key, const V &value, const Args &...rest) {
     put(key, value);
     variadic_put_pairs(rest...);
   }
-
-  // Handle odd number of arguments - last key gets null value
   template <typename K> void variadic_put_pairs(const K &key) {
-    put_impl(key, false); // Put with null/false value
+    put_impl(key, false);
   }
-
-  void variadic_put_pairs() {} // Base case
+  void variadic_put_pairs() {}
 };
 
-// Template implementations for Map
 template <typename K, typename V> inline Map &Map::put(K key, V value) {
   put_impl(key, value);
   return *this;
 }
-
 template <typename K> inline Map &Map::remove(K key) {
   remove_impl(key);
   return *this;
 }
 
-/// Set that stores unique values of mixed types.
-/// Values are unique (no duplicates). Insertion order is not guaranteed.
+/// Unordered collection of unique mixed-type values.
+/// Duplicates are silently ignored. Order is not guaranteed.
 class Set {
 public:
   /// Creates an empty set.
   Set();
-
-  /// Creates an empty set with the specified initial capacity.
+  /// Creates an empty set with reserved capacity.
   Set(int capacity);
 
-  /// Creates a set with the specified values.
+  /// Creates a set with the given values: Set(1, 2, 3)
   template <typename... Args> Set(const Args &...args) : Set() {
     variadic_put(args...);
   }
 
-  /// Copies another set.
+  /// Creates a copy of another set.
   Set(const Set &other);
-
   /// Creates a set from a list, removing duplicates.
   Set(const List &list);
-
-  /// Destroys the set and releases memory.
+  /// Destroys the set and frees memory.
   ~Set();
-
   /// Assigns another set to this set.
   Set &operator=(const Set &other);
 
-  /// Returns the number of unique values in the set.
+  /// Returns the number of values in the set.
   int length() const;
-
   /// Returns true if the set is empty.
   bool isEmpty() const;
 
-  /// Adds a value to the set. Duplicates are ignored.
-  /// Returns a reference to this set for chaining.
+  /// Adds a value to the set. Duplicates are ignored. Returns this set for
+  /// chaining.
   template <typename T> Set &put(T value) {
     put_impl(value);
     return *this;
   }
-
-  /// Returns true if the set contains value.
-  template <typename T> bool contains(T value) const;
-
-  /// Removes value from the set if it exists.
-  /// Returns a reference to this set for chaining.
+  /// Removes a value from the set. Returns this set for chaining.
   template <typename T> Set &remove(T value) {
     remove_impl(value);
     return *this;
   }
-
-  /// Removes all values from the set.
-  /// Returns a reference to this set for chaining.
+  /// Removes all values. Returns this set for chaining.
   Set &clear();
 
-  /// Adds all values from other to this set (union operation).
-  /// Duplicates are automatically ignored.
-  /// Returns a reference to this set for chaining.
+  /// Adds all values from another set (union). Returns this set for chaining.
   Set &setUnion(const Set &other);
-
-  /// Keeps only values that exist in both this set and other (intersection).
-  /// Returns a reference to this set for chaining.
+  /// Keeps only values in both sets (intersection). Returns this set for
+  /// chaining.
   Set &intersect(const Set &other);
-
-  /// Removes all values that exist in other from this set (difference).
-  /// Returns a reference to this set for chaining.
+  /// Removes all values in other (difference). Returns this set for chaining.
   Set &subtract(const Set &other);
 
+  /// Returns true if the set contains the value.
+  template <typename T> bool contains(T value) const;
   /// Returns a copy of this set.
   Set duplicate() const;
-
-  /// Returns a list containing all values from this set.
+  /// Returns a list of all values in the set.
   List toList() const;
 
   /// Converts this set to a JSON array string.
-  /// Same as String(set).
   String toJSONString() const;
-
   /// Creates a set from a JSON array string.
   static Set FromJSONString(const String &json);
 
   /// Returns true if this set equals the other set.
-  /// Sets are equal if they have the same values (order doesn't matter).
   bool compare(const Set &other) const;
-
   /// Returns true if this set equals the other set.
   bool operator==(const Set &other) const;
-
   /// Returns true if this set does not equal the other set.
   bool operator!=(const Set &other) const;
-
   /// Returns a new set with the value added.
   template <typename T> Set operator+(T value) const {
     Set result = duplicate();
@@ -720,8 +572,6 @@ public:
 
 private:
   SetImpl *impl;
-
-  // Implementation methods for different types
   void put_impl(bool value);
   void put_impl(int value);
   void put_impl(float value);
@@ -730,211 +580,153 @@ private:
   void put_impl(const List &value);
   void put_impl(const Map &value);
   void put_impl(const Set &value);
-
   void remove_impl(bool value);
   void remove_impl(int value);
   void remove_impl(float value);
   void remove_impl(const char *value);
   void remove_impl(const String &value);
-
-  // Variadic helper for constructor
   template <typename T, typename... Args>
   void variadic_put(const T &first, const Args &...rest) {
     put(first);
     variadic_put(rest...);
   }
-
-  void variadic_put() {} // Base case
+  void variadic_put() {}
 };
 
-/// Date and time with millisecond precision.
+//------------------------------------------------------------------------------
+// Utility Types
+//------------------------------------------------------------------------------
+
+/// Date and time with millisecond precision (UTC).
 class DateTime {
 public:
-  /// Creates a DateTime representing the current date and time.
+  /// Creates a DateTime representing the current time.
   DateTime();
-
   /// Creates a DateTime from milliseconds since Unix epoch (Jan 1, 1970).
   DateTime(long long millisSinceEpoch);
-
   /// Creates a DateTime from an ISO-8601 string (YYYY-MM-DDTHH:MM:SS.fffZ).
   DateTime(const String &iso8601);
-
-  /// Copies another DateTime.
+  /// Creates a copy of another DateTime.
   DateTime(const DateTime &other);
-
-  /// Destroys the DateTime and releases memory.
+  /// Destroys the DateTime and frees memory.
   ~DateTime();
-
-  /// Assigns another DateTime to this one.
+  /// Assigns another DateTime to this DateTime.
   DateTime &operator=(const DateTime &other);
 
-  /// Adds milliseconds to this DateTime (negative to subtract).
-  /// Returns a reference to this DateTime for chaining.
+  /// Adds milliseconds (negative to subtract). Returns this DateTime for
+  /// chaining.
   DateTime &add(long long milliseconds);
-
-  /// Returns the difference in milliseconds between this and other.
-  /// Positive if this is later, negative if this is earlier.
+  /// Returns the difference in milliseconds (positive if this is later).
   long long diff(const DateTime &other) const;
-
-  /// Compares this DateTime with other.
-  /// Returns negative if this < other, 0 if equal, positive if this > other.
+  /// Compares with another DateTime. Returns <0, 0, or >0.
   int compare(const DateTime &other) const;
-
-  /// Returns true if this DateTime equals other.
+  /// Returns true if this DateTime equals the other.
   bool equals(const DateTime &other) const;
-
-  /// Returns true if this DateTime equals other.
+  /// Returns true if this DateTime equals the other.
   bool operator==(const DateTime &other) const;
-
-  /// Returns true if this DateTime does not equal other.
+  /// Returns true if this DateTime does not equal the other.
   bool operator!=(const DateTime &other) const;
 
   /// Returns milliseconds since Unix epoch (Jan 1, 1970).
   long long timestamp() const;
-
-  /// Returns an ISO-8601 formatted string (YYYY-MM-DDTHH:MM:SS.fffZ).
+  /// Returns an ISO-8601 formatted string.
   String toString() const;
 
 private:
   DateTimeImpl *impl;
 };
 
-/// Mutable byte buffer for storing and manipulating binary data.
+/// Mutable byte buffer for binary data.
+/// Supports compression (LZ4) and encryption (ChaCha20).
 class Buffer {
 public:
   /// Creates an empty buffer.
   Buffer();
-
-  /// Creates an empty buffer with the specified initial capacity.
+  /// Creates an empty buffer with reserved capacity.
   Buffer(int capacity);
-
-  /// Creates a buffer from a String, copying its byte data.
+  /// Creates a buffer by copying a string's bytes.
   Buffer(const String &str);
-
   /// Creates a buffer by copying bytes from a pointer.
   Buffer(const unsigned char *ptr, int size);
-
-  /// Copies another buffer.
+  /// Creates a copy of another buffer.
   Buffer(const Buffer &other);
-
-  /// Destroys the buffer and releases memory.
+  /// Destroys the buffer and frees memory.
   ~Buffer();
-
   /// Assigns another buffer to this buffer.
   Buffer &operator=(const Buffer &other);
 
   /// Returns the number of bytes in the buffer.
   int length() const;
-
   /// Returns true if the buffer is empty.
   bool isEmpty() const;
-
-  /// Returns a pointer to the buffer's data and its size.
-  /// For empty buffers, returns nullptr and sets len to 0.
+  /// Returns a pointer to the data and sets len to the size.
   const unsigned char *c_ptr(int *len) const;
-
-  /// Removes all bytes from the buffer.
-  /// Returns a reference to this buffer for chaining.
+  /// Removes all bytes. Returns this buffer for chaining.
   Buffer &clear();
 
-  /// Returns true if this buffer equals other.
-  bool compare(const Buffer &other) const;
-
-  /// Appends a string's byte data to the end.
-  /// Returns a reference to this buffer for chaining.
+  /// Appends a string's bytes. Returns this buffer for chaining.
   Buffer &append(const String &str);
-
-  /// Appends another buffer's contents to the end.
-  /// Returns a reference to this buffer for chaining.
+  /// Appends another buffer's bytes. Returns this buffer for chaining.
   Buffer &append(const Buffer &other);
-
-  /// Appends bytes from a pointer to the end.
-  /// Returns a reference to this buffer for chaining.
+  /// Appends bytes from a pointer. Returns this buffer for chaining.
   Buffer &append(const unsigned char *ptr, int size);
-
-  /// Prepends a string's byte data to the beginning.
-  /// Returns a reference to this buffer for chaining.
+  /// Prepends a string's bytes. Returns this buffer for chaining.
   Buffer &prepend(const String &str);
-
-  /// Prepends another buffer's contents to the beginning.
-  /// Returns a reference to this buffer for chaining.
+  /// Prepends another buffer's bytes. Returns this buffer for chaining.
   Buffer &prepend(const Buffer &other);
-
-  /// Prepends bytes from a pointer to the beginning.
-  /// Returns a reference to this buffer for chaining.
+  /// Prepends bytes from a pointer. Returns this buffer for chaining.
   Buffer &prepend(const unsigned char *ptr, int size);
-
-  /// Inserts a string's byte data at index.
-  /// Returns a reference to this buffer for chaining.
+  /// Inserts a string's bytes at index. Returns this buffer for chaining.
   Buffer &insert(int index, const String &str);
-
-  /// Inserts another buffer's contents at index.
-  /// Returns a reference to this buffer for chaining.
+  /// Inserts another buffer's bytes at index. Returns this buffer for chaining.
   Buffer &insert(int index, const Buffer &other);
-
-  /// Inserts bytes from a pointer at index.
-  /// Returns a reference to this buffer for chaining.
+  /// Inserts bytes from a pointer at index. Returns this buffer for chaining.
   Buffer &insert(int index, const unsigned char *ptr, int size);
-
-  /// Returns a new buffer containing bytes from start to end.
-  /// If end is -1, slices to the end of the buffer.
-  Buffer slice(int start, int end = -1) const;
-
-  /// Removes bytes from start to end.
-  /// If end is -1, removes to the end of the buffer.
-  /// Returns a reference to this buffer for chaining.
+  /// Removes bytes from start to end. Returns this buffer for chaining.
   Buffer &remove(int start, int end = -1);
-
-  /// Reverses the order of bytes in place.
-  /// Returns a reference to this buffer for chaining.
+  /// Reverses byte order in place. Returns this buffer for chaining.
   Buffer &reverse();
-
-  /// Shrinks the buffer's capacity to match its length, freeing unused memory.
-  /// Returns a reference to this buffer for chaining.
+  /// Shrinks capacity to match length. Returns this buffer for chaining.
   Buffer &trim();
 
-  /// Returns a compressed version of this buffer.
-  /// Uses LZ4 compression.
-  Buffer compress() const;
+  /// Returns a new buffer with bytes from start to end.
+  Buffer slice(int start, int end = -1) const;
 
+  /// Returns an LZ4-compressed version of this buffer.
+  Buffer compress() const;
   /// Returns a decompressed version of this buffer.
-  /// Buffer must contain data compressed with compress().
   Buffer decompress() const;
 
-  /// Encrypts or decrypts the buffer using ChaCha20 stream cipher.
-  /// The operation is symmetric: applying twice with the same key and nonce
-  /// restores the original data.
-  ///
-  /// The key must be at least 32 bytes (256 bits).
-  /// The nonce must be at least 12 bytes (96 bits).
-  /// Returns an empty buffer if key or nonce is too short.
+  /// Encrypts/decrypts using ChaCha20 (symmetric). Key ≥32 bytes, nonce ≥12
+  /// bytes.
   Buffer crypt(const String &key, const String &nonce) const;
+  /// Encrypts/decrypts using ChaCha20 (symmetric). Key ≥32 bytes, nonce ≥12
+  /// bytes.
   Buffer crypt(const String &key, const Buffer &nonce) const;
+  /// Encrypts/decrypts using ChaCha20 (symmetric). Key ≥32 bytes, nonce ≥12
+  /// bytes.
   Buffer crypt(const Buffer &key, const String &nonce) const;
+  /// Encrypts/decrypts using ChaCha20 (symmetric). Key ≥32 bytes, nonce ≥12
+  /// bytes.
   Buffer crypt(const Buffer &key, const Buffer &nonce) const;
 
   /// Converts the buffer to a Base64-encoded string.
   String toBase64() const;
-
   /// Creates a buffer from a Base64-encoded string.
-  /// Returns an empty buffer if the input is not valid Base64.
-  static Buffer fromBase64(const String &base64String);
-
-  /// Converts the buffer's bytes to a String.
+  static Buffer fromBase64(const String &base64);
+  /// Converts the buffer's bytes to a string.
   String toString() const;
 
+  /// Returns true if this buffer equals the other.
+  bool compare(const Buffer &other) const;
   /// Returns a hash code for this buffer.
   int hash() const;
-
-  /// Returns true if this buffer equals other.
+  /// Returns true if this buffer equals the other.
   bool operator==(const Buffer &other) const;
-
-  /// Returns true if this buffer does not equal other.
+  /// Returns true if this buffer does not equal the other.
   bool operator!=(const Buffer &other) const;
-
   /// Returns a new buffer with the string's bytes appended.
   Buffer operator+(const String &str) const;
-
   /// Returns a new buffer with the other buffer's bytes appended.
   Buffer operator+(const Buffer &other) const;
 
@@ -942,148 +734,58 @@ private:
   BufferImpl *impl;
 };
 
-/// Command-line argument parser with support for flags, named parameters, and
-/// positional parameters.
+//------------------------------------------------------------------------------
+// Command-Line Parsing
+//------------------------------------------------------------------------------
+
+/// Command-line argument parser with flags, parameters, and positionals.
+/// Automatically handles -h/--help.
 class Arguments {
 public:
-  /// Creates an Arguments parser and captures the command-line arguments.
+  /// Creates an Arguments parser and captures command-line arguments.
   Arguments();
-
-  /// Copies another Arguments parser.
+  /// Creates a copy of another Arguments parser.
   Arguments(const Arguments &other);
-
-  /// Destroys the Arguments parser and releases memory.
+  /// Destroys the Arguments parser and frees memory.
   ~Arguments();
-
   /// Assigns another Arguments parser to this one.
   Arguments &operator=(const Arguments &other);
 
-  /// Adds a flag argument that is set to true when present.
-  /// Flags can be specified as -name or --longName.
-  /// They can also be explicitly set: -name=true, -name=false, etc.
-  /// Returns a reference to this Arguments for chaining.
+  /// Adds a boolean flag (-name, --longName, or -name=true/false).
   Arguments &addFlag(const String &name, const String &description = String(),
                      bool defaultValue = false,
                      const String &longName = String());
-
-  /// Adds a named parameter that requires a value.
-  /// Parameters can be specified as -name=value, --longName=value,
-  /// -name value, or --longName value.
-  /// Returns a reference to this Arguments for chaining.
+  /// Adds a named parameter (-name=value or -name value).
   Arguments &addParameter(const String &name,
                           const String &description = String(),
                           const String &defaultValue = String(),
                           const String &longName = String());
-
-  /// Adds a positional parameter at the next position.
-  /// Positional parameters are filled from non-flag, non-named arguments
-  /// in the order they are added.
-  /// Returns a reference to this Arguments for chaining.
+  /// Adds a positional parameter (filled in order from remaining args).
   Arguments &addPositionalParameter(const String &name,
                                     const String &description = String());
-
-  /// Sets the help text to display when -h or --help is used.
-  /// Returns a reference to this Arguments for chaining.
+  /// Sets custom help text for -h/--help.
   Arguments &setHelp(const String &helpText);
-
   /// Marks an argument as required.
-  /// If a required argument is missing, parsing fails and help is displayed.
-  /// Returns a reference to this Arguments for chaining.
   Arguments &requireArgument(const String &name);
 
-  /// Returns the value of the named argument, or empty string if not set.
-  /// Works for flags (returns "true" or "false"), parameters, and positional
-  /// parameters.
+  /// Returns the value of the argument (flags return "true" or "false").
   String getArgument(const String &name) const;
-
-  /// Returns true if the argument has been added and was set by the user or
-  /// has a default value.
+  /// Returns true if the argument was set or has a default value.
   bool hasArgument(const String &name) const;
 
-  /// Parses the command-line arguments and returns a Map of names to values.
-  /// If help is requested (-h or --help) or required arguments are missing,
-  /// prints help text (unless suppressHelp is true) and returns an empty Map.
+  /// Parses arguments and returns a Map. Empty if help shown or required
+  /// missing.
   Map parseArguments(bool suppressHelp = false);
 
 private:
   ArgumentsImpl *impl;
 };
 
-/// Lightweight thread for running functions in separate threads.
-class Thread {
-public:
-  /// Creates a thread that runs the specified function with an optional
-  /// argument. The function receives a void* argument and returns void*.
-  /// The thread starts running immediately.
-  Thread(void *(*func)(void *), void *arg = nullptr);
+//------------------------------------------------------------------------------
+// Filesystem
+//------------------------------------------------------------------------------
 
-  /// Copies another thread (shares the same underlying thread).
-  Thread(const Thread &other);
-
-  /// Destroys the thread handle but does not terminate the thread.
-  /// Use await() or cancel() to ensure completion before destruction.
-  ~Thread();
-
-  /// Assigns another thread to this thread (shares the same underlying thread).
-  Thread &operator=(const Thread &other);
-
-  /// Waits for the thread to complete and returns its return value.
-  /// Blocks until the thread finishes execution.
-  /// Returns nullptr if already awaited or cancelled.
-  void *await();
-
-  /// Terminates the thread forcefully.
-  /// This is a hard termination and may leave resources in an inconsistent
-  /// state. Use with caution - prefer allowing threads to complete naturally.
-  void cancel();
-
-  /// Returns true if the thread is currently running.
-  /// Returns false if completed, awaited, or cancelled.
-  bool isRunning() const;
-
-  /// Returns true if this thread equals the other thread.
-  bool equals(const Thread &other) const;
-
-  /// Returns true if this thread equals the other thread.
-  bool operator==(const Thread &other) const;
-
-  /// Returns true if this thread does not equal the other thread.
-  bool operator!=(const Thread &other) const;
-
-private:
-  ThreadImpl *impl;
-};
-
-/// Mutex for protecting shared resources across threads.
-class Mutex {
-public:
-  /// Creates a mutex.
-  Mutex();
-
-  /// Copies another mutex (shares the same underlying mutex).
-  Mutex(const Mutex &other);
-
-  /// Destroys the mutex handle.
-  ~Mutex();
-
-  /// Assigns another mutex to this mutex (shares the same underlying mutex).
-  Mutex &operator=(const Mutex &other);
-
-  /// Locks the mutex, blocking until it becomes available.
-  void lock();
-
-  /// Unlocks the mutex, allowing other threads to acquire it.
-  void unlock();
-
-  /// Tries to lock the mutex without blocking.
-  /// Returns true if the lock was acquired, false otherwise.
-  bool tryLock();
-
-private:
-  MutexImpl *impl;
-};
-
-/// Immutable path to a file or I/O device on the system.
+/// Immutable filesystem path with metadata and convenience operations.
 class Path {
   friend class File;
   friend SubprocessImpl *CreateSubprocessImpl(const Path &, const List &, bool,
@@ -1092,177 +794,111 @@ class Path {
 public:
   /// Creates a path from a string.
   Path(const String &pathStr);
-
-  /// Copies another path.
+  /// Creates a copy of another path.
   Path(const Path &other);
-
-  /// Destroys the path and releases memory.
+  /// Destroys the path and frees memory.
   ~Path();
-
   /// Assigns another path to this path.
   Path &operator=(const Path &other);
 
   /// Returns true if the path exists on the filesystem.
   bool exists() const;
-
-  /// Returns true if the path points to a regular file.
+  /// Returns true if the path is a regular file.
   bool isRegularFile() const;
-
-  /// Returns true if the path points to a directory.
+  /// Returns true if the path is a directory.
   bool isDirectory() const;
-
-  /// Returns true if the path points to a named pipe.
+  /// Returns true if the path is a named pipe.
   bool isNamedPipe() const;
-
-  /// Returns true if the path points to a symbolic link.
+  /// Returns true if the path is a symbolic link.
   bool isSymbolicLink() const;
-
-  /// Returns true if the path points to another type of device.
-  /// This includes physical disks, mailslots, and other special files.
+  /// Returns true if the path is a device or other special file.
   bool isOther() const;
 
-  /// Returns the size of the file in bytes.
-  /// Returns 0 if the path doesn't exist or size is unavailable.
+  /// Returns the file size in bytes (0 if unavailable).
   long long getSize() const;
-
-  /// Returns the creation time of the file or directory.
+  /// Returns the creation time.
   DateTime getCreatedOn() const;
-
-  /// Returns the last modification time of the file or directory.
+  /// Returns the last modification time.
   DateTime getModifiedOn() const;
-
-  /// Returns the last access time of the file or directory.
+  /// Returns the last access time.
   DateTime getAccessedOn() const;
-
-  /// Returns true if the file or directory is read-only.
+  /// Returns true if the file is read-only.
   bool isReadOnly() const;
-
-  /// Sets the read-only attribute of the file or directory.
-  /// Returns true if successful.
+  /// Sets the read-only attribute. Returns true on success.
   bool setReadOnly(bool isReadOnly = true) const;
-
-  /// Returns true if the file or directory is hidden.
+  /// Returns true if the file is hidden.
   bool isHidden() const;
-
-  /// Sets the hidden attribute of the file or directory.
-  /// Returns true if successful.
+  /// Sets the hidden attribute. Returns true on success.
   bool setHidden(bool isHidden = true) const;
 
-  /// Moves this path to the destination path.
-  /// Returns true if successful.
-  bool moveTo(const Path &path) const;
-
-  /// Copies this path to the destination path.
-  /// Returns true if successful.
-  bool copyTo(const Path &path) const;
-
-  /// Deletes the file at this path.
-  /// Returns true if successful.
+  /// Moves this path to the destination. Returns true on success.
+  bool moveTo(const Path &dest) const;
+  /// Copies this path to the destination. Returns true on success.
+  bool copyTo(const Path &dest) const;
+  /// Deletes the file. Returns true on success.
   bool deleteFile() const;
-
-  /// Removes the directory at this path.
-  /// If deleteIfNotEmpty is true, recursively deletes directory contents.
-  /// Returns true if successful.
+  /// Removes the directory. Returns true on success.
   bool removeDirectory(bool deleteIfNotEmpty = false) const;
-
-  /// Creates a directory at this path.
-  /// If createParents is true, creates all parent directories as needed.
-  /// Returns true if successful.
+  /// Creates the directory. Returns true on success.
   bool makeDirectory(bool createParents = true) const;
 
-  /// Returns the target path if this is a symbolic link.
-  /// Returns a path to empty string if not a symbolic link.
+  /// Returns the symbolic link target, or empty path if not a link.
   Path getSymbolicLinkTarget() const;
-
-  /// Creates or updates this path as a symbolic link to the target.
-  /// Returns true if successful.
+  /// Creates or updates a symbolic link to the target. Returns true on success.
   bool setSymbolicLinkTarget(const Path &target) const;
 
-  /// Returns the name of the file or directory (last component of path).
-  /// Returns empty string if path doesn't exist or has no name component.
+  /// Returns the filename (last path component).
   String getName() const;
-
-  /// Returns true if this path equals the other path (case-insensitive).
-  bool equals(const Path &other) const;
-
-  /// Returns true if this path equals the other path (case-insensitive).
-  bool operator==(const Path &other) const;
-
-  /// Returns true if this path does not equal the other path.
-  bool operator!=(const Path &other) const;
-
-  /// Returns true if this path is within the specified directory path.
-  bool isWithin(const Path &path) const;
-
-  /// Returns a list of child path strings.
-  /// If recursive is true, walks all subdirectories.
-  List listChildren(bool recursive = false) const;
-
-  /// Returns the parent directory of this path.
-  /// Returns a path to empty string if no parent exists.
+  /// Returns the parent directory path.
   Path getParentDirectory() const;
-
-  /// Returns the file extension (e.g., "txt" for "file.txt").
-  /// Returns empty string if no extension.
+  /// Returns the file extension without dot (e.g., "txt").
   String getExtension() const;
-
-  /// Returns the path as a String.
+  /// Returns the filename without extension.
+  String getStem() const;
+  /// Returns true if the file has the given extension (case-insensitive).
+  bool hasExtension(const String &ext) const;
+  /// Returns the path as a string.
   String toString() const;
 
-  /// Returns true if this path has the specified extension (case-insensitive).
-  bool hasExtension(const String &ext) const;
+  /// Returns true if this path equals the other (case-insensitive).
+  bool equals(const Path &other) const;
+  /// Returns true if this path equals the other (case-insensitive).
+  bool operator==(const Path &other) const;
+  /// Returns true if this path does not equal the other.
+  bool operator!=(const Path &other) const;
+  /// Returns true if this path is within the given directory.
+  bool isWithin(const Path &dir) const;
 
-  /// Returns the filename without extension (e.g., "file" for "file.txt").
-  String getStem() const;
+  /// Returns a list of child path strings.
+  List listChildren(bool recursive = false) const;
 
-  /// Reads the entire file contents as a String.
-  /// Returns empty string if the file doesn't exist or can't be read.
+  /// Reads the entire file as a string.
   String readToString() const;
-
-  /// Reads the entire file contents as a Buffer.
-  /// Returns empty buffer if the file doesn't exist or can't be read.
+  /// Reads the entire file as a buffer.
   Buffer readToBuffer() const;
-
-  /// Writes the string to the file, replacing existing contents.
-  /// Returns true if successful.
+  /// Writes a string to the file. Returns true on success.
   bool writeFromString(const String &str) const;
-
-  /// Writes the buffer to the file, replacing existing contents.
-  /// Returns true if successful.
+  /// Writes a buffer to the file. Returns true on success.
   bool writeFromBuffer(const Buffer &buf) const;
-
-  /// Appends the string to the end of the file.
-  /// Returns true if successful.
+  /// Appends a string to the file. Returns true on success.
   bool appendFromString(const String &str) const;
-
-  /// Appends the buffer to the end of the file.
-  /// Returns true if successful.
+  /// Appends a buffer to the file. Returns true on success.
   bool appendFromBuffer(const Buffer &buf) const;
 
-  /// Changes the current working directory to the specified path.
-  /// Returns true if successful.
+  /// Changes the current working directory. Returns true on success.
   static bool ChangeCurrentDirectory(const Path &path);
-
-  /// Returns a list of all volume drive letters (e.g., "C:", "D:").
+  /// Returns a list of volume drive letters (e.g., "C:", "D:").
   static List ListVolumes();
-
-  /// Creates a temporary file with an optional prefix.
-  /// Returns the path to the created file.
+  /// Creates a temporary file and returns its path.
   static Path CreateTemporaryFile(const String &prefix = String());
-
-  /// Creates a temporary directory with an optional prefix.
-  /// Returns the path to the created directory.
+  /// Creates a temporary directory and returns its path.
   static Path CreateTemporaryDirectory(const String &prefix = String());
-
-  /// Returns the current user's home directory path.
+  /// Returns the user's home directory path.
   static Path GetHomeDirectory();
-
-  /// Returns the current user's documents directory path.
+  /// Returns the user's documents directory path.
   static Path GetDocumentsDirectory();
-
   /// Returns the roaming application data directory path.
   static Path GetRoamingAppDirectory();
-
   /// Returns the local application data directory path.
   static Path GetLocalAppDirectory();
 
@@ -1270,434 +906,346 @@ private:
   PathImpl *impl;
 };
 
-/// Stream-based file and socket I/O class.
-/// Supports regular files, named pipes, and TCP sockets.
+/// Stream-based I/O for files, named pipes, and TCP sockets.
 class File {
 public:
-  /// Opens a file at the specified path.
-  /// The file is opened for reading and writing.
+  /// Opens a file at the given path for reading and writing.
   File(const Path &path);
-
-  /// Opens a TCP socket connection to host at port.
+  /// Opens a TCP socket connection to host:port.
   File(const String &host, int port);
-
-  /// Creates a listening server socket on the specified port.
+  /// Creates a listening server socket on the given port.
   File(int port);
-
-  /// Copies another file (shares the same underlying handle).
+  /// Creates a copy (shares the underlying handle).
   File(const File &other);
-
-  /// Closes the file or socket and releases resources.
+  /// Closes the file/socket and frees resources.
   ~File();
-
-  /// Assigns another file to this file (shares the same underlying handle).
+  /// Assigns another file (shares the underlying handle).
   File &operator=(const File &other);
 
-  /// Returns the path of the file, or nullptr if this is a socket.
+  /// Returns the file path, or nullptr for sockets.
   const char *getPath() const;
-
-  /// Returns the host of the socket, or nullptr if this is not a socket.
+  /// Returns the socket host, or nullptr for files.
   const char *getHost() const;
-
-  /// Returns the port of the socket, or -1 if this is not a socket.
+  /// Returns the socket port, or -1 for files.
   int getPort() const;
 
-  /// Returns true if the file or socket was created/opened successfully.
+  /// Returns true if the file/socket was opened successfully.
   bool isValid() const;
-
-  /// Returns true if the file or socket is currently open.
+  /// Returns true if the file/socket is currently open.
   bool isOpen() const;
-
-  /// Closes the file or socket.
+  /// Closes the file/socket.
   void close();
 
   /// Reads all available data into a buffer.
-  /// Returns an empty buffer on error or if no data is available.
   Buffer readAllToBuffer();
-
   /// Reads up to count bytes into a buffer.
-  /// Returns an empty buffer on error or if no data is available.
   Buffer readToBuffer(int count);
-
   /// Reads all available data into a string.
-  /// Returns an empty string on error or if no data is available.
   String readAllToString();
-
   /// Reads up to count bytes into a string.
-  /// Returns an empty string on error or if no data is available.
   String readToString(int count);
-
   /// Returns true if data is available to read.
   bool hasAvailable() const;
-
   /// Returns the number of bytes available to read.
-  /// Returns 0 if no data is available or on error.
   int getAvailableCount() const;
 
-  /// Writes the buffer contents to the file or socket.
-  /// Returns the number of bytes actually written, or -1 on error.
+  /// Writes a buffer. Returns bytes written, or -1 on error.
   int write(const Buffer &buf);
-
-  /// Writes the string to the file or socket.
-  /// Returns the number of bytes actually written, or -1 on error.
+  /// Writes a string. Returns bytes written, or -1 on error.
   int write(const String &str);
-
-  /// Writes up to count bytes from the buffer.
-  /// If count is -1, writes the entire buffer.
-  /// Returns the number of bytes actually written, or -1 on error.
+  /// Writes up to count bytes from a buffer. Returns bytes written, or -1 on
+  /// error.
   int writeUpTo(const Buffer &buf, int count = -1);
-
-  /// Writes up to count bytes from the string.
-  /// If count is -1, writes the entire string.
-  /// Returns the number of bytes actually written, or -1 on error.
+  /// Writes up to count bytes from a string. Returns bytes written, or -1 on
+  /// error.
   int writeUpTo(const String &str, int count = -1);
-
-  /// Flushes any buffered data to the file or socket.
-  /// Returns true on success.
+  /// Flushes buffered data. Returns true on success.
   bool flush();
 
-  /// Sets the read/write position for regular files.
-  /// Returns true on success, false if not supported or on error.
+  /// Sets the read/write position (files only). Returns true on success.
   bool setPosition(long long pos);
-
-  /// Returns the current read/write position for regular files.
-  /// Returns -1 if not supported or on error.
+  /// Returns the current position, or -1 if not supported.
   long long getPosition() const;
-
-  /// Returns the end position (file size) for regular files.
-  /// Returns -1 if not supported or on error.
+  /// Returns the file size, or -1 if not supported.
   long long getEndPosition() const;
-
-  /// Returns true if at the end of the file.
-  /// Always returns false for sockets and pipes.
+  /// Returns true if at end of file.
   bool isAtEnd() const;
 
   /// Returns true if this is a regular file.
   bool isRegularFile() const;
-
   /// Returns true if this is a TCP socket.
   bool isSocket() const;
-
   /// Returns true if this is a server socket.
   bool isServerSocket() const;
-
   /// Returns true if this is a named pipe.
   bool isNamedPipe() const;
 
   /// Accepts a client connection on a server socket.
-  /// Returns a new File representing the client connection.
-  /// Returns an invalid File if this is not a server socket or on error.
   File accept();
 
-  /// Returns true if this file equals the other file.
+  /// Returns true if this file equals the other.
   bool equals(const File &other) const;
-
-  /// Returns true if this file equals the other file.
+  /// Returns true if this file equals the other.
   bool operator==(const File &other) const;
-
-  /// Returns true if this file does not equal the other file.
+  /// Returns true if this file does not equal the other.
   bool operator!=(const File &other) const;
 
 private:
   FileImpl *impl;
 };
 
-/// Subprocess for executing programs and capturing their output.
+//------------------------------------------------------------------------------
+// Concurrency
+//------------------------------------------------------------------------------
+
+/// Lightweight thread.
+class Thread {
+public:
+  /// Creates and starts a thread running the given function.
+  Thread(void *(*func)(void *), void *arg = nullptr);
+  /// Creates a copy (shares the underlying thread).
+  Thread(const Thread &other);
+  /// Destroys the handle (does not terminate the thread).
+  ~Thread();
+  /// Assigns another thread (shares the underlying thread).
+  Thread &operator=(const Thread &other);
+
+  /// Waits for the thread to complete and returns its result.
+  void *await();
+  /// Forcefully terminates the thread (use sparingly).
+  void cancel();
+  /// Returns true if the thread is still running.
+  bool isRunning() const;
+
+  /// Returns true if this thread equals the other.
+  bool equals(const Thread &other) const;
+  /// Returns true if this thread equals the other.
+  bool operator==(const Thread &other) const;
+  /// Returns true if this thread does not equal the other.
+  bool operator!=(const Thread &other) const;
+
+private:
+  ThreadImpl *impl;
+};
+
+/// Mutex for thread synchronization.
+class Mutex {
+public:
+  /// Creates a mutex.
+  Mutex();
+  /// Creates a copy (shares the underlying mutex).
+  Mutex(const Mutex &other);
+  /// Destroys the mutex handle.
+  ~Mutex();
+  /// Assigns another mutex (shares the underlying mutex).
+  Mutex &operator=(const Mutex &other);
+
+  /// Locks the mutex, blocking until available.
+  void lock();
+  /// Unlocks the mutex.
+  void unlock();
+  /// Tries to lock without blocking. Returns true if acquired.
+  bool tryLock();
+
+private:
+  MutexImpl *impl;
+};
+
+//------------------------------------------------------------------------------
+// Process Management
+//------------------------------------------------------------------------------
+
+/// Execute external programs with optional I/O streaming.
 class Subprocess {
 public:
-  /// Starts a subprocess and returns immediately (fire and forget).
-  /// The subprocess runs independently and is not monitored.
-  /// Arguments can be passed as individual String parameters.
+  /// Starts a process without waiting (fire and forget).
   template <typename... Args>
   static void Start(const Path &executable, const Args &...args) {
     Start_impl(executable, List(String(args)...));
   }
 
-  /// Runs a subprocess and waits for it to complete.
-  /// Returns the exit code.
-  /// Arguments can be passed as individual String parameters.
+  /// Runs a process and waits for completion. Returns exit code.
   template <typename... Args>
   static int Run(const Path &executable, const Args &...args) {
     return Run_impl(executable, List(String(args)...));
   }
 
-  /// Runs a subprocess, waits for it to complete, and captures its output.
-  /// Returns the combined stdout and stderr as a String.
-  /// Arguments can be passed as individual String parameters.
+  /// Runs a process and captures stdout+stderr. Returns output as string.
   template <typename... Args>
   static String Capture(const Path &executable, const Args &...args) {
     return Capture_impl(executable, List(String(args)...));
   }
 
   /// Creates a subprocess with streaming I/O support.
-  /// You can read from stdout/stderr and write to stdin.
-  /// Arguments can be passed as individual String parameters.
   template <typename... Args>
   Subprocess(const Path &executable, const Args &...args)
       : Subprocess(executable, List(String(args)...)) {}
 
-  /// Copies another subprocess (shares the same underlying process).
+  /// Creates a copy (shares the underlying process).
   Subprocess(const Subprocess &other);
-
-  /// Destroys the subprocess handle but does not terminate the process.
+  /// Destroys the handle (does not terminate the process).
   ~Subprocess();
-
-  /// Assigns another subprocess to this subprocess.
+  /// Assigns another subprocess (shares the underlying process).
   Subprocess &operator=(const Subprocess &other);
 
-  /// Returns true if the subprocess was created successfully.
+  /// Returns true if the process was created successfully.
   bool isValid() const;
-
-  /// Returns true if the subprocess is currently running.
+  /// Returns true if the process is still running.
   bool isRunning() const;
-
-  /// Waits for the subprocess to complete and returns its exit code.
-  /// Blocks until the process finishes execution.
-  /// Returns -1 if the process was not created successfully.
+  /// Waits for completion and returns exit code (-1 on error).
   int wait();
+  /// Forcefully terminates the process. Returns true on success.
+  bool terminate();
+  /// Returns the process ID (-1 on error).
+  int getProcessId() const;
 
   /// Returns true if output data is available to read.
   bool hasAvailable() const;
-
-  /// Reads available output data into a buffer.
-  /// Returns an empty buffer on error or if no data is available.
+  /// Reads available output into a buffer.
   Buffer readToBuffer();
-
-  /// Reads available output data into a string.
-  /// Returns an empty string on error or if no data is available.
+  /// Reads available output into a string.
   String readToString();
-
-  /// Writes a buffer to the subprocess stdin.
-  /// Returns the number of bytes written, or -1 on error.
+  /// Writes a buffer to stdin. Returns bytes written, or -1 on error.
   int write(const Buffer &buf);
-
-  /// Writes a string to the subprocess stdin.
-  /// Returns the number of bytes written, or -1 on error.
+  /// Writes a string to stdin. Returns bytes written, or -1 on error.
   int write(const String &str);
-
-  /// Terminates the subprocess forcefully.
-  /// Returns true on success.
-  bool terminate();
-
-  /// Returns the process ID of the subprocess.
-  /// Returns -1 if the process was not created successfully.
-  int getProcessId() const;
 
 private:
   SubprocessImpl *impl;
-
   Subprocess(const Path &executable, const List &arguments);
-
   static void Start_impl(const Path &executable, const List &arguments);
   static int Run_impl(const Path &executable, const List &arguments);
   static String Capture_impl(const Path &executable, const List &arguments);
 };
 
-/// Windows registry operations for reading and writing configuration data.
+//------------------------------------------------------------------------------
+// System Integration
+//------------------------------------------------------------------------------
+
+/// Windows registry access.
 class Registry {
 public:
-  /// Opens a registry key at the specified path.
-  /// The key is automatically opened when needed and closed on destruction.
-  /// Key path format: "HKEY_CURRENT_USER\\Software\\MyApp"
+  /// Opens a registry key (e.g., "HKEY_CURRENT_USER\\Software\\MyApp").
   Registry(const String &key);
-
-  /// Copies another registry key handle (shares the same key).
+  /// Creates a copy (shares the underlying key).
   Registry(const Registry &other);
-
-  /// Closes the registry key if open and releases resources.
+  /// Closes the key and frees resources.
   ~Registry();
-
-  /// Assigns another registry to this registry.
+  /// Assigns another registry (shares the underlying key).
   Registry &operator=(const Registry &other);
 
-  /// Returns true if the registry key exists.
+  /// Returns true if the key exists.
   bool exists() const;
-
-  /// Creates the registry key if it doesn't exist.
-  /// Returns false if creation fails.
+  /// Creates the key if it doesn't exist. Returns true on success.
   bool create();
-
-  /// Removes the registry key.
-  /// If isRecursive is true, removes the key and all subkeys.
-  /// Returns true if successful.
+  /// Removes the key. Returns true on success.
   bool remove(bool isRecursive = true);
 
-  /// Returns true if the value exists in the key.
-  /// Empty name refers to the default value.
+  /// Returns true if the value exists (empty name = default value).
   bool valueExists(const String &name = String()) const;
-
-  /// Returns the string value for the name.
-  /// Returns nullptr if the value doesn't exist or is not a string.
-  /// Empty name refers to the default value.
+  /// Returns the string value, or nullptr if not found.
   const char *getStringValue(const String &name = String()) const;
-
-  /// Returns the binary value for the name as a Buffer.
-  /// Returns nullptr if the value doesn't exist or is not binary.
-  /// Empty name refers to the default value.
+  /// Returns the binary value, or nullptr if not found.
   const unsigned char *getBinaryValue(const String &name = String()) const;
-
-  /// Returns the integer value for the name.
-  /// Returns 0 if the value doesn't exist or is not an integer.
-  /// Empty name refers to the default value.
+  /// Returns the integer value (0 if not found).
   unsigned int getIntegerValue(const String &name = String()) const;
-
-  /// Sets a string value in the registry.
-  /// Returns true if successful.
+  /// Sets a string value. Returns true on success.
   bool setStringValue(const String &name, const String &str);
-
-  /// Sets a binary value in the registry.
-  /// Returns true if successful.
+  /// Sets a binary value. Returns true on success.
   bool setBinaryValue(const String &name, const Buffer &buf);
-
-  /// Sets an integer value in the registry.
-  /// Returns true if successful.
+  /// Sets an integer value. Returns true on success.
   bool setIntegerValue(const String &name, unsigned int num);
-
-  /// Deletes a value from the registry.
-  /// Empty name refers to the default value.
-  /// Returns true if successful.
+  /// Deletes a value. Returns true on success.
   bool deleteValue(const String &name = String());
 
-  /// Returns a list of all value names in this key.
+  /// Returns a list of all value names.
   List listValueNames() const;
-
-  /// Returns a list of all subkey names under this key.
+  /// Returns a list of all subkey names.
   List listSubkeys() const;
 
 private:
   RegistryImpl *impl;
 };
 
-/// HTTP response from a web request.
+//------------------------------------------------------------------------------
+// Networking
+//------------------------------------------------------------------------------
+
+/// HTTP response (returned by WebRequest).
 class WebResponse {
   friend class WebRequest;
 
 public:
-  /// Copies another WebResponse (shares the same underlying response).
+  /// Creates a copy (shares the underlying response).
   WebResponse(const WebResponse &other);
-
-  /// Destroys the WebResponse and releases resources.
+  /// Destroys the response and frees resources.
   ~WebResponse();
-
-  /// Assigns another WebResponse to this WebResponse.
+  /// Assigns another response (shares the underlying response).
   WebResponse &operator=(const WebResponse &other);
 
-  /// Returns true if the HTTP status code is in the 200-299 range.
+  /// Returns true if status code is 200-299.
   bool succeeded() const;
-
-  /// Returns the final URL after any redirects.
+  /// Returns the final URL after redirects.
   String getUrl() const;
-
-  /// Returns the HTTP status code (e.g., 200, 404, 500).
+  /// Returns the HTTP status code (e.g., 200, 404).
   int getStatusCode() const;
-
-  /// Returns the HTTP status reason phrase (e.g., "OK", "Not Found").
+  /// Returns the HTTP status reason (e.g., "OK", "Not Found").
   String getStatusReason() const;
-
   /// Returns a map of response headers.
-  /// Header names are keys, header values are the map values.
   Map getResponseHeaders() const;
 
-  /// Parses the response body as JSON and returns a Map.
-  /// Returns nullptr if the response is not a JSON object.
-  /// JSON arrays or other types will return nullptr.
+  /// Parses body as JSON object. Returns nullptr if not a JSON object.
   const Map *asJson() const;
-
-  /// Returns the response body as a String.
+  /// Returns the body as a string.
   String asString() const;
-
-  /// Returns the response body as a Buffer.
+  /// Returns the body as a buffer.
   Buffer asBuffer() const;
 
 private:
   WebResponseImpl *impl;
-
   WebResponse();
 };
 
-/// HTTP request builder for making web requests using WinHTTP.
+/// HTTP client using WinHTTP.
 class WebRequest {
 public:
-  /// Creates a web request with the specified URL.
-  /// Optional params are appended as query string parameters.
-  /// Optional headers are sent with the request.
+  /// Creates a request. params become query string; headers are sent with
+  /// request.
   WebRequest(const String &url, const Map *params = nullptr,
              const Map *headers = nullptr);
-
-  /// Copies another WebRequest (shares the same underlying request).
+  /// Creates a copy (shares the underlying request).
   WebRequest(const WebRequest &other);
-
-  /// Destroys the WebRequest and releases resources.
+  /// Destroys the request and frees resources.
   ~WebRequest();
-
-  /// Assigns another WebRequest to this WebRequest.
+  /// Assigns another request (shares the underlying request).
   WebRequest &operator=(const WebRequest &other);
 
-  /// Performs an HTTP GET request.
-  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
-  /// request succeeded. Returns empty WebResponse if already called.
-  /// timeout is in milliseconds (-1 for infinite).
+  /// Performs an HTTP GET request. timeout in ms (-1 = infinite).
   WebResponse doGet(int timeout = -1);
-
   /// Performs an HTTP POST request with no body.
-  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
-  /// request succeeded. Returns empty WebResponse if already called.
-  /// timeout is in milliseconds (-1 for infinite).
   WebResponse doPost(int timeout = -1);
-
-  /// Performs an HTTP POST request with a JSON-encoded Map body.
-  /// Automatically sets Content-Type to "application/json" if not specified.
-  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
-  /// request succeeded. Returns empty WebResponse if already called.
-  /// timeout is in milliseconds (-1 for infinite).
-  WebResponse doPost(const Map &map, int timeout = -1);
-
-  /// Performs an HTTP POST request with a JSON-encoded List body.
-  /// Automatically sets Content-Type to "application/json" if not specified.
-  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
-  /// request succeeded. Returns empty WebResponse if already called.
-  /// timeout is in milliseconds (-1 for infinite).
-  WebResponse doPost(const List &list, int timeout = -1);
-
-  /// Performs an HTTP POST request with a Buffer body.
-  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
-  /// request succeeded. Returns empty WebResponse if already called.
-  /// timeout is in milliseconds (-1 for infinite).
-  WebResponse doPost(const Buffer &buf, int timeout = -1);
-
-  /// Performs an HTTP POST request with a String body.
-  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
-  /// request succeeded. Returns empty WebResponse if already called.
-  /// timeout is in milliseconds (-1 for infinite).
-  WebResponse doPost(const String &str, int timeout = -1);
-
-  /// Performs an HTTP request with the specified method and Buffer body.
-  /// This is a catch-all for PUT, PATCH, DELETE, etc.
-  /// Returns a WebResponse. Check WebResponse::succeeded() to see if the
-  /// request succeeded. Returns empty WebResponse if already called.
-  /// timeout is in milliseconds (-1 for infinite).
-  WebResponse doRequest(const String &method, const Buffer &buf,
+  /// Performs an HTTP POST with JSON body (Map).
+  WebResponse doPost(const Map &json, int timeout = -1);
+  /// Performs an HTTP POST with JSON body (List).
+  WebResponse doPost(const List &json, int timeout = -1);
+  /// Performs an HTTP POST with binary body.
+  WebResponse doPost(const Buffer &body, int timeout = -1);
+  /// Performs an HTTP POST with string body.
+  WebResponse doPost(const String &body, int timeout = -1);
+  /// Performs a custom HTTP method (PUT, PATCH, DELETE, etc.).
+  WebResponse doRequest(const String &method, const Buffer &body,
                         int timeout = -1);
 
-  /// Returns the URL for this request.
+  /// Returns the request URL.
   String getUrl() const;
-
   /// Returns the query parameters map.
-  /// Returns an empty map if no parameters were specified.
   Map getParams() const;
-
   /// Returns the headers map.
-  /// Returns an empty map if no headers were specified.
   Map getHeaders() const;
-
-  /// Returns true if a request has been completed.
-  /// A request can only be made once per WebRequest instance.
+  /// Returns true if a request has been completed (can only be done once).
   bool hasCompleted() const;
 
-  /// Downloads a file from the specified URL to the local filesystem.
-  /// Returns true if successful, false on error.
-  /// If overwrite is false, fails if the file already exists.
-  /// timeout is in milliseconds (-1 for infinite).
+  /// Downloads a file from URL to disk. Returns true on success.
   static bool Download(const String &url, const String &savePath,
                        const Map *params = nullptr,
                        const Map *headers = nullptr, bool overwrite = true,
@@ -1707,30 +1255,27 @@ private:
   WebRequestImpl *impl;
 };
 
+//------------------------------------------------------------------------------
+// AI Integration
+//------------------------------------------------------------------------------
+
 /// Embedding vector for semantic similarity comparisons.
 class Embedding {
   friend class AI;
 
 public:
-  /// Copies another Embedding (shares the same underlying data).
+  /// Creates a copy (shares the underlying data).
   Embedding(const Embedding &other);
-
-  /// Destroys the Embedding and releases resources.
+  /// Destroys the embedding and frees resources.
   ~Embedding();
-
-  /// Assigns another Embedding to this Embedding.
+  /// Assigns another embedding (shares the underlying data).
   Embedding &operator=(const Embedding &other);
 
-  /// Compares this embedding with another using cosine similarity.
-  /// Returns a value between -1.0 and 1.0, where 1.0 indicates identical
-  /// embeddings. Caches the magnitude calculation for subsequent comparisons.
+  /// Computes cosine similarity with another embedding. Returns [-1, 1].
   float compare(const Embedding &other) const;
-
-  /// Returns a pointer to the raw float array containing the embedding values.
-  /// The array has getDimensions() elements and is owned by the Embedding.
+  /// Returns a pointer to the raw float array.
   const float *getRawArray() const;
-
-  /// Returns the number of dimensions in this embedding.
+  /// Returns the number of dimensions.
   int getDimensions() const;
 
 private:
@@ -1738,54 +1283,36 @@ private:
   Embedding();
 };
 
-/// Conversational AI context that maintains message history.
+/// Multi-turn conversation with message history.
 class Conversation {
   friend class AI;
 
 public:
-  /// Copies another Conversation (shares the same underlying conversation).
+  /// Creates a copy (shares the underlying conversation).
   Conversation(const Conversation &other);
-
-  /// Destroys the Conversation and releases resources.
+  /// Destroys the conversation and frees resources.
   ~Conversation();
-
-  /// Assigns another Conversation to this Conversation.
+  /// Assigns another conversation (shares the underlying conversation).
   Conversation &operator=(const Conversation &other);
 
-  /// Continues the conversation with a new user prompt.
-  /// Automatically includes the entire conversation history in the API call.
-  /// Updates token usage for this conversation.
-  /// timeout: Request timeout in milliseconds (-1 for infinite, default).
-  /// Returns the assistant's response, or nullptr on error.
+  /// Sends a message and returns the response, or nullptr on error.
   String *ask(const String &prompt, int timeout = -1);
 
-  /// Returns a copy of the conversation history as a List of Strings.
-  /// Even indices (0, 2, 4...) are user prompts.
-  /// Odd indices (1, 3, 5...) are assistant responses.
+  /// Returns the conversation history (even=user, odd=assistant).
   List getConversationList() const;
-
-  /// Replaces the conversation history with a new List of Strings.
-  /// Even indices should be user prompts, odd indices should be responses.
-  /// Resets token usage counters for this conversation.
-  /// Returns true on success.
+  /// Replaces the conversation history. Returns true on success.
   bool setConversationList(const List &list);
 
-  /// Creates a copy of this Conversation with the same message history.
-  /// Allows branching a conversation to explore different paths.
-  /// Returns a new Conversation, or nullptr on error.
+  /// Creates a copy of this conversation for branching.
   Conversation *duplicate() const;
-
   /// Returns a copy of the AI instance managing this conversation.
-  /// Returns a new AI object, or nullptr on error.
   const AI *getAI() const;
 
-  /// Returns the number of prompt tokens used by this conversation.
+  /// Returns the number of prompt tokens used.
   int getPromptTokensUsed() const;
-
-  /// Returns the number of response tokens used by this conversation.
+  /// Returns the number of response tokens used.
   int getResponseTokensUsed() const;
-
-  /// Returns the total tokens (prompt + response) used by this conversation.
+  /// Returns the total tokens used.
   int getTotalTokensUsed() const;
 
 private:
@@ -1793,317 +1320,227 @@ private:
   Conversation();
 };
 
-/// AI client for OpenAI-compatible chat completion and embedding APIs.
+/// OpenAI-compatible API client for chat completions and embeddings.
 class AI {
   friend class Conversation;
 
 public:
-  /// Creates an AI client with the specified configuration.
-  /// The baseUrl should point to an OpenAI-compatible API endpoint.
-  /// The apiKey is used for authentication with the Bearer token scheme.
-  /// The model specifies which AI model to use for requests.
+  /// Creates an AI client with base URL, API key, and model name.
   AI(const String &baseUrl, const String &apiKey, const String &model);
-
-  /// Copies another AI (shares the same underlying configuration).
+  /// Creates a copy (shares the underlying configuration).
   AI(const AI &other);
-
-  /// Destroys the AI and releases resources.
+  /// Destroys the AI client and frees resources.
   ~AI();
-
-  /// Assigns another AI to this AI.
+  /// Assigns another AI client (shares the underlying configuration).
   AI &operator=(const AI &other);
 
-  /// Sets the model to use for API requests.
-  /// Returns a reference to this AI for chaining.
+  /// Sets the model name. Returns this AI for chaining.
   AI &setModel(const String &model);
-
-  /// Sets the system prompt for chat completions.
-  /// Pass nullptr to clear the system prompt.
-  /// Returns a reference to this AI for chaining.
+  /// Sets the system prompt (nullptr to clear). Returns this AI for chaining.
   AI &setSystemPrompt(const String *prompt);
-
-  /// Sets the maximum tokens for chat completion responses.
-  /// Pass -1 to disable the limit and use the model's default.
-  /// Returns a reference to this AI for chaining.
+  /// Sets max response tokens (-1 for model default). Returns this AI for
+  /// chaining.
   AI &setMaxTokens(int max = -1);
-
-  /// Enables or disables JSON response mode.
-  /// When enabled, the API is instructed to return JSON-formatted responses.
-  /// The response is still returned as a String that needs parsing.
-  /// Returns a reference to this AI for chaining.
+  /// Enables/disables JSON response mode. Returns this AI for chaining.
   AI &setJsonMode(bool isJsonMode = false);
 
   /// Returns the current model name.
   String getModel() const;
-
-  /// Returns the current system prompt, or nullptr if not set.
-  /// Caller must delete the returned String.
+  /// Returns the system prompt (caller must delete), or nullptr if not set.
   const String *getSystemPrompt() const;
-
-  /// Returns the base URL for API requests.
+  /// Returns the base URL.
   String getBaseUrl() const;
-
   /// Returns the API key.
   String getAPIKey() const;
 
-  /// Returns the cumulative number of prompt tokens used.
-  /// This counter persists across multiple requests until reset.
+  /// Returns cumulative prompt tokens used.
   int getPromptTokensUsed() const;
-
-  /// Returns the cumulative number of response tokens used.
-  /// This counter persists across multiple requests until reset.
+  /// Returns cumulative response tokens used.
   int getResponseTokensUsed() const;
-
-  /// Returns the cumulative total tokens (prompt + response) used.
-  /// This counter persists across multiple requests until reset.
+  /// Returns cumulative total tokens used.
   int getTotalTokensUsed() const;
-
-  /// Resets all token usage counters to zero.
+  /// Resets all token counters to zero.
   void resetTokenTracking();
-
-  /// Returns the finish reason from the last API call.
-  /// Common values: "stop" (normal completion), "length" (max tokens reached).
+  /// Returns the finish reason from the last call (e.g., "stop", "length").
   String getFinishReason() const;
 
-  /// Sends a single chat completion request with the given prompt.
-  /// Includes the system prompt if set.
-  /// Updates token usage counters.
-  /// timeout: Request timeout in milliseconds (-1 for infinite, default).
-  /// Returns the assistant's response, or nullptr on error.
+  /// Sends a single prompt and returns the response, or nullptr on error.
   String *ask(const String &prompt, int timeout = -1);
-
-  /// Creates an embedding vector for the given text.
-  /// If dimensions is -1, uses the model's default dimensionality.
-  /// Updates token usage counters.
-  /// timeout: Request timeout in milliseconds (-1 for infinite, default).
-  /// Returns an Embedding object, or nullptr on error.
+  /// Creates an embedding vector, or nullptr on error.
   Embedding *createEmbedding(const String &str, int dimensions = -1,
                              int timeout = -1);
-
-  /// Creates a new Conversation with this AI's configuration.
-  /// The Conversation maintains its own message history and token counters.
-  /// Returns a Conversation object, or nullptr on error.
+  /// Creates a new multi-turn conversation.
   Conversation *createConversation();
 
 private:
   AIImpl *impl;
 };
 
-/// Mathematical functions and constants.
+//------------------------------------------------------------------------------
+// Math Utilities
+//------------------------------------------------------------------------------
+
+/// Mathematical functions and constants (all static, no state).
 class Math {
 public:
-  // Constants
-  static constexpr float PI = 3.14159265358979323846f;     ///< π
-  static constexpr float E = 2.71828182845904523536f;      ///< Euler's number
-  static constexpr float TAU = 6.28318530717958647693f;    ///< τ = 2π
-  static constexpr float SQRT_2 = 1.41421356237309504880f; ///< √2
-  static const float INF;                                  ///< +∞
-  static const float NEG_INF;                              ///< -∞
-  static const float NAN;                                  ///< Not-a-number
-
-  // Random number generation
+  /// Pi (π ≈ 3.14159).
+  static constexpr float PI = 3.14159265358979323846f;
+  /// Euler's number (e ≈ 2.71828).
+  static constexpr float E = 2.71828182845904523536f;
+  /// Tau (τ = 2π ≈ 6.28318).
+  static constexpr float TAU = 6.28318530717958647693f;
+  /// Square root of 2 (√2 ≈ 1.41421).
+  static constexpr float SQRT_2 = 1.41421356237309504880f;
+  /// Positive infinity.
+  static const float INF;
+  /// Negative infinity.
+  static const float NEG_INF;
+  /// Not-a-number.
+  static const float NAN;
 
   /// Returns a random integer.
   static int random() noexcept;
-
-  /// Returns a random float between 0.0 (inclusive) and 1.0 (exclusive).
+  /// Returns a random float in [0.0, 1.0).
   static float randomFloat() noexcept;
-
-  /// Returns a random integer between start (inclusive) and end (exclusive).
-  /// If start >= end, returns start.
+  /// Returns a random integer in [start, end).
   static int randomRange(int start, int end) noexcept;
-
-  /// Returns a random boolean value (true or false).
+  /// Returns a random boolean.
   static bool randomBool() noexcept;
-
-  /// Returns a random element from a list.
-  /// Returns a null-type value if the list is empty.
+  /// Returns a random element from the list.
   template <typename T> static T randomChoice(const List &list) noexcept;
-
-  // Basic arithmetic
 
   /// Returns the absolute value of x.
   static int abs(int x) noexcept;
-
   /// Returns the absolute value of x.
   static float abs(float x) noexcept;
-
-  /// Returns the minimum of a and b.
+  /// Returns the smaller of a and b.
   static int min(int a, int b) noexcept;
-
-  /// Returns the minimum of a and b.
+  /// Returns the smaller of a and b.
   static float min(float a, float b) noexcept;
-
-  /// Returns the maximum of a and b.
+  /// Returns the larger of a and b.
   static int max(int a, int b) noexcept;
-
-  /// Returns the maximum of a and b.
+  /// Returns the larger of a and b.
   static float max(float a, float b) noexcept;
-
   /// Returns x clamped to [minVal, maxVal].
   static int clamp(int x, int minVal, int maxVal) noexcept;
-
   /// Returns x clamped to [minVal, maxVal].
   static float clamp(float x, float minVal, float maxVal) noexcept;
-
-  /// Returns the sign of x: -1 if negative, 0 if zero, 1 if positive.
+  /// Returns -1, 0, or 1 based on the sign of x.
   static int sign(int x) noexcept;
-
-  /// Returns the sign of x: -1.0f if negative, 0.0f if zero, 1.0f if positive.
+  /// Returns -1.0, 0.0, or 1.0 based on the sign of x.
   static float sign(float x) noexcept;
-
   /// Returns true if x is even.
   static bool isEven(int x) noexcept;
-
   /// Returns true if x is odd.
   static bool isOdd(int x) noexcept;
-
   /// Returns true if x is a power of two.
   static bool isPowerOfTwo(int x) noexcept;
 
-  // Rounding
-
-  /// Returns the largest integer less than or equal to x.
+  /// Returns the largest integer ≤ x.
   static float floor(float x) noexcept;
-
-  /// Returns the smallest integer greater than or equal to x.
+  /// Returns the smallest integer ≥ x.
   static float ceil(float x) noexcept;
-
-  /// Returns x rounded toward zero (fractional part removed).
+  /// Returns x with fractional part removed (toward zero).
   static float trunc(float x) noexcept;
-
-  /// Returns x rounded to the nearest integer (0.5 rounds up).
+  /// Returns x rounded to the nearest integer.
   static float round(float x) noexcept;
 
-  // Exponential and logarithmic
-
-  /// Returns 2 raised to the power of x.
+  /// Returns 2^x.
   static float exp2(float x) noexcept;
-
-  /// Returns the base-2 logarithm of x.
+  /// Returns log₂(x).
   static float log2(float x) noexcept;
-
-  /// Returns the natural logarithm (base e) of x.
+  /// Returns the natural logarithm ln(x).
   static float log(float x) noexcept;
-
-  /// Returns the base-10 logarithm of x.
+  /// Returns log₁₀(x).
   static float log10(float x) noexcept;
-
-  /// Returns the natural exponential e^x.
+  /// Returns e^x.
   static float exp(float x) noexcept;
-
-  /// Returns x raised to the power of y.
+  /// Returns x^y.
   static float pow(float x, float y) noexcept;
-
-  /// Returns 2 raised to the power of x (integer version).
+  /// Returns 2^x (integer version).
   static int pow2(int x) noexcept;
 
-  // Trigonometric
-
-  /// Returns the square root of x. Returns 0 if x is negative.
+  /// Returns the square root of x.
   static float sqrt(float x) noexcept;
-
-  /// Returns the sine of x (x in radians).
+  /// Returns the sine of x (radians).
   static float sin(float x) noexcept;
-
-  /// Returns the cosine of x (x in radians).
+  /// Returns the cosine of x (radians).
   static float cos(float x) noexcept;
-
-  /// Returns the tangent of x (x in radians).
+  /// Returns the tangent of x (radians).
   static float tan(float x) noexcept;
-
-  /// Returns the arctangent of y/x in radians, using signs for quadrant.
+  /// Returns the arctangent of y/x (radians), using signs for quadrant.
   static float atan2(float y, float x) noexcept;
-
-  /// Returns the arctangent of x in radians.
+  /// Returns the arctangent of x (radians).
   static float atan(float x) noexcept;
-
-  /// Returns the arcsine of x in radians.
+  /// Returns the arcsine of x (radians).
   static float asin(float x) noexcept;
-
   /// Returns the hyperbolic cosine of x.
   static float cosh(float x) noexcept;
 
-  // Utility
-
-  /// Returns the floating-point remainder of x / y.
+  /// Returns the floating-point remainder of x/y.
   static float mod(float x, float y) noexcept;
-
-  /// Returns linear interpolation between a and b by t (0.0 to 1.0).
+  /// Returns linear interpolation between a and b by t.
   static float lerp(float a, float b, float t) noexcept;
-
-  /// Returns 0.0f if x < edge, otherwise 1.0f.
+  /// Returns 0 if x < edge, otherwise 1.
   static float step(float edge, float x) noexcept;
-
   /// Converts degrees to radians.
   static float degToRad(float degrees) noexcept;
-
   /// Converts radians to degrees.
   static float radToDeg(float radians) noexcept;
-
-  /// Returns true if x is finite (not infinite or NaN).
+  /// Returns true if x is finite (not infinity or NaN).
   static bool isFinite(float x) noexcept;
-
-  /// Returns true if x is NaN (not a number).
+  /// Returns true if x is NaN.
   static bool isNaN(float x) noexcept;
 };
 
-// System functions
+template <typename T> inline T Math::randomChoice(const List &list) noexcept {
+  if (list.isEmpty())
+    return T();
+  return list.at<T>(randomRange(0, list.length()));
+}
 
-/// Terminates the process immediately with the specified exit code.
+//------------------------------------------------------------------------------
+// System Functions
+//------------------------------------------------------------------------------
+
+/// Terminates the process with the given exit code.
 void Exit(int exitCode);
-
-/// Sleeps the current thread for the specified milliseconds.
+/// Pauses the current thread for the given milliseconds.
 void Sleep(int milliseconds);
-
 /// Returns the value of an environment variable, or empty string if not set.
 String GetEnv(const String &name);
-
 /// Sets an environment variable. Returns true on success.
 bool SetEnv(const String &name, const String &value);
 
-/// Allocates a block of memory of the specified size in bytes.
-/// Returns a pointer to the memory, or nullptr on failure.
+/// Allocates memory. Returns nullptr on failure.
 void *Alloc(int size);
-
-/// Reallocates a block of memory to a new size.
-/// Returns a pointer to the memory, or nullptr on failure.
-/// If ptr is nullptr, behaves like Alloc(). If size is 0, frees the memory.
+/// Reallocates memory. Returns nullptr on failure.
 void *Realloc(void *ptr, int size);
-
-/// Frees a previously allocated block of memory.
-/// Does nothing if ptr is nullptr.
+/// Frees allocated memory (null-safe).
 void Free(void *ptr);
 
 /// Returns the current user's login name.
 String GetUserName();
-
-/// Returns the current user's full display name.
+/// Returns the current user's display name.
 String GetUserDisplayName();
-
 /// Returns the current process ID.
 int GetProcessId();
 
-// Logging configuration functions
+//------------------------------------------------------------------------------
+// Logging
+//------------------------------------------------------------------------------
 
-/// Enables logging to a file at the specified path.
-/// By default, appends to existing file. Set truncate=true to overwrite.
-/// File logging flushes after each log call.
-/// Mutually exclusive with EnableLoggingToConsole().
+/// Enables logging to a file. Mutually exclusive with console logging.
 void EnableLoggingToFile(const String &path, bool truncate = false);
-
-/// Enables logging to the console (default behavior).
-/// Mutually exclusive with EnableLoggingToFile().
+/// Enables logging to console (default). Mutually exclusive with file logging.
 void EnableLoggingToConsole();
 
-// Logging functions
-//
-// Logging levels (define one to set the level):
-// - ATTOBOY_LOG_DEBUG_ENABLE: Enables Debug, Info, Warning, Error
-// - ATTOBOY_LOG_INFO_ENABLE: Enables Info, Warning, Error (default)
-// - ATTOBOY_LOG_WARNING_ENABLE: Enables Warning, Error
-// - ATTOBOY_LOG_ERROR_ENABLE: Enables Error only
-// - ATTOBOY_LOG_DISABLE: Disables all logging
+// Log level selection (define ONE before including this header):
+//   ATTOBOY_LOG_DEBUG_ENABLE   - Debug, Info, Warning, Error
+//   ATTOBOY_LOG_INFO_ENABLE    - Info, Warning, Error (default)
+//   ATTOBOY_LOG_WARNING_ENABLE - Warning, Error
+//   ATTOBOY_LOG_ERROR_ENABLE   - Error only
+//   ATTOBOY_LOG_DISABLE        - No logging
 
 #if !defined(ATTOBOY_LOG_DISABLE)
 #if !defined(ATTOBOY_LOG_DEBUG_ENABLE) && !defined(ATTOBOY_LOG_INFO_ENABLE) && \
@@ -2116,8 +1553,7 @@ namespace internal {
 void LogImpl(const String *args, int count, const String &prefix);
 }
 
-/// Prints all arguments to the console followed by a newline.
-/// Arguments are converted to String if not already.
+/// Prints arguments to the log destination followed by a newline.
 template <typename... Args> void Log(const Args &...args) {
 #if !defined(ATTOBOY_LOG_DISABLE)
   String strings[] = {String(args)...};
@@ -2125,8 +1561,7 @@ template <typename... Args> void Log(const Args &...args) {
 #endif
 }
 
-/// Prints debug message with timestamp prefix: "DEBUG HH:MM:SS: ".
-/// Only enabled when ATTOBOY_LOG_DEBUG_ENABLE is defined.
+/// Prints a debug message: "DEBUG HH:MM:SS: ..."
 template <typename... Args> void LogDebug(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE)
   String strings[] = {String(args)...};
@@ -2134,9 +1569,7 @@ template <typename... Args> void LogDebug(const Args &...args) {
 #endif
 }
 
-/// Prints info message with timestamp prefix: "INFO HH:MM:SS: ".
-/// Enabled when ATTOBOY_LOG_DEBUG_ENABLE or ATTOBOY_LOG_INFO_ENABLE is
-/// defined.
+/// Prints an info message: "INFO HH:MM:SS: ..."
 template <typename... Args> void LogInfo(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE) || defined(ATTOBOY_LOG_INFO_ENABLE)
   String strings[] = {String(args)...};
@@ -2144,9 +1577,7 @@ template <typename... Args> void LogInfo(const Args &...args) {
 #endif
 }
 
-/// Prints warning message with timestamp prefix: "WARNING HH:MM:SS: ".
-/// Enabled when ATTOBOY_LOG_DEBUG_ENABLE, ATTOBOY_LOG_INFO_ENABLE, or
-/// ATTOBOY_LOG_WARNING_ENABLE is defined.
+/// Prints a warning message: "WARNING HH:MM:SS: ..."
 template <typename... Args> void LogWarning(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE) || defined(ATTOBOY_LOG_INFO_ENABLE) ||   \
     defined(ATTOBOY_LOG_WARNING_ENABLE)
@@ -2155,22 +1586,12 @@ template <typename... Args> void LogWarning(const Args &...args) {
 #endif
 }
 
-/// Prints error message with timestamp prefix: "ERROR HH:MM:SS: ".
-/// Enabled unless ATTOBOY_LOG_DISABLE is defined.
+/// Prints an error message: "ERROR HH:MM:SS: ..."
 template <typename... Args> void LogError(const Args &...args) {
 #if !defined(ATTOBOY_LOG_DISABLE)
   String strings[] = {String(args)...};
   internal::LogImpl(strings, sizeof...(Args), String("ERROR "));
 #endif
-}
-
-// Template implementation for Math::randomChoice
-template <typename T> inline T Math::randomChoice(const List &list) noexcept {
-  if (list.isEmpty()) {
-    return T();
-  }
-  int index = randomRange(0, list.length());
-  return list.at<T>(index);
 }
 
 } // namespace attoboy

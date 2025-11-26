@@ -35,9 +35,4 @@ Attoboy is a comprehensive, 'batteries-included' C++ library designed for buildi
 
 TBD. For now, check out `libattoboy/examples`. Build instructions coming soon.
 
-## License
-
-Attoboy is CC0 license. Ⓐ
-
-
 
