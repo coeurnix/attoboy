@@ -298,8 +298,7 @@ void demoTextAlignment(Console &con) {
   con.println();
 
   // Justified alignment
-  String justifyText = "This text demonstrates justified alignment which "
-                       "stretches words evenly.";
+  String justifyText = "This text demonstrates justified alignment.";
   con.println("  JUSTIFIED:", CON_YELLOW);
   con.print("  \xE2\x94\x8C");
   con.print(String("\xE2\x94\x80").repeat(boxWidth - 2), CON_DARK_GRAY);

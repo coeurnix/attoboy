@@ -19,8 +19,21 @@ int UTF8StringWidth(const char *str) {
   int width = 0;
   while (*str) {
     int charWidth = UTF8CharWidth(str);
+    unsigned char c0 = (unsigned char)str[0];
+    if (charWidth == 4 && c0 == 0xF0) {
+      width += 2;
+    } else if (charWidth == 3 && c0 >= 0xE0) {
+      unsigned char c1 = (charWidth > 1) ? (unsigned char)str[1] : 0;
+      unsigned char c2 = (charWidth > 2) ? (unsigned char)str[2] : 0;
+      if ((c0 == 0xE2 && c1 >= 0x80) || (c0 == 0xE3 && c1 == 0x80)) {
+        width += 2;
+      } else {
+        width++;
+      }
+    } else {
+      width++;
+    }
     str += charWidth;
-    width++;
   }
   return width;
 }
@@ -38,11 +51,6 @@ List SplitIntoWords(const String &text) {
       }
       if (*str == '\n') {
         words.append("\n");
-      } else if (!words.isEmpty() &&
-                 words.at<String>(words.length() - 1) != "\n") {
-        if (current.isEmpty() && words.length() > 0) {
-          words.append(" ");
-        }
       }
       str++;
     } else {
@@ -86,30 +94,34 @@ String Console::Align(const String &text, int width, ConsoleAlign align) {
                  String(" ").repeat(rightPad);
       } else if (align == CON_ALIGN_JUSTIFY) {
         List words = SplitIntoWords(line);
-        int spaces = words.length() - 1;
-        if (spaces <= 0 || words.length() == 1) {
+        int wordCount = 0;
+        int totalWordLen = 0;
+        for (int j = 0; j < words.length(); j++) {
+          String word = words.at<String>(j);
+          if (word != " " && word != "\n") {
+            wordCount++;
+            totalWordLen += UTF8StringWidth(word.c_str());
+          }
+        }
+        if (wordCount <= 1) {
           result = result + line;
         } else {
-          int totalWordLen = 0;
-          for (int j = 0; j < words.length(); j++) {
-            String word = words.at<String>(j);
-            if (word != " " && word != "\n") {
-              totalWordLen += UTF8StringWidth(word.c_str());
-            }
-          }
+          int gaps = wordCount - 1;
           int totalSpaces = width - totalWordLen;
-          int spacePerGap = totalSpaces / spaces;
-          int extraSpaces = totalSpaces % spaces;
+          int spacePerGap = totalSpaces / gaps;
+          int extraSpaces = totalSpaces % gaps;
 
+          int gapIndex = 0;
           for (int j = 0; j < words.length(); j++) {
             String word = words.at<String>(j);
             if (word != " " && word != "\n") {
               result = result + word;
-              if (j < words.length() - 1) {
+              if (gapIndex < gaps) {
                 int spaceCount = spacePerGap;
-                if (j < extraSpaces)
+                if (gapIndex < extraSpaces)
                   spaceCount++;
                 result = result + String(" ").repeat(spaceCount);
+                gapIndex++;
               }
             }
           }
@@ -146,14 +158,6 @@ String Console::Wrap(const String &text, int width) {
         result = result + currentLine + "\n";
         currentLine = "";
         currentWidth = 0;
-        continue;
-      }
-
-      if (word == " ") {
-        if (currentWidth > 0 && currentWidth < width) {
-          currentLine = currentLine + " ";
-          currentWidth++;
-        }
         continue;
       }
 

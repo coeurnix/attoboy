@@ -154,7 +154,8 @@ String Console::input(const String &prompt, const ConsoleInput *options) {
           }
         }
       } else if (c >= 32 && c <= 126) {
-        buffer = buffer + String(c);
+        char temp[2] = {c, 0};
+        buffer = buffer + String(temp);
         if (password) {
           WriteConsoleA(impl->hStdOut, "*", 1, &eventsRead, nullptr);
         } else {

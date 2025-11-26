@@ -27,6 +27,9 @@ int Console::menu(const List &options, const String &title) {
   int selectedIndex = 0;
 
   auto redrawMenu = [&]() {
+    CONSOLE_SCREEN_BUFFER_INFO currentCsbi;
+    GetConsoleScreenBufferInfo(impl->hStdOut, &currentCsbi);
+
     COORD pos = startPos;
     if (!title.isEmpty()) {
       pos.Y++;
@@ -52,7 +55,7 @@ int Console::menu(const List &options, const String &title) {
       WriteConsoleA(impl->hStdOut, line.c_str(), line.byteLength(), &written,
                     nullptr);
 
-      int consWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+      int consWidth = currentCsbi.srWindow.Right - currentCsbi.srWindow.Left + 1;
       int lineLen = UTF8StringWidth(line.c_str());
       if (lineLen < consWidth) {
         String spaces = String(" ").repeat(consWidth - lineLen);
