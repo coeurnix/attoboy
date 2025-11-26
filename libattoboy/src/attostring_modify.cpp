@@ -124,7 +124,7 @@ String String::remove(int start, int end) const {
   if (endByte < impl->len) {
     ATTO_LSTRCPY(newData + startByte, impl->data + endByte);
   }
-  newData[newLen] = ATTO_TEXT('\0');
+  newData[newLen] = '\0';
 
   String result;
   FreeString(result.impl->data);

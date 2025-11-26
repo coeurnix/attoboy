@@ -32,11 +32,11 @@ template <> bool Set::contains<String>(String value) const {
   return impl->values.contains<String>(value);
 }
 
-template <> bool Set::contains<const ATTO_CHAR *>(const ATTO_CHAR *value) const {
+template <> bool Set::contains<const char *>(const char *value) const {
   if (!impl)
     return false;
   ReadLockGuard guard(&impl->lock);
-  return impl->values.contains<const ATTO_CHAR *>(value);
+  return impl->values.contains<const char *>(value);
 }
 
 // Remove implementations
@@ -73,12 +73,12 @@ void Set::remove_impl(float value) {
   }
 }
 
-void Set::remove_impl(const ATTO_CHAR *value) {
+void Set::remove_impl(const char *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->values.find<const ATTO_CHAR *>(value);
+  int index = impl->values.find<const char *>(value);
   if (index >= 0) {
     impl->values.remove(index);
   }

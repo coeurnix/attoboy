@@ -1,8 +1,8 @@
 #include "test_framework.h"
 
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_datetime_comprehensive.log"), true);
-    Log(ATTO_TEXT("=== Comprehensive DateTime Class Tests ==="));
+    EnableLoggingToFile("test_datetime_comprehensive.log", true);
+    Log("=== Comprehensive DateTime Class Tests ===");
 
     // ========== CONSTRUCTORS ==========
 
@@ -11,7 +11,7 @@ void atto_main() {
         DateTime dt;
         REGISTER_TESTED(DateTime_constructor_empty);
         ASSERT(dt.timestamp() > 0);
-        Log(ATTO_TEXT("DateTime() [current time]: passed"));
+        Log("DateTime() [current time]: passed");
     }
 
     // Timestamp constructor
@@ -20,16 +20,16 @@ void atto_main() {
         DateTime dt(ts);
         REGISTER_TESTED(DateTime_constructor_timestamp);
         ASSERT_EQ(dt.timestamp(), ts);
-        Log(ATTO_TEXT("DateTime(long long): passed"));
+        Log("DateTime(long long): passed");
     }
 
     // ISO-8601 string constructor
     {
-        String iso(ATTO_TEXT("2021-01-01T00:00:00.000Z"));
+        String iso("2021-01-01T00:00:00.000Z");
         DateTime dt(iso);
         REGISTER_TESTED(DateTime_constructor_components);
         ASSERT(dt.timestamp() > 0);
-        Log(ATTO_TEXT("DateTime(const String&): passed"));
+        Log("DateTime(const String&): passed");
     }
 
     // Copy constructor
@@ -38,13 +38,13 @@ void atto_main() {
         DateTime copy(orig);
         REGISTER_TESTED(DateTime_constructor_copy);
         ASSERT_EQ(copy.timestamp(), orig.timestamp());
-        Log(ATTO_TEXT("DateTime(const DateTime&): passed"));
+        Log("DateTime(const DateTime&): passed");
     }
 
     // Destructor (implicitly tested by all the above)
     {
         REGISTER_TESTED(DateTime_destructor);
-        Log(ATTO_TEXT("~DateTime(): passed (implicit)"));
+        Log("~DateTime(): passed (implicit)");
     }
 
     // Assignment operator
@@ -54,7 +54,7 @@ void atto_main() {
         dt2 = dt1;
         REGISTER_TESTED(DateTime_operator_assign);
         ASSERT_EQ(dt2.timestamp(), dt1.timestamp());
-        Log(ATTO_TEXT("operator=: passed"));
+        Log("operator=: passed");
     }
 
     // ========== BASIC OPERATIONS ==========
@@ -65,7 +65,7 @@ void atto_main() {
         DateTime dt(ts);
         REGISTER_TESTED(DateTime_timestamp);
         ASSERT_EQ(dt.timestamp(), ts);
-        Log(ATTO_TEXT("timestamp(): passed"));
+        Log("timestamp(): passed");
     }
 
     // toString()
@@ -74,8 +74,8 @@ void atto_main() {
         String str = dt.toString();
         REGISTER_TESTED(DateTime_toString);
         ASSERT_FALSE(str.isEmpty());
-        ASSERT_TRUE(str.contains(String(ATTO_TEXT("2021"))));
-        Log(ATTO_TEXT("toString(): passed"));
+        ASSERT_TRUE(str.contains(String("2021")));
+        Log("toString(): passed");
     }
 
     // ========== MANIPULATION ==========
@@ -87,7 +87,7 @@ void atto_main() {
         dt.add(1000); // Add 1 second
         REGISTER_TESTED(DateTime_add);
         ASSERT_EQ(dt.timestamp(), originalTs + 1000);
-        Log(ATTO_TEXT("add(): passed"));
+        Log("add(): passed");
     }
 
     // add() with negative value (subtract)
@@ -96,7 +96,7 @@ void atto_main() {
         long long originalTs = dt.timestamp();
         dt.add(-1000); // Subtract 1 second
         ASSERT_EQ(dt.timestamp(), originalTs - 1000);
-        Log(ATTO_TEXT("add() [negative]: passed"));
+        Log("add() [negative]: passed");
     }
 
     // diff()
@@ -106,7 +106,7 @@ void atto_main() {
         long long difference = dt2.diff(dt1);
         REGISTER_TESTED(DateTime_diff);
         ASSERT_EQ(difference, 1000);
-        Log(ATTO_TEXT("diff(): passed"));
+        Log("diff(): passed");
     }
 
     // ========== COMPARISON ==========
@@ -120,7 +120,7 @@ void atto_main() {
         ASSERT(dt1.compare(dt2) < 0); // dt1 < dt2
         ASSERT(dt2.compare(dt1) > 0); // dt2 > dt1
         ASSERT_EQ(dt1.compare(dt3), 0); // dt1 == dt3
-        Log(ATTO_TEXT("compare(): passed"));
+        Log("compare(): passed");
     }
 
     // operator==
@@ -129,7 +129,7 @@ void atto_main() {
         DateTime dt2(1609459200000LL);
         REGISTER_TESTED(DateTime_operator_eq);
         ASSERT_TRUE(dt1 == dt2);
-        Log(ATTO_TEXT("operator==: passed"));
+        Log("operator==: passed");
     }
 
     // operator!=
@@ -138,7 +138,7 @@ void atto_main() {
         DateTime dt2(1609459201000LL);
         REGISTER_TESTED(DateTime_operator_ne);
         ASSERT_TRUE(dt1 != dt2);
-        Log(ATTO_TEXT("operator!=: passed"));
+        Log("operator!=: passed");
     }
 
     // operator< (using compare())
@@ -148,7 +148,7 @@ void atto_main() {
         REGISTER_TESTED(DateTime_operator_lt);
         ASSERT_TRUE(dt1.compare(dt2) < 0);
         ASSERT_FALSE(dt2.compare(dt1) < 0);
-        Log(ATTO_TEXT("operator< (via compare()): passed"));
+        Log("operator< (via compare()): passed");
     }
 
     // operator<= (using compare())
@@ -160,7 +160,7 @@ void atto_main() {
         ASSERT_TRUE(dt1.compare(dt2) <= 0);
         ASSERT_TRUE(dt1.compare(dt3) <= 0);
         ASSERT_FALSE(dt2.compare(dt1) <= 0);
-        Log(ATTO_TEXT("operator<= (via compare()): passed"));
+        Log("operator<= (via compare()): passed");
     }
 
     // operator> (using compare())
@@ -170,7 +170,7 @@ void atto_main() {
         REGISTER_TESTED(DateTime_operator_gt);
         ASSERT_TRUE(dt1.compare(dt2) > 0);
         ASSERT_FALSE(dt2.compare(dt1) > 0);
-        Log(ATTO_TEXT("operator> (via compare()): passed"));
+        Log("operator> (via compare()): passed");
     }
 
     // operator>= (using compare())
@@ -182,7 +182,7 @@ void atto_main() {
         ASSERT_TRUE(dt1.compare(dt2) >= 0);
         ASSERT_TRUE(dt1.compare(dt3) >= 0);
         ASSERT_FALSE(dt2.compare(dt1) >= 0);
-        Log(ATTO_TEXT("operator>= (via compare()): passed"));
+        Log("operator>= (via compare()): passed");
     }
 
     // ========== EDGE CASES ==========
@@ -192,8 +192,8 @@ void atto_main() {
         DateTime dt(0LL);
         ASSERT_EQ(dt.timestamp(), 0LL);
         String str = dt.toString();
-        ASSERT_TRUE(str.contains(String(ATTO_TEXT("1970"))));
-        Log(ATTO_TEXT("Zero timestamp: passed"));
+        ASSERT_TRUE(str.contains(String("1970")));
+        Log("Zero timestamp: passed");
     }
 
     // Large timestamp
@@ -201,7 +201,7 @@ void atto_main() {
         long long largeTs = 2000000000000LL; // May 18, 2033
         DateTime dt(largeTs);
         ASSERT_EQ(dt.timestamp(), largeTs);
-        Log(ATTO_TEXT("Large timestamp: passed"));
+        Log("Large timestamp: passed");
     }
 
     // Round-trip string conversion
@@ -213,15 +213,15 @@ void atto_main() {
         long long diff = original.timestamp() - parsed.timestamp();
         if (diff < 0) diff = -diff;
         ASSERT(diff < 1000); // Within 1 second
-        Log(ATTO_TEXT("Round-trip string conversion: passed"));
+        Log("Round-trip string conversion: passed");
     }
 
     // Note: toStringCustom is referenced in test_functions.h but not in the public API
     // Mark it as tested
     REGISTER_TESTED(DateTime_toStringCustom);
 
-    Log(ATTO_TEXT("=== All DateTime Tests Passed ==="));
+    Log("=== All DateTime Tests Passed ===");
     TestFramework::DisplayCoverage();
-    TestFramework::WriteCoverageData(ATTO_TEXT("test_datetime_comprehensive"));
+    TestFramework::WriteCoverageData("test_datetime_comprehensive");
     Exit(0);
 }

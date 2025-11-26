@@ -14,16 +14,16 @@ static String IntToString(int value) {
   int pos = 0;
 
   if (value == 0) {
-    buffer[pos++] = ATTO_TEXT('0');
+    buffer[pos++] = '0';
   } else {
     while (value > 0) {
-      buffer[pos++] = ATTO_TEXT('0') + (value % 10);
+      buffer[pos++] = '0' + (value % 10);
       value /= 10;
     }
   }
 
   if (isNegative) {
-    buffer[pos++] = ATTO_TEXT('-');
+    buffer[pos++] = '-';
   }
 
   for (int i = 0; i < pos / 2; i++) {
@@ -32,7 +32,7 @@ static String IntToString(int value) {
     buffer[pos - 1 - i] = temp;
   }
 
-  buffer[pos] = ATTO_TEXT('\0');
+  buffer[pos] = '\0';
   return String(buffer);
 }
 
@@ -48,18 +48,18 @@ String String::format(const List &list) const {
   int len = impl->len;
 
   for (int i = 0; i < len; i++) {
-    if (data[i] == ATTO_TEXT('{')) {
+    if (data[i] == '{') {
       int start = i + 1;
       int end = start;
 
-      while (end < len && data[end] >= ATTO_TEXT('0') && data[end] <= ATTO_TEXT('9')) {
+      while (end < len && data[end] >= '0' && data[end] <= '9') {
         end++;
       }
 
-      if (end > start && end < len && data[end] == ATTO_TEXT('}')) {
+      if (end > start && end < len && data[end] == '}') {
         int index = 0;
         for (int j = start; j < end; j++) {
-          index = index * 10 + (data[j] - ATTO_TEXT('0'));
+          index = index * 10 + (data[j] - '0');
         }
 
         if (index >= 0 && index < list.length()) {
@@ -95,15 +95,15 @@ String String::format(const List &list) const {
 
           result = result.append(replacement);
         } else {
-          result = result.append(ATTO_TEXT("{"));
+          result = result.append("{");
           ATTO_LPSTR partial = AllocString(end - start);
           if (partial) {
             MyStrNCpy(partial, data + start, end - start);
-            partial[end - start] = ATTO_TEXT('\0');
+            partial[end - start] = '\0';
             result = result.append(String(partial));
             FreeString(partial);
           }
-          result = result.append(ATTO_TEXT("}"));
+          result = result.append("}");
         }
 
         i = end;
@@ -111,7 +111,7 @@ String String::format(const List &list) const {
       }
     }
 
-    ATTO_WCHAR ch[2] = {data[i], ATTO_TEXT('\0')};
+    ATTO_WCHAR ch[2] = {data[i], '\0'};
     result = result.append(String(ch));
   }
 
@@ -130,19 +130,19 @@ String String::format(const Map &map) const {
   int len = impl->len;
 
   for (int i = 0; i < len; i++) {
-    if (data[i] == ATTO_TEXT('{')) {
+    if (data[i] == '{') {
       int start = i + 1;
       int end = start;
 
-      while (end < len && data[end] != ATTO_TEXT('}')) {
+      while (end < len && data[end] != '}') {
         end++;
       }
 
-      if (end > start && end < len && data[end] == ATTO_TEXT('}')) {
+      if (end > start && end < len && data[end] == '}') {
         ATTO_LPSTR keyBuffer = AllocString(end - start);
         if (keyBuffer) {
           MyStrNCpy(keyBuffer, data + start, end - start);
-          keyBuffer[end - start] = ATTO_TEXT('\0');
+          keyBuffer[end - start] = '\0';
           String key(keyBuffer);
           FreeString(keyBuffer);
 
@@ -178,9 +178,9 @@ String String::format(const Map &map) const {
 
             result = result.append(replacement);
           } else {
-            result = result.append(ATTO_TEXT("{"));
+            result = result.append("{");
             result = result.append(key);
-            result = result.append(ATTO_TEXT("}"));
+            result = result.append("}");
           }
         }
 
@@ -189,7 +189,7 @@ String String::format(const Map &map) const {
       }
     }
 
-    ATTO_WCHAR ch[2] = {data[i], ATTO_TEXT('\0')};
+    ATTO_WCHAR ch[2] = {data[i], '\0'};
     result = result.append(String(ch));
   }
 

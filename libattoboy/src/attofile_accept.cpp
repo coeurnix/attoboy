@@ -4,7 +4,7 @@ namespace attoboy {
 
 File File::accept() {
   if (!impl) {
-    File invalid(Path(ATTO_TEXT("")));
+    File invalid(Path(""));
     return invalid;
   }
 
@@ -12,13 +12,13 @@ File File::accept() {
 
   if (impl->type != FILE_TYPE_SERVER_SOCKET || !impl->isValid ||
       !impl->isOpen) {
-    File invalid(Path(ATTO_TEXT("")));
+    File invalid(Path(""));
     return invalid;
   }
 
   SOCKET clientSock = ::accept(impl->sock, nullptr, nullptr);
   if (clientSock == INVALID_SOCKET) {
-    File invalid(Path(ATTO_TEXT("")));
+    File invalid(Path(""));
     return invalid;
   }
 
@@ -27,7 +27,7 @@ File File::accept() {
                             sizeof(FileImpl));
   if (!clientImpl) {
     closesocket(clientSock);
-    File invalid(Path(ATTO_TEXT("")));
+    File invalid(Path(""));
     return invalid;
   }
 
@@ -42,7 +42,7 @@ File File::accept() {
   clientImpl->isValid = true;
   clientImpl->refCount = 1;
 
-  File result(Path(ATTO_TEXT("")));
+  File result(Path(""));
   if (result.impl && InterlockedDecrement(&result.impl->refCount) == 0) {
     FreeFileStr(result.impl->pathStr);
     result.impl->pathStr = nullptr;

@@ -39,8 +39,8 @@ void* longRunning(void* arg) {
 }
 
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_thread_mutex_comprehensive.log"), true);
-    Log(ATTO_TEXT("=== Comprehensive Thread and Mutex Class Tests ==="));
+    EnableLoggingToFile("test_thread_mutex_comprehensive.log", true);
+    Log("=== Comprehensive Thread and Mutex Class Tests ===");
 
     // ========== THREAD TESTS ==========
 
@@ -52,7 +52,7 @@ void atto_main() {
         ASSERT_TRUE(t.isRunning());
         t.await();
         ASSERT_EQ(value, 100);
-        Log(ATTO_TEXT("Thread(func, arg): passed"));
+        Log("Thread(func, arg): passed");
     }
 
     // Thread with no argument
@@ -61,7 +61,7 @@ void atto_main() {
         REGISTER_TESTED(Thread_constructor_empty); // Mark as tested
         void* result = t.await();
         ASSERT(result == nullptr);
-        Log(ATTO_TEXT("Thread(func, nullptr): passed"));
+        Log("Thread(func, nullptr): passed");
     }
 
     // Copy constructor
@@ -71,7 +71,7 @@ void atto_main() {
         Thread t2(t1);
         REGISTER_TESTED(Thread_destructor); // Implicitly tested
         t2.await();
-        Log(ATTO_TEXT("Thread(const Thread&): passed"));
+        Log("Thread(const Thread&): passed");
     }
 
     // Assignment operator
@@ -82,7 +82,7 @@ void atto_main() {
         t2 = t1;
         REGISTER_TESTED(Thread_operator_assign);
         t2.await();
-        Log(ATTO_TEXT("operator=: passed"));
+        Log("operator=: passed");
     }
 
     // isRunning()
@@ -93,7 +93,7 @@ void atto_main() {
         ASSERT_TRUE(t.isRunning());
         t.await();
         ASSERT_FALSE(t.isRunning());
-        Log(ATTO_TEXT("isRunning(): passed"));
+        Log("isRunning(): passed");
     }
 
     // await()
@@ -103,7 +103,7 @@ void atto_main() {
         void* result = t.await();
         REGISTER_TESTED(Thread_join); // Called await in API, join in registry
         ASSERT(result == &value);
-        Log(ATTO_TEXT("await(): passed"));
+        Log("await(): passed");
     }
 
     // cancel()
@@ -117,7 +117,7 @@ void atto_main() {
         REGISTER_TESTED(Thread_detach); // cancel is similar to detach
         Sleep(50); // Give time for cancellation
         ASSERT_FALSE(t.isRunning());
-        Log(ATTO_TEXT("cancel(): passed"));
+        Log("cancel(): passed");
     }
 
     // equals() and operators
@@ -134,13 +134,13 @@ void atto_main() {
 
         t1.await();
         t3.await();
-        Log(ATTO_TEXT("equals() and operators: passed"));
+        Log("equals() and operators: passed");
     }
 
     // start - Note: API doesn't have separate start method
     {
         REGISTER_TESTED(Thread_start);
-        Log(ATTO_TEXT("start(): passed (threads start on construction)"));
+        Log("start(): passed (threads start on construction)");
     }
 
     // ========== MUTEX TESTS ==========
@@ -149,7 +149,7 @@ void atto_main() {
     {
         Mutex m;
         REGISTER_TESTED(Mutex_constructor);
-        Log(ATTO_TEXT("Mutex(): passed"));
+        Log("Mutex(): passed");
     }
 
     // Copy constructor and destructor
@@ -157,7 +157,7 @@ void atto_main() {
         Mutex m1;
         Mutex m2(m1);
         REGISTER_TESTED(Mutex_destructor); // Implicitly tested
-        Log(ATTO_TEXT("Mutex(const Mutex&): passed"));
+        Log("Mutex(const Mutex&): passed");
     }
 
     // lock() and unlock()
@@ -168,7 +168,7 @@ void atto_main() {
         // Mutex is locked
         m.unlock();
         REGISTER_TESTED(Mutex_unlock);
-        Log(ATTO_TEXT("lock() and unlock(): passed"));
+        Log("lock() and unlock(): passed");
     }
 
     // tryLock()
@@ -183,7 +183,7 @@ void atto_main() {
         ASSERT_FALSE(locked2);
 
         m.unlock();
-        Log(ATTO_TEXT("tryLock(): passed"));
+        Log("tryLock(): passed");
     }
 
     // Mutex with threads - ensure thread safety
@@ -208,7 +208,7 @@ void atto_main() {
 
         // With mutex protection, counter should be exactly NUM_THREADS * 100
         ASSERT_EQ(g_counter, NUM_THREADS * 100);
-        Log(ATTO_TEXT("Mutex with multiple threads: passed"));
+        Log("Mutex with multiple threads: passed");
     }
 
     // Mutex RAII pattern (lock/unlock in scope)
@@ -223,11 +223,11 @@ void atto_main() {
         bool locked = m.tryLock();
         ASSERT_TRUE(locked);
         m.unlock();
-        Log(ATTO_TEXT("Mutex RAII pattern: passed"));
+        Log("Mutex RAII pattern: passed");
     }
 
-    Log(ATTO_TEXT("=== All Thread and Mutex Tests Passed ==="));
+    Log("=== All Thread and Mutex Tests Passed ===");
     TestFramework::DisplayCoverage();
-    TestFramework::WriteCoverageData(ATTO_TEXT("test_thread_mutex_comprehensive"));
+    TestFramework::WriteCoverageData("test_thread_mutex_comprehensive");
     Exit(0);
 }

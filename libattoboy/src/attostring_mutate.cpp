@@ -10,11 +10,11 @@ String String::trim() const {
     return String(*this);
 
   int start = 0;
-  while (start < impl->len && impl->data[start] <= ATTO_TEXT(' '))
+  while (start < impl->len && impl->data[start] <= ' ')
     start++;
 
   int end = impl->len - 1;
-  while (end > start && impl->data[end] <= ATTO_TEXT(' '))
+  while (end > start && impl->data[end] <= ' ')
     end--;
 
   int newLen = end - start + 1;
@@ -25,7 +25,7 @@ String String::trim() const {
   if (newLen > 0) {
     MyStrNCpy(newData, impl->data + start, newLen);
   }
-  newData[newLen] = ATTO_TEXT('\0');
+  newData[newLen] = '\0';
 
   String result;
   FreeString(result.impl->data);

@@ -185,7 +185,7 @@ Buffer Buffer::fromBase64(const String &base64String) {
   }
 
   int len = cleaned.length();
-  const ATTO_CHAR *str = cleaned.c_str();
+  const char *str = cleaned.c_str();
 
   char *src = static_cast<char *>(Alloc(len + 1));
   if (!src) {
@@ -193,7 +193,7 @@ Buffer Buffer::fromBase64(const String &base64String) {
   }
 
   for (int i = 0; i < len; i++) {
-    ATTO_CHAR wc = str[i];
+    char wc = str[i];
     if (wc > 127) {
       Free(src);
       return Buffer();

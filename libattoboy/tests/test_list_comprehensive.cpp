@@ -1,8 +1,8 @@
 #include "test_framework.h"
 
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_list_comprehensive.log"), true);
-    Log(ATTO_TEXT("=== Comprehensive List Class Tests ==="));
+    EnableLoggingToFile("test_list_comprehensive.log", true);
+    Log("=== Comprehensive List Class Tests ===");
 
     // ========== CONSTRUCTORS ==========
 
@@ -12,7 +12,7 @@ void atto_main() {
         REGISTER_TESTED(List_constructor_empty);
         ASSERT_TRUE(l.isEmpty());
         ASSERT_EQ(l.length(), 0);
-        Log(ATTO_TEXT("List() [empty]: passed"));
+        Log("List() [empty]: passed");
     }
 
     // Capacity constructor
@@ -20,17 +20,17 @@ void atto_main() {
         List l(100);
         REGISTER_TESTED(List_constructor_capacity);
         ASSERT_TRUE(l.isEmpty());
-        Log(ATTO_TEXT("List(capacity): passed"));
+        Log("List(capacity): passed");
     }
 
     // Variadic constructor
     {
-        List l(1, ATTO_TEXT("hello"), 3.14f, true);
+        List l(1, "hello", 3.14f, true);
         REGISTER_TESTED(List_constructor_variadic);
         ASSERT_EQ(l.length(), 4);
         ASSERT_EQ(l.at<int>(0), 1);
-        ASSERT_EQ(l.at<String>(1), String(ATTO_TEXT("hello")));
-        Log(ATTO_TEXT("List(variadic): passed"));
+        ASSERT_EQ(l.at<String>(1), String("hello"));
+        Log("List(variadic): passed");
     }
 
     // Copy constructor
@@ -41,7 +41,7 @@ void atto_main() {
         REGISTER_TESTED(List_constructor_copy);
         ASSERT_EQ(copy.length(), 3);
         ASSERT_EQ(copy.at<int>(0), 1);
-        Log(ATTO_TEXT("List(copy): passed"));
+        Log("List(copy): passed");
     }
 
     // From Set constructor
@@ -51,13 +51,13 @@ void atto_main() {
         List l(s);
         REGISTER_TESTED(List_constructor_from_set);
         ASSERT_EQ(l.length(), 3);
-        Log(ATTO_TEXT("List(Set): passed"));
+        Log("List(Set): passed");
     }
 
     // Destructor (implicit)
     {
         REGISTER_TESTED(List_destructor);
-        Log(ATTO_TEXT("~List(): passed (implicit)"));
+        Log("~List(): passed (implicit)");
     }
 
     // Assignment operator
@@ -69,7 +69,7 @@ void atto_main() {
         REGISTER_TESTED(List_operator_assign);
         ASSERT_EQ(l2.length(), 2);
         ASSERT_EQ(l2.at<int>(0), 1);
-        Log(ATTO_TEXT("operator=: passed"));
+        Log("operator=: passed");
     }
 
     // ========== BASIC PROPERTIES ==========
@@ -80,7 +80,7 @@ void atto_main() {
         l.append(1).append(2).append(3);
         REGISTER_TESTED(List_length);
         ASSERT_EQ(l.length(), 3);
-        Log(ATTO_TEXT("length(): passed"));
+        Log("length(): passed");
     }
 
     // isEmpty()
@@ -91,7 +91,7 @@ void atto_main() {
         REGISTER_TESTED(List_isEmpty);
         ASSERT_TRUE(empty.isEmpty());
         ASSERT_FALSE(notEmpty.isEmpty());
-        Log(ATTO_TEXT("isEmpty(): passed"));
+        Log("isEmpty(): passed");
     }
 
     // ========== MODIFICATION ==========
@@ -99,12 +99,12 @@ void atto_main() {
     // append()
     {
         List l;
-        l.append(1).append(ATTO_TEXT("two")).append(3.0f);
+        l.append(1).append("two").append(3.0f);
         REGISTER_TESTED(List_append);
         ASSERT_EQ(l.length(), 3);
         ASSERT_EQ(l.at<int>(0), 1);
-        ASSERT_EQ(l.at<String>(1), String(ATTO_TEXT("two")));
-        Log(ATTO_TEXT("append(): passed"));
+        ASSERT_EQ(l.at<String>(1), String("two"));
+        Log("append(): passed");
     }
 
     // prepend()
@@ -114,7 +114,7 @@ void atto_main() {
         REGISTER_TESTED(List_prepend);
         ASSERT_EQ(l.at<int>(0), 1);
         ASSERT_EQ(l.at<int>(1), 2);
-        Log(ATTO_TEXT("prepend(): passed"));
+        Log("prepend(): passed");
     }
 
     // insert()
@@ -123,7 +123,7 @@ void atto_main() {
         l.append(1).append(3).insert(1, 2);
         REGISTER_TESTED(List_insert);
         ASSERT_EQ(l.at<int>(1), 2);
-        Log(ATTO_TEXT("insert(): passed"));
+        Log("insert(): passed");
     }
 
     // pop()
@@ -134,7 +134,7 @@ void atto_main() {
         REGISTER_TESTED(List_pop);
         ASSERT_EQ(val, 3);
         ASSERT_EQ(l.length(), 2);
-        Log(ATTO_TEXT("pop(): passed"));
+        Log("pop(): passed");
     }
 
     // at()
@@ -143,7 +143,7 @@ void atto_main() {
         l.append(10).append(20).append(30);
         REGISTER_TESTED(List_at);
         ASSERT_EQ(l.at<int>(1), 20);
-        Log(ATTO_TEXT("at(): passed"));
+        Log("at(): passed");
     }
 
     // operator[]
@@ -153,7 +153,7 @@ void atto_main() {
         REGISTER_TESTED(List_operator_brackets);
         int val = l.operator[]<int>(0);
         ASSERT_EQ(val, 100);
-        Log(ATTO_TEXT("operator[]: passed"));
+        Log("operator[]: passed");
     }
 
     // set()
@@ -162,7 +162,7 @@ void atto_main() {
         l.append(1).append(2).set(1, 99);
         REGISTER_TESTED(List_set);
         ASSERT_EQ(l.at<int>(1), 99);
-        Log(ATTO_TEXT("set(): passed"));
+        Log("set(): passed");
     }
 
     // remove()
@@ -172,7 +172,7 @@ void atto_main() {
         REGISTER_TESTED(List_remove);
         ASSERT_EQ(l.length(), 2);
         ASSERT_EQ(l.at<int>(1), 3);
-        Log(ATTO_TEXT("remove(): passed"));
+        Log("remove(): passed");
     }
 
     // clear()
@@ -181,7 +181,7 @@ void atto_main() {
         l.append(1).append(2).clear();
         REGISTER_TESTED(List_clear);
         ASSERT_TRUE(l.isEmpty());
-        Log(ATTO_TEXT("clear(): passed"));
+        Log("clear(): passed");
     }
 
     // ========== SEARCH ==========
@@ -193,7 +193,7 @@ void atto_main() {
         REGISTER_TESTED(List_find);
         ASSERT_EQ(l.find(20), 1);
         ASSERT_EQ(l.find(999), -1);
-        Log(ATTO_TEXT("find(): passed"));
+        Log("find(): passed");
     }
 
     // contains()
@@ -203,7 +203,7 @@ void atto_main() {
         REGISTER_TESTED(List_contains);
         ASSERT_TRUE(l.contains(2));
         ASSERT_FALSE(l.contains(99));
-        Log(ATTO_TEXT("contains(): passed"));
+        Log("contains(): passed");
     }
 
     // ========== MANIPULATION ==========
@@ -215,7 +215,7 @@ void atto_main() {
         REGISTER_TESTED(List_reverse);
         ASSERT_EQ(l.at<int>(0), 3);
         ASSERT_EQ(l.at<int>(2), 1);
-        Log(ATTO_TEXT("reverse(): passed"));
+        Log("reverse(): passed");
     }
 
     // sort()
@@ -226,18 +226,18 @@ void atto_main() {
         ASSERT_EQ(l.at<int>(0), 1);
         ASSERT_EQ(l.at<int>(1), 2);
         ASSERT_EQ(l.at<int>(2), 3);
-        Log(ATTO_TEXT("sort(): passed"));
+        Log("sort(): passed");
     }
 
     // typeAt()
     {
         List l;
-        l.append(42).append(ATTO_TEXT("string"));
+        l.append(42).append("string");
         REGISTER_TESTED(List_typeAt);
         // Just verify it doesn't crash
         l.typeAt(0);
         l.typeAt(1);
-        Log(ATTO_TEXT("typeAt(): passed"));
+        Log("typeAt(): passed");
     }
 
     // slice()
@@ -248,7 +248,7 @@ void atto_main() {
         REGISTER_TESTED(List_slice);
         ASSERT_EQ(sliced.length(), 3);
         ASSERT_EQ(sliced.at<int>(0), 2);
-        Log(ATTO_TEXT("slice(): passed"));
+        Log("slice(): passed");
     }
 
     // concat(list)
@@ -261,7 +261,7 @@ void atto_main() {
         REGISTER_TESTED(List_concat_list);
         ASSERT_EQ(l1.length(), 4);
         ASSERT_EQ(l1.at<int>(2), 3);
-        Log(ATTO_TEXT("concat(List): passed"));
+        Log("concat(List): passed");
     }
 
     // concat(set)
@@ -273,7 +273,7 @@ void atto_main() {
         l.concat(s);
         REGISTER_TESTED(List_concat_set);
         ASSERT_EQ(l.length(), 3);
-        Log(ATTO_TEXT("concat(Set): passed"));
+        Log("concat(Set): passed");
     }
 
     // duplicate()
@@ -284,7 +284,7 @@ void atto_main() {
         REGISTER_TESTED(List_duplicate);
         ASSERT_EQ(dup.length(), 2);
         ASSERT_EQ(dup.at<int>(0), 1);
-        Log(ATTO_TEXT("duplicate(): passed"));
+        Log("duplicate(): passed");
     }
 
     // ========== COMPARISON ==========
@@ -300,7 +300,7 @@ void atto_main() {
         REGISTER_TESTED(List_compare);
         ASSERT_TRUE(l1.compare(l2));
         ASSERT_FALSE(l1.compare(l3));
-        Log(ATTO_TEXT("compare(): passed"));
+        Log("compare(): passed");
     }
 
     // operator==
@@ -311,7 +311,7 @@ void atto_main() {
         l2.append(1);
         REGISTER_TESTED(List_operator_eq);
         ASSERT_TRUE(l1 == l2);
-        Log(ATTO_TEXT("operator==: passed"));
+        Log("operator==: passed");
     }
 
     // operator!=
@@ -322,7 +322,7 @@ void atto_main() {
         l2.append(2);
         REGISTER_TESTED(List_operator_ne);
         ASSERT_TRUE(l1 != l2);
-        Log(ATTO_TEXT("operator!=: passed"));
+        Log("operator!=: passed");
     }
 
     // operator+
@@ -333,19 +333,19 @@ void atto_main() {
         REGISTER_TESTED(List_operator_plus);
         ASSERT_EQ(result.length(), 2);
         ASSERT_EQ(result.at<int>(1), 2);
-        Log(ATTO_TEXT("operator+: passed"));
+        Log("operator+: passed");
     }
 
     // ========== NESTED COLLECTIONS & JSON ==========
 
-    Log(ATTO_TEXT("=== Testing Nested Collections & JSON ==="));
+    Log("=== Testing Nested Collections & JSON ===");
 
     // Nested List in List
     {
         List inner;
         inner.append(1).append(2).append(3);
         List outer;
-        outer.append(ATTO_TEXT("prefix")).append(inner).append(ATTO_TEXT("suffix"));
+        outer.append("prefix").append(inner).append("suffix");
 
         ASSERT_EQ(outer.length(), 3);
         List retrieved = outer.at<List>(1);
@@ -354,27 +354,27 @@ void atto_main() {
 
         // Convert to JSON String
         String json(outer);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("["))));
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("prefix"))));
-        Log(ATTO_TEXT("Nested List in List + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("[")));
+        ASSERT_TRUE(json.contains(String("prefix")));
+        Log("Nested List in List + JSON: passed");
     }
 
     // Map in List
     {
         Map m;
-        m.put(ATTO_TEXT("key"), ATTO_TEXT("value"));
+        m.put("key", "value");
         List l;
         l.append(1).append(m).append(3);
 
         Map retrieved = l.at<Map>(1);
-        String val = retrieved.get<String,String>(ATTO_TEXT("key"));
-        ASSERT_EQ(val, String(ATTO_TEXT("value")));
+        String val = retrieved.get<String,String>("key");
+        ASSERT_EQ(val, String("value"));
 
         // Convert to JSON
         String json(l);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("{"))));
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("key"))));
-        Log(ATTO_TEXT("Map in List + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("{")));
+        ASSERT_TRUE(json.contains(String("key")));
+        Log("Map in List + JSON: passed");
     }
 
     // Set in List
@@ -389,26 +389,26 @@ void atto_main() {
 
         // Convert to JSON
         String json(l);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("["))));
-        Log(ATTO_TEXT("Set in List + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("[")));
+        Log("Set in List + JSON: passed");
     }
 
     // Deeply nested structure
     {
         List deepInner;
-        deepInner.append(ATTO_TEXT("deep"));
+        deepInner.append("deep");
         List middle;
         middle.append(deepInner);
         List outer;
         outer.append(middle);
 
         List retrieved = outer.at<List>(0).at<List>(0);
-        ASSERT_EQ(retrieved.at<String>(0), String(ATTO_TEXT("deep")));
+        ASSERT_EQ(retrieved.at<String>(0), String("deep"));
 
         // Convert to JSON
         String json(outer);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("deep"))));
-        Log(ATTO_TEXT("Deeply nested List + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("deep")));
+        Log("Deeply nested List + JSON: passed");
     }
 
     // ========== JSON/CSV FUNCTIONS ==========
@@ -416,101 +416,101 @@ void atto_main() {
     // List.toJSONString() basic
     {
         List l;
-        l.append(1).append(ATTO_TEXT("hello")).append(true);
+        l.append(1).append("hello").append(true);
         String json = l.toJSONString();
         REGISTER_TESTED(List_toJSONString);
-        ASSERT_TRUE(json.contains(ATTO_TEXT("[")));
-        ASSERT_TRUE(json.contains(ATTO_TEXT("hello")));
-        ASSERT_TRUE(json.contains(ATTO_TEXT("true")));
-        Log(ATTO_TEXT("List.toJSONString(): passed"));
+        ASSERT_TRUE(json.contains("["));
+        ASSERT_TRUE(json.contains("hello"));
+        ASSERT_TRUE(json.contains("true"));
+        Log("List.toJSONString(): passed");
     }
 
     // List.FromJSONString() basic
     {
-        String json(ATTO_TEXT("[1,\"hello\",true,3.14]"));
+        String json("[1,\"hello\",true,3.14]");
         List l = List::FromJSONString(json);
         REGISTER_TESTED(List_FromJSONString);
         ASSERT_EQ(l.length(), 4);
         ASSERT_EQ(l.at<int>(0), 1);
-        ASSERT_EQ(l.at<String>(1), String(ATTO_TEXT("hello")));
+        ASSERT_EQ(l.at<String>(1), String("hello"));
         ASSERT_EQ(l.at<bool>(2), true);
-        Log(ATTO_TEXT("List.FromJSONString(): passed"));
+        Log("List.FromJSONString(): passed");
     }
 
     // List.FromJSONString() nested
     {
-        String json(ATTO_TEXT("[[1,2],[3,4]]"));
+        String json("[[1,2],[3,4]]");
         List l = List::FromJSONString(json);
         ASSERT_EQ(l.length(), 2);
         List inner = l.at<List>(0);
         ASSERT_EQ(inner.length(), 2);
         ASSERT_EQ(inner.at<int>(0), 1);
         ASSERT_EQ(inner.at<int>(1), 2);
-        Log(ATTO_TEXT("List.FromJSONString() nested: passed"));
+        Log("List.FromJSONString() nested: passed");
     }
 
     // List.FromJSONString() with Map
     {
-        String json(ATTO_TEXT("[{\"key\":\"value\"}]"));
+        String json("[{\"key\":\"value\"}]");
         List l = List::FromJSONString(json);
         ASSERT_EQ(l.length(), 1);
         Map m = l.at<Map>(0);
-        String val = m.get<String,String>(ATTO_TEXT("key"));
-        ASSERT_EQ(val, String(ATTO_TEXT("value")));
-        Log(ATTO_TEXT("List.FromJSONString() with Map: passed"));
+        String val = m.get<String,String>("key");
+        ASSERT_EQ(val, String("value"));
+        Log("List.FromJSONString() with Map: passed");
     }
 
     // List.toCSVString() basic
     {
         List row1;
-        row1.append(ATTO_TEXT("Name")).append(ATTO_TEXT("Age")).append(ATTO_TEXT("City"));
+        row1.append("Name").append("Age").append("City");
         List row2;
-        row2.append(ATTO_TEXT("Alice")).append(30).append(ATTO_TEXT("NYC"));
+        row2.append("Alice").append(30).append("NYC");
         List csv;
         csv.append(row1).append(row2);
         String csvStr = csv.toCSVString();
         REGISTER_TESTED(List_toCSVString);
-        ASSERT_TRUE(csvStr.contains(ATTO_TEXT("Name")));
-        ASSERT_TRUE(csvStr.contains(ATTO_TEXT("Alice")));
-        ASSERT_TRUE(csvStr.contains(ATTO_TEXT("30")));
-        Log(ATTO_TEXT("List.toCSVString(): passed"));
+        ASSERT_TRUE(csvStr.contains("Name"));
+        ASSERT_TRUE(csvStr.contains("Alice"));
+        ASSERT_TRUE(csvStr.contains("30"));
+        Log("List.toCSVString(): passed");
     }
 
     // List.FromCSVString() basic
     {
-        String csvStr(ATTO_TEXT("Name,Age,City\r\nAlice,30,NYC\r\nBob,25,LA"));
+        String csvStr("Name,Age,City\r\nAlice,30,NYC\r\nBob,25,LA");
         List csv = List::FromCSVString(csvStr);
         REGISTER_TESTED(List_FromCSVString);
         ASSERT_EQ(csv.length(), 3);
         List row1 = csv.at<List>(0);
         ASSERT_EQ(row1.length(), 3);
-        ASSERT_EQ(row1.at<String>(0), String(ATTO_TEXT("Name")));
+        ASSERT_EQ(row1.at<String>(0), String("Name"));
         List row2 = csv.at<List>(1);
-        ASSERT_EQ(row2.at<String>(0), String(ATTO_TEXT("Alice")));
-        Log(ATTO_TEXT("List.FromCSVString(): passed"));
+        ASSERT_EQ(row2.at<String>(0), String("Alice"));
+        Log("List.FromCSVString(): passed");
     }
 
     // List.toCSVString() with quotes
     {
         List row1;
-        row1.append(ATTO_TEXT("Quote \"test\"")).append(ATTO_TEXT("Comma,test"));
+        row1.append("Quote \"test\"").append("Comma,test");
         List csv;
         csv.append(row1);
         String csvStr = csv.toCSVString();
-        ASSERT_TRUE(csvStr.contains(ATTO_TEXT("\"\"")));
-        Log(ATTO_TEXT("List.toCSVString() with escapes: passed"));
+        ASSERT_TRUE(csvStr.contains("\"\""));
+        Log("List.toCSVString() with escapes: passed");
     }
 
     // List.FromCSVString() with quotes
     {
-        String csvStr(ATTO_TEXT("\"Quote \"\"test\"\"\",\"Comma,test\""));
+        String csvStr("\"Quote \"\"test\"\"\",\"Comma,test\"");
         List csv = List::FromCSVString(csvStr);
         ASSERT_EQ(csv.length(), 1);
         List row = csv.at<List>(0);
         ASSERT_EQ(row.length(), 2);
         String field1 = row.at<String>(0);
-        ASSERT_TRUE(field1.contains(ATTO_TEXT("Quote")));
-        Log(ATTO_TEXT("List.FromCSVString() with quotes: passed"));
+        ASSERT_TRUE(field1.contains("Quote"));
+        Log("List.FromCSVString() with quotes: passed");
     }
 
     // List.toCSVString() with nested collections
@@ -518,44 +518,44 @@ void atto_main() {
         List inner;
         inner.append(1).append(2).append(3);
         List row1;
-        row1.append(ATTO_TEXT("data")).append(inner);
+        row1.append("data").append(inner);
         List csv;
         csv.append(row1);
         String csvStr = csv.toCSVString();
-        ASSERT_TRUE(csvStr.contains(ATTO_TEXT("[")));
-        Log(ATTO_TEXT("List.toCSVString() with nested: passed"));
+        ASSERT_TRUE(csvStr.contains("["));
+        Log("List.toCSVString() with nested: passed");
     }
 
     // Round-trip JSON
     {
         List original;
-        original.append(1).append(ATTO_TEXT("test")).append(3.14f);
+        original.append(1).append("test").append(3.14f);
         String json = original.toJSONString();
         List restored = List::FromJSONString(json);
         ASSERT_EQ(restored.length(), original.length());
         ASSERT_EQ(restored.at<int>(0), 1);
-        ASSERT_EQ(restored.at<String>(1), String(ATTO_TEXT("test")));
-        Log(ATTO_TEXT("List JSON round-trip: passed"));
+        ASSERT_EQ(restored.at<String>(1), String("test"));
+        Log("List JSON round-trip: passed");
     }
 
     // Round-trip CSV
     {
         List row1;
-        row1.append(ATTO_TEXT("A")).append(ATTO_TEXT("B"));
+        row1.append("A").append("B");
         List row2;
-        row2.append(ATTO_TEXT("C")).append(ATTO_TEXT("D"));
+        row2.append("C").append("D");
         List original;
         original.append(row1).append(row2);
         String csvStr = original.toCSVString();
         List restored = List::FromCSVString(csvStr);
         ASSERT_EQ(restored.length(), 2);
         List restoredRow1 = restored.at<List>(0);
-        ASSERT_EQ(restoredRow1.at<String>(0), String(ATTO_TEXT("A")));
-        Log(ATTO_TEXT("List CSV round-trip: passed"));
+        ASSERT_EQ(restoredRow1.at<String>(0), String("A"));
+        Log("List CSV round-trip: passed");
     }
 
-    Log(ATTO_TEXT("=== All List Tests Passed ==="));
+    Log("=== All List Tests Passed ===");
     TestFramework::DisplayCoverage();
-    TestFramework::WriteCoverageData(ATTO_TEXT("test_list_comprehensive"));
+    TestFramework::WriteCoverageData("test_list_comprehensive");
     Exit(0);
 }

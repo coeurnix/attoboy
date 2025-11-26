@@ -53,24 +53,24 @@ DateTime::DateTime(const String &iso8601) {
 
   new (impl) DateTimeImpl();
 
-  const ATTO_CHAR *str = iso8601.c_str();
+  const char *str = iso8601.c_str();
   SYSTEMTIME st = {0};
 
   int len = lstrlenA(str);
   if (len >= 19) {
-    st.wYear = (str[0] - ATTO_TEXT('0')) * 1000 +
-               (str[1] - ATTO_TEXT('0')) * 100 +
-               (str[2] - ATTO_TEXT('0')) * 10 + (str[3] - ATTO_TEXT('0'));
-    st.wMonth = (str[5] - ATTO_TEXT('0')) * 10 + (str[6] - ATTO_TEXT('0'));
-    st.wDay = (str[8] - ATTO_TEXT('0')) * 10 + (str[9] - ATTO_TEXT('0'));
-    st.wHour = (str[11] - ATTO_TEXT('0')) * 10 + (str[12] - ATTO_TEXT('0'));
-    st.wMinute = (str[14] - ATTO_TEXT('0')) * 10 + (str[15] - ATTO_TEXT('0'));
-    st.wSecond = (str[17] - ATTO_TEXT('0')) * 10 + (str[18] - ATTO_TEXT('0'));
+    st.wYear = (str[0] - '0') * 1000 +
+               (str[1] - '0') * 100 +
+               (str[2] - '0') * 10 + (str[3] - '0');
+    st.wMonth = (str[5] - '0') * 10 + (str[6] - '0');
+    st.wDay = (str[8] - '0') * 10 + (str[9] - '0');
+    st.wHour = (str[11] - '0') * 10 + (str[12] - '0');
+    st.wMinute = (str[14] - '0') * 10 + (str[15] - '0');
+    st.wSecond = (str[17] - '0') * 10 + (str[18] - '0');
 
-    if (len >= 24 && str[19] == ATTO_TEXT('.')) {
-      st.wMilliseconds = (str[20] - ATTO_TEXT('0')) * 100 +
-                         (str[21] - ATTO_TEXT('0')) * 10 +
-                         (str[22] - ATTO_TEXT('0'));
+    if (len >= 24 && str[19] == '.') {
+      st.wMilliseconds = (str[20] - '0') * 100 +
+                         (str[21] - '0') * 10 +
+                         (str[22] - '0');
     }
 
     SystemTimeToFileTime(&st, &impl->fileTime);

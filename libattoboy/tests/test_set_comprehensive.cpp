@@ -1,8 +1,8 @@
 #include "test_framework.h"
 
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_set_comprehensive.log"), true);
-    Log(ATTO_TEXT("=== Comprehensive Set Class Tests ==="));
+    EnableLoggingToFile("test_set_comprehensive.log", true);
+    Log("=== Comprehensive Set Class Tests ===");
 
     // ========== CONSTRUCTORS ==========
 
@@ -12,7 +12,7 @@ void atto_main() {
         REGISTER_TESTED(Set_constructor_empty);
         ASSERT_TRUE(s.isEmpty());
         ASSERT_EQ(s.length(), 0);
-        Log(ATTO_TEXT("Set() [empty]: passed"));
+        Log("Set() [empty]: passed");
     }
 
     // Capacity constructor
@@ -20,7 +20,7 @@ void atto_main() {
         Set s(100);
         REGISTER_TESTED(Set_constructor_capacity);
         ASSERT_TRUE(s.isEmpty());
-        Log(ATTO_TEXT("Set(capacity): passed"));
+        Log("Set(capacity): passed");
     }
 
     // Variadic constructor
@@ -28,7 +28,7 @@ void atto_main() {
         Set s(1, 2, 3, 2, 1); // Duplicates should be removed
         REGISTER_TESTED(Set_constructor_variadic);
         ASSERT_EQ(s.length(), 3); // Only 1, 2, 3
-        Log(ATTO_TEXT("Set(variadic): passed"));
+        Log("Set(variadic): passed");
     }
 
     // Copy constructor
@@ -39,7 +39,7 @@ void atto_main() {
         REGISTER_TESTED(Set_constructor_copy);
         ASSERT_EQ(copy.length(), 3);
         ASSERT_TRUE(copy.contains(10));
-        Log(ATTO_TEXT("Set(copy): passed"));
+        Log("Set(copy): passed");
     }
 
     // From List constructor
@@ -49,13 +49,13 @@ void atto_main() {
         Set s(l);
         REGISTER_TESTED(Set_constructor_from_list);
         ASSERT_EQ(s.length(), 3); // Duplicates removed
-        Log(ATTO_TEXT("Set(List): passed"));
+        Log("Set(List): passed");
     }
 
     // Destructor (implicit)
     {
         REGISTER_TESTED(Set_destructor);
-        Log(ATTO_TEXT("~Set(): passed (implicit)"));
+        Log("~Set(): passed (implicit)");
     }
 
     // Assignment operator
@@ -67,7 +67,7 @@ void atto_main() {
         REGISTER_TESTED(Set_operator_assign);
         ASSERT_EQ(s2.length(), 2);
         ASSERT_TRUE(s2.contains(1));
-        Log(ATTO_TEXT("operator=: passed"));
+        Log("operator=: passed");
     }
 
     // ========== BASIC PROPERTIES ==========
@@ -78,7 +78,7 @@ void atto_main() {
         s.put(1).put(2).put(3);
         REGISTER_TESTED(Set_length);
         ASSERT_EQ(s.length(), 3);
-        Log(ATTO_TEXT("length(): passed"));
+        Log("length(): passed");
     }
 
     // isEmpty()
@@ -89,7 +89,7 @@ void atto_main() {
         REGISTER_TESTED(Set_isEmpty);
         ASSERT_TRUE(empty.isEmpty());
         ASSERT_FALSE(notEmpty.isEmpty());
-        Log(ATTO_TEXT("isEmpty(): passed"));
+        Log("isEmpty(): passed");
     }
 
     // ========== MODIFICATION ==========
@@ -101,17 +101,17 @@ void atto_main() {
         REGISTER_TESTED(Set_put);
         ASSERT_EQ(s.length(), 2); // Only 1 and 2
         ASSERT_TRUE(s.contains(1));
-        Log(ATTO_TEXT("put(): passed"));
+        Log("put(): passed");
     }
 
     // contains()
     {
         Set s;
-        s.put(ATTO_TEXT("apple")).put(ATTO_TEXT("banana"));
+        s.put("apple").put("banana");
         REGISTER_TESTED(Set_contains);
-        ASSERT_TRUE(s.contains(ATTO_TEXT("apple")));
-        ASSERT_FALSE(s.contains(ATTO_TEXT("cherry")));
-        Log(ATTO_TEXT("contains(): passed"));
+        ASSERT_TRUE(s.contains("apple"));
+        ASSERT_FALSE(s.contains("cherry"));
+        Log("contains(): passed");
     }
 
     // remove()
@@ -121,7 +121,7 @@ void atto_main() {
         REGISTER_TESTED(Set_remove);
         ASSERT_EQ(s.length(), 2);
         ASSERT_FALSE(s.contains(2));
-        Log(ATTO_TEXT("remove(): passed"));
+        Log("remove(): passed");
     }
 
     // clear()
@@ -130,7 +130,7 @@ void atto_main() {
         s.put(1).put(2).clear();
         REGISTER_TESTED(Set_clear);
         ASSERT_TRUE(s.isEmpty());
-        Log(ATTO_TEXT("clear(): passed"));
+        Log("clear(): passed");
     }
 
     // ========== SET OPERATIONS ==========
@@ -145,7 +145,7 @@ void atto_main() {
         REGISTER_TESTED(Set_setUnion);
         ASSERT_EQ(s1.length(), 5); // 1,2,3,4,5
         ASSERT_TRUE(s1.contains(4));
-        Log(ATTO_TEXT("setUnion(): passed"));
+        Log("setUnion(): passed");
     }
 
     // intersect()
@@ -159,7 +159,7 @@ void atto_main() {
         ASSERT_EQ(s1.length(), 2); // Only 3,4
         ASSERT_TRUE(s1.contains(3));
         ASSERT_FALSE(s1.contains(1));
-        Log(ATTO_TEXT("intersect(): passed"));
+        Log("intersect(): passed");
     }
 
     // subtract()
@@ -173,7 +173,7 @@ void atto_main() {
         ASSERT_EQ(s1.length(), 2); // Only 1,2
         ASSERT_TRUE(s1.contains(1));
         ASSERT_FALSE(s1.contains(3));
-        Log(ATTO_TEXT("subtract(): passed"));
+        Log("subtract(): passed");
     }
 
     // ========== CONVERSION ==========
@@ -186,7 +186,7 @@ void atto_main() {
         REGISTER_TESTED(Set_duplicate);
         ASSERT_EQ(dup.length(), 2);
         ASSERT_TRUE(dup.contains(1));
-        Log(ATTO_TEXT("duplicate(): passed"));
+        Log("duplicate(): passed");
     }
 
     // toList()
@@ -196,7 +196,7 @@ void atto_main() {
         List l = s.toList();
         REGISTER_TESTED(Set_toList);
         ASSERT_EQ(l.length(), 3);
-        Log(ATTO_TEXT("toList(): passed"));
+        Log("toList(): passed");
     }
 
     // ========== COMPARISON ==========
@@ -212,7 +212,7 @@ void atto_main() {
         REGISTER_TESTED(Set_compare);
         ASSERT_TRUE(s1.compare(s2));
         ASSERT_FALSE(s1.compare(s3));
-        Log(ATTO_TEXT("compare(): passed"));
+        Log("compare(): passed");
     }
 
     // operator==
@@ -223,7 +223,7 @@ void atto_main() {
         s2.put(1);
         REGISTER_TESTED(Set_operator_eq);
         ASSERT_TRUE(s1 == s2);
-        Log(ATTO_TEXT("operator==: passed"));
+        Log("operator==: passed");
     }
 
     // operator!=
@@ -234,7 +234,7 @@ void atto_main() {
         s2.put(2);
         REGISTER_TESTED(Set_operator_ne);
         ASSERT_TRUE(s1 != s2);
-        Log(ATTO_TEXT("operator!=: passed"));
+        Log("operator!=: passed");
     }
 
     // operator+
@@ -245,12 +245,12 @@ void atto_main() {
         REGISTER_TESTED(Set_operator_plus);
         ASSERT_EQ(result.length(), 2);
         ASSERT_TRUE(result.contains(2));
-        Log(ATTO_TEXT("operator+: passed"));
+        Log("operator+: passed");
     }
 
     // ========== NESTED COLLECTIONS & JSON ==========
 
-    Log(ATTO_TEXT("=== Testing Nested Collections & JSON ==="));
+    Log("=== Testing Nested Collections & JSON ===");
 
     // Set containing Lists
     {
@@ -265,16 +265,16 @@ void atto_main() {
 
         // Convert to JSON
         String json(s);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("["))));
-        Log(ATTO_TEXT("Set containing Lists + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("[")));
+        Log("Set containing Lists + JSON: passed");
     }
 
     // Set containing Maps
     {
         Map m1;
-        m1.put(ATTO_TEXT("a"), 1);
+        m1.put("a", 1);
         Map m2;
-        m2.put(ATTO_TEXT("b"), 2);
+        m2.put("b", 2);
         Set s;
         s.put(m1).put(m2);
 
@@ -282,8 +282,8 @@ void atto_main() {
 
         // Convert to JSON
         String json(s);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("{"))));
-        Log(ATTO_TEXT("Set containing Maps + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("{")));
+        Log("Set containing Maps + JSON: passed");
     }
 
     // Set containing Sets
@@ -299,16 +299,16 @@ void atto_main() {
 
         // Convert to JSON
         String json(outer);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("["))));
-        Log(ATTO_TEXT("Set containing Sets + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("[")));
+        Log("Set containing Sets + JSON: passed");
     }
 
     // Mixed collection types in Set
     {
         List l;
-        l.append(ATTO_TEXT("list"));
+        l.append("list");
         Map m;
-        m.put(ATTO_TEXT("key"), ATTO_TEXT("value"));
+        m.put("key", "value");
         Set inner;
         inner.put(99);
 
@@ -319,9 +319,9 @@ void atto_main() {
 
         // Convert to JSON
         String json(container);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("["))));
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("{"))));
-        Log(ATTO_TEXT("Mixed collections in Set + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("[")));
+        ASSERT_TRUE(json.contains(String("{")));
+        Log("Mixed collections in Set + JSON: passed");
     }
 
     // ========== JSON FUNCTIONS ==========
@@ -332,80 +332,80 @@ void atto_main() {
         s.put(1).put(2).put(3);
         String json = s.toJSONString();
         REGISTER_TESTED(Set_toJSONString);
-        ASSERT_TRUE(json.contains(ATTO_TEXT("[")));
-        ASSERT_TRUE(json.contains(ATTO_TEXT("1")));
-        ASSERT_TRUE(json.contains(ATTO_TEXT("2")));
-        ASSERT_TRUE(json.contains(ATTO_TEXT("3")));
-        Log(ATTO_TEXT("Set.toJSONString(): passed"));
+        ASSERT_TRUE(json.contains("["));
+        ASSERT_TRUE(json.contains("1"));
+        ASSERT_TRUE(json.contains("2"));
+        ASSERT_TRUE(json.contains("3"));
+        Log("Set.toJSONString(): passed");
     }
 
     // Set.FromJSONString() basic
     {
-        String json(ATTO_TEXT("[10,20,30,20,10]"));
+        String json("[10,20,30,20,10]");
         Set s = Set::FromJSONString(json);
         REGISTER_TESTED(Set_FromJSONString);
         ASSERT_EQ(s.length(), 3);
         ASSERT_TRUE(s.contains(10));
         ASSERT_TRUE(s.contains(20));
         ASSERT_TRUE(s.contains(30));
-        Log(ATTO_TEXT("Set.FromJSONString(): passed"));
+        Log("Set.FromJSONString(): passed");
     }
 
     // Set.FromJSONString() with strings
     {
-        String json(ATTO_TEXT("[\"apple\",\"banana\",\"apple\"]"));
+        String json("[\"apple\",\"banana\",\"apple\"]");
         Set s = Set::FromJSONString(json);
         ASSERT_EQ(s.length(), 2);
-        ASSERT_TRUE(s.contains(ATTO_TEXT("apple")));
-        ASSERT_TRUE(s.contains(ATTO_TEXT("banana")));
-        Log(ATTO_TEXT("Set.FromJSONString() with strings: passed"));
+        ASSERT_TRUE(s.contains("apple"));
+        ASSERT_TRUE(s.contains("banana"));
+        Log("Set.FromJSONString() with strings: passed");
     }
 
     // Set.FromJSONString() mixed types
     {
-        String json(ATTO_TEXT("[1,\"hello\",true,3.14]"));
+        String json("[1,\"hello\",true,3.14]");
         Set s = Set::FromJSONString(json);
         ASSERT_EQ(s.length(), 4);
         ASSERT_TRUE(s.contains(1));
-        ASSERT_TRUE(s.contains(ATTO_TEXT("hello")));
+        ASSERT_TRUE(s.contains("hello"));
         ASSERT_TRUE(s.contains(true));
-        Log(ATTO_TEXT("Set.FromJSONString() mixed types: passed"));
+        Log("Set.FromJSONString() mixed types: passed");
     }
 
     // Round-trip JSON
     {
         Set original;
-        original.put(ATTO_TEXT("alpha")).put(ATTO_TEXT("beta")).put(ATTO_TEXT("gamma"));
+        original.put("alpha").put("beta").put("gamma");
         String json = original.toJSONString();
         Set restored = Set::FromJSONString(json);
         ASSERT_EQ(restored.length(), 3);
-        ASSERT_TRUE(restored.contains(ATTO_TEXT("alpha")));
-        ASSERT_TRUE(restored.contains(ATTO_TEXT("beta")));
-        ASSERT_TRUE(restored.contains(ATTO_TEXT("gamma")));
-        Log(ATTO_TEXT("Set JSON round-trip: passed"));
+        ASSERT_TRUE(restored.contains("alpha"));
+        ASSERT_TRUE(restored.contains("beta"));
+        ASSERT_TRUE(restored.contains("gamma"));
+        Log("Set JSON round-trip: passed");
     }
 
     // Empty Set JSON
     {
         Set s;
         String json = s.toJSONString();
-        ASSERT_TRUE(json.contains(ATTO_TEXT("[")));
-        ASSERT_TRUE(json.contains(ATTO_TEXT("]")));
+        ASSERT_TRUE(json.contains("["));
+        ASSERT_TRUE(json.contains("]"));
         Set restored = Set::FromJSONString(json);
         ASSERT_EQ(restored.length(), 0);
-        Log(ATTO_TEXT("Empty Set JSON: passed"));
+        Log("Empty Set JSON: passed");
     }
 
     // Set from JSON array ensures uniqueness
     {
-        String json(ATTO_TEXT("[1,1,1,2,2,3]"));
+        String json("[1,1,1,2,2,3]");
         Set s = Set::FromJSONString(json);
         ASSERT_EQ(s.length(), 3);
-        Log(ATTO_TEXT("Set uniqueness from JSON: passed"));
+        Log("Set uniqueness from JSON: passed");
     }
 
-    Log(ATTO_TEXT("=== All Set Tests Passed ==="));
+    Log("=== All Set Tests Passed ===");
     TestFramework::DisplayCoverage();
-    TestFramework::WriteCoverageData(ATTO_TEXT("test_set_comprehensive"));
+    TestFramework::WriteCoverageData("test_set_comprehensive");
     Exit(0);
 }

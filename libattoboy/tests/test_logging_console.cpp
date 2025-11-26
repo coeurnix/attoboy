@@ -7,10 +7,10 @@
 
 void atto_main() {
     // Start with file logging to write initial coverage data
-    EnableLoggingToFile(ATTO_TEXT("test_logging_console_setup.log"), true);
+    EnableLoggingToFile("test_logging_console_setup.log", true);
 
-    Log(ATTO_TEXT("=== Testing EnableLoggingToConsole Function ==="));
-    Log(ATTO_TEXT("Phase 1: File logging"));
+    Log("=== Testing EnableLoggingToConsole Function ===");
+    Log("Phase 1: File logging");
 
     // Switch to console logging
     EnableLoggingToConsole();
@@ -18,18 +18,18 @@ void atto_main() {
 
     // These messages go to console (we can't easily capture them)
     // But we can test that the function doesn't crash
-    Log(ATTO_TEXT("Phase 2: Console logging - message 1"));
-    Log(ATTO_TEXT("Phase 2: Console logging - message 2"));
-    Log(ATTO_TEXT("Phase 2: Console logging - message 3"));
+    Log("Phase 2: Console logging - message 1");
+    Log("Phase 2: Console logging - message 2");
+    Log("Phase 2: Console logging - message 3");
 
     // Switch back to file logging to write results
-    EnableLoggingToFile(ATTO_TEXT("test_logging_console_result.log"), true);
-    Log(ATTO_TEXT("Phase 3: Back to file logging"));
-    Log(ATTO_TEXT("EnableLoggingToConsole test completed successfully"));
+    EnableLoggingToFile("test_logging_console_result.log", true);
+    Log("Phase 3: Back to file logging");
+    Log("EnableLoggingToConsole test completed successfully");
 
     // Mark as tested and write coverage
     TestFramework::DisplayCoverage();
-    TestFramework::WriteCoverageData(ATTO_TEXT("test_logging_console"));
+    TestFramework::WriteCoverageData("test_logging_console");
 
     Exit(0);
 }

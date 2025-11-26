@@ -45,7 +45,7 @@ void Map::put_impl(bool key, float value) {
   }
 }
 
-void Map::put_impl(bool key, const ATTO_CHAR *value) {
+void Map::put_impl(bool key, const char *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
@@ -157,7 +157,7 @@ void Map::put_impl(int key, float value) {
   }
 }
 
-void Map::put_impl(int key, const ATTO_CHAR *value) {
+void Map::put_impl(int key, const char *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
@@ -269,7 +269,7 @@ void Map::put_impl(float key, float value) {
   }
 }
 
-void Map::put_impl(float key, const ATTO_CHAR *value) {
+void Map::put_impl(float key, const char *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
@@ -339,12 +339,12 @@ void Map::put_impl(float key, const Set &value) {
   }
 }
 
-void Map::put_impl(const ATTO_CHAR *key, bool value) {
+void Map::put_impl(const char *key, bool value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const ATTO_CHAR *>(key);
+  int index = impl->keys.find<const char *>(key);
   if (index >= 0) {
     impl->values.set<bool>(index, value);
   } else {
@@ -353,12 +353,12 @@ void Map::put_impl(const ATTO_CHAR *key, bool value) {
   }
 }
 
-void Map::put_impl(const ATTO_CHAR *key, int value) {
+void Map::put_impl(const char *key, int value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const ATTO_CHAR *>(key);
+  int index = impl->keys.find<const char *>(key);
   if (index >= 0) {
     impl->values.set<int>(index, value);
   } else {
@@ -367,12 +367,12 @@ void Map::put_impl(const ATTO_CHAR *key, int value) {
   }
 }
 
-void Map::put_impl(const ATTO_CHAR *key, float value) {
+void Map::put_impl(const char *key, float value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const ATTO_CHAR *>(key);
+  int index = impl->keys.find<const char *>(key);
   if (index >= 0) {
     impl->values.set<float>(index, value);
   } else {
@@ -381,12 +381,12 @@ void Map::put_impl(const ATTO_CHAR *key, float value) {
   }
 }
 
-void Map::put_impl(const ATTO_CHAR *key, const ATTO_CHAR *value) {
+void Map::put_impl(const char *key, const char *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const ATTO_CHAR *>(key);
+  int index = impl->keys.find<const char *>(key);
   if (index >= 0) {
     impl->values.set(index, value);
   } else {
@@ -395,12 +395,12 @@ void Map::put_impl(const ATTO_CHAR *key, const ATTO_CHAR *value) {
   }
 }
 
-void Map::put_impl(const ATTO_CHAR *key, const String &value) {
+void Map::put_impl(const char *key, const String &value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const ATTO_CHAR *>(key);
+  int index = impl->keys.find<const char *>(key);
   if (index >= 0) {
     impl->values.set(index, value);
   } else {
@@ -409,12 +409,12 @@ void Map::put_impl(const ATTO_CHAR *key, const String &value) {
   }
 }
 
-void Map::put_impl(const ATTO_CHAR *key, const List &value) {
+void Map::put_impl(const char *key, const List &value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const ATTO_CHAR *>(key);
+  int index = impl->keys.find<const char *>(key);
   if (index >= 0) {
     impl->values.set(index, value);
   } else {
@@ -423,12 +423,12 @@ void Map::put_impl(const ATTO_CHAR *key, const List &value) {
   }
 }
 
-void Map::put_impl(const ATTO_CHAR *key, const Map &value) {
+void Map::put_impl(const char *key, const Map &value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const ATTO_CHAR *>(key);
+  int index = impl->keys.find<const char *>(key);
   if (index >= 0) {
     impl->values.set(index, value);
   } else {
@@ -437,12 +437,12 @@ void Map::put_impl(const ATTO_CHAR *key, const Map &value) {
   }
 }
 
-void Map::put_impl(const ATTO_CHAR *key, const Set &value) {
+void Map::put_impl(const char *key, const Set &value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const ATTO_CHAR *>(key);
+  int index = impl->keys.find<const char *>(key);
   if (index >= 0) {
     impl->values.set(index, value);
   } else {
@@ -493,7 +493,7 @@ void Map::put_impl(const String &key, float value) {
   }
 }
 
-void Map::put_impl(const String &key, const ATTO_CHAR *value) {
+void Map::put_impl(const String &key, const char *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);

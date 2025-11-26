@@ -26,7 +26,7 @@ String Path::readToString() const {
     return String();
   }
 
-  unsigned char *rawBuffer = (unsigned char *)HeapAlloc(GetProcessHeap(), 0, fileSize + sizeof(ATTO_CHAR));
+  unsigned char *rawBuffer = (unsigned char *)HeapAlloc(GetProcessHeap(), 0, fileSize + sizeof(char));
   if (!rawBuffer) {
     CloseHandle(hFile);
     return String();
@@ -41,11 +41,11 @@ String Path::readToString() const {
     return String();
   }
 
-  for (int i = 0; i < (int)sizeof(ATTO_CHAR); i++) {
+  for (int i = 0; i < (int)sizeof(char); i++) {
     rawBuffer[bytesRead + i] = 0;
   }
 
-  String result((const ATTO_CHAR *)rawBuffer);
+  String result((const char *)rawBuffer);
   HeapFree(GetProcessHeap(), 0, rawBuffer);
   return result;
 }
@@ -99,9 +99,9 @@ bool Path::writeFromString(const String &str) const {
   if (hFile == INVALID_HANDLE_VALUE)
     return false;
 
-  const ATTO_CHAR *data = str.c_str();
+  const char *data = str.c_str();
   int len = str.byteLength();
-  DWORD bytesToWrite = len * sizeof(ATTO_CHAR);
+  DWORD bytesToWrite = len * sizeof(char);
   DWORD bytesWritten = 0;
 
   bool success = WriteFile(hFile, data, bytesToWrite, &bytesWritten, nullptr);
@@ -150,9 +150,9 @@ bool Path::appendFromString(const String &str) const {
   if (hFile == INVALID_HANDLE_VALUE)
     return false;
 
-  const ATTO_CHAR *data = str.c_str();
+  const char *data = str.c_str();
   int len = str.byteLength();
-  DWORD bytesToWrite = len * sizeof(ATTO_CHAR);
+  DWORD bytesToWrite = len * sizeof(char);
   DWORD bytesWritten = 0;
 
   bool success = WriteFile(hFile, data, bytesToWrite, &bytesWritten, nullptr);

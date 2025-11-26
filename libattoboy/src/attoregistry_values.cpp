@@ -31,14 +31,14 @@ bool Registry::valueExists(const String &name) const {
   if (!EnsureKeyOpen(mutableImpl))
     return false;
 
-  const ATTO_CHAR *valueName = name.isEmpty() ? nullptr : name.c_str();
+  const char *valueName = name.isEmpty() ? nullptr : name.c_str();
   DWORD type;
   LONG result = RegQueryValueEx(impl->hKey, valueName, nullptr, &type, nullptr, nullptr);
 
   return result == ERROR_SUCCESS;
 }
 
-const ATTO_CHAR *Registry::getStringValue(const String &name) const {
+const char *Registry::getStringValue(const String &name) const {
   if (!impl)
     return nullptr;
 
@@ -48,7 +48,7 @@ const ATTO_CHAR *Registry::getStringValue(const String &name) const {
   if (!EnsureKeyOpen(mutableImpl))
     return nullptr;
 
-  const ATTO_CHAR *valueName = name.isEmpty() ? nullptr : name.c_str();
+  const char *valueName = name.isEmpty() ? nullptr : name.c_str();
   DWORD type;
   DWORD size = 0;
 
@@ -57,7 +57,7 @@ const ATTO_CHAR *Registry::getStringValue(const String &name) const {
     return nullptr;
 
   if (size == 0)
-    return ATTO_TEXT("");
+    return "";
 
   ATTO_LPSTR buffer = AllocRegistryString(size / sizeof(ATTO_WCHAR) + 1);
   if (!buffer)
@@ -89,7 +89,7 @@ const unsigned char *Registry::getBinaryValue(const String &name) const {
   if (!EnsureKeyOpen(mutableImpl))
     return nullptr;
 
-  const ATTO_CHAR *valueName = name.isEmpty() ? nullptr : name.c_str();
+  const char *valueName = name.isEmpty() ? nullptr : name.c_str();
   DWORD type;
   DWORD size = 0;
 
@@ -129,7 +129,7 @@ unsigned int Registry::getIntegerValue(const String &name) const {
   if (!EnsureKeyOpen(mutableImpl))
     return 0;
 
-  const ATTO_CHAR *valueName = name.isEmpty() ? nullptr : name.c_str();
+  const char *valueName = name.isEmpty() ? nullptr : name.c_str();
   DWORD type;
   DWORD value = 0;
   DWORD size = sizeof(DWORD);
@@ -151,8 +151,8 @@ bool Registry::setStringValue(const String &name, const String &str) {
   if (!EnsureKeyOpen(impl))
     return false;
 
-  const ATTO_CHAR *valueName = name.isEmpty() ? nullptr : name.c_str();
-  const ATTO_CHAR *valueData = str.c_str();
+  const char *valueName = name.isEmpty() ? nullptr : name.c_str();
+  const char *valueData = str.c_str();
   DWORD size = (ATTO_LSTRLEN(valueData) + 1) * sizeof(ATTO_WCHAR);
 
   LONG result = RegSetValueEx(impl->hKey, valueName, 0, REG_SZ,
@@ -170,7 +170,7 @@ bool Registry::setBinaryValue(const String &name, const Buffer &buf) {
   if (!EnsureKeyOpen(impl))
     return false;
 
-  const ATTO_CHAR *valueName = name.isEmpty() ? nullptr : name.c_str();
+  const char *valueName = name.isEmpty() ? nullptr : name.c_str();
 
   int len = 0;
   const unsigned char *data = buf.c_ptr(&len);
@@ -192,7 +192,7 @@ bool Registry::setIntegerValue(const String &name, unsigned int num) {
   if (!EnsureKeyOpen(impl))
     return false;
 
-  const ATTO_CHAR *valueName = name.isEmpty() ? nullptr : name.c_str();
+  const char *valueName = name.isEmpty() ? nullptr : name.c_str();
   DWORD value = num;
 
   LONG result = RegSetValueEx(impl->hKey, valueName, 0, REG_DWORD,
@@ -210,7 +210,7 @@ bool Registry::deleteValue(const String &name) {
   if (!EnsureKeyOpen(impl))
     return false;
 
-  const ATTO_CHAR *valueName = name.isEmpty() ? nullptr : name.c_str();
+  const char *valueName = name.isEmpty() ? nullptr : name.c_str();
 
   LONG result = RegDeleteValue(impl->hKey, valueName);
 

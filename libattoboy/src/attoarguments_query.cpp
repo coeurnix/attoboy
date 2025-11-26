@@ -10,9 +10,9 @@ String Arguments::getArgument(const String &name) const {
 
   for (int i = 0; i < impl->argDefs->length(); i++) {
     Map argDef = impl->argDefs->at<Map>(i);
-    String argName = argDef.get<String, String>(ATTO_TEXT("name"));
+    String argName = argDef.get<String, String>("name");
     if (argName == name) {
-      return argDef.get<String, String>(ATTO_TEXT("defaultValue"));
+      return argDef.get<String, String>("defaultValue");
     }
   }
 
@@ -27,10 +27,10 @@ bool Arguments::hasArgument(const String &name) const {
 
   for (int i = 0; i < impl->argDefs->length(); i++) {
     Map argDef = impl->argDefs->at<Map>(i);
-    String argName = argDef.get<String, String>(ATTO_TEXT("name"));
+    String argName = argDef.get<String, String>("name");
     if (argName == name) {
       String defaultValue =
-          argDef.get<String, String>(ATTO_TEXT("defaultValue"));
+          argDef.get<String, String>("defaultValue");
       return !defaultValue.isEmpty();
     }
   }

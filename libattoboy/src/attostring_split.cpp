@@ -5,7 +5,7 @@
 namespace attoboy {
 
 static inline bool IsWhitespace(ATTO_WCHAR c) {
-  return c == ATTO_TEXT(' ') || c == ATTO_TEXT('\t') || c == ATTO_TEXT('\n') || c == ATTO_TEXT('\r');
+  return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
 List String::split(const String &separator, int max) const {
@@ -57,7 +57,7 @@ List String::split(const String &separator, int max) const {
       ATTO_LPSTR part = AllocString(i - start);
       if (part) {
         MyStrNCpy(part, data + start, i - start);
-        part[i - start] = ATTO_TEXT('\0');
+        part[i - start] = '\0';
         result.append(String(part));
         FreeString(part);
       }
@@ -70,7 +70,7 @@ List String::split(const String &separator, int max) const {
   ATTO_LPSTR remainder = AllocString(impl->len - start);
   if (remainder) {
     MyStrNCpy(remainder, data + start, impl->len - start);
-    remainder[impl->len - start] = ATTO_TEXT('\0');
+    remainder[impl->len - start] = '\0';
     result.append(String(remainder));
     FreeString(remainder);
   }
@@ -100,7 +100,7 @@ List String::split() const {
         ATTO_LPSTR part = AllocString(i - start);
         if (part) {
           MyStrNCpy(part, data + start, i - start);
-          part[i - start] = ATTO_TEXT('\0');
+          part[i - start] = '\0';
           result.append(String(part));
           FreeString(part);
         }
@@ -117,7 +117,7 @@ List String::split() const {
     ATTO_LPSTR part = AllocString(impl->len - start);
     if (part) {
       MyStrNCpy(part, data + start, impl->len - start);
-      part[impl->len - start] = ATTO_TEXT('\0');
+      part[impl->len - start] = '\0';
       result.append(String(part));
       FreeString(part);
     }

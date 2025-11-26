@@ -6,21 +6,21 @@
 
 void atto_main() {
     // Enable file logging
-    EnableLoggingToFile(ATTO_TEXT("test_exit.log"), true);
+    EnableLoggingToFile("test_exit.log", true);
 
-    Log(ATTO_TEXT("=== Testing Exit Function ==="));
-    Log(ATTO_TEXT("This test will exit with code 42"));
-    Log(ATTO_TEXT("Python will validate the exit code"));
+    Log("=== Testing Exit Function ===");
+    Log("This test will exit with code 42");
+    Log("Python will validate the exit code");
 
     // Mark Exit as tested
     REGISTER_TESTED(Exit);
 
     // Write coverage data before exiting
-    TestFramework::WriteCoverageData(ATTO_TEXT("test_exit"));
+    TestFramework::WriteCoverageData("test_exit");
 
     // Exit with code 42 for Python validation
     Exit(42);
 
     // This code should never be reached
-    Log(ATTO_TEXT("ERROR: Code after Exit() was reached!"));
+    Log("ERROR: Code after Exit() was reached!");
 }

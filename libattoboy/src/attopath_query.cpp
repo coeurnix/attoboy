@@ -4,7 +4,7 @@
 
 namespace attoboy {
 
-static void FindChildrenRecursive(const ATTO_CHAR *path, List &result);
+static void FindChildrenRecursive(const char *path, List &result);
 
 String Path::getName() const {
   if (!impl || !impl->pathStr || impl->len == 0)
@@ -14,7 +14,7 @@ String Path::getName() const {
 
   int lastSep = -1;
   for (int i = impl->len - 1; i >= 0; i--) {
-    ATTO_CHAR c = impl->pathStr[i];
+    char c = impl->pathStr[i];
     if (c == '\\' || c == '/') {
       lastSep = i;
       break;
@@ -60,8 +60,8 @@ bool Path::isWithin(const Path &path) const {
     return false;
 
   for (int i = 0; i < path.impl->len; i++) {
-    ATTO_CHAR c1 = impl->pathStr[i];
-    ATTO_CHAR c2 = path.impl->pathStr[i];
+    char c1 = impl->pathStr[i];
+    char c2 = path.impl->pathStr[i];
 
     if (c1 >= 'A' && c1 <= 'Z')
       c1 = c1 - 'A' + 'a';
@@ -72,7 +72,7 @@ bool Path::isWithin(const Path &path) const {
       return false;
   }
 
-  ATTO_CHAR nextChar = impl->pathStr[path.impl->len];
+  char nextChar = impl->pathStr[path.impl->len];
   return (nextChar == '\\' || nextChar == '/');
 }
 
@@ -85,7 +85,7 @@ List Path::listChildren(bool recursive) const {
   ReadLockGuard guard(&impl->lock);
 
   if (!recursive) {
-    ATTO_CHAR searchPath[MAX_PATH];
+    char searchPath[MAX_PATH];
     int pathLen = impl->len;
     if (pathLen + 3 >= MAX_PATH)
       return result;
@@ -107,13 +107,13 @@ List Path::listChildren(bool recursive) const {
       return result;
 
     do {
-      const ATTO_CHAR *name = findData.cFileName;
+      const char *name = findData.cFileName;
       if (name[0] == '.' &&
           (name[1] == 0 || (name[1] == '.' && name[2] == 0))) {
         continue;
       }
 
-      ATTO_CHAR fullPath[MAX_PATH];
+      char fullPath[MAX_PATH];
       int offset = 0;
       for (int i = 0; i < impl->len; i++) {
         fullPath[offset++] = impl->pathStr[i];
@@ -152,7 +152,7 @@ Path Path::getParentDirectory() const {
 
   int lastSep = -1;
   for (int i = impl->len - 1; i >= 0; i--) {
-    ATTO_CHAR c = impl->pathStr[i];
+    char c = impl->pathStr[i];
     if (c == '\\' || c == '/') {
       if (i == impl->len - 1) {
         continue;
@@ -165,7 +165,7 @@ Path Path::getParentDirectory() const {
   if (lastSep <= 0)
     return Path(String());
 
-  ATTO_CHAR parentPath[MAX_PATH];
+  char parentPath[MAX_PATH];
   if (lastSep >= MAX_PATH)
     return Path(String());
 
@@ -187,7 +187,7 @@ String Path::getExtension() const {
   int lastSep = -1;
 
   for (int i = impl->len - 1; i >= 0; i--) {
-    ATTO_CHAR c = impl->pathStr[i];
+    char c = impl->pathStr[i];
     if (c == '.' && lastDot == -1) {
       lastDot = i;
     }
@@ -221,7 +221,7 @@ String Path::getStem() const {
   int lastSep = -1;
 
   for (int i = impl->len - 1; i >= 0; i--) {
-    ATTO_CHAR c = impl->pathStr[i];
+    char c = impl->pathStr[i];
     if (c == '.' && lastDot == -1) {
       lastDot = i;
     }
@@ -237,7 +237,7 @@ String Path::getStem() const {
   if (start >= end)
     return String();
 
-  ATTO_CHAR stem[MAX_PATH];
+  char stem[MAX_PATH];
   int stemLen = end - start;
   if (stemLen >= MAX_PATH)
     stemLen = MAX_PATH - 1;
@@ -258,8 +258,8 @@ String Path::toString() const {
   return String(impl->pathStr);
 }
 
-static void FindChildrenRecursive(const ATTO_CHAR *path, List &result) {
-  ATTO_CHAR searchPath[MAX_PATH];
+static void FindChildrenRecursive(const char *path, List &result) {
+  char searchPath[MAX_PATH];
   int pathLen = ATTO_LSTRLEN(path);
   if (pathLen + 3 >= MAX_PATH)
     return;
@@ -282,12 +282,12 @@ static void FindChildrenRecursive(const ATTO_CHAR *path, List &result) {
     return;
 
   do {
-    const ATTO_CHAR *name = findData.cFileName;
+    const char *name = findData.cFileName;
     if (name[0] == '.' && (name[1] == 0 || (name[1] == '.' && name[2] == 0))) {
       continue;
     }
 
-    ATTO_CHAR fullPath[MAX_PATH];
+    char fullPath[MAX_PATH];
     int offset = 0;
     for (int i = 0; i < pathLen; i++) {
       fullPath[offset++] = path[i];

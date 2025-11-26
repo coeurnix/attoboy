@@ -1,13 +1,13 @@
 #include "test_framework.h"
 
 void atto_main() {
-  EnableLoggingToFile(ATTO_TEXT("test_path_comprehensive.log"), true);
-  Log(ATTO_TEXT("=== Comprehensive Path Class Tests ==="));
+  EnableLoggingToFile("test_path_comprehensive.log", true);
+  Log("=== Comprehensive Path Class Tests ===");
 
   // Test paths
-  String testFile = ATTO_TEXT("test_path_temp.txt");
-  String testDir = ATTO_TEXT("test_path_temp_dir");
-  String testFile2 = ATTO_TEXT("test_path_temp2.txt");
+  String testFile = "test_path_temp.txt";
+  String testDir = "test_path_temp_dir";
+  String testFile2 = "test_path_temp2.txt";
 
   // ========== CONSTRUCTORS ==========
 
@@ -15,7 +15,7 @@ void atto_main() {
   {
     Path p(testFile);
     REGISTER_TESTED(Path_constructor_string);
-    Log(ATTO_TEXT("Path(String): passed"));
+    Log("Path(String): passed");
   }
 
   // Copy constructor
@@ -25,7 +25,7 @@ void atto_main() {
     REGISTER_TESTED(Path_constructor_copy);
     REGISTER_TESTED(Path_destructor); // Implicitly tested
     ASSERT_TRUE(p2.equals(p1));
-    Log(ATTO_TEXT("Path(const Path&): passed"));
+    Log("Path(const Path&): passed");
   }
 
   // Assignment operator
@@ -35,13 +35,13 @@ void atto_main() {
     p2 = p1;
     REGISTER_TESTED(Path_operator_assign);
     ASSERT_TRUE(p2.equals(p1));
-    Log(ATTO_TEXT("operator=: passed"));
+    Log("operator=: passed");
   }
 
   // Empty path constructor - Note: not in public API
   {
     REGISTER_TESTED(Path_constructor_empty);
-    Log(ATTO_TEXT("Path() [empty]: passed (not in public API)"));
+    Log("Path() [empty]: passed (not in public API)");
   }
 
   // ========== FILE/DIRECTORY OPERATIONS ==========
@@ -52,74 +52,74 @@ void atto_main() {
     p.deleteFile(); // Clean up first
     ASSERT_FALSE(p.exists());
 
-    bool written = p.writeFromString(String(ATTO_TEXT("Hello World")));
+    bool written = p.writeFromString(String("Hello World"));
     REGISTER_TESTED(Path_writeFromString);
     ASSERT_TRUE(written);
     ASSERT_TRUE(p.exists());
 
     p.deleteFile();
-    Log(ATTO_TEXT("writeFromString() and exists(): passed"));
+    Log("writeFromString() and exists(): passed");
   }
 
   // writeFromBuffer()
   {
     Path p(testFile);
     Buffer buf;
-    buf.append(String(ATTO_TEXT("Test Data")));
+    buf.append(String("Test Data"));
     bool written = p.writeFromBuffer(buf);
     ASSERT_TRUE(written);
     ASSERT_TRUE(p.exists());
 
     p.deleteFile();
-    Log(ATTO_TEXT("writeFromBuffer(): passed"));
+    Log("writeFromBuffer(): passed");
   }
 
   // readToString()
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("Test Content")));
+    p.writeFromString(String("Test Content"));
     String content = p.readToString();
-    ASSERT_EQ(content, String(ATTO_TEXT("Test Content")));
+    ASSERT_EQ(content, String("Test Content"));
 
     p.deleteFile();
-    Log(ATTO_TEXT("readToString(): passed"));
+    Log("readToString(): passed");
   }
 
   // readToBuffer()
   {
     Path p(testFile);
     Buffer buf;
-    buf.append(String(ATTO_TEXT("Buffer Content")));
+    buf.append(String("Buffer Content"));
     p.writeFromBuffer(buf);
 
     Buffer read = p.readToBuffer();
     ASSERT_TRUE(read.compare(buf));
 
     p.deleteFile();
-    Log(ATTO_TEXT("readToBuffer(): passed"));
+    Log("readToBuffer(): passed");
   }
 
   // appendFromString()
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("First")));
-    p.appendFromString(String(ATTO_TEXT(" Second")));
+    p.writeFromString(String("First"));
+    p.appendFromString(String(" Second"));
     REGISTER_TESTED(Path_appendFromString);
 
     String content = p.readToString();
-    ASSERT_TRUE(content.contains(String(ATTO_TEXT("First"))));
-    ASSERT_TRUE(content.contains(String(ATTO_TEXT("Second"))));
+    ASSERT_TRUE(content.contains(String("First")));
+    ASSERT_TRUE(content.contains(String("Second")));
 
     p.deleteFile();
-    Log(ATTO_TEXT("appendFromString(): passed"));
+    Log("appendFromString(): passed");
   }
 
   // appendFromBuffer()
   {
     Path p(testFile);
     Buffer buf1, buf2;
-    buf1.append(String(ATTO_TEXT("Part1")));
-    buf2.append(String(ATTO_TEXT("Part2")));
+    buf1.append(String("Part1"));
+    buf2.append(String("Part2"));
 
     p.writeFromBuffer(buf1);
     p.appendFromBuffer(buf2);
@@ -129,7 +129,7 @@ void atto_main() {
     ASSERT(result.length() > buf1.length());
 
     p.deleteFile();
-    Log(ATTO_TEXT("appendFromBuffer(): passed"));
+    Log("appendFromBuffer(): passed");
   }
 
   // ========== FILE TYPE CHECKS ==========
@@ -137,12 +137,12 @@ void atto_main() {
   // isRegularFile()
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("test")));
+    p.writeFromString(String("test"));
     ASSERT_TRUE(p.isRegularFile());
     ASSERT_FALSE(p.isDirectory());
 
     p.deleteFile();
-    Log(ATTO_TEXT("isRegularFile(): passed"));
+    Log("isRegularFile(): passed");
   }
 
   // makeDirectory() and isDirectory()
@@ -157,13 +157,13 @@ void atto_main() {
     ASSERT_FALSE(p.isRegularFile());
 
     p.removeDirectory();
-    Log(ATTO_TEXT("makeDirectory() and isDirectory(): passed"));
+    Log("makeDirectory() and isDirectory(): passed");
   }
 
   // isNamedPipe(), isSymbolicLink(), isOther()
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("")));
+    p.writeFromString(String(""));
 
     // Regular file should not be these types
     ASSERT_FALSE(p.isNamedPipe());
@@ -174,7 +174,7 @@ void atto_main() {
     REGISTER_TESTED(Path_isOther);
 
     p.deleteFile();
-    Log(ATTO_TEXT("isNamedPipe(), isSymbolicLink(), isOther(): passed"));
+    Log("isNamedPipe(), isSymbolicLink(), isOther(): passed");
   }
 
   // ========== FILE METADATA ==========
@@ -182,7 +182,7 @@ void atto_main() {
   // getSize()
   {
     Path p(testFile);
-    String data(ATTO_TEXT("0123456789"));
+    String data("0123456789");
     p.writeFromString(data);
 
     long long size = p.getSize();
@@ -190,13 +190,13 @@ void atto_main() {
     ASSERT(size > 0);
 
     p.deleteFile();
-    Log(ATTO_TEXT("getSize(): passed"));
+    Log("getSize(): passed");
   }
 
   // getCreatedOn(), getModifiedOn(), getAccessedOn()
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("test")));
+    p.writeFromString(String("test"));
 
     DateTime created = p.getCreatedOn();
     REGISTER_TESTED(Path_getCreatedOn);
@@ -211,13 +211,13 @@ void atto_main() {
     ASSERT(accessed.timestamp() > 0);
 
     p.deleteFile();
-    Log(ATTO_TEXT("getCreatedOn(), getModifiedOn(), getAccessedOn(): passed"));
+    Log("getCreatedOn(), getModifiedOn(), getAccessedOn(): passed");
   }
 
   // isReadOnly() and setReadOnly()
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("test")));
+    p.writeFromString(String("test"));
 
     // Initially not read-only
     ASSERT_FALSE(p.isReadOnly());
@@ -234,13 +234,13 @@ void atto_main() {
     ASSERT_FALSE(p.isReadOnly());
 
     p.deleteFile();
-    Log(ATTO_TEXT("isReadOnly() and setReadOnly(): passed"));
+    Log("isReadOnly() and setReadOnly(): passed");
   }
 
   // isHidden() and setHidden()
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("test")));
+    p.writeFromString(String("test"));
 
     // Test setting hidden attribute
     bool set = p.setHidden(true);
@@ -253,7 +253,7 @@ void atto_main() {
     ASSERT_FALSE(p.isHidden());
 
     p.deleteFile();
-    Log(ATTO_TEXT("isHidden() and setHidden(): passed"));
+    Log("isHidden() and setHidden(): passed");
   }
 
   // ========== FILE/DIRECTORY MANIPULATION ==========
@@ -262,25 +262,25 @@ void atto_main() {
   {
     Path p1(testFile);
     Path p2(testFile2);
-    p1.writeFromString(String(ATTO_TEXT("Copy Test")));
+    p1.writeFromString(String("Copy Test"));
     p2.deleteFile();
 
     bool copied = p1.copyTo(p2);
     REGISTER_TESTED(Path_copy);
     ASSERT_TRUE(copied);
     ASSERT_TRUE(p2.exists());
-    ASSERT_EQ(p2.readToString(), String(ATTO_TEXT("Copy Test")));
+    ASSERT_EQ(p2.readToString(), String("Copy Test"));
 
     p1.deleteFile();
     p2.deleteFile();
-    Log(ATTO_TEXT("copyTo(): passed"));
+    Log("copyTo(): passed");
   }
 
   // moveTo()
   {
     Path p1(testFile);
     Path p2(testFile2);
-    p1.writeFromString(String(ATTO_TEXT("Move Test")));
+    p1.writeFromString(String("Move Test"));
     p2.deleteFile();
 
     bool moved = p1.moveTo(p2);
@@ -290,13 +290,13 @@ void atto_main() {
     ASSERT_TRUE(p2.exists());
 
     p2.deleteFile();
-    Log(ATTO_TEXT("moveTo(): passed"));
+    Log("moveTo(): passed");
   }
 
   // deleteFile()
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("test")));
+    p.writeFromString(String("test"));
     ASSERT_TRUE(p.exists());
 
     bool deleted = p.deleteFile();
@@ -304,7 +304,7 @@ void atto_main() {
     ASSERT_TRUE(deleted);
     ASSERT_FALSE(p.exists());
 
-    Log(ATTO_TEXT("deleteFile(): passed"));
+    Log("deleteFile(): passed");
   }
 
   // removeDirectory()
@@ -318,46 +318,46 @@ void atto_main() {
     ASSERT_TRUE(removed);
     ASSERT_FALSE(p.exists());
 
-    Log(ATTO_TEXT("removeDirectory(): passed"));
+    Log("removeDirectory(): passed");
   }
 
   // ========== PATH ANALYSIS ==========
 
   // getName()
   {
-    Path p(ATTO_TEXT("C:\\test\\file.txt"));
+    Path p("C:\\test\\file.txt");
     String name = p.getName();
     REGISTER_TESTED(Path_filename);
-    ASSERT_TRUE(name.contains(String(ATTO_TEXT("file"))));
-    Log(ATTO_TEXT("getName(): passed"));
+    ASSERT_TRUE(name.contains(String("file")));
+    Log("getName(): passed");
   }
 
   // getExtension()
   {
-    Path p(ATTO_TEXT("test.txt"));
+    Path p("test.txt");
     String ext = p.getExtension();
     REGISTER_TESTED(Path_extension);
-    ASSERT_TRUE(ext.equals(String(ATTO_TEXT("txt"))) ||
-                ext.equals(String(ATTO_TEXT(".txt"))));
-    Log(ATTO_TEXT("getExtension(): passed"));
+    ASSERT_TRUE(ext.equals(String("txt")) ||
+                ext.equals(String(".txt")));
+    Log("getExtension(): passed");
   }
 
   // getStem()
   {
-    Path p(ATTO_TEXT("file.txt"));
+    Path p("file.txt");
     String stem = p.getStem();
     REGISTER_TESTED(Path_stem);
-    ASSERT_TRUE(stem.contains(String(ATTO_TEXT("file"))));
-    Log(ATTO_TEXT("getStem(): passed"));
+    ASSERT_TRUE(stem.contains(String("file")));
+    Log("getStem(): passed");
   }
 
   // hasExtension()
   {
-    Path p(ATTO_TEXT("test.txt"));
-    ASSERT_TRUE(p.hasExtension(String(ATTO_TEXT("txt"))));
-    ASSERT_FALSE(p.hasExtension(String(ATTO_TEXT("doc"))));
+    Path p("test.txt");
+    ASSERT_TRUE(p.hasExtension(String("txt")));
+    ASSERT_FALSE(p.hasExtension(String("doc")));
     REGISTER_TESTED(Path_hasExtension);
-    Log(ATTO_TEXT("hasExtension(): passed"));
+    Log("hasExtension(): passed");
   }
 
   // toString()
@@ -367,27 +367,27 @@ void atto_main() {
     REGISTER_TESTED(Path_toString);
     ASSERT_FALSE(pathStr.isEmpty());
     ASSERT_TRUE(pathStr.contains(testFile));
-    Log(ATTO_TEXT("toString(): passed"));
+    Log("toString(): passed");
   }
 
   // getParentDirectory()
   {
-    Path p(ATTO_TEXT("C:\\test\\file.txt"));
+    Path p("C:\\test\\file.txt");
     Path parent = p.getParentDirectory();
     REGISTER_TESTED(Path_parent);
     String parentStr = parent.getName();
     // Parent should exist
-    Log(ATTO_TEXT("getParentDirectory(): passed"));
+    Log("getParentDirectory(): passed");
   }
 
   // isWithin()
   {
-    Path file(ATTO_TEXT("C:\\test\\subdir\\file.txt"));
-    Path dir(ATTO_TEXT("C:\\test"));
+    Path file("C:\\test\\subdir\\file.txt");
+    Path dir("C:\\test");
     bool within = file.isWithin(dir);
     REGISTER_TESTED(Path_isWithin);
     // This is implementation-dependent
-    Log(ATTO_TEXT("isWithin(): passed"));
+    Log("isWithin(): passed");
   }
 
   // ========== DIRECTORY LISTING ==========
@@ -398,10 +398,10 @@ void atto_main() {
     dir.makeDirectory();
 
     // Create some files in the directory
-    Path file1(String(testDir, ATTO_TEXT("\\file1.txt")));
-    Path file2(String(testDir, ATTO_TEXT("\\file2.txt")));
-    file1.writeFromString(String(ATTO_TEXT("test1")));
-    file2.writeFromString(String(ATTO_TEXT("test2")));
+    Path file1(String(testDir, "\\file1.txt"));
+    Path file2(String(testDir, "\\file2.txt"));
+    file1.writeFromString(String("test1"));
+    file2.writeFromString(String("test2"));
 
     List children = dir.listChildren();
     REGISTER_TESTED(Path_list);
@@ -412,7 +412,7 @@ void atto_main() {
     file2.deleteFile();
     dir.removeDirectory();
 
-    Log(ATTO_TEXT("listChildren(): passed"));
+    Log("listChildren(): passed");
   }
 
   // listChildren(recursive)
@@ -424,7 +424,7 @@ void atto_main() {
     // Recursive listing
     dir.removeDirectory();
 
-    Log(ATTO_TEXT("listChildren(recursive): passed"));
+    Log("listChildren(recursive): passed");
   }
 
   // Functions in registry but not in public API
@@ -433,7 +433,7 @@ void atto_main() {
     REGISTER_TESTED(Path_listDirectories);
     REGISTER_TESTED(Path_createFile);
     REGISTER_TESTED(Path_createDirectory);
-    Log(ATTO_TEXT("Registry functions: passed (not in public API)"));
+    Log("Registry functions: passed (not in public API)");
   }
 
   // ========== COMPARISON ==========
@@ -453,7 +453,7 @@ void atto_main() {
     ASSERT_TRUE(p1 != p3);
     REGISTER_TESTED(Path_operator_ne);
 
-    Log(ATTO_TEXT("equals() and operators: passed"));
+    Log("equals() and operators: passed");
   }
 
   // ========== STATIC METHODS ==========
@@ -461,7 +461,7 @@ void atto_main() {
   // ChangeCurrentDirectory()
   {
     // Save current directory to restore after test
-    ATTO_CHAR originalDir[MAX_PATH];
+    char originalDir[MAX_PATH];
     GetCurrentDirectory(MAX_PATH, originalDir);
 
     Path temp = Path::CreateTemporaryDirectory();
@@ -473,7 +473,7 @@ void atto_main() {
 
     // May or may not succeed
     temp.removeDirectory(true);
-    Log(ATTO_TEXT("ChangeCurrentDirectory(): passed"));
+    Log("ChangeCurrentDirectory(): passed");
   }
 
   // CreateTemporaryFile()
@@ -482,7 +482,7 @@ void atto_main() {
     REGISTER_TESTED(Path_CreateTemporaryFile);
     ASSERT_TRUE(temp.exists());
     temp.deleteFile();
-    Log(ATTO_TEXT("CreateTemporaryFile(): passed"));
+    Log("CreateTemporaryFile(): passed");
   }
 
   // CreateTemporaryDirectory()
@@ -492,7 +492,7 @@ void atto_main() {
     ASSERT_TRUE(temp.exists());
     ASSERT_TRUE(temp.isDirectory());
     temp.removeDirectory();
-    Log(ATTO_TEXT("CreateTemporaryDirectory(): passed"));
+    Log("CreateTemporaryDirectory(): passed");
   }
 
   // GetHomeDirectory()
@@ -500,7 +500,7 @@ void atto_main() {
     Path home = Path::GetHomeDirectory();
     REGISTER_TESTED(Path_home);
     ASSERT_TRUE(home.exists());
-    Log(ATTO_TEXT("GetHomeDirectory(): passed"));
+    Log("GetHomeDirectory(): passed");
   }
 
   // GetDocumentsDirectory()
@@ -508,7 +508,7 @@ void atto_main() {
     Path docs = Path::GetDocumentsDirectory();
     REGISTER_TESTED(Path_GetDocumentsDirectory);
     // May or may not exist
-    Log(ATTO_TEXT("GetDocumentsDirectory(): passed"));
+    Log("GetDocumentsDirectory(): passed");
   }
 
   // GetRoamingAppDirectory()
@@ -516,7 +516,7 @@ void atto_main() {
     Path roaming = Path::GetRoamingAppDirectory();
     REGISTER_TESTED(Path_GetRoamingAppDirectory);
     // May or may not exist
-    Log(ATTO_TEXT("GetRoamingAppDirectory(): passed"));
+    Log("GetRoamingAppDirectory(): passed");
   }
 
   // GetLocalAppDirectory()
@@ -524,7 +524,7 @@ void atto_main() {
     Path local = Path::GetLocalAppDirectory();
     REGISTER_TESTED(Path_GetLocalAppDirectory);
     // May or may not exist
-    Log(ATTO_TEXT("GetLocalAppDirectory(): passed"));
+    Log("GetLocalAppDirectory(): passed");
   }
 
   // ListVolumes()
@@ -533,7 +533,7 @@ void atto_main() {
     REGISTER_TESTED(Path_ListVolumes);
     // Should have at least one volume (C:)
     ASSERT(volumes.length() > 0);
-    Log(ATTO_TEXT("ListVolumes(): passed"));
+    Log("ListVolumes(): passed");
   }
 
   // Functions in registry but don't map to public API
@@ -551,7 +551,7 @@ void atto_main() {
     REGISTER_TESTED(Path_temp);
     REGISTER_TESTED(Path_executable);
     REGISTER_TESTED(Path_normalize);
-    Log(ATTO_TEXT("Additional Path functions: passed"));
+    Log("Additional Path functions: passed");
   }
 
   // ========== PATH METADATA & ATTRIBUTES ==========
@@ -559,7 +559,7 @@ void atto_main() {
   // File timestamps
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("test")));
+    p.writeFromString(String("test"));
 
     DateTime created = p.getCreatedOn();
     REGISTER_TESTED(Path_getCreatedOn);
@@ -574,13 +574,13 @@ void atto_main() {
     ASSERT(accessed.timestamp() > 0);
 
     p.deleteFile();
-    Log(ATTO_TEXT("File timestamps: passed"));
+    Log("File timestamps: passed");
   }
 
   // File attributes - read-only
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("test")));
+    p.writeFromString(String("test"));
 
     bool wasReadOnly = p.isReadOnly();
     REGISTER_TESTED(Path_isReadOnly);
@@ -593,13 +593,13 @@ void atto_main() {
     ASSERT_FALSE(p.isReadOnly());
 
     p.deleteFile();
-    Log(ATTO_TEXT("Read-only attribute: passed"));
+    Log("Read-only attribute: passed");
   }
 
   // File attributes - hidden
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("test")));
+    p.writeFromString(String("test"));
 
     bool wasHidden = p.isHidden();
     REGISTER_TESTED(Path_isHidden);
@@ -612,31 +612,31 @@ void atto_main() {
     ASSERT_FALSE(p.isHidden());
 
     p.deleteFile();
-    Log(ATTO_TEXT("Hidden attribute: passed"));
+    Log("Hidden attribute: passed");
   }
 
   // appendFromString and appendFromBuffer
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("Line1\n")));
+    p.writeFromString(String("Line1\n"));
 
-    bool appended = p.appendFromString(String(ATTO_TEXT("Line2\n")));
+    bool appended = p.appendFromString(String("Line2\n"));
     REGISTER_TESTED(Path_appendFromString);
     ASSERT_TRUE(appended);
 
     Buffer buf;
-    buf.append(String(ATTO_TEXT("Line3\n")));
+    buf.append(String("Line3\n"));
     appended = p.appendFromBuffer(buf);
     REGISTER_TESTED(Path_appendFromBuffer);
     ASSERT_TRUE(appended);
 
     String content = p.readToString();
-    ASSERT_TRUE(content.contains(String(ATTO_TEXT("Line1"))));
-    ASSERT_TRUE(content.contains(String(ATTO_TEXT("Line2"))));
-    ASSERT_TRUE(content.contains(String(ATTO_TEXT("Line3"))));
+    ASSERT_TRUE(content.contains(String("Line1")));
+    ASSERT_TRUE(content.contains(String("Line2")));
+    ASSERT_TRUE(content.contains(String("Line3")));
 
     p.deleteFile();
-    Log(ATTO_TEXT("appendFromString/Buffer: passed"));
+    Log("appendFromString/Buffer: passed");
   }
 
   // equals() test
@@ -645,7 +645,7 @@ void atto_main() {
     Path p2(testFile);
     ASSERT_TRUE(p1.equals(p2));
     REGISTER_TESTED(Path_equals);
-    Log(ATTO_TEXT("Path equals(): passed"));
+    Log("Path equals(): passed");
   }
 
   // removeDirectory (already tested above but registering)
@@ -655,13 +655,13 @@ void atto_main() {
     bool removed = p.removeDirectory();
     REGISTER_TESTED(Path_removeDirectory);
     ASSERT_TRUE(removed);
-    Log(ATTO_TEXT("removeDirectory(): passed (registered)"));
+    Log("removeDirectory(): passed (registered)");
   }
 
   // Special file type checks
   {
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("test")));
+    p.writeFromString(String("test"));
 
     bool isNamedPipe = p.isNamedPipe();
     REGISTER_TESTED(Path_isNamedPipe);
@@ -676,14 +676,14 @@ void atto_main() {
     ASSERT_FALSE(isOther); // Regular file is not "other"
 
     p.deleteFile();
-    Log(ATTO_TEXT("Special file type checks: passed"));
+    Log("Special file type checks: passed");
   }
 
   // Symbolic link operations (may not work on all systems)
   {
     // getSymbolicLinkTarget()
     Path p(testFile);
-    p.writeFromString(String(ATTO_TEXT("test")));
+    p.writeFromString(String("test"));
     Path target = p.getSymbolicLinkTarget();
     REGISTER_TESTED(Path_getSymbolicLinkTarget);
     // Should return empty if not a symlink
@@ -693,13 +693,13 @@ void atto_main() {
     // Not testing to avoid permission issues
     REGISTER_TESTED(Path_setSymbolicLinkTarget);
 
-    Log(ATTO_TEXT("Symbolic link operations: passed"));
+    Log("Symbolic link operations: passed");
   }
 
-  Log(ATTO_TEXT("=== All Path Tests Passed ==="));
+  Log("=== All Path Tests Passed ===");
   TestFramework::DisplayCoverage();
 
-  TestFramework::WriteCoverageData(ATTO_TEXT("test_path_comprehensive"));
+  TestFramework::WriteCoverageData("test_path_comprehensive");
 
   // WORKAROUND: Give OS time to flush file buffers before ExitProcess() kills
   // everything

@@ -6,27 +6,27 @@
 namespace attoboy {
 
 static bool NeedsQuoting(const String &str) {
-  const ATTO_CHAR *s = str.c_str();
+  const char *s = str.c_str();
   if (!s || *s == 0)
     return true;
 
   while (*s) {
-    if (*s == ATTO_TEXT(' ') || *s == ATTO_TEXT('\t'))
+    if (*s == ' ' || *s == '\t')
       return true;
     s++;
   }
   return false;
 }
 
-static String BuildCommandLine(const ATTO_CHAR *exePath, const List &arguments) {
-  String cmdLine = String(ATTO_TEXT("\"")) + String(exePath) + String(ATTO_TEXT("\""));
+static String BuildCommandLine(const char *exePath, const List &arguments) {
+  String cmdLine = String("\"") + String(exePath) + String("\"");
 
   for (int i = 0; i < arguments.length(); i++) {
     String arg = arguments.at<String>(i);
     if (!arg.isEmpty()) {
-      cmdLine = cmdLine + String(ATTO_TEXT(" "));
+      cmdLine = cmdLine + String(" ");
       if (NeedsQuoting(arg)) {
-        cmdLine = cmdLine + String(ATTO_TEXT("\"")) + arg + String(ATTO_TEXT("\""));
+        cmdLine = cmdLine + String("\"") + arg + String("\"");
       } else {
         cmdLine = cmdLine + arg;
       }
@@ -88,9 +88,9 @@ SubprocessImpl *CreateSubprocessImpl(const Path &executable,
   PROCESS_INFORMATION pi;
   ZeroMemory(&pi, sizeof(pi));
 
-  const ATTO_CHAR *exePath = GetPathString(executable.impl);
+  const char *exePath = GetPathString(executable.impl);
   String cmdLine = BuildCommandLine(exePath, arguments);
-  const ATTO_CHAR* cmdLineCStr = cmdLine.c_str();
+  const char* cmdLineCStr = cmdLine.c_str();
 
   WCHAR* cmdLineWide = Utf8ToWide(cmdLineCStr);
   if (!cmdLineWide) {

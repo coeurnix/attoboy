@@ -19,10 +19,10 @@ List Path::ListVolumes() {
   DWORD drives = GetLogicalDrives();
   for (int i = 0; i < 26; i++) {
     if (drives & (1 << i)) {
-      ATTO_CHAR driveLetter[4];
-      driveLetter[0] = ATTO_TEXT('A') + i;
-      driveLetter[1] = ATTO_TEXT(':');
-      driveLetter[2] = ATTO_TEXT('\\');
+      char driveLetter[4];
+      driveLetter[0] = 'A' + i;
+      driveLetter[1] = ':';
+      driveLetter[2] = '\\';
       driveLetter[3] = 0;
 
       result.append(String(driveLetter));
@@ -33,14 +33,14 @@ List Path::ListVolumes() {
 }
 
 Path Path::CreateTemporaryFile(const String &prefix) {
-  ATTO_CHAR tempPath[MAX_PATH];
-  ATTO_CHAR tempFile[MAX_PATH];
+  char tempPath[MAX_PATH];
+  char tempFile[MAX_PATH];
 
   DWORD pathLen = GetTempPath(MAX_PATH, tempPath);
   if (pathLen == 0 || pathLen >= MAX_PATH)
     return Path(String());
 
-  const ATTO_CHAR *prefixStr = prefix.isEmpty() ? ATTO_TEXT("tmp") : prefix.c_str();
+  const char *prefixStr = prefix.isEmpty() ? "tmp" : prefix.c_str();
 
   if (GetTempFileName(tempPath, prefixStr, 0, tempFile) == 0)
     return Path(String());
@@ -49,15 +49,15 @@ Path Path::CreateTemporaryFile(const String &prefix) {
 }
 
 Path Path::CreateTemporaryDirectory(const String &prefix) {
-  ATTO_CHAR tempPath[MAX_PATH];
+  char tempPath[MAX_PATH];
   DWORD pathLen = GetTempPath(MAX_PATH, tempPath);
   if (pathLen == 0 || pathLen >= MAX_PATH)
     return Path(String());
 
-  const ATTO_CHAR *prefixStr = prefix.isEmpty() ? ATTO_TEXT("tmp") : prefix.c_str();
+  const char *prefixStr = prefix.isEmpty() ? "tmp" : prefix.c_str();
   int prefixLen = ATTO_LSTRLEN(prefixStr);
 
-  ATTO_CHAR dirPath[MAX_PATH];
+  char dirPath[MAX_PATH];
   int offset = 0;
 
   for (DWORD i = 0; i < pathLen && offset < MAX_PATH - 1; i++) {
@@ -82,11 +82,11 @@ Path Path::CreateTemporaryDirectory(const String &prefix) {
     unsigned int randomNum = (unsigned int)((perfCounter.QuadPart ^ (perfCounter.QuadPart >> 32)) & 0xFFFFFF) + attempt * 1231;
     randomNum = randomNum % 1000000;
 
-    ATTO_CHAR numStr[16];
+    char numStr[16];
     int numLen = 0;
     unsigned int temp = randomNum;
     do {
-      numStr[numLen++] = ATTO_TEXT('0') + (temp % 10);
+      numStr[numLen++] = '0' + (temp % 10);
       temp /= 10;
     } while (temp > 0 && numLen < 15);
 

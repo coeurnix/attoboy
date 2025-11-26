@@ -28,7 +28,7 @@ File::File(const Path &path) {
   impl->port = -1;
   impl->refCount = 1;
 
-  const ATTO_CHAR *pathCStr = nullptr;
+  const char *pathCStr = nullptr;
   int pathLen = 0;
 
   if (path.impl) {
@@ -99,7 +99,7 @@ File::File(const String &host, int port) {
     return;
   }
 
-  const ATTO_CHAR *hostCStr = host.c_str();
+  const char *hostCStr = host.c_str();
   if (!hostCStr) {
     impl->isValid = false;
     return;
@@ -259,14 +259,14 @@ File &File::operator=(const File &other) {
   return *this;
 }
 
-const ATTO_CHAR *File::getPath() const {
+const char *File::getPath() const {
   if (!impl)
     return nullptr;
   ReadLockGuard lock(&impl->lock);
   return impl->pathStr;
 }
 
-const ATTO_CHAR *File::getHost() const {
+const char *File::getHost() const {
   if (!impl)
     return nullptr;
   ReadLockGuard lock(&impl->lock);

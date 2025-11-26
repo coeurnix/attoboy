@@ -31,7 +31,7 @@ int File::write(const String &str) {
   if (!impl || !impl->isOpen || !impl->isValid)
     return -1;
 
-  const ATTO_CHAR *data = str.c_str();
+  const char *data = str.c_str();
   if (!data)
     return 0;
 
@@ -39,7 +39,7 @@ int File::write(const String &str) {
   if (len == 0)
     return 0;
 
-  int byteLen = len * sizeof(ATTO_CHAR);
+  int byteLen = len * sizeof(char);
 
   WriteLockGuard lock(&impl->lock);
 
@@ -94,7 +94,7 @@ int File::writeUpTo(const String &str, int count) {
   if (!impl || !impl->isOpen || !impl->isValid)
     return -1;
 
-  const ATTO_CHAR *data = str.c_str();
+  const char *data = str.c_str();
   if (!data)
     return 0;
 
@@ -102,7 +102,7 @@ int File::writeUpTo(const String &str, int count) {
   if (len == 0)
     return 0;
 
-  int byteLen = len * sizeof(ATTO_CHAR);
+  int byteLen = len * sizeof(char);
 
   if (count == -1)
     count = byteLen;

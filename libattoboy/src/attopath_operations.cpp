@@ -3,7 +3,7 @@
 
 namespace attoboy {
 
-static bool RemoveDirectoryRecursive(const ATTO_CHAR *path);
+static bool RemoveDirectoryRecursive(const char *path);
 
 bool Path::moveTo(const Path &path) const {
   if (!impl || !impl->pathStr || !path.impl || !path.impl->pathStr)
@@ -56,7 +56,7 @@ bool Path::makeDirectory(bool createParents) const {
     return CreateDirectory(impl->pathStr, nullptr) != 0;
   }
 
-  ATTO_CHAR tempPath[MAX_PATH];
+  char tempPath[MAX_PATH];
   int len = impl->len;
   if (len >= MAX_PATH)
     len = MAX_PATH - 1;
@@ -67,9 +67,9 @@ bool Path::makeDirectory(bool createParents) const {
   tempPath[len] = 0;
 
   for (int i = 0; i < len; i++) {
-    ATTO_CHAR c = tempPath[i];
+    char c = tempPath[i];
     if ((c == '\\' || c == '/') && i > 0) {
-      ATTO_CHAR saved = tempPath[i];
+      char saved = tempPath[i];
       tempPath[i] = 0;
 
       DWORD attrs = GetFileAttributes(tempPath);
@@ -167,8 +167,8 @@ bool Path::setSymbolicLinkTarget(const Path &target) const {
   return CreateSymbolicLink(impl->pathStr, target.impl->pathStr, flags) != 0;
 }
 
-static bool RemoveDirectoryRecursive(const ATTO_CHAR *path) {
-  ATTO_CHAR searchPath[MAX_PATH];
+static bool RemoveDirectoryRecursive(const char *path) {
+  char searchPath[MAX_PATH];
   int pathLen = ATTO_LSTRLEN(path);
   if (pathLen + 3 >= MAX_PATH)
     return false;
@@ -192,12 +192,12 @@ static bool RemoveDirectoryRecursive(const ATTO_CHAR *path) {
   }
 
   do {
-    const ATTO_CHAR *name = findData.cFileName;
+    const char *name = findData.cFileName;
     if (name[0] == '.' && (name[1] == 0 || (name[1] == '.' && name[2] == 0))) {
       continue;
     }
 
-    ATTO_CHAR fullPath[MAX_PATH];
+    char fullPath[MAX_PATH];
     int offset = 0;
     for (int i = 0; i < pathLen; i++) {
       fullPath[offset++] = path[i];

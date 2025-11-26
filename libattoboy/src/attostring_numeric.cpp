@@ -6,7 +6,7 @@ String::String(bool val) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
   InitializeSRWLock(&impl->lock);
-  const ATTO_WCHAR *s = val ? ATTO_TEXT("true") : ATTO_TEXT("false");
+  const ATTO_WCHAR *s = val ? "true" : "false";
   int len = lstrlenA(s);
   impl->data = AllocString(len);
   lstrcpyA(impl->data, s);

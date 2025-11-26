@@ -46,7 +46,7 @@ String String::substring(int start, int end) const {
   result.impl->data = AllocString(newLen);
 
   MyStrNCpy(result.impl->data, impl->data + startByte, newLen);
-  result.impl->data[newLen] = ATTO_TEXT('\0');
+  result.impl->data[newLen] = '\0';
   result.impl->len = newLen;
   return result;
 }
@@ -90,7 +90,7 @@ String String::byteSubstring(int start, int end) const {
   result.impl->data = AllocString(newLen);
 
   MyStrNCpy(result.impl->data, impl->data + start, newLen);
-  result.impl->data[newLen] = ATTO_TEXT('\0');
+  result.impl->data[newLen] = '\0';
   result.impl->len = newLen;
   return result;
 }
@@ -122,7 +122,7 @@ String String::at(int index) const {
   result.impl->data = AllocString(charByteLen);
   if (result.impl->data) {
     MyStrNCpy(result.impl->data, impl->data + startByte, charByteLen);
-    result.impl->data[charByteLen] = ATTO_TEXT('\0');
+    result.impl->data[charByteLen] = '\0';
     result.impl->len = charByteLen;
   }
   return result;
@@ -143,7 +143,7 @@ String String::byteAt(int byteIndex) const {
   FreeString(result.impl->data);
   result.impl->data = AllocString(1);
   result.impl->data[0] = impl->data[byteIndex];
-  result.impl->data[1] = ATTO_TEXT('\0');
+  result.impl->data[1] = '\0';
   result.impl->len = 1;
   return result;
 }
@@ -169,24 +169,24 @@ float String::toFloat() const {
   int sign = 1;
   ATTO_WCHAR *p = impl->data;
 
-  while (*p == ATTO_TEXT(' '))
+  while (*p == ' ')
     p++;
-  if (*p == ATTO_TEXT('-')) {
+  if (*p == '-') {
     sign = -1;
     p++;
-  } else if (*p == ATTO_TEXT('+'))
+  } else if (*p == '+')
     p++;
 
-  while (*p >= ATTO_TEXT('0') && *p <= ATTO_TEXT('9')) {
-    res = res * 10.0f + (*p - ATTO_TEXT('0'));
+  while (*p >= '0' && *p <= '9') {
+    res = res * 10.0f + (*p - '0');
     p++;
   }
 
-  if (*p == ATTO_TEXT('.')) {
+  if (*p == '.') {
     p++;
     float frac = 0.1f;
-    while (*p >= ATTO_TEXT('0') && *p <= ATTO_TEXT('9')) {
-      res += (*p - ATTO_TEXT('0')) * frac;
+    while (*p >= '0' && *p <= '9') {
+      res += (*p - '0') * frac;
       frac *= 0.1f;
       p++;
     }
@@ -205,16 +205,16 @@ int String::toInteger() const {
   int sign = 1;
   ATTO_WCHAR *p = impl->data;
 
-  while (*p == ATTO_TEXT(' '))
+  while (*p == ' ')
     p++;
-  if (*p == ATTO_TEXT('-')) {
+  if (*p == '-') {
     sign = -1;
     p++;
-  } else if (*p == ATTO_TEXT('+'))
+  } else if (*p == '+')
     p++;
 
-  while (*p >= ATTO_TEXT('0') && *p <= ATTO_TEXT('9')) {
-    res = res * 10 + (*p - ATTO_TEXT('0'));
+  while (*p >= '0' && *p <= '9') {
+    res = res * 10 + (*p - '0');
     p++;
   }
   return res * sign;
@@ -226,15 +226,15 @@ bool String::toBool() const {
   ReadLockGuard guard(&impl->lock);
   if (!impl->data)
     return false;
-  if (ATTO_LSTRCMPI(impl->data, ATTO_TEXT("true")) == 0)
+  if (ATTO_LSTRCMPI(impl->data, "true") == 0)
     return true;
-  if (ATTO_LSTRCMPI(impl->data, ATTO_TEXT("t")) == 0)
+  if (ATTO_LSTRCMPI(impl->data, "t") == 0)
     return true;
-  if (ATTO_LSTRCMPI(impl->data, ATTO_TEXT("1")) == 0)
+  if (ATTO_LSTRCMPI(impl->data, "1") == 0)
     return true;
-  if (ATTO_LSTRCMPI(impl->data, ATTO_TEXT("yes")) == 0)
+  if (ATTO_LSTRCMPI(impl->data, "yes") == 0)
     return true;
-  if (ATTO_LSTRCMPI(impl->data, ATTO_TEXT("on")) == 0)
+  if (ATTO_LSTRCMPI(impl->data, "on") == 0)
     return true;
   return false;
 }
@@ -246,9 +246,9 @@ bool String::isNumber() const {
   if (!impl->data || impl->len == 0)
     return false;
   ATTO_WCHAR *p = impl->data;
-  while (*p == ATTO_TEXT(' '))
+  while (*p == ' ')
     p++;
-  if (*p == ATTO_TEXT('-') || *p == ATTO_TEXT('+'))
+  if (*p == '-' || *p == '+')
     p++;
   if (!*p)
     return false;
@@ -257,9 +257,9 @@ bool String::isNumber() const {
   bool hasDot = false;
 
   while (*p) {
-    if (*p >= ATTO_TEXT('0') && *p <= ATTO_TEXT('9')) {
+    if (*p >= '0' && *p <= '9') {
       hasDigit = true;
-    } else if (*p == ATTO_TEXT('.')) {
+    } else if (*p == '.') {
       if (hasDot)
         return false;
       hasDot = true;

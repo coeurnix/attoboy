@@ -11,7 +11,7 @@ Arguments &Arguments::addFlag(const String &name, const String &description,
 
   for (int i = 0; i < impl->argDefs->length(); i++) {
     Map existingDef = impl->argDefs->at<Map>(i);
-    String existingName = existingDef.get<String, String>(ATTO_TEXT("name"));
+    String existingName = existingDef.get<String, String>("name");
     if (existingName == name) {
       impl->argDefs->remove(i);
       break;
@@ -19,12 +19,12 @@ Arguments &Arguments::addFlag(const String &name, const String &description,
   }
 
   Map argDef;
-  argDef.put(ATTO_TEXT("name"), name);
-  argDef.put(ATTO_TEXT("description"), description);
-  argDef.put(ATTO_TEXT("longName"), longName);
-  argDef.put(ATTO_TEXT("defaultValue"), String(defaultValue));
-  argDef.put(ATTO_TEXT("type"), (int)ARG_FLAG);
-  argDef.put(ATTO_TEXT("required"), false);
+  argDef.put("name", name);
+  argDef.put("description", description);
+  argDef.put("longName", longName);
+  argDef.put("defaultValue", String(defaultValue));
+  argDef.put("type", (int)ARG_FLAG);
+  argDef.put("required", false);
 
   impl->argDefs->append(argDef);
 
@@ -42,7 +42,7 @@ Arguments &Arguments::addParameter(const String &name,
 
   for (int i = 0; i < impl->argDefs->length(); i++) {
     Map existingDef = impl->argDefs->at<Map>(i);
-    String existingName = existingDef.get<String, String>(ATTO_TEXT("name"));
+    String existingName = existingDef.get<String, String>("name");
     if (existingName == name) {
       impl->argDefs->remove(i);
       break;
@@ -50,12 +50,12 @@ Arguments &Arguments::addParameter(const String &name,
   }
 
   Map argDef;
-  argDef.put(ATTO_TEXT("name"), name);
-  argDef.put(ATTO_TEXT("description"), description);
-  argDef.put(ATTO_TEXT("longName"), longName);
-  argDef.put(ATTO_TEXT("defaultValue"), defaultValue);
-  argDef.put(ATTO_TEXT("type"), (int)ARG_PARAMETER);
-  argDef.put(ATTO_TEXT("required"), false);
+  argDef.put("name", name);
+  argDef.put("description", description);
+  argDef.put("longName", longName);
+  argDef.put("defaultValue", defaultValue);
+  argDef.put("type", (int)ARG_PARAMETER);
+  argDef.put("required", false);
 
   impl->argDefs->append(argDef);
 
@@ -71,7 +71,7 @@ Arguments &Arguments::addPositionalParameter(const String &name,
 
   for (int i = 0; i < impl->argDefs->length(); i++) {
     Map existingDef = impl->argDefs->at<Map>(i);
-    String existingName = existingDef.get<String, String>(ATTO_TEXT("name"));
+    String existingName = existingDef.get<String, String>("name");
     if (existingName == name) {
       impl->argDefs->remove(i);
       break;
@@ -79,12 +79,12 @@ Arguments &Arguments::addPositionalParameter(const String &name,
   }
 
   Map argDef;
-  argDef.put(ATTO_TEXT("name"), name);
-  argDef.put(ATTO_TEXT("description"), description);
-  argDef.put(ATTO_TEXT("longName"), String());
-  argDef.put(ATTO_TEXT("defaultValue"), String());
-  argDef.put(ATTO_TEXT("type"), (int)ARG_POSITIONAL);
-  argDef.put(ATTO_TEXT("required"), false);
+  argDef.put("name", name);
+  argDef.put("description", description);
+  argDef.put("longName", String());
+  argDef.put("defaultValue", String());
+  argDef.put("type", (int)ARG_POSITIONAL);
+  argDef.put("required", false);
 
   impl->argDefs->append(argDef);
 
@@ -109,9 +109,9 @@ Arguments &Arguments::requireArgument(const String &name) {
 
   for (int i = 0; i < impl->argDefs->length(); i++) {
     Map argDef = impl->argDefs->at<Map>(i);
-    String argName = argDef.get<String, String>(ATTO_TEXT("name"));
+    String argName = argDef.get<String, String>("name");
     if (argName == name) {
-      argDef.put(ATTO_TEXT("required"), true);
+      argDef.put("required", true);
       impl->argDefs->set(i, argDef);
       break;
     }

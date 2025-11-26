@@ -18,7 +18,7 @@ static Set *tested_functions = nullptr;
 static int test_count = 0;
 
 // Mark a function as tested
-inline void MarkTested(const ATTO_CHAR *name) {
+inline void MarkTested(const char *name) {
   if (!tested_functions) {
     tested_functions = new Set();
   }
@@ -27,12 +27,12 @@ inline void MarkTested(const ATTO_CHAR *name) {
 
 // Display coverage
 inline void DisplayCoverage() {
-  Log(ATTO_TEXT(""));
-  Log(ATTO_TEXT("=== Test Coverage Report ==="));
+  Log("");
+  Log("=== Test Coverage Report ===");
   int tested_count = tested_functions ? tested_functions->length() : 0;
-  Log(ATTO_TEXT("Coverage: "), tested_count, ATTO_TEXT(" / "), FUNCTION_COUNT);
-  Log(ATTO_TEXT("============================"));
-  Log(ATTO_TEXT(""));
+  Log("Coverage: ", tested_count, " / ", FUNCTION_COUNT);
+  Log("============================");
+  Log("");
 }
 
 // Write coverage data
@@ -40,9 +40,9 @@ inline void WriteCoverageData(const String &test_name) {
   int tested_count = tested_functions ? tested_functions->length() : 0;
 
   String data =
-      String(tested_count, ATTO_TEXT(" "), FUNCTION_COUNT, ATTO_TEXT("\n"));
+      String(tested_count, " ", FUNCTION_COUNT, "\n");
 
-  String filename = String(test_name, ATTO_TEXT("_coverage.txt"));
+  String filename = String(test_name, "_coverage.txt");
   Path coverage_path(filename);
   coverage_path.writeFromString(data);
 }
@@ -55,14 +55,14 @@ inline void SaveCoverage(const String &test_name) {
 
 // Macro to register that a function has been tested
 #define REGISTER_TESTED(function_name)                                         \
-  TestFramework::MarkTested(ATTO_TEXT(#function_name))
+  TestFramework::MarkTested(#function_name)
 
 // Test assertion macros
 #define ASSERT(condition)                                                      \
   do {                                                                         \
     if (!(condition)) {                                                        \
-      LogError(ATTO_TEXT("ASSERTION FAILED: "), ATTO_TEXT(#condition),         \
-               ATTO_TEXT(" at "), __FILE__, ATTO_TEXT(":"), __LINE__);         \
+      LogError("ASSERTION FAILED: ", #condition,         \
+               " at ", __FILE__, ":", __LINE__);         \
       Exit(1);                                                                 \
     }                                                                          \
   } while (0)
@@ -72,11 +72,11 @@ inline void SaveCoverage(const String &test_name) {
     auto _actual = (actual);                                                   \
     auto _expected = (expected);                                               \
     if (_actual != _expected) {                                                \
-      LogError(ATTO_TEXT("ASSERTION FAILED: "), ATTO_TEXT(#actual),            \
-               ATTO_TEXT(" == "), ATTO_TEXT(#expected));                       \
-      LogError(ATTO_TEXT("  Expected: "), _expected);                          \
-      LogError(ATTO_TEXT("  Actual:   "), _actual);                            \
-      LogError(ATTO_TEXT("  at "), __FILE__, ATTO_TEXT(":"), __LINE__);        \
+      LogError("ASSERTION FAILED: ", #actual,            \
+               " == ", #expected);                       \
+      LogError("  Expected: ", _expected);                          \
+      LogError("  Actual:   ", _actual);                            \
+      LogError("  at ", __FILE__, ":", __LINE__);        \
       Exit(1);                                                                 \
     }                                                                          \
   } while (0)
@@ -86,10 +86,10 @@ inline void SaveCoverage(const String &test_name) {
     auto _actual = (actual);                                                   \
     auto _expected = (expected);                                               \
     if (_actual == _expected) {                                                \
-      LogError(ATTO_TEXT("ASSERTION FAILED: "), ATTO_TEXT(#actual),            \
-               ATTO_TEXT(" != "), ATTO_TEXT(#expected));                       \
-      LogError(ATTO_TEXT("  Both values: "), _actual);                         \
-      LogError(ATTO_TEXT("  at "), __FILE__, ATTO_TEXT(":"), __LINE__);        \
+      LogError("ASSERTION FAILED: ", #actual,            \
+               " != ", #expected);                       \
+      LogError("  Both values: ", _actual);                         \
+      LogError("  at ", __FILE__, ":", __LINE__);        \
       Exit(1);                                                                 \
     }                                                                          \
   } while (0)

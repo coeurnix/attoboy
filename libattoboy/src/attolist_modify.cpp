@@ -55,7 +55,7 @@ void List::prepend_impl(float value) {
   impl->size++;
 }
 
-void List::prepend_impl(const ATTO_CHAR *value) {
+void List::prepend_impl(const char *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
@@ -232,7 +232,7 @@ void List::insert_impl(int index, float value) {
   impl->size++;
 }
 
-void List::insert_impl(int index, const ATTO_CHAR *value) {
+void List::insert_impl(int index, const char *value) {
   if (!impl)
     return;
 

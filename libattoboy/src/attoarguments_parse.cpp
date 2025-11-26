@@ -12,13 +12,13 @@ static void PrintString(const String &s) {
 
 static bool IsBoolValue(const String &value, bool *outValue) {
   String lower = value.lower();
-  if (lower == ATTO_TEXT("true") || lower == ATTO_TEXT("1") ||
-      lower == ATTO_TEXT("on") || lower == ATTO_TEXT("yes")) {
+  if (lower == "true" || lower == "1" ||
+      lower == "on" || lower == "yes") {
     *outValue = true;
     return true;
   }
-  if (lower == ATTO_TEXT("false") || lower == ATTO_TEXT("0") ||
-      lower == ATTO_TEXT("off") || lower == ATTO_TEXT("no")) {
+  if (lower == "false" || lower == "0" ||
+      lower == "off" || lower == "no") {
     *outValue = false;
     return true;
   }
@@ -37,9 +37,9 @@ Map Arguments::parseArguments(bool suppressHelp) {
 
   for (int i = 0; i < impl->argDefs->length(); i++) {
     Map argDef = impl->argDefs->at<Map>(i);
-    String name = argDef.get<String, String>(ATTO_TEXT("name"));
-    String defaultValue = argDef.get<String, String>(ATTO_TEXT("defaultValue"));
-    int type = argDef.get<String, int>(ATTO_TEXT("type"));
+    String name = argDef.get<String, String>("name");
+    String defaultValue = argDef.get<String, String>("defaultValue");
+    int type = argDef.get<String, int>("type");
 
     if (type == ARG_FLAG) {
       results.put(name, defaultValue);
@@ -51,16 +51,16 @@ Map Arguments::parseArguments(bool suppressHelp) {
   for (int i = 1; i < impl->cmdLineArgs->length(); i++) {
     String arg = impl->cmdLineArgs->at<String>(i);
 
-    if (arg == ATTO_TEXT("-h") || arg == ATTO_TEXT("--help")) {
+    if (arg == "-h" || arg == "--help") {
       helpRequested = true;
       continue;
     }
 
-    if (arg.startsWith(ATTO_TEXT("--"))) {
+    if (arg.startsWith("--")) {
       String argBody = arg.substring(2);
       int eqPos = -1;
       for (int j = 0; j < argBody.length(); j++) {
-        if (argBody.at(j) == ATTO_TEXT("=")) {
+        if (argBody.at(j) == "=") {
           eqPos = j;
           break;
         }
@@ -79,9 +79,9 @@ Map Arguments::parseArguments(bool suppressHelp) {
       bool found = false;
       for (int j = 0; j < impl->argDefs->length(); j++) {
         Map argDef = impl->argDefs->at<Map>(j);
-        String defName = argDef.get<String, String>(ATTO_TEXT("name"));
-        String defLongName = argDef.get<String, String>(ATTO_TEXT("longName"));
-        int type = argDef.get<String, int>(ATTO_TEXT("type"));
+        String defName = argDef.get<String, String>("name");
+        String defLongName = argDef.get<String, String>("longName");
+        int type = argDef.get<String, int>("type");
 
         if (defLongName == argName) {
           if (type == ARG_FLAG) {
@@ -102,7 +102,7 @@ Map Arguments::parseArguments(bool suppressHelp) {
               hasValue = true;
             } else if (i + 1 < impl->cmdLineArgs->length()) {
               String nextArg = impl->cmdLineArgs->at<String>(i + 1);
-              if (!nextArg.startsWith(ATTO_TEXT("-"))) {
+              if (!nextArg.startsWith("-")) {
                 paramValue = nextArg;
                 hasValue = true;
                 i++;
@@ -120,15 +120,15 @@ Map Arguments::parseArguments(bool suppressHelp) {
         }
       }
 
-      if (!found && argName == ATTO_TEXT("help")) {
+      if (!found && argName == "help") {
         helpRequested = true;
       }
 
-    } else if (arg.startsWith(ATTO_TEXT("-"))) {
+    } else if (arg.startsWith("-")) {
       String argBody = arg.substring(1);
       int eqPos = -1;
       for (int j = 0; j < argBody.length(); j++) {
-        if (argBody.at(j) == ATTO_TEXT("=")) {
+        if (argBody.at(j) == "=") {
           eqPos = j;
           break;
         }
@@ -147,8 +147,8 @@ Map Arguments::parseArguments(bool suppressHelp) {
       bool found = false;
       for (int j = 0; j < impl->argDefs->length(); j++) {
         Map argDef = impl->argDefs->at<Map>(j);
-        String defName = argDef.get<String, String>(ATTO_TEXT("name"));
-        int type = argDef.get<String, int>(ATTO_TEXT("type"));
+        String defName = argDef.get<String, String>("name");
+        int type = argDef.get<String, int>("type");
 
         if (defName == argName) {
           if (type == ARG_FLAG) {
@@ -169,7 +169,7 @@ Map Arguments::parseArguments(bool suppressHelp) {
               hasValue = true;
             } else if (i + 1 < impl->cmdLineArgs->length()) {
               String nextArg = impl->cmdLineArgs->at<String>(i + 1);
-              if (!nextArg.startsWith(ATTO_TEXT("-"))) {
+              if (!nextArg.startsWith("-")) {
                 paramValue = nextArg;
                 hasValue = true;
                 i++;
@@ -187,7 +187,7 @@ Map Arguments::parseArguments(bool suppressHelp) {
         }
       }
 
-      if (!found && argName == ATTO_TEXT("h")) {
+      if (!found && argName == "h") {
         helpRequested = true;
       }
 
@@ -199,10 +199,10 @@ Map Arguments::parseArguments(bool suppressHelp) {
   int positionalIndex = 0;
   for (int i = 0; i < impl->argDefs->length(); i++) {
     Map argDef = impl->argDefs->at<Map>(i);
-    int type = argDef.get<String, int>(ATTO_TEXT("type"));
+    int type = argDef.get<String, int>("type");
 
     if (type == ARG_POSITIONAL) {
-      String name = argDef.get<String, String>(ATTO_TEXT("name"));
+      String name = argDef.get<String, String>("name");
       if (positionalIndex < positionalArgs.length()) {
         String value = positionalArgs.at<String>(positionalIndex);
         results.put(name, value);
@@ -214,9 +214,9 @@ Map Arguments::parseArguments(bool suppressHelp) {
   bool missingRequired = false;
   for (int i = 0; i < impl->argDefs->length(); i++) {
     Map argDef = impl->argDefs->at<Map>(i);
-    bool required = argDef.get<String, bool>(ATTO_TEXT("required"));
+    bool required = argDef.get<String, bool>("required");
     if (required) {
-      String name = argDef.get<String, String>(ATTO_TEXT("name"));
+      String name = argDef.get<String, String>("name");
       if (!results.hasKey(name) ||
           results.get<String, String>(name).isEmpty()) {
         missingRequired = true;
@@ -232,38 +232,38 @@ Map Arguments::parseArguments(bool suppressHelp) {
 
       if (!impl->helpText->isEmpty()) {
         PrintString(*(impl->helpText));
-        PrintString(String(ATTO_TEXT("\r\n\r\n")));
+        PrintString(String("\r\n\r\n"));
       }
 
       if (impl->argDefs->length() > 0) {
-        PrintString(String(ATTO_TEXT("Options:\r\n")));
+        PrintString(String("Options:\r\n"));
 
         for (int i = 0; i < impl->argDefs->length(); i++) {
           Map argDef = impl->argDefs->at<Map>(i);
-          String name = argDef.get<String, String>(ATTO_TEXT("name"));
-          String longName = argDef.get<String, String>(ATTO_TEXT("longName"));
+          String name = argDef.get<String, String>("name");
+          String longName = argDef.get<String, String>("longName");
           String description =
-              argDef.get<String, String>(ATTO_TEXT("description"));
-          int type = argDef.get<String, int>(ATTO_TEXT("type"));
+              argDef.get<String, String>("description");
+          int type = argDef.get<String, int>("type");
 
           String line;
           if (type == ARG_POSITIONAL) {
-            line = String(ATTO_TEXT("  "), name);
+            line = String("  ", name);
           } else {
-            line = String(ATTO_TEXT("  -"), name);
+            line = String("  -", name);
             if (!longName.isEmpty()) {
-              line = String(line, ATTO_TEXT(", --"), longName);
+              line = String(line, ", --", longName);
             }
           }
 
           if (!description.isEmpty()) {
             while (line.length() < 25) {
-              line = String(line, ATTO_TEXT(" "));
+              line = String(line, " ");
             }
-            line = String(line, ATTO_TEXT("  "), description);
+            line = String(line, "  ", description);
           }
 
-          line = String(line, ATTO_TEXT("\r\n"));
+          line = String(line, "\r\n");
           PrintString(line);
         }
       }

@@ -10,7 +10,7 @@ namespace attoboy {
 // Helper for float to string conversion
 static void FloatToString(float val, ATTO_LPSTR buffer, int maxLen) {
   if (val < 0) {
-    *buffer++ = ATTO_TEXT('-');
+    *buffer++ = '-';
     val = -val;
     maxLen--;
   }
@@ -23,25 +23,25 @@ static void FloatToString(float val, ATTO_LPSTR buffer, int maxLen) {
   maxLen -= len;
 
   if (maxLen > 1) {
-    *buffer++ = ATTO_TEXT('.');
+    *buffer++ = '.';
     maxLen--;
 
     ATTO_LPSTR firstDecimalDigit = buffer;
     for (int i = 0; i < 6 && maxLen > 0; i++) {
       fracPart *= 10;
       int digit = (int)fracPart;
-      *buffer++ = ATTO_TEXT('0') + digit;
+      *buffer++ = '0' + digit;
       fracPart -= digit;
       maxLen--;
     }
 
     // Strip trailing zeros, keeping at least one decimal digit
     buffer--;
-    while (buffer > firstDecimalDigit && *buffer == ATTO_TEXT('0')) {
+    while (buffer > firstDecimalDigit && *buffer == '0') {
       buffer--;
     }
     buffer++;
-    *buffer = ATTO_TEXT('\0');
+    *buffer = '\0';
   }
 }
 

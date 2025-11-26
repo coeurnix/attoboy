@@ -41,7 +41,7 @@ void List::append_impl(float value) {
   impl->size++;
 }
 
-void List::append_impl(const ATTO_CHAR *value) {
+void List::append_impl(const char *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);

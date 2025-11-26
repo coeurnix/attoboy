@@ -13,26 +13,26 @@ static String EscapeJsonString(const String &str) {
     ATTO_WCHAR ch = str.c_str()[i];
 
     switch (ch) {
-    case ATTO_TEXT('"'):
-      result = result.append(ATTO_TEXT("\\\""));
+    case '"':
+      result = result.append("\\\"");
       break;
-    case ATTO_TEXT('\\'):
-      result = result.append(ATTO_TEXT("\\\\"));
+    case '\\':
+      result = result.append("\\\\");
       break;
-    case ATTO_TEXT('\b'):
-      result = result.append(ATTO_TEXT("\\b"));
+    case '\b':
+      result = result.append("\\b");
       break;
-    case ATTO_TEXT('\f'):
-      result = result.append(ATTO_TEXT("\\f"));
+    case '\f':
+      result = result.append("\\f");
       break;
-    case ATTO_TEXT('\n'):
-      result = result.append(ATTO_TEXT("\\n"));
+    case '\n':
+      result = result.append("\\n");
       break;
-    case ATTO_TEXT('\r'):
-      result = result.append(ATTO_TEXT("\\r"));
+    case '\r':
+      result = result.append("\\r");
       break;
-    case ATTO_TEXT('\t'):
-      result = result.append(ATTO_TEXT("\\t"));
+    case '\t':
+      result = result.append("\\t");
       break;
     default:
       if (ch < 32) {
@@ -40,7 +40,7 @@ static String EscapeJsonString(const String &str) {
         wsprintfA(buf, "\\u%04x", (int)ch);
         result = result.append(buf);
       } else {
-        ATTO_WCHAR temp[2] = {ch, ATTO_TEXT('\0')};
+        ATTO_WCHAR temp[2] = {ch, '\0'};
         result = result.append(temp);
       }
       break;
@@ -53,7 +53,7 @@ static String EscapeJsonString(const String &str) {
 static String ValueToJson(ValueType type, const List &list, int index);
 
 static String ListToJson(const List &list) {
-  String result(ATTO_TEXT("["));
+  String result("[");
   int len = list.length();
 
   for (int i = 0; i < len; i++) {
@@ -61,16 +61,16 @@ static String ListToJson(const List &list) {
     result = result.append(ValueToJson(type, list, i));
 
     if (i < len - 1) {
-      result = result.append(ATTO_TEXT(","));
+      result = result.append(",");
     }
   }
 
-  result = result.append(ATTO_TEXT("]"));
+  result = result.append("]");
   return result;
 }
 
 static String MapToJson(const Map &map) {
-  String result(ATTO_TEXT("{"));
+  String result("{");
   List keys = map.keys();
   List values = map.values();
   int len = keys.length();
@@ -93,44 +93,44 @@ static String MapToJson(const Map &map) {
       keyStr = keys.at<String>(i);
       break;
     default:
-      keyStr = String(ATTO_TEXT("null"));
+      keyStr = String("null");
       break;
     }
 
-    result = result.append(ATTO_TEXT("\""));
+    result = result.append("\"");
     result = result.append(EscapeJsonString(keyStr));
-    result = result.append(ATTO_TEXT("\":"));
+    result = result.append("\":");
 
     ValueType valueType = values.typeAt(i);
     result = result.append(ValueToJson(valueType, values, i));
 
     if (i < len - 1) {
-      result = result.append(ATTO_TEXT(","));
+      result = result.append(",");
     }
   }
 
-  result = result.append(ATTO_TEXT("}"));
+  result = result.append("}");
   return result;
 }
 
 static String ValueToJson(ValueType type, const List &list, int index) {
   switch (type) {
   case TYPE_BOOL:
-    return String(list.at<bool>(index) ? ATTO_TEXT("true") : ATTO_TEXT("false"));
+    return String(list.at<bool>(index) ? "true" : "false");
   case TYPE_INT:
     return String(list.at<int>(index));
   case TYPE_FLOAT: {
     String num = String(list.at<float>(index));
-    if (!num.contains(ATTO_TEXT(".")) && !num.contains(ATTO_TEXT("e")) && !num.contains(ATTO_TEXT("E"))) {
-      num = num.append(ATTO_TEXT(".0"));
+    if (!num.contains(".") && !num.contains("e") && !num.contains("E")) {
+      num = num.append(".0");
     }
     return num;
   }
   case TYPE_STRING: {
     String str = list.at<String>(index);
-    String result(ATTO_TEXT("\""));
+    String result("\"");
     result = result.append(EscapeJsonString(str));
-    result = result.append(ATTO_TEXT("\""));
+    result = result.append("\"");
     return result;
   }
   case TYPE_LIST:
@@ -139,7 +139,7 @@ static String ValueToJson(ValueType type, const List &list, int index) {
     return MapToJson(list.at<Map>(index));
   case TYPE_NULL:
   default:
-    return String(ATTO_TEXT("null"));
+    return String("null");
   }
 }
 

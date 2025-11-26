@@ -6,7 +6,7 @@
 namespace attoboy {
 
 String GetEnv(const String &name) {
-  const ATTO_CHAR *nameStr = name.c_str();
+  const char *nameStr = name.c_str();
   WCHAR* nameWide = Utf8ToWide(nameStr);
   if (!nameWide) {
     return String();
@@ -42,8 +42,8 @@ String GetEnv(const String &name) {
 }
 
 bool SetEnv(const String &name, const String &value) {
-  const ATTO_CHAR *nameStr = name.c_str();
-  const ATTO_CHAR *valueStr = value.c_str();
+  const char *nameStr = name.c_str();
+  const char *valueStr = value.c_str();
 
   WCHAR* nameWide = Utf8ToWide(nameStr);
   if (!nameWide) {

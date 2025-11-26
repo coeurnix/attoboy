@@ -10,13 +10,13 @@ String::String() {
   impl->len = 0;
 }
 
-String::String(const ATTO_CHAR *str) {
+String::String(const char *str) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
   InitializeSRWLock(&impl->lock);
 
   if (!str) {
-    const ATTO_CHAR *nullStr = ATTO_TEXT("null");
+    const char *nullStr = "null";
     int len = 4;
     impl->data = AllocString(len);
     if (impl->data) {
@@ -38,7 +38,7 @@ String::String(const ATTO_CHAR *str) {
   }
 }
 
-String::String(const ATTO_CHAR *data, int size) {
+String::String(const char *data, int size) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
   InitializeSRWLock(&impl->lock);
@@ -138,8 +138,8 @@ int String::byteLength() const {
 
 String String::duplicate() const { return String(*this); }
 
-const ATTO_CHAR *String::c_str() const {
-  return (impl && impl->data) ? impl->data : ATTO_TEXT("");
+const char *String::c_str() const {
+  return (impl && impl->data) ? impl->data : "";
 }
 
 } // namespace attoboy

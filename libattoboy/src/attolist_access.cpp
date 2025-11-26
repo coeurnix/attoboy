@@ -218,7 +218,7 @@ void List::set_impl(int index, float value) {
   impl->items[index].floatVal = value;
 }
 
-void List::set_impl(int index, const ATTO_CHAR *value) {
+void List::set_impl(int index, const char *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);

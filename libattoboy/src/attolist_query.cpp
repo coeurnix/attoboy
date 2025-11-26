@@ -68,7 +68,7 @@ template <> int List::find<String>(String value) const {
   return -1;
 }
 
-template <> int List::find<const ATTO_CHAR *>(const ATTO_CHAR *value) const {
+template <> int List::find<const char *>(const char *value) const {
   String str(value);
   return find<String>(str);
 }
@@ -90,7 +90,7 @@ template <> bool List::contains<String>(String value) const {
   return find<String>(value) != -1;
 }
 
-template <> bool List::contains<const ATTO_CHAR *>(const ATTO_CHAR *value) const {
+template <> bool List::contains<const char *>(const char *value) const {
   String str(value);
   return find<String>(str) != -1;
 }

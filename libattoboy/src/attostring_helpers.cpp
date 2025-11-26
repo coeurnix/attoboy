@@ -8,7 +8,7 @@ void MyStrNCpy(ATTO_WCHAR *dest, const ATTO_WCHAR *src, int count) {
     if (*src) {
       *dest++ = *src++;
     } else {
-      *dest++ = ATTO_TEXT('\0');
+      *dest++ = '\0';
     }
   }
 }

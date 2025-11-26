@@ -2,16 +2,16 @@
 
 void atto_main() {
     // Enable file logging for reliable output capture
-    EnableLoggingToFile(ATTO_TEXT("test_util_functions.log"), true);
+    EnableLoggingToFile("test_util_functions.log", true);
 
-    Log(ATTO_TEXT("=== Running Utility Functions Tests ==="));
+    Log("=== Running Utility Functions Tests ===");
 
     // Test GetUserName
     {
         String username = GetUserName();
         REGISTER_TESTED(GetUserName);
         ASSERT_FALSE(username.isEmpty());
-        Log(ATTO_TEXT("GetUserName: "), username);
+        Log("GetUserName: ", username);
     }
 
     // Test GetUserDisplayName
@@ -19,7 +19,7 @@ void atto_main() {
         String displayName = GetUserDisplayName();
         REGISTER_TESTED(GetUserDisplayName);
         // Display name might be empty on some systems
-        Log(ATTO_TEXT("GetUserDisplayName: "), displayName);
+        Log("GetUserDisplayName: ", displayName);
     }
 
     // Test GetProcessId
@@ -27,13 +27,13 @@ void atto_main() {
         int pid = GetProcessId();
         REGISTER_TESTED(GetProcessId);
         ASSERT(pid > 0);
-        Log(ATTO_TEXT("GetProcessId: "), pid);
+        Log("GetProcessId: ", pid);
     }
 
     // Test GetEnv and SetEnv
     {
-        String testKey = ATTO_TEXT("ATTOBOY_TEST_VAR");
-        String testValue = ATTO_TEXT("test_value_123");
+        String testKey = "ATTOBOY_TEST_VAR";
+        String testValue = "test_value_123";
 
         // Set environment variable
         bool setResult = SetEnv(testKey, testValue);
@@ -45,14 +45,14 @@ void atto_main() {
         REGISTER_TESTED(GetEnv);
         ASSERT_EQ(retrievedValue, testValue);
 
-        Log(ATTO_TEXT("SetEnv/GetEnv: passed"));
+        Log("SetEnv/GetEnv: passed");
     }
 
     // Test Sleep
     {
         REGISTER_TESTED(Sleep);
         Sleep(10); // Sleep for 10ms
-        Log(ATTO_TEXT("Sleep: passed"));
+        Log("Sleep: passed");
     }
 
     // Test memory allocation functions
@@ -83,7 +83,7 @@ void atto_main() {
         Free(newPtr);
         REGISTER_TESTED(Free);
 
-        Log(ATTO_TEXT("Alloc/Realloc/Free: passed"));
+        Log("Alloc/Realloc/Free: passed");
     }
 
     // Test logging functions
@@ -94,29 +94,29 @@ void atto_main() {
         REGISTER_TESTED(LogWarning);
         REGISTER_TESTED(LogError);
 
-        Log(ATTO_TEXT("Log: testing basic logging"));
-        LogDebug(ATTO_TEXT("LogDebug: debug message"));
-        LogInfo(ATTO_TEXT("LogInfo: info message"));
-        LogWarning(ATTO_TEXT("LogWarning: warning message"));
-        LogError(ATTO_TEXT("LogError: error message"));
+        Log("Log: testing basic logging");
+        LogDebug("LogDebug: debug message");
+        LogInfo("LogInfo: info message");
+        LogWarning("LogWarning: warning message");
+        LogError("LogError: error message");
     }
 
     // Test EnableLoggingToFile (already enabled at start)
     {
         REGISTER_TESTED(EnableLoggingToFile);
-        Log(ATTO_TEXT("EnableLoggingToFile: passed (using file logging)"));
+        Log("EnableLoggingToFile: passed (using file logging)");
     }
 
     // Note: EnableLoggingToConsole is not tested to avoid console output issues
     // REGISTER_TESTED(EnableLoggingToConsole);
 
-    Log(ATTO_TEXT("=== All Utility Function Tests Passed ==="));
+    Log("=== All Utility Function Tests Passed ===");
 
     // Display coverage report
     TestFramework::DisplayCoverage();
 
     // Write machine-readable coverage data for aggregation
-    TestFramework::WriteCoverageData(ATTO_TEXT("test_util_functions"));
+    TestFramework::WriteCoverageData("test_util_functions");
 
     Exit(0);
 }

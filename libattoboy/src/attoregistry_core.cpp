@@ -8,7 +8,7 @@ Registry::Registry(const String &key) {
                                    sizeof(RegistryImpl));
   InitializeSRWLock(&impl->lock);
 
-  const ATTO_CHAR *keyStr = key.c_str();
+  const char *keyStr = key.c_str();
   impl->keyPathLen = ATTO_LSTRLEN(keyStr);
   impl->keyPath = AllocRegistryString(impl->keyPathLen);
   if (impl->keyPath) {
@@ -19,7 +19,7 @@ Registry::Registry(const String &key) {
   impl->hRootKey = ParseRootKey(impl->keyPath, &prefixLen);
 
   if (impl->hRootKey && prefixLen < impl->keyPathLen) {
-    const ATTO_CHAR *subKey = impl->keyPath + prefixLen;
+    const char *subKey = impl->keyPath + prefixLen;
     while (*subKey == '\\' || *subKey == '/')
       subKey++;
 

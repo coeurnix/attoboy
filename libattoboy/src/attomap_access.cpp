@@ -379,11 +379,11 @@ template <> bool Map::hasKey<String>(String key) const {
   return impl->keys.find<String>(key) >= 0;
 }
 
-template <> bool Map::hasKey<const ATTO_CHAR *>(const ATTO_CHAR *key) const {
+template <> bool Map::hasKey<const char *>(const char *key) const {
   if (!impl)
     return false;
   ReadLockGuard guard(&impl->lock);
-  return impl->keys.find<const ATTO_CHAR *>(key) >= 0;
+  return impl->keys.find<const char *>(key) >= 0;
 }
 
 // Template specializations for typeAt()
@@ -435,12 +435,12 @@ template <> ValueType Map::typeAt<String>(String key) const {
   return impl->values.typeAt(index);
 }
 
-template <> ValueType Map::typeAt<const ATTO_CHAR *>(const ATTO_CHAR *key) const {
+template <> ValueType Map::typeAt<const char *>(const char *key) const {
   if (!impl)
     return TYPE_INVALID;
   ReadLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const ATTO_CHAR *>(key);
+  int index = impl->keys.find<const char *>(key);
   if (index < 0)
     return TYPE_INVALID;
 
@@ -667,12 +667,12 @@ void Map::remove_impl(float key) {
   }
 }
 
-void Map::remove_impl(const ATTO_CHAR *key) {
+void Map::remove_impl(const char *key) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  int index = impl->keys.find<const ATTO_CHAR *>(key);
+  int index = impl->keys.find<const char *>(key);
   if (index >= 0) {
     impl->keys.remove(index);
     impl->values.remove(index);

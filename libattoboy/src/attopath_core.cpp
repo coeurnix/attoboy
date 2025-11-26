@@ -8,7 +8,7 @@ Path::Path(const String &pathStr) {
                                sizeof(PathImpl));
   InitializeSRWLock(&impl->lock);
 
-  const ATTO_CHAR *str = pathStr.c_str();
+  const char *str = pathStr.c_str();
   impl->len = ATTO_LSTRLEN(str);
   impl->pathStr = AllocPath(impl->len);
   if (impl->pathStr) {
@@ -131,10 +131,10 @@ bool Path::isNamedPipe() const {
   if (impl->len < 9)
     return false;
 
-  const ATTO_CHAR *prefix = ATTO_TEXT("\\\\.\\pipe\\");
+  const char *prefix = "\\\\.\\pipe\\";
   for (int i = 0; i < 9; i++) {
-    ATTO_CHAR c1 = impl->pathStr[i];
-    ATTO_CHAR c2 = prefix[i];
+    char c1 = impl->pathStr[i];
+    char c2 = prefix[i];
     if (c1 >= 'A' && c1 <= 'Z')
       c1 = c1 - 'A' + 'a';
     if (c2 >= 'A' && c2 <= 'Z')
@@ -197,7 +197,7 @@ bool Path::isOther() const {
     return true;
 
   if (impl->len >= 4) {
-    const ATTO_CHAR *prefix = ATTO_TEXT("\\\\.\\");
+    const char *prefix = "\\\\.\\";
     bool hasPrefix = true;
     for (int i = 0; i < 4; i++) {
       if (impl->pathStr[i] != prefix[i]) {

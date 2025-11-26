@@ -4,7 +4,7 @@ using namespace attoboy;
 
 void atto_main() {
   List list;
-  list.append(ATTO_TEXT("Hi"));
-  Log(list.contains(ATTO_TEXT("Hi")));
+  list.append("Hi");
+  Log(list.contains("Hi"));
   Exit(0);
 }

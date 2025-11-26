@@ -4,10 +4,6 @@
 // Entry point for the application (bypasses CRT startup)
 extern "C" void atto_main();
 
-// Character type aliases and macros (UTF-8 encoding)
-using ATTO_CHAR = char;
-#define ATTO_TEXT(x) x
-
 namespace attoboy {
 
 /// Type identifier for values stored in containers.
@@ -59,7 +55,7 @@ public:
   String();
 
   /// Creates a string from a C-style string.
-  String(const ATTO_CHAR *str);
+  String(const char *str);
 
   /// Creates a string from a boolean ("true" or "false").
   String(bool value);
@@ -74,7 +70,7 @@ public:
   String(float value);
 
   /// Creates a string from raw byte data and size (in bytes).
-  String(const ATTO_CHAR *data, int size);
+  String(const char *data, int size);
 
   /// Creates a JSON string from a list (e.g., ["value1",2,true]).
   String(const List &list);
@@ -113,7 +109,7 @@ public:
   bool isEmpty() const;
 
   /// Returns a pointer to the underlying C-style string.
-  const ATTO_CHAR *c_str() const;
+  const char *c_str() const;
 
   /// Returns the character at index as a UTF-8 string.
   /// Negative indices count from the end.
@@ -370,7 +366,8 @@ public:
 
   /// Converts this list to a CSV string.
   /// The list is expected to be a list of lists (rows).
-  /// If a cell is a collection (List, Map, Set), it is encoded as a JSON string.
+  /// If a cell is a collection (List, Map, Set), it is encoded as a JSON
+  /// string.
   String toCSVString() const;
 
   /// Creates a list of lists from a CSV string.
@@ -408,7 +405,7 @@ private:
   void append_impl(bool value);
   void append_impl(int value);
   void append_impl(float value);
-  void append_impl(const ATTO_CHAR *value);
+  void append_impl(const char *value);
   void append_impl(const String &value);
   void append_impl(const List &value);
   void append_impl(const Map &value);
@@ -417,7 +414,7 @@ private:
   void prepend_impl(bool value);
   void prepend_impl(int value);
   void prepend_impl(float value);
-  void prepend_impl(const ATTO_CHAR *value);
+  void prepend_impl(const char *value);
   void prepend_impl(const String &value);
   void prepend_impl(const List &value);
   void prepend_impl(const Map &value);
@@ -426,7 +423,7 @@ private:
   void insert_impl(int index, bool value);
   void insert_impl(int index, int value);
   void insert_impl(int index, float value);
-  void insert_impl(int index, const ATTO_CHAR *value);
+  void insert_impl(int index, const char *value);
   void insert_impl(int index, const String &value);
   void insert_impl(int index, const List &value);
   void insert_impl(int index, const Map &value);
@@ -435,7 +432,7 @@ private:
   void set_impl(int index, bool value);
   void set_impl(int index, int value);
   void set_impl(int index, float value);
-  void set_impl(int index, const ATTO_CHAR *value);
+  void set_impl(int index, const char *value);
   void set_impl(int index, const String &value);
   void set_impl(int index, const List &value);
   void set_impl(int index, const Map &value);
@@ -550,7 +547,7 @@ private:
   void put_impl(bool key, bool value);
   void put_impl(bool key, int value);
   void put_impl(bool key, float value);
-  void put_impl(bool key, const ATTO_CHAR *value);
+  void put_impl(bool key, const char *value);
   void put_impl(bool key, const String &value);
   void put_impl(bool key, const List &value);
   void put_impl(bool key, const Map &value);
@@ -559,7 +556,7 @@ private:
   void put_impl(int key, bool value);
   void put_impl(int key, int value);
   void put_impl(int key, float value);
-  void put_impl(int key, const ATTO_CHAR *value);
+  void put_impl(int key, const char *value);
   void put_impl(int key, const String &value);
   void put_impl(int key, const List &value);
   void put_impl(int key, const Map &value);
@@ -568,25 +565,25 @@ private:
   void put_impl(float key, bool value);
   void put_impl(float key, int value);
   void put_impl(float key, float value);
-  void put_impl(float key, const ATTO_CHAR *value);
+  void put_impl(float key, const char *value);
   void put_impl(float key, const String &value);
   void put_impl(float key, const List &value);
   void put_impl(float key, const Map &value);
   void put_impl(float key, const Set &value);
 
-  void put_impl(const ATTO_CHAR *key, bool value);
-  void put_impl(const ATTO_CHAR *key, int value);
-  void put_impl(const ATTO_CHAR *key, float value);
-  void put_impl(const ATTO_CHAR *key, const ATTO_CHAR *value);
-  void put_impl(const ATTO_CHAR *key, const String &value);
-  void put_impl(const ATTO_CHAR *key, const List &value);
-  void put_impl(const ATTO_CHAR *key, const Map &value);
-  void put_impl(const ATTO_CHAR *key, const Set &value);
+  void put_impl(const char *key, bool value);
+  void put_impl(const char *key, int value);
+  void put_impl(const char *key, float value);
+  void put_impl(const char *key, const char *value);
+  void put_impl(const char *key, const String &value);
+  void put_impl(const char *key, const List &value);
+  void put_impl(const char *key, const Map &value);
+  void put_impl(const char *key, const Set &value);
 
   void put_impl(const String &key, bool value);
   void put_impl(const String &key, int value);
   void put_impl(const String &key, float value);
-  void put_impl(const String &key, const ATTO_CHAR *value);
+  void put_impl(const String &key, const char *value);
   void put_impl(const String &key, const String &value);
   void put_impl(const String &key, const List &value);
   void put_impl(const String &key, const Map &value);
@@ -595,7 +592,7 @@ private:
   void remove_impl(bool key);
   void remove_impl(int key);
   void remove_impl(float key);
-  void remove_impl(const ATTO_CHAR *key);
+  void remove_impl(const char *key);
   void remove_impl(const String &key);
 
   // Variadic helper for constructor - handles alternating key-value pairs
@@ -728,7 +725,7 @@ private:
   void put_impl(bool value);
   void put_impl(int value);
   void put_impl(float value);
-  void put_impl(const ATTO_CHAR *value);
+  void put_impl(const char *value);
   void put_impl(const String &value);
   void put_impl(const List &value);
   void put_impl(const Map &value);
@@ -737,7 +734,7 @@ private:
   void remove_impl(bool value);
   void remove_impl(int value);
   void remove_impl(float value);
-  void remove_impl(const ATTO_CHAR *value);
+  void remove_impl(const char *value);
   void remove_impl(const String &value);
 
   // Variadic helper for constructor
@@ -1297,10 +1294,10 @@ public:
   File &operator=(const File &other);
 
   /// Returns the path of the file, or nullptr if this is a socket.
-  const ATTO_CHAR *getPath() const;
+  const char *getPath() const;
 
   /// Returns the host of the socket, or nullptr if this is not a socket.
-  const ATTO_CHAR *getHost() const;
+  const char *getHost() const;
 
   /// Returns the port of the socket, or -1 if this is not a socket.
   int getPort() const;
@@ -1532,7 +1529,7 @@ public:
   /// Returns the string value for the name.
   /// Returns nullptr if the value doesn't exist or is not a string.
   /// Empty name refers to the default value.
-  const ATTO_CHAR *getStringValue(const String &name = String()) const;
+  const char *getStringValue(const String &name = String()) const;
 
   /// Returns the binary value for the name as a Buffer.
   /// Returns nullptr if the value doesn't exist or is not binary.
@@ -1702,8 +1699,9 @@ public:
   /// If overwrite is false, fails if the file already exists.
   /// timeout is in milliseconds (-1 for infinite).
   static bool Download(const String &url, const String &savePath,
-                       const Map *params = nullptr, const Map *headers = nullptr,
-                       bool overwrite = true, int timeout = -1);
+                       const Map *params = nullptr,
+                       const Map *headers = nullptr, bool overwrite = true,
+                       int timeout = -1);
 
 private:
   WebRequestImpl *impl;
@@ -1879,7 +1877,8 @@ public:
   /// Updates token usage counters.
   /// timeout: Request timeout in milliseconds (-1 for infinite, default).
   /// Returns an Embedding object, or nullptr on error.
-  Embedding *createEmbedding(const String &str, int dimensions = -1, int timeout = -1);
+  Embedding *createEmbedding(const String &str, int dimensions = -1,
+                             int timeout = -1);
 
   /// Creates a new Conversation with this AI's configuration.
   /// The Conversation maintains its own message history and token counters.
@@ -2131,7 +2130,7 @@ template <typename... Args> void Log(const Args &...args) {
 template <typename... Args> void LogDebug(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE)
   String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String(ATTO_TEXT("DEBUG ")));
+  internal::LogImpl(strings, sizeof...(Args), String("DEBUG "));
 #endif
 }
 
@@ -2141,7 +2140,7 @@ template <typename... Args> void LogDebug(const Args &...args) {
 template <typename... Args> void LogInfo(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE) || defined(ATTOBOY_LOG_INFO_ENABLE)
   String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String(ATTO_TEXT("INFO ")));
+  internal::LogImpl(strings, sizeof...(Args), String("INFO "));
 #endif
 }
 
@@ -2152,7 +2151,7 @@ template <typename... Args> void LogWarning(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE) || defined(ATTOBOY_LOG_INFO_ENABLE) ||   \
     defined(ATTOBOY_LOG_WARNING_ENABLE)
   String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String(ATTO_TEXT("WARNING ")));
+  internal::LogImpl(strings, sizeof...(Args), String("WARNING "));
 #endif
 }
 
@@ -2161,7 +2160,7 @@ template <typename... Args> void LogWarning(const Args &...args) {
 template <typename... Args> void LogError(const Args &...args) {
 #if !defined(ATTOBOY_LOG_DISABLE)
   String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String(ATTO_TEXT("ERROR ")));
+  internal::LogImpl(strings, sizeof...(Args), String("ERROR "));
 #endif
 }
 

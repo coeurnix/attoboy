@@ -37,17 +37,17 @@ static inline void FreeRegistryString(ATTO_LPSTR str) {
     HeapFree(GetProcessHeap(), 0, str);
 }
 
-static inline HKEY ParseRootKey(const ATTO_CHAR *path, int *prefixLen) {
+static inline HKEY ParseRootKey(const char *path, int *prefixLen) {
   if (!path || !prefixLen)
     return nullptr;
 
   *prefixLen = 0;
 
-  const ATTO_CHAR *hkcu = ATTO_TEXT("HKEY_CURRENT_USER");
-  const ATTO_CHAR *hklm = ATTO_TEXT("HKEY_LOCAL_MACHINE");
-  const ATTO_CHAR *hkcr = ATTO_TEXT("HKEY_CLASSES_ROOT");
-  const ATTO_CHAR *hku = ATTO_TEXT("HKEY_USERS");
-  const ATTO_CHAR *hkcc = ATTO_TEXT("HKEY_CURRENT_CONFIG");
+  const char *hkcu = "HKEY_CURRENT_USER";
+  const char *hklm = "HKEY_LOCAL_MACHINE";
+  const char *hkcr = "HKEY_CLASSES_ROOT";
+  const char *hku = "HKEY_USERS";
+  const char *hkcc = "HKEY_CURRENT_CONFIG";
 
   int hkcuLen = ATTO_LSTRLEN(hkcu);
   int hklmLen = ATTO_LSTRLEN(hklm);
@@ -60,8 +60,8 @@ static inline HKEY ParseRootKey(const ATTO_CHAR *path, int *prefixLen) {
   if (pathLen >= hkcuLen) {
     bool match = true;
     for (int i = 0; i < hkcuLen; i++) {
-      ATTO_CHAR c1 = path[i];
-      ATTO_CHAR c2 = hkcu[i];
+      char c1 = path[i];
+      char c2 = hkcu[i];
       if (c1 >= 'a' && c1 <= 'z')
         c1 = c1 - 'a' + 'A';
       if (c2 >= 'a' && c2 <= 'z')
@@ -79,8 +79,8 @@ static inline HKEY ParseRootKey(const ATTO_CHAR *path, int *prefixLen) {
   if (pathLen >= hklmLen) {
     bool match = true;
     for (int i = 0; i < hklmLen; i++) {
-      ATTO_CHAR c1 = path[i];
-      ATTO_CHAR c2 = hklm[i];
+      char c1 = path[i];
+      char c2 = hklm[i];
       if (c1 >= 'a' && c1 <= 'z')
         c1 = c1 - 'a' + 'A';
       if (c2 >= 'a' && c2 <= 'z')
@@ -98,8 +98,8 @@ static inline HKEY ParseRootKey(const ATTO_CHAR *path, int *prefixLen) {
   if (pathLen >= hkcrLen) {
     bool match = true;
     for (int i = 0; i < hkcrLen; i++) {
-      ATTO_CHAR c1 = path[i];
-      ATTO_CHAR c2 = hkcr[i];
+      char c1 = path[i];
+      char c2 = hkcr[i];
       if (c1 >= 'a' && c1 <= 'z')
         c1 = c1 - 'a' + 'A';
       if (c2 >= 'a' && c2 <= 'z')
@@ -117,8 +117,8 @@ static inline HKEY ParseRootKey(const ATTO_CHAR *path, int *prefixLen) {
   if (pathLen >= hkuLen) {
     bool match = true;
     for (int i = 0; i < hkuLen; i++) {
-      ATTO_CHAR c1 = path[i];
-      ATTO_CHAR c2 = hku[i];
+      char c1 = path[i];
+      char c2 = hku[i];
       if (c1 >= 'a' && c1 <= 'z')
         c1 = c1 - 'a' + 'A';
       if (c2 >= 'a' && c2 <= 'z')
@@ -136,8 +136,8 @@ static inline HKEY ParseRootKey(const ATTO_CHAR *path, int *prefixLen) {
   if (pathLen >= hkccLen) {
     bool match = true;
     for (int i = 0; i < hkccLen; i++) {
-      ATTO_CHAR c1 = path[i];
-      ATTO_CHAR c2 = hkcc[i];
+      char c1 = path[i];
+      char c2 = hkcc[i];
       if (c1 >= 'a' && c1 <= 'z')
         c1 = c1 - 'a' + 'A';
       if (c2 >= 'a' && c2 <= 'z')

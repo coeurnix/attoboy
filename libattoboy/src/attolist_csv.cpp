@@ -8,8 +8,8 @@ namespace attoboy {
 static String EscapeCsvField(const String &field) {
   bool needsQuotes = false;
 
-  if (field.contains(ATTO_TEXT(",")) || field.contains(ATTO_TEXT("\"")) ||
-      field.contains(ATTO_TEXT("\n")) || field.contains(ATTO_TEXT("\r"))) {
+  if (field.contains(",") || field.contains("\"") ||
+      field.contains("\n") || field.contains("\r")) {
     needsQuotes = true;
   }
 
@@ -17,9 +17,9 @@ static String EscapeCsvField(const String &field) {
     return field;
   }
 
-  String result(ATTO_TEXT("\""));
-  result = result.append(field.replace(ATTO_TEXT("\""), ATTO_TEXT("\"\"")));
-  result = result.append(ATTO_TEXT("\""));
+  String result("\"");
+  result = result.append(field.replace("\"", "\"\""));
+  result = result.append("\"");
   return result;
 }
 
@@ -41,7 +41,7 @@ static String ValueToCsvString(ValueType type, const List &list, int index) {
     return EscapeCsvField(String(list.at<Set>(index)));
   case TYPE_NULL:
   default:
-    return String(ATTO_TEXT(""));
+    return String("");
   }
 }
 
@@ -73,12 +73,12 @@ String List::toCSVString() const {
       result = result.append(ValueToCsvString(type, *row, j));
 
       if (j < colCount - 1) {
-        result = result.append(ATTO_TEXT(","));
+        result = result.append(",");
       }
     }
 
     if (i < rowCount - 1) {
-      result = result.append(ATTO_TEXT("\r\n"));
+      result = result.append("\r\n");
     }
   }
 
@@ -101,9 +101,9 @@ static List ParseCsvLine(const String &line) {
     String ch = line.at(i);
 
     if (inQuotes) {
-      if (ch.equals(ATTO_TEXT("\""))) {
-        if (i + 1 < len && line.at(i + 1).equals(ATTO_TEXT("\""))) {
-          currentField = currentField.append(ATTO_TEXT("\""));
+      if (ch.equals("\"")) {
+        if (i + 1 < len && line.at(i + 1).equals("\"")) {
+          currentField = currentField.append("\"");
           i += 2;
           continue;
         } else {
@@ -116,10 +116,10 @@ static List ParseCsvLine(const String &line) {
         i++;
       }
     } else {
-      if (ch.equals(ATTO_TEXT("\""))) {
+      if (ch.equals("\"")) {
         inQuotes = true;
         i++;
-      } else if (ch.equals(ATTO_TEXT(","))) {
+      } else if (ch.equals(",")) {
         row.append(currentField);
         currentField = String();
         i++;

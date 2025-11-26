@@ -1,8 +1,8 @@
 #include "test_framework.h"
 
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_map_comprehensive.log"), true);
-    Log(ATTO_TEXT("=== Comprehensive Map Class Tests ==="));
+    EnableLoggingToFile("test_map_comprehensive.log", true);
+    Log("=== Comprehensive Map Class Tests ===");
 
     // ========== CONSTRUCTORS ==========
 
@@ -12,7 +12,7 @@ void atto_main() {
         REGISTER_TESTED(Map_constructor_empty);
         ASSERT_TRUE(m.isEmpty());
         ASSERT_EQ(m.length(), 0);
-        Log(ATTO_TEXT("Map() [empty]: passed"));
+        Log("Map() [empty]: passed");
     }
 
     // Capacity constructor
@@ -20,47 +20,47 @@ void atto_main() {
         Map m(100);
         REGISTER_TESTED(Map_constructor_capacity);
         ASSERT_TRUE(m.isEmpty());
-        Log(ATTO_TEXT("Map(capacity): passed"));
+        Log("Map(capacity): passed");
     }
 
     // Variadic constructor
     {
-        Map m(ATTO_TEXT("key1"), ATTO_TEXT("value1"), ATTO_TEXT("key2"), 42);
+        Map m("key1", "value1", "key2", 42);
         REGISTER_TESTED(Map_constructor_variadic);
         ASSERT_EQ(m.length(), 2);
-        String val = m.get<String,String>(ATTO_TEXT("key1"));
-        ASSERT_EQ(val, String(ATTO_TEXT("value1")));
-        Log(ATTO_TEXT("Map(variadic): passed"));
+        String val = m.get<String,String>("key1");
+        ASSERT_EQ(val, String("value1"));
+        Log("Map(variadic): passed");
     }
 
     // Copy constructor
     {
         Map orig;
-        orig.put(ATTO_TEXT("a"), 1).put(ATTO_TEXT("b"), 2);
+        orig.put("a", 1).put("b", 2);
         Map copy(orig);
         REGISTER_TESTED(Map_constructor_copy);
         ASSERT_EQ(copy.length(), 2);
-        int val = copy.get<String,int>(ATTO_TEXT("a"));
+        int val = copy.get<String,int>("a");
         ASSERT_EQ(val, 1);
-        Log(ATTO_TEXT("Map(copy): passed"));
+        Log("Map(copy): passed");
     }
 
     // Destructor (implicit)
     {
         REGISTER_TESTED(Map_destructor);
-        Log(ATTO_TEXT("~Map(): passed (implicit)"));
+        Log("~Map(): passed (implicit)");
     }
 
     // Assignment operator
     {
         Map m1;
-        m1.put(ATTO_TEXT("x"), 10);
+        m1.put("x", 10);
         Map m2;
         m2 = m1;
         REGISTER_TESTED(Map_operator_assign);
-        int val = m2.get<String,int>(ATTO_TEXT("x"));
+        int val = m2.get<String,int>("x");
         ASSERT_EQ(val, 10);
-        Log(ATTO_TEXT("operator=: passed"));
+        Log("operator=: passed");
     }
 
     // ========== BASIC PROPERTIES ==========
@@ -68,21 +68,21 @@ void atto_main() {
     // length()
     {
         Map m;
-        m.put(ATTO_TEXT("a"), 1).put(ATTO_TEXT("b"), 2).put(ATTO_TEXT("c"), 3);
+        m.put("a", 1).put("b", 2).put("c", 3);
         REGISTER_TESTED(Map_length);
         ASSERT_EQ(m.length(), 3);
-        Log(ATTO_TEXT("length(): passed"));
+        Log("length(): passed");
     }
 
     // isEmpty()
     {
         Map empty;
         Map notEmpty;
-        notEmpty.put(ATTO_TEXT("k"), ATTO_TEXT("v"));
+        notEmpty.put("k", "v");
         REGISTER_TESTED(Map_isEmpty);
         ASSERT_TRUE(empty.isEmpty());
         ASSERT_FALSE(notEmpty.isEmpty());
-        Log(ATTO_TEXT("isEmpty(): passed"));
+        Log("isEmpty(): passed");
     }
 
     // ========== ACCESS & MODIFICATION ==========
@@ -90,57 +90,57 @@ void atto_main() {
     // get()
     {
         Map m;
-        m.put(ATTO_TEXT("name"), ATTO_TEXT("Alice"));
+        m.put("name", "Alice");
         REGISTER_TESTED(Map_get);
-        String name = m.get<String,String>(ATTO_TEXT("name"));
-        ASSERT_EQ(name, String(ATTO_TEXT("Alice")));
+        String name = m.get<String,String>("name");
+        ASSERT_EQ(name, String("Alice"));
         // Test default value
-        String def = m.get<String,String>(ATTO_TEXT("missing"), String(ATTO_TEXT("default")));
-        ASSERT_EQ(def, String(ATTO_TEXT("default")));
-        Log(ATTO_TEXT("get(): passed"));
+        String def = m.get<String,String>("missing", String("default"));
+        ASSERT_EQ(def, String("default"));
+        Log("get(): passed");
     }
 
     // operator[] - tested via get() since template syntax is tricky
     {
         Map m;
-        m.put(ATTO_TEXT("id"), 123);
+        m.put("id", 123);
         REGISTER_TESTED(Map_operator_brackets);
         // operator[] has same behavior as get()
-        int val = m.get<String,int>(ATTO_TEXT("id"));
+        int val = m.get<String,int>("id");
         ASSERT_EQ(val, 123);
-        Log(ATTO_TEXT("operator[]: passed"));
+        Log("operator[]: passed");
     }
 
     // put()
     {
         Map m;
-        m.put(ATTO_TEXT("k1"), ATTO_TEXT("v1")).put(ATTO_TEXT("k2"), 42);
+        m.put("k1", "v1").put("k2", 42);
         REGISTER_TESTED(Map_put);
         ASSERT_EQ(m.length(), 2);
         // Update existing
-        m.put(ATTO_TEXT("k1"), ATTO_TEXT("updated"));
-        String val = m.get<String,String>(ATTO_TEXT("k1"));
-        ASSERT_EQ(val, String(ATTO_TEXT("updated")));
-        Log(ATTO_TEXT("put(): passed"));
+        m.put("k1", "updated");
+        String val = m.get<String,String>("k1");
+        ASSERT_EQ(val, String("updated"));
+        Log("put(): passed");
     }
 
     // remove()
     {
         Map m;
-        m.put(ATTO_TEXT("a"), 1).put(ATTO_TEXT("b"), 2).remove(ATTO_TEXT("a"));
+        m.put("a", 1).put("b", 2).remove("a");
         REGISTER_TESTED(Map_remove);
         ASSERT_EQ(m.length(), 1);
-        ASSERT_FALSE(m.hasKey(ATTO_TEXT("a")));
-        Log(ATTO_TEXT("remove(): passed"));
+        ASSERT_FALSE(m.hasKey("a"));
+        Log("remove(): passed");
     }
 
     // clear()
     {
         Map m;
-        m.put(ATTO_TEXT("x"), 1).clear();
+        m.put("x", 1).clear();
         REGISTER_TESTED(Map_clear);
         ASSERT_TRUE(m.isEmpty());
-        Log(ATTO_TEXT("clear(): passed"));
+        Log("clear(): passed");
     }
 
     // ========== QUERY ==========
@@ -148,32 +148,32 @@ void atto_main() {
     // findValue()
     {
         Map m;
-        m.put(ATTO_TEXT("a"), 100).put(ATTO_TEXT("b"), 200);
+        m.put("a", 100).put("b", 200);
         String key = m.findValue<String,int>(200);
         REGISTER_TESTED(Map_findValue);
-        ASSERT_EQ(key, String(ATTO_TEXT("b")));
-        Log(ATTO_TEXT("findValue(): passed"));
+        ASSERT_EQ(key, String("b"));
+        Log("findValue(): passed");
     }
 
     // hasKey()
     {
         Map m;
-        m.put(ATTO_TEXT("exists"), ATTO_TEXT("yes"));
+        m.put("exists", "yes");
         REGISTER_TESTED(Map_hasKey);
-        ASSERT_TRUE(m.hasKey(ATTO_TEXT("exists")));
-        ASSERT_FALSE(m.hasKey(ATTO_TEXT("missing")));
-        Log(ATTO_TEXT("hasKey(): passed"));
+        ASSERT_TRUE(m.hasKey("exists"));
+        ASSERT_FALSE(m.hasKey("missing"));
+        Log("hasKey(): passed");
     }
 
     // typeAt()
     {
         Map m;
-        m.put(ATTO_TEXT("num"), 42).put(ATTO_TEXT("str"), ATTO_TEXT("text"));
+        m.put("num", 42).put("str", "text");
         REGISTER_TESTED(Map_typeAt);
         // Just verify it doesn't crash
-        m.typeAt(ATTO_TEXT("num"));
-        m.typeAt(ATTO_TEXT("str"));
-        Log(ATTO_TEXT("typeAt(): passed"));
+        m.typeAt("num");
+        m.typeAt("str");
+        Log("typeAt(): passed");
     }
 
     // ========== OPERATIONS ==========
@@ -181,49 +181,49 @@ void atto_main() {
     // merge()
     {
         Map m1;
-        m1.put(ATTO_TEXT("a"), 1).put(ATTO_TEXT("b"), 2);
+        m1.put("a", 1).put("b", 2);
         Map m2;
-        m2.put(ATTO_TEXT("b"), 99).put(ATTO_TEXT("c"), 3);
+        m2.put("b", 99).put("c", 3);
         m1.merge(m2);
         REGISTER_TESTED(Map_merge);
         ASSERT_EQ(m1.length(), 3);
-        int b_val = m1.get<String,int>(ATTO_TEXT("b"));
-        int c_val = m1.get<String,int>(ATTO_TEXT("c"));
+        int b_val = m1.get<String,int>("b");
+        int c_val = m1.get<String,int>("c");
         ASSERT_EQ(b_val, 99); // Overwritten
         ASSERT_EQ(c_val, 3);
-        Log(ATTO_TEXT("merge(): passed"));
+        Log("merge(): passed");
     }
 
     // duplicate()
     {
         Map orig;
-        orig.put(ATTO_TEXT("k"), ATTO_TEXT("v"));
+        orig.put("k", "v");
         Map dup = orig.duplicate();
         REGISTER_TESTED(Map_duplicate);
         ASSERT_EQ(dup.length(), 1);
-        String val = dup.get<String,String>(ATTO_TEXT("k"));
-        ASSERT_EQ(val, String(ATTO_TEXT("v")));
-        Log(ATTO_TEXT("duplicate(): passed"));
+        String val = dup.get<String,String>("k");
+        ASSERT_EQ(val, String("v"));
+        Log("duplicate(): passed");
     }
 
     // keys()
     {
         Map m;
-        m.put(ATTO_TEXT("a"), 1).put(ATTO_TEXT("b"), 2);
+        m.put("a", 1).put("b", 2);
         List keysList = m.keys();
         REGISTER_TESTED(Map_keys);
         ASSERT_EQ(keysList.length(), 2);
-        Log(ATTO_TEXT("keys(): passed"));
+        Log("keys(): passed");
     }
 
     // values()
     {
         Map m;
-        m.put(ATTO_TEXT("a"), 10).put(ATTO_TEXT("b"), 20);
+        m.put("a", 10).put("b", 20);
         List valuesList = m.values();
         REGISTER_TESTED(Map_values);
         ASSERT_EQ(valuesList.length(), 2);
-        Log(ATTO_TEXT("values(): passed"));
+        Log("values(): passed");
     }
 
     // ========== COMPARISON ==========
@@ -231,124 +231,124 @@ void atto_main() {
     // compare()
     {
         Map m1;
-        m1.put(ATTO_TEXT("x"), 1);
+        m1.put("x", 1);
         Map m2;
-        m2.put(ATTO_TEXT("x"), 1);
+        m2.put("x", 1);
         Map m3;
-        m3.put(ATTO_TEXT("y"), 1);
+        m3.put("y", 1);
         REGISTER_TESTED(Map_compare);
         ASSERT_TRUE(m1.compare(m2));
         ASSERT_FALSE(m1.compare(m3));
-        Log(ATTO_TEXT("compare(): passed"));
+        Log("compare(): passed");
     }
 
     // operator==
     {
         Map m1;
-        m1.put(ATTO_TEXT("k"), ATTO_TEXT("v"));
+        m1.put("k", "v");
         Map m2;
-        m2.put(ATTO_TEXT("k"), ATTO_TEXT("v"));
+        m2.put("k", "v");
         REGISTER_TESTED(Map_operator_eq);
         ASSERT_TRUE(m1 == m2);
-        Log(ATTO_TEXT("operator==: passed"));
+        Log("operator==: passed");
     }
 
     // operator!=
     {
         Map m1;
-        m1.put(ATTO_TEXT("k"), 1);
+        m1.put("k", 1);
         Map m2;
-        m2.put(ATTO_TEXT("k"), 2);
+        m2.put("k", 2);
         REGISTER_TESTED(Map_operator_ne);
         ASSERT_TRUE(m1 != m2);
-        Log(ATTO_TEXT("operator!=: passed"));
+        Log("operator!=: passed");
     }
 
     // ========== NESTED COLLECTIONS & JSON ==========
 
-    Log(ATTO_TEXT("=== Testing Nested Collections & JSON ==="));
+    Log("=== Testing Nested Collections & JSON ===");
 
     // List in Map
     {
         List l;
         l.append(1).append(2).append(3);
         Map m;
-        m.put(ATTO_TEXT("numbers"), l).put(ATTO_TEXT("name"), ATTO_TEXT("test"));
+        m.put("numbers", l).put("name", "test");
 
-        List retrieved = m.get<String,List>(ATTO_TEXT("numbers"));
+        List retrieved = m.get<String,List>("numbers");
         ASSERT_EQ(retrieved.length(), 3);
         ASSERT_EQ(retrieved.at<int>(0), 1);
 
         // Convert to JSON
         String json(m);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("{"))));
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("numbers"))));
-        Log(ATTO_TEXT("List in Map + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("{")));
+        ASSERT_TRUE(json.contains(String("numbers")));
+        Log("List in Map + JSON: passed");
     }
 
     // Map in Map
     {
         Map inner;
-        inner.put(ATTO_TEXT("innerKey"), ATTO_TEXT("innerValue"));
+        inner.put("innerKey", "innerValue");
         Map outer;
-        outer.put(ATTO_TEXT("nested"), inner).put(ATTO_TEXT("simple"), 42);
+        outer.put("nested", inner).put("simple", 42);
 
-        Map retrieved = outer.get<String,Map>(ATTO_TEXT("nested"));
-        String innerVal = retrieved.get<String,String>(ATTO_TEXT("innerKey"));
-        ASSERT_EQ(innerVal, String(ATTO_TEXT("innerValue")));
+        Map retrieved = outer.get<String,Map>("nested");
+        String innerVal = retrieved.get<String,String>("innerKey");
+        ASSERT_EQ(innerVal, String("innerValue"));
 
         // Convert to JSON
         String json(outer);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("nested"))));
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("innerKey"))));
-        Log(ATTO_TEXT("Map in Map + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("nested")));
+        ASSERT_TRUE(json.contains(String("innerKey")));
+        Log("Map in Map + JSON: passed");
     }
 
     // Set in Map
     {
         Set s;
-        s.put(ATTO_TEXT("apple")).put(ATTO_TEXT("banana"));
+        s.put("apple").put("banana");
         Map m;
-        m.put(ATTO_TEXT("fruits"), s);
+        m.put("fruits", s);
 
-        Set retrieved = m.get<String,Set>(ATTO_TEXT("fruits"));
-        ASSERT_TRUE(retrieved.contains(ATTO_TEXT("apple")));
+        Set retrieved = m.get<String,Set>("fruits");
+        ASSERT_TRUE(retrieved.contains("apple"));
 
         // Convert to JSON
         String json(m);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("fruits"))));
-        Log(ATTO_TEXT("Set in Map + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("fruits")));
+        Log("Set in Map + JSON: passed");
     }
 
     // Complex nested structure
     {
         Map person;
-        person.put(ATTO_TEXT("name"), ATTO_TEXT("Alice"));
-        person.put(ATTO_TEXT("age"), 30);
+        person.put("name", "Alice");
+        person.put("age", 30);
 
         List scores;
         scores.append(95).append(87).append(92);
-        person.put(ATTO_TEXT("scores"), scores);
+        person.put("scores", scores);
 
         Map address;
-        address.put(ATTO_TEXT("city"), ATTO_TEXT("NYC"));
-        address.put(ATTO_TEXT("zip"), 10001);
-        person.put(ATTO_TEXT("address"), address);
+        address.put("city", "NYC");
+        address.put("zip", 10001);
+        person.put("address", address);
 
         // Retrieve nested data
-        List retrievedScores = person.get<String,List>(ATTO_TEXT("scores"));
+        List retrievedScores = person.get<String,List>("scores");
         ASSERT_EQ(retrievedScores.at<int>(0), 95);
 
-        Map retrievedAddress = person.get<String,Map>(ATTO_TEXT("address"));
-        String city = retrievedAddress.get<String,String>(ATTO_TEXT("city"));
-        ASSERT_EQ(city, String(ATTO_TEXT("NYC")));
+        Map retrievedAddress = person.get<String,Map>("address");
+        String city = retrievedAddress.get<String,String>("city");
+        ASSERT_EQ(city, String("NYC"));
 
         // Convert to JSON
         String json(person);
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("Alice"))));
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("scores"))));
-        ASSERT_TRUE(json.contains(String(ATTO_TEXT("address"))));
-        Log(ATTO_TEXT("Complex nested Map + JSON: passed"));
+        ASSERT_TRUE(json.contains(String("Alice")));
+        ASSERT_TRUE(json.contains(String("scores")));
+        ASSERT_TRUE(json.contains(String("address")));
+        Log("Complex nested Map + JSON: passed");
     }
 
     // ========== JSON FUNCTIONS ==========
@@ -356,89 +356,89 @@ void atto_main() {
     // Map.toJSONString() basic
     {
         Map m;
-        m.put(ATTO_TEXT("name"), ATTO_TEXT("Alice"));
-        m.put(ATTO_TEXT("age"), 30);
-        m.put(ATTO_TEXT("active"), true);
+        m.put("name", "Alice");
+        m.put("age", 30);
+        m.put("active", true);
         String json = m.toJSONString();
         REGISTER_TESTED(Map_toJSONString);
-        ASSERT_TRUE(json.contains(ATTO_TEXT("{")));
-        ASSERT_TRUE(json.contains(ATTO_TEXT("name")));
-        ASSERT_TRUE(json.contains(ATTO_TEXT("Alice")));
-        Log(ATTO_TEXT("Map.toJSONString(): passed"));
+        ASSERT_TRUE(json.contains("{"));
+        ASSERT_TRUE(json.contains("name"));
+        ASSERT_TRUE(json.contains("Alice"));
+        Log("Map.toJSONString(): passed");
     }
 
     // Map.FromJSONString() basic
     {
-        String json(ATTO_TEXT("{\"name\":\"Bob\",\"age\":25,\"active\":false}"));
+        String json("{\"name\":\"Bob\",\"age\":25,\"active\":false}");
         Map m = Map::FromJSONString(json);
         REGISTER_TESTED(Map_FromJSONString);
         ASSERT_EQ(m.length(), 3);
-        String name = m.get<String,String>(ATTO_TEXT("name"));
-        ASSERT_EQ(name, String(ATTO_TEXT("Bob")));
-        int age = m.get<String,int>(ATTO_TEXT("age"));
+        String name = m.get<String,String>("name");
+        ASSERT_EQ(name, String("Bob"));
+        int age = m.get<String,int>("age");
         ASSERT_EQ(age, 25);
-        Log(ATTO_TEXT("Map.FromJSONString(): passed"));
+        Log("Map.FromJSONString(): passed");
     }
 
     // Map.FromJSONString() nested
     {
-        String json(ATTO_TEXT("{\"person\":{\"name\":\"Carol\",\"age\":35}}"));
+        String json("{\"person\":{\"name\":\"Carol\",\"age\":35}}");
         Map m = Map::FromJSONString(json);
         ASSERT_EQ(m.length(), 1);
-        Map person = m.get<String,Map>(ATTO_TEXT("person"));
-        String name = person.get<String,String>(ATTO_TEXT("name"));
-        ASSERT_EQ(name, String(ATTO_TEXT("Carol")));
-        Log(ATTO_TEXT("Map.FromJSONString() nested: passed"));
+        Map person = m.get<String,Map>("person");
+        String name = person.get<String,String>("name");
+        ASSERT_EQ(name, String("Carol"));
+        Log("Map.FromJSONString() nested: passed");
     }
 
     // Map.FromJSONString() with List
     {
-        String json(ATTO_TEXT("{\"numbers\":[1,2,3]}"));
+        String json("{\"numbers\":[1,2,3]}");
         Map m = Map::FromJSONString(json);
         ASSERT_EQ(m.length(), 1);
-        List numbers = m.get<String,List>(ATTO_TEXT("numbers"));
+        List numbers = m.get<String,List>("numbers");
         ASSERT_EQ(numbers.length(), 3);
         ASSERT_EQ(numbers.at<int>(0), 1);
-        Log(ATTO_TEXT("Map.FromJSONString() with List: passed"));
+        Log("Map.FromJSONString() with List: passed");
     }
 
     // Round-trip JSON
     {
         Map original;
-        original.put(ATTO_TEXT("key1"), ATTO_TEXT("value1"));
-        original.put(ATTO_TEXT("key2"), 42);
+        original.put("key1", "value1");
+        original.put("key2", 42);
         String json = original.toJSONString();
         Map restored = Map::FromJSONString(json);
         ASSERT_EQ(restored.length(), 2);
-        String val = restored.get<String,String>(ATTO_TEXT("key1"));
-        ASSERT_EQ(val, String(ATTO_TEXT("value1")));
-        Log(ATTO_TEXT("Map JSON round-trip: passed"));
+        String val = restored.get<String,String>("key1");
+        ASSERT_EQ(val, String("value1"));
+        Log("Map JSON round-trip: passed");
     }
 
     // Map with numeric keys
     {
         Map m;
-        m.put(1, ATTO_TEXT("one"));
-        m.put(2, ATTO_TEXT("two"));
+        m.put(1, "one");
+        m.put(2, "two");
         String json = m.toJSONString();
-        ASSERT_TRUE(json.contains(ATTO_TEXT("one")));
-        ASSERT_TRUE(json.contains(ATTO_TEXT("two")));
-        Log(ATTO_TEXT("Map with numeric keys JSON: passed"));
+        ASSERT_TRUE(json.contains("one"));
+        ASSERT_TRUE(json.contains("two"));
+        Log("Map with numeric keys JSON: passed");
     }
 
     // Empty Map JSON
     {
         Map m;
         String json = m.toJSONString();
-        ASSERT_TRUE(json.contains(ATTO_TEXT("{")));
-        ASSERT_TRUE(json.contains(ATTO_TEXT("}")));
+        ASSERT_TRUE(json.contains("{"));
+        ASSERT_TRUE(json.contains("}"));
         Map restored = Map::FromJSONString(json);
         ASSERT_EQ(restored.length(), 0);
-        Log(ATTO_TEXT("Empty Map JSON: passed"));
+        Log("Empty Map JSON: passed");
     }
 
-    Log(ATTO_TEXT("=== All Map Tests Passed ==="));
+    Log("=== All Map Tests Passed ===");
     TestFramework::DisplayCoverage();
-    TestFramework::WriteCoverageData(ATTO_TEXT("test_map_comprehensive"));
+    TestFramework::WriteCoverageData("test_map_comprehensive");
     Exit(0);
 }

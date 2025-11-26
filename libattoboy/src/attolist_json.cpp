@@ -10,8 +10,8 @@ void SkipWhitespace(const String &json, int &pos) {
   int len = json.length();
   while (pos < len) {
     String ch = json.at(pos);
-    if (ch.equals(ATTO_TEXT(" ")) || ch.equals(ATTO_TEXT("\t")) ||
-        ch.equals(ATTO_TEXT("\n")) || ch.equals(ATTO_TEXT("\r"))) {
+    if (ch.equals(" ") || ch.equals("\t") ||
+        ch.equals("\n") || ch.equals("\r")) {
       pos++;
     } else {
       break;
@@ -20,7 +20,7 @@ void SkipWhitespace(const String &json, int &pos) {
 }
 
 String ParseJsonString(const String &json, int &pos) {
-  if (pos >= json.length() || !json.at(pos).equals(ATTO_TEXT("\""))) {
+  if (pos >= json.length() || !json.at(pos).equals("\"")) {
     return String();
   }
 
@@ -31,34 +31,34 @@ String ParseJsonString(const String &json, int &pos) {
   while (pos < len) {
     String ch = json.at(pos);
 
-    if (ch.equals(ATTO_TEXT("\\"))) {
+    if (ch.equals("\\")) {
       if (pos + 1 < len) {
         String nextCh = json.at(pos + 1);
-        if (nextCh.equals(ATTO_TEXT("\""))) {
-          result = result.append(ATTO_TEXT("\""));
+        if (nextCh.equals("\"")) {
+          result = result.append("\"");
           pos += 2;
-        } else if (nextCh.equals(ATTO_TEXT("\\"))) {
-          result = result.append(ATTO_TEXT("\\"));
+        } else if (nextCh.equals("\\")) {
+          result = result.append("\\");
           pos += 2;
-        } else if (nextCh.equals(ATTO_TEXT("/"))) {
-          result = result.append(ATTO_TEXT("/"));
+        } else if (nextCh.equals("/")) {
+          result = result.append("/");
           pos += 2;
-        } else if (nextCh.equals(ATTO_TEXT("b"))) {
-          result = result.append(ATTO_TEXT("\b"));
+        } else if (nextCh.equals("b")) {
+          result = result.append("\b");
           pos += 2;
-        } else if (nextCh.equals(ATTO_TEXT("f"))) {
-          result = result.append(ATTO_TEXT("\f"));
+        } else if (nextCh.equals("f")) {
+          result = result.append("\f");
           pos += 2;
-        } else if (nextCh.equals(ATTO_TEXT("n"))) {
-          result = result.append(ATTO_TEXT("\n"));
+        } else if (nextCh.equals("n")) {
+          result = result.append("\n");
           pos += 2;
-        } else if (nextCh.equals(ATTO_TEXT("r"))) {
-          result = result.append(ATTO_TEXT("\r"));
+        } else if (nextCh.equals("r")) {
+          result = result.append("\r");
           pos += 2;
-        } else if (nextCh.equals(ATTO_TEXT("t"))) {
-          result = result.append(ATTO_TEXT("\t"));
+        } else if (nextCh.equals("t")) {
+          result = result.append("\t");
           pos += 2;
-        } else if (nextCh.equals(ATTO_TEXT("u"))) {
+        } else if (nextCh.equals("u")) {
           if (pos + 5 < len) {
             String hexStr = json.substring(pos + 2, pos + 6);
             int codePoint = 0;
@@ -86,7 +86,7 @@ String ParseJsonString(const String &json, int &pos) {
       } else {
         pos++;
       }
-    } else if (ch.equals(ATTO_TEXT("\""))) {
+    } else if (ch.equals("\"")) {
       pos++;
       break;
     } else {
@@ -130,34 +130,34 @@ void ParseJsonValue(const String &json, int &pos, List &list) {
 
   String ch = json.at(pos);
 
-  if (ch.equals(ATTO_TEXT("\""))) {
+  if (ch.equals("\"")) {
     String str = ParseJsonString(json, pos);
     list.append(str);
-  } else if (ch.equals(ATTO_TEXT("["))) {
+  } else if (ch.equals("[")) {
     List arr = ParseJsonArray(json, pos);
     list.append(arr);
-  } else if (ch.equals(ATTO_TEXT("{"))) {
+  } else if (ch.equals("{")) {
     Map obj = ParseJsonObject(json, pos);
     list.append(obj);
-  } else if (ch.equals(ATTO_TEXT("t"))) {
+  } else if (ch.equals("t")) {
     if (pos + 4 <= json.length() &&
-        json.substring(pos, pos + 4).equals(ATTO_TEXT("true"))) {
+        json.substring(pos, pos + 4).equals("true")) {
       list.append(true);
       pos += 4;
     } else {
       list.append(0);
     }
-  } else if (ch.equals(ATTO_TEXT("f"))) {
+  } else if (ch.equals("f")) {
     if (pos + 5 <= json.length() &&
-        json.substring(pos, pos + 5).equals(ATTO_TEXT("false"))) {
+        json.substring(pos, pos + 5).equals("false")) {
       list.append(false);
       pos += 5;
     } else {
       list.append(0);
     }
-  } else if (ch.equals(ATTO_TEXT("n"))) {
+  } else if (ch.equals("n")) {
     if (pos + 4 <= json.length() &&
-        json.substring(pos, pos + 4).equals(ATTO_TEXT("null"))) {
+        json.substring(pos, pos + 4).equals("null")) {
       list.append(0);
       pos += 4;
     } else {
@@ -165,8 +165,8 @@ void ParseJsonValue(const String &json, int &pos, List &list) {
     }
   } else {
     String numStr = ParseJsonNumber(json, pos);
-    if (numStr.contains(ATTO_TEXT(".")) || numStr.contains(ATTO_TEXT("e")) ||
-        numStr.contains(ATTO_TEXT("E"))) {
+    if (numStr.contains(".") || numStr.contains("e") ||
+        numStr.contains("E")) {
       list.append(numStr.toFloat());
     } else {
       list.append(numStr.toInteger());
@@ -177,14 +177,14 @@ void ParseJsonValue(const String &json, int &pos, List &list) {
 List ParseJsonArray(const String &json, int &pos) {
   List result;
 
-  if (pos >= json.length() || !json.at(pos).equals(ATTO_TEXT("["))) {
+  if (pos >= json.length() || !json.at(pos).equals("[")) {
     return result;
   }
 
   pos++;
   SkipWhitespace(json, pos);
 
-  if (pos < json.length() && json.at(pos).equals(ATTO_TEXT("]"))) {
+  if (pos < json.length() && json.at(pos).equals("]")) {
     pos++;
     return result;
   }
@@ -198,10 +198,10 @@ List ParseJsonArray(const String &json, int &pos) {
     }
 
     String ch = json.at(pos);
-    if (ch.equals(ATTO_TEXT(","))) {
+    if (ch.equals(",")) {
       pos++;
       SkipWhitespace(json, pos);
-    } else if (ch.equals(ATTO_TEXT("]"))) {
+    } else if (ch.equals("]")) {
       pos++;
       break;
     } else {
@@ -215,14 +215,14 @@ List ParseJsonArray(const String &json, int &pos) {
 Map ParseJsonObject(const String &json, int &pos) {
   Map result;
 
-  if (pos >= json.length() || !json.at(pos).equals(ATTO_TEXT("{"))) {
+  if (pos >= json.length() || !json.at(pos).equals("{")) {
     return result;
   }
 
   pos++;
   SkipWhitespace(json, pos);
 
-  if (pos < json.length() && json.at(pos).equals(ATTO_TEXT("}"))) {
+  if (pos < json.length() && json.at(pos).equals("}")) {
     pos++;
     return result;
   }
@@ -233,7 +233,7 @@ Map ParseJsonObject(const String &json, int &pos) {
     String key = ParseJsonString(json, pos);
     SkipWhitespace(json, pos);
 
-    if (pos >= json.length() || !json.at(pos).equals(ATTO_TEXT(":"))) {
+    if (pos >= json.length() || !json.at(pos).equals(":")) {
       break;
     }
 
@@ -276,9 +276,9 @@ Map ParseJsonObject(const String &json, int &pos) {
     }
 
     String ch = json.at(pos);
-    if (ch.equals(ATTO_TEXT(","))) {
+    if (ch.equals(",")) {
       pos++;
-    } else if (ch.equals(ATTO_TEXT("}"))) {
+    } else if (ch.equals("}")) {
       pos++;
       break;
     } else {

@@ -27,13 +27,13 @@ static String GetCurrentDatetimeString() {
 static void PrintString(const String &s) {
   if (g_logToFile && g_logFileHandle) {
     DWORD written;
-    DWORD bytesToWrite = s.byteLength() * sizeof(ATTO_CHAR);
+    DWORD bytesToWrite = s.byteLength() * sizeof(char);
     WriteFile(g_logFileHandle, s.c_str(), bytesToWrite, &written, nullptr);
     FlushFileBuffers(g_logFileHandle);
   } else {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD written;
-    DWORD bytesToWrite = s.byteLength() * sizeof(ATTO_CHAR);
+    DWORD bytesToWrite = s.byteLength() * sizeof(char);
 
     // Check if handle is a console; if not (e.g., redirected), use WriteFile
     DWORD mode;
@@ -89,14 +89,14 @@ void LogImpl(const String *args, int count, const String &prefix) {
   if (!prefix.isEmpty()) {
     PrintString(prefix);
     PrintString(GetCurrentDatetimeString());
-    PrintString(String(ATTO_TEXT(": ")));
+    PrintString(String(": "));
   }
 
   for (int i = 0; i < count; i++) {
     PrintString(args[i]);
   }
 
-  PrintString(String(ATTO_TEXT("\n")));
+  PrintString(String("\n"));
 }
 } // namespace internal
 

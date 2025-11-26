@@ -1,8 +1,8 @@
 #include "test_framework.h"
 
 void atto_main() {
-  EnableLoggingToFile(ATTO_TEXT("test_math_comprehensive.log"), true);
-  Log(ATTO_TEXT("=== Comprehensive Math Class Tests ==="));
+  EnableLoggingToFile("test_math_comprehensive.log", true);
+  Log("=== Comprehensive Math Class Tests ===");
 
   // ========== RANDOM NUMBER GENERATION ==========
 
@@ -12,7 +12,7 @@ void atto_main() {
     REGISTER_TESTED(Math_random);
     // Just verify it returns a value
     (void)r;
-    Log(ATTO_TEXT("random(): passed"));
+    Log("random(): passed");
   }
 
   // randomFloat()
@@ -20,7 +20,7 @@ void atto_main() {
     float f = Math::randomFloat();
     REGISTER_TESTED(Math_randomFloat);
     ASSERT(f >= 0.0f && f < 1.0f);
-    Log(ATTO_TEXT("randomFloat(): passed"));
+    Log("randomFloat(): passed");
   }
 
   // randomRange()
@@ -29,7 +29,7 @@ void atto_main() {
     REGISTER_TESTED(Math_randomRange);
     ASSERT(r >= 10);
     ASSERT(r < 20);
-    Log(ATTO_TEXT("randomRange(): passed"));
+    Log("randomRange(): passed");
   }
 
   // randomBool()
@@ -37,7 +37,7 @@ void atto_main() {
     bool b = Math::randomBool();
     REGISTER_TESTED(Math_randomBool);
     // Can't assert a specific value for random, just that it returns a bool
-    Log(ATTO_TEXT("randomBool(): passed"));
+    Log("randomBool(): passed");
   }
 
   // randomChoice()
@@ -48,7 +48,7 @@ void atto_main() {
     REGISTER_TESTED(Math_randomChoice);
     // Should be one of the values in the list
     ASSERT(choice >= 1 && choice <= 5);
-    Log(ATTO_TEXT("randomChoice(): passed"));
+    Log("randomChoice(): passed");
   }
 
   // ========== BASIC ARITHMETIC ==========
@@ -59,7 +59,7 @@ void atto_main() {
     ASSERT_EQ(Math::abs(-5), 5);
     ASSERT_EQ(Math::abs(5), 5);
     ASSERT_EQ(Math::abs(0), 0);
-    Log(ATTO_TEXT("abs(int): passed"));
+    Log("abs(int): passed");
   }
 
   // abs(float)
@@ -67,7 +67,7 @@ void atto_main() {
     ASSERT(Math::abs(-3.14f) > 3.13f && Math::abs(-3.14f) < 3.15f);
     ASSERT(Math::abs(3.14f) > 3.13f && Math::abs(3.14f) < 3.15f);
     ASSERT_EQ(Math::abs(0.0f), 0.0f);
-    Log(ATTO_TEXT("abs(float): passed"));
+    Log("abs(float): passed");
   }
 
   // min(int)
@@ -76,14 +76,14 @@ void atto_main() {
     ASSERT_EQ(Math::min(5, 10), 5);
     ASSERT_EQ(Math::min(10, 5), 5);
     ASSERT_EQ(Math::min(-5, -10), -10);
-    Log(ATTO_TEXT("min(int): passed"));
+    Log("min(int): passed");
   }
 
   // min(float)
   {
     ASSERT_EQ(Math::min(3.14f, 2.71f), 2.71f);
     ASSERT_EQ(Math::min(2.71f, 3.14f), 2.71f);
-    Log(ATTO_TEXT("min(float): passed"));
+    Log("min(float): passed");
   }
 
   // max(int)
@@ -92,14 +92,14 @@ void atto_main() {
     ASSERT_EQ(Math::max(5, 10), 10);
     ASSERT_EQ(Math::max(10, 5), 10);
     ASSERT_EQ(Math::max(-5, -10), -5);
-    Log(ATTO_TEXT("max(int): passed"));
+    Log("max(int): passed");
   }
 
   // max(float)
   {
     ASSERT_EQ(Math::max(3.14f, 2.71f), 3.14f);
     ASSERT_EQ(Math::max(2.71f, 3.14f), 3.14f);
-    Log(ATTO_TEXT("max(float): passed"));
+    Log("max(float): passed");
   }
 
   // clamp(int)
@@ -108,7 +108,7 @@ void atto_main() {
     ASSERT_EQ(Math::clamp(5, 0, 10), 5);
     ASSERT_EQ(Math::clamp(-5, 0, 10), 0);
     ASSERT_EQ(Math::clamp(15, 0, 10), 10);
-    Log(ATTO_TEXT("clamp(int): passed"));
+    Log("clamp(int): passed");
   }
 
   // clamp(float)
@@ -116,7 +116,7 @@ void atto_main() {
     ASSERT_EQ(Math::clamp(5.0f, 0.0f, 10.0f), 5.0f);
     ASSERT_EQ(Math::clamp(-5.0f, 0.0f, 10.0f), 0.0f);
     ASSERT_EQ(Math::clamp(15.0f, 0.0f, 10.0f), 10.0f);
-    Log(ATTO_TEXT("clamp(float): passed"));
+    Log("clamp(float): passed");
   }
 
   // sign(int)
@@ -125,7 +125,7 @@ void atto_main() {
     ASSERT_EQ(Math::sign(5), 1);
     ASSERT_EQ(Math::sign(-5), -1);
     ASSERT_EQ(Math::sign(0), 0);
-    Log(ATTO_TEXT("sign(int): passed"));
+    Log("sign(int): passed");
   }
 
   // sign(float)
@@ -133,7 +133,7 @@ void atto_main() {
     ASSERT_EQ(Math::sign(3.14f), 1.0f);
     ASSERT_EQ(Math::sign(-3.14f), -1.0f);
     ASSERT_EQ(Math::sign(0.0f), 0.0f);
-    Log(ATTO_TEXT("sign(float): passed"));
+    Log("sign(float): passed");
   }
 
   // isEven()
@@ -146,7 +146,7 @@ void atto_main() {
     ASSERT_FALSE(Math::isEven(1));
     ASSERT_FALSE(Math::isEven(3));
     ASSERT_FALSE(Math::isEven(-1));
-    Log(ATTO_TEXT("isEven(): passed"));
+    Log("isEven(): passed");
   }
 
   // isOdd()
@@ -159,7 +159,7 @@ void atto_main() {
     ASSERT_FALSE(Math::isOdd(0));
     ASSERT_FALSE(Math::isOdd(2));
     ASSERT_FALSE(Math::isOdd(-2));
-    Log(ATTO_TEXT("isOdd(): passed"));
+    Log("isOdd(): passed");
   }
 
   // isPowerOfTwo()
@@ -185,7 +185,7 @@ void atto_main() {
     ASSERT_FALSE(Math::isPowerOfTwo(9));
     ASSERT_FALSE(Math::isPowerOfTwo(15));
     ASSERT_FALSE(Math::isPowerOfTwo(17));
-    Log(ATTO_TEXT("isPowerOfTwo(): passed"));
+    Log("isPowerOfTwo(): passed");
   }
 
   // ========== ROUNDING ==========
@@ -196,7 +196,7 @@ void atto_main() {
     ASSERT_EQ(Math::floor(3.9f), 3.0f);
     ASSERT_EQ(Math::floor(3.1f), 3.0f);
     ASSERT_EQ(Math::floor(-3.1f), -4.0f);
-    Log(ATTO_TEXT("floor(): passed"));
+    Log("floor(): passed");
   }
 
   // ceil()
@@ -205,7 +205,7 @@ void atto_main() {
     ASSERT_EQ(Math::ceil(3.1f), 4.0f);
     ASSERT_EQ(Math::ceil(3.9f), 4.0f);
     ASSERT_EQ(Math::ceil(-3.9f), -3.0f);
-    Log(ATTO_TEXT("ceil(): passed"));
+    Log("ceil(): passed");
   }
 
   // trunc()
@@ -213,7 +213,7 @@ void atto_main() {
     REGISTER_TESTED(Math_trunc);
     ASSERT_EQ(Math::trunc(3.9f), 3.0f);
     ASSERT_EQ(Math::trunc(-3.9f), -3.0f);
-    Log(ATTO_TEXT("trunc(): passed"));
+    Log("trunc(): passed");
   }
 
   // round()
@@ -223,7 +223,7 @@ void atto_main() {
     ASSERT_EQ(Math::round(3.5f), 4.0f);
     ASSERT_EQ(Math::round(3.6f), 4.0f);
     ASSERT_EQ(Math::round(-3.5f), -4.0f); // Rounds away from zero
-    Log(ATTO_TEXT("round(): passed"));
+    Log("round(): passed");
   }
 
   // ========== EXPONENTIAL AND LOGARITHMIC ==========
@@ -234,7 +234,7 @@ void atto_main() {
     ASSERT_EQ(Math::exp2(0.0f), 1.0f);
     ASSERT_EQ(Math::exp2(1.0f), 2.0f);
     ASSERT_EQ(Math::exp2(2.0f), 4.0f);
-    Log(ATTO_TEXT("exp2(): passed"));
+    Log("exp2(): passed");
   }
 
   // log2()
@@ -243,7 +243,7 @@ void atto_main() {
     ASSERT_EQ(Math::log2(1.0f), 0.0f);
     ASSERT_EQ(Math::log2(2.0f), 1.0f);
     ASSERT_EQ(Math::log2(4.0f), 2.0f);
-    Log(ATTO_TEXT("log2(): passed"));
+    Log("log2(): passed");
   }
 
   // log()
@@ -252,7 +252,7 @@ void atto_main() {
     ASSERT_EQ(Math::log(1.0f), 0.0f);
     float logE = Math::log(Math::E);
     ASSERT(logE > 0.99f && logE < 1.01f);
-    Log(ATTO_TEXT("log(): passed"));
+    Log("log(): passed");
   }
 
   // log10()
@@ -261,7 +261,7 @@ void atto_main() {
     ASSERT_EQ(Math::log10(1.0f), 0.0f);
     ASSERT_EQ(Math::log10(10.0f), 1.0f);
     ASSERT_EQ(Math::log10(100.0f), 2.0f);
-    Log(ATTO_TEXT("log10(): passed"));
+    Log("log10(): passed");
   }
 
   // exp()
@@ -270,7 +270,7 @@ void atto_main() {
     ASSERT_EQ(Math::exp(0.0f), 1.0f);
     float expE = Math::exp(1.0f);
     ASSERT(expE > 2.71f && expE < 2.72f);
-    Log(ATTO_TEXT("exp(): passed"));
+    Log("exp(): passed");
   }
 
   // pow()
@@ -281,13 +281,13 @@ void atto_main() {
     ASSERT(pow3_2 > 8.99f &&
            pow3_2 < 9.01f); // Allow for floating-point precision
     ASSERT_EQ(Math::pow(5.0f, 0.0f), 1.0f);
-    Log(ATTO_TEXT("pow(): passed"));
+    Log("pow(): passed");
   }
 
   // pow2() - Note: in test_functions.h but not in public header (int version)
   {
     REGISTER_TESTED(Math_pow2);
-    Log(ATTO_TEXT("pow2(): passed (not in public API)"));
+    Log("pow2(): passed (not in public API)");
   }
 
   // ========== TRIGONOMETRIC ==========
@@ -303,7 +303,7 @@ void atto_main() {
     ASSERT(sqrt4 > 1.99f && sqrt4 < 2.01f);
     float sqrt9 = Math::sqrt(9.0f);
     ASSERT(sqrt9 > 2.99f && sqrt9 < 3.01f);
-    Log(ATTO_TEXT("sqrt(): passed"));
+    Log("sqrt(): passed");
   }
 
   // sin()
@@ -312,7 +312,7 @@ void atto_main() {
     ASSERT_EQ(Math::sin(0.0f), 0.0f);
     float sinPi2 = Math::sin(Math::PI / 2.0f);
     ASSERT(sinPi2 > 0.99f && sinPi2 < 1.01f);
-    Log(ATTO_TEXT("sin(): passed"));
+    Log("sin(): passed");
   }
 
   // cos()
@@ -322,7 +322,7 @@ void atto_main() {
     ASSERT(cos0 > 0.99f && cos0 < 1.01f);
     float cosPi = Math::cos(Math::PI);
     ASSERT(cosPi > -1.01f && cosPi < -0.99f);
-    Log(ATTO_TEXT("cos(): passed"));
+    Log("cos(): passed");
   }
 
   // tan()
@@ -331,7 +331,7 @@ void atto_main() {
     ASSERT_EQ(Math::tan(0.0f), 0.0f);
     float tanPi4 = Math::tan(Math::PI / 4.0f);
     ASSERT(tanPi4 > 0.99f && tanPi4 < 1.01f);
-    Log(ATTO_TEXT("tan(): passed"));
+    Log("tan(): passed");
   }
 
   // atan2()
@@ -339,7 +339,7 @@ void atto_main() {
     REGISTER_TESTED(Math_atan2);
     float angle = Math::atan2(1.0f, 1.0f);
     ASSERT(angle > 0.78f && angle < 0.79f); // PI/4
-    Log(ATTO_TEXT("atan2(): passed"));
+    Log("atan2(): passed");
   }
 
   // atan()
@@ -348,7 +348,7 @@ void atto_main() {
     ASSERT_EQ(Math::atan(0.0f), 0.0f);
     float atan1 = Math::atan(1.0f);
     ASSERT(atan1 > 0.78f && atan1 < 0.79f); // PI/4
-    Log(ATTO_TEXT("atan(): passed"));
+    Log("atan(): passed");
   }
 
   // asin()
@@ -357,7 +357,7 @@ void atto_main() {
     ASSERT_EQ(Math::asin(0.0f), 0.0f);
     float asin1 = Math::asin(1.0f);
     ASSERT(asin1 > 1.57f && asin1 < 1.58f); // PI/2
-    Log(ATTO_TEXT("asin(): passed"));
+    Log("asin(): passed");
   }
 
   // cosh()
@@ -365,7 +365,7 @@ void atto_main() {
     REGISTER_TESTED(Math_cosh);
     float cosh0 = Math::cosh(0.0f);
     ASSERT(cosh0 > 0.99f && cosh0 < 1.01f);
-    Log(ATTO_TEXT("cosh(): passed"));
+    Log("cosh(): passed");
   }
 
   // ========== UTILITY ==========
@@ -375,7 +375,7 @@ void atto_main() {
     REGISTER_TESTED(Math_mod);
     float mod1 = Math::mod(5.5f, 2.0f);
     ASSERT(mod1 > 1.49f && mod1 < 1.51f);
-    Log(ATTO_TEXT("mod(): passed"));
+    Log("mod(): passed");
   }
 
   // lerp()
@@ -384,7 +384,7 @@ void atto_main() {
     ASSERT_EQ(Math::lerp(0.0f, 10.0f, 0.0f), 0.0f);
     ASSERT_EQ(Math::lerp(0.0f, 10.0f, 1.0f), 10.0f);
     ASSERT_EQ(Math::lerp(0.0f, 10.0f, 0.5f), 5.0f);
-    Log(ATTO_TEXT("lerp(): passed"));
+    Log("lerp(): passed");
   }
 
   // step()
@@ -393,7 +393,7 @@ void atto_main() {
     ASSERT_EQ(Math::step(5.0f, 3.0f), 0.0f);
     ASSERT_EQ(Math::step(5.0f, 5.0f), 1.0f);
     ASSERT_EQ(Math::step(5.0f, 7.0f), 1.0f);
-    Log(ATTO_TEXT("step(): passed (not named 'step' in header)"));
+    Log("step(): passed (not named 'step' in header)");
   }
 
   // degToRad()
@@ -401,7 +401,7 @@ void atto_main() {
     REGISTER_TESTED(Math_degToRad);
     float rad180 = Math::degToRad(180.0f);
     ASSERT(rad180 > 3.14f && rad180 < 3.15f); // PI
-    Log(ATTO_TEXT("degToRad(): passed"));
+    Log("degToRad(): passed");
   }
 
   // radToDeg()
@@ -409,7 +409,7 @@ void atto_main() {
     REGISTER_TESTED(Math_radToDeg);
     float deg = Math::radToDeg(Math::PI);
     ASSERT(deg > 179.9f && deg < 180.1f);
-    Log(ATTO_TEXT("radToDeg(): passed"));
+    Log("radToDeg(): passed");
   }
 
   // isFinite()
@@ -419,7 +419,7 @@ void atto_main() {
     // NOTE: Potential implementation bug - Math::INF/NEG_INF may not be
     // properly infinite ASSERT_FALSE(Math::isFinite(Math::INF));
     // ASSERT_FALSE(Math::isFinite(Math::NEG_INF));
-    Log(ATTO_TEXT("isFinite(): passed (partial - INF check skipped)"));
+    Log("isFinite(): passed (partial - INF check skipped)");
   }
 
   // isNaN()
@@ -428,11 +428,11 @@ void atto_main() {
     ASSERT_FALSE(Math::isNaN(3.14f));
     // NOTE: Potential implementation bug - Math::NAN may not be properly NaN
     // ASSERT_TRUE(Math::isNaN(Math::NAN));
-    Log(ATTO_TEXT("isNaN(): passed (partial - NAN check skipped)"));
+    Log("isNaN(): passed (partial - NAN check skipped)");
   }
 
-  Log(ATTO_TEXT("=== All Math Tests Passed ==="));
+  Log("=== All Math Tests Passed ===");
   TestFramework::DisplayCoverage();
-  TestFramework::WriteCoverageData(ATTO_TEXT("test_math_comprehensive"));
+  TestFramework::WriteCoverageData("test_math_comprehensive");
   Exit(0);
 }

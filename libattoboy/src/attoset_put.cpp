@@ -33,12 +33,12 @@ void Set::put_impl(float value) {
   }
 }
 
-void Set::put_impl(const ATTO_CHAR *value) {
+void Set::put_impl(const char *value) {
   if (!impl)
     return;
   WriteLockGuard guard(&impl->lock);
 
-  if (!impl->values.contains<const ATTO_CHAR *>(value)) {
+  if (!impl->values.contains<const char *>(value)) {
     impl->values.append(value);
   }
 }

@@ -1,12 +1,12 @@
 #include "test_framework.h"
 
 void atto_main() {
-    EnableLoggingToFile(ATTO_TEXT("test_registry_comprehensive.log"), true);
-    Log(ATTO_TEXT("=== Comprehensive Registry Class Tests ==="));
+    EnableLoggingToFile("test_registry_comprehensive.log", true);
+    Log("=== Comprehensive Registry Class Tests ===");
 
     // Use a test key under HKEY_CURRENT_USER for safety
-    String testKeyPath(ATTO_TEXT("HKEY_CURRENT_USER\\Software\\AttoTest"));
-    String testSubkeyPath(ATTO_TEXT("HKEY_CURRENT_USER\\Software\\AttoTest\\SubKey"));
+    String testKeyPath("HKEY_CURRENT_USER\\Software\\AttoTest");
+    String testSubkeyPath("HKEY_CURRENT_USER\\Software\\AttoTest\\SubKey");
 
     // ========== CONSTRUCTORS ==========
 
@@ -14,7 +14,7 @@ void atto_main() {
     {
         Registry reg(testKeyPath);
         REGISTER_TESTED(Registry_constructor_key);
-        Log(ATTO_TEXT("Registry(String): passed"));
+        Log("Registry(String): passed");
     }
 
     // Copy constructor
@@ -22,7 +22,7 @@ void atto_main() {
         Registry reg1(testKeyPath);
         Registry reg2(reg1);
         REGISTER_TESTED(Registry_destructor); // Implicitly tested
-        Log(ATTO_TEXT("Registry(const Registry&): passed"));
+        Log("Registry(const Registry&): passed");
     }
 
     // Assignment operator
@@ -31,14 +31,14 @@ void atto_main() {
         Registry reg2(testSubkeyPath);
         reg2 = reg1;
         REGISTER_TESTED(Registry_operator_assign);
-        Log(ATTO_TEXT("operator=: passed"));
+        Log("operator=: passed");
     }
 
     // Note: Registry_constructor_key_subkey in test_functions.h
     // The API only has one constructor, so mark the variant as tested
     {
         REGISTER_TESTED(Registry_constructor_key_subkey);
-        Log(ATTO_TEXT("Registry(key, subkey): passed (variant of single constructor)"));
+        Log("Registry(key, subkey): passed (variant of single constructor)");
     }
 
     // ========== KEY OPERATIONS ==========
@@ -55,7 +55,7 @@ void atto_main() {
         ASSERT_TRUE(created);
         ASSERT_TRUE(reg.exists());
 
-        Log(ATTO_TEXT("create() and exists(): passed"));
+        Log("create() and exists(): passed");
     }
 
     // remove()
@@ -68,7 +68,7 @@ void atto_main() {
         ASSERT_TRUE(removed);
         ASSERT_FALSE(reg.exists());
 
-        Log(ATTO_TEXT("remove(): passed"));
+        Log("remove(): passed");
     }
 
     // ========== VALUE OPERATIONS ==========
@@ -78,17 +78,17 @@ void atto_main() {
         Registry reg(testKeyPath);
         reg.create();
 
-        String testValue(ATTO_TEXT("Hello World"));
-        bool set = reg.setStringValue(String(ATTO_TEXT("TestString")), testValue);
+        String testValue("Hello World");
+        bool set = reg.setStringValue(String("TestString"), testValue);
         REGISTER_TESTED(Registry_setString);
         ASSERT_TRUE(set);
 
-        const ATTO_CHAR* retrieved = reg.getStringValue(String(ATTO_TEXT("TestString")));
+        const char* retrieved = reg.getStringValue(String("TestString"));
         REGISTER_TESTED(Registry_getString);
         ASSERT(retrieved != nullptr);
         ASSERT_EQ(String(retrieved), testValue);
 
-        Log(ATTO_TEXT("setStringValue() and getStringValue(): passed"));
+        Log("setStringValue() and getStringValue(): passed");
     }
 
     // setIntegerValue() and getIntegerValue()
@@ -97,15 +97,15 @@ void atto_main() {
         reg.create();
 
         unsigned int testValue = 12345;
-        bool set = reg.setIntegerValue(String(ATTO_TEXT("TestInt")), testValue);
+        bool set = reg.setIntegerValue(String("TestInt"), testValue);
         REGISTER_TESTED(Registry_setInt);
         ASSERT_TRUE(set);
 
-        unsigned int retrieved = reg.getIntegerValue(String(ATTO_TEXT("TestInt")));
+        unsigned int retrieved = reg.getIntegerValue(String("TestInt"));
         REGISTER_TESTED(Registry_getInt);
         ASSERT_EQ((int)retrieved, (int)testValue);
 
-        Log(ATTO_TEXT("setIntegerValue() and getIntegerValue(): passed"));
+        Log("setIntegerValue() and getIntegerValue(): passed");
     }
 
     // setBinaryValue() and getBinaryValue()
@@ -114,15 +114,15 @@ void atto_main() {
         reg.create();
 
         Buffer testBuf;
-        testBuf.append(String(ATTO_TEXT("Binary Data")));
+        testBuf.append(String("Binary Data"));
 
-        bool set = reg.setBinaryValue(String(ATTO_TEXT("TestBinary")), testBuf);
+        bool set = reg.setBinaryValue(String("TestBinary"), testBuf);
         ASSERT_TRUE(set);
 
-        const unsigned char* retrieved = reg.getBinaryValue(String(ATTO_TEXT("TestBinary")));
+        const unsigned char* retrieved = reg.getBinaryValue(String("TestBinary"));
         ASSERT(retrieved != nullptr);
 
-        Log(ATTO_TEXT("setBinaryValue() and getBinaryValue(): passed"));
+        Log("setBinaryValue() and getBinaryValue(): passed");
     }
 
     // valueExists()
@@ -131,16 +131,16 @@ void atto_main() {
         reg.create();
 
         // Set a value first
-        reg.setStringValue(String(ATTO_TEXT("ExistTest")), String(ATTO_TEXT("value")));
+        reg.setStringValue(String("ExistTest"), String("value"));
 
-        bool exists = reg.valueExists(String(ATTO_TEXT("ExistTest")));
+        bool exists = reg.valueExists(String("ExistTest"));
         REGISTER_TESTED(Registry_hasValue);
         ASSERT_TRUE(exists);
 
-        bool notExists = reg.valueExists(String(ATTO_TEXT("NonExistent")));
+        bool notExists = reg.valueExists(String("NonExistent"));
         ASSERT_FALSE(notExists);
 
-        Log(ATTO_TEXT("valueExists(): passed"));
+        Log("valueExists(): passed");
     }
 
     // deleteValue()
@@ -148,15 +148,15 @@ void atto_main() {
         Registry reg(testKeyPath);
         reg.create();
 
-        reg.setStringValue(String(ATTO_TEXT("ToDelete")), String(ATTO_TEXT("value")));
-        ASSERT_TRUE(reg.valueExists(String(ATTO_TEXT("ToDelete"))));
+        reg.setStringValue(String("ToDelete"), String("value"));
+        ASSERT_TRUE(reg.valueExists(String("ToDelete")));
 
-        bool deleted = reg.deleteValue(String(ATTO_TEXT("ToDelete")));
+        bool deleted = reg.deleteValue(String("ToDelete"));
         REGISTER_TESTED(Registry_deleteValue);
         ASSERT_TRUE(deleted);
-        ASSERT_FALSE(reg.valueExists(String(ATTO_TEXT("ToDelete"))));
+        ASSERT_FALSE(reg.valueExists(String("ToDelete")));
 
-        Log(ATTO_TEXT("deleteValue(): passed"));
+        Log("deleteValue(): passed");
     }
 
     // ========== ENUMERATION ==========
@@ -167,14 +167,14 @@ void atto_main() {
         reg.create();
 
         // Set some values
-        reg.setStringValue(String(ATTO_TEXT("Value1")), String(ATTO_TEXT("v1")));
-        reg.setStringValue(String(ATTO_TEXT("Value2")), String(ATTO_TEXT("v2")));
-        reg.setIntegerValue(String(ATTO_TEXT("Value3")), 123);
+        reg.setStringValue(String("Value1"), String("v1"));
+        reg.setStringValue(String("Value2"), String("v2"));
+        reg.setIntegerValue(String("Value3"), 123);
 
         List values = reg.listValueNames();
         ASSERT(values.length() >= 3);
 
-        Log(ATTO_TEXT("listValueNames(): passed"));
+        Log("listValueNames(): passed");
     }
 
     // listSubkeys()
@@ -183,8 +183,8 @@ void atto_main() {
         reg.create();
 
         // Create some subkeys
-        Registry sub1(String(testKeyPath, ATTO_TEXT("\\Sub1")));
-        Registry sub2(String(testKeyPath, ATTO_TEXT("\\Sub2")));
+        Registry sub1(String(testKeyPath, "\\Sub1"));
+        Registry sub2(String(testKeyPath, "\\Sub2"));
         sub1.create();
         sub2.create();
 
@@ -196,7 +196,7 @@ void atto_main() {
         sub1.remove();
         sub2.remove();
 
-        Log(ATTO_TEXT("listSubkeys(): passed"));
+        Log("listSubkeys(): passed");
     }
 
     // ========== DEFAULT VALUE ==========
@@ -206,28 +206,28 @@ void atto_main() {
         Registry reg(testKeyPath);
         reg.create();
 
-        bool set = reg.setStringValue(String(ATTO_TEXT("")), String(ATTO_TEXT("DefaultValue")));
+        bool set = reg.setStringValue(String(""), String("DefaultValue"));
         ASSERT_TRUE(set);
 
-        const ATTO_CHAR* retrieved = reg.getStringValue(String(ATTO_TEXT("")));
+        const char* retrieved = reg.getStringValue(String(""));
         ASSERT(retrieved != nullptr);
-        ASSERT_EQ(String(retrieved), String(ATTO_TEXT("DefaultValue")));
+        ASSERT_EQ(String(retrieved), String("DefaultValue"));
 
-        Log(ATTO_TEXT("Default value operations: passed"));
+        Log("Default value operations: passed");
     }
 
     // ========== EDGE CASES ==========
 
     // Non-existent key
     {
-        Registry reg(ATTO_TEXT("HKEY_CURRENT_USER\\Software\\NonExistentKey123456"));
+        Registry reg("HKEY_CURRENT_USER\\Software\\NonExistentKey123456");
         ASSERT_FALSE(reg.exists());
 
-        const ATTO_CHAR* value = reg.getStringValue(String(ATTO_TEXT("test")));
+        const char* value = reg.getStringValue(String("test"));
         // Should return nullptr
         ASSERT(value == nullptr || String(value).isEmpty());
 
-        Log(ATTO_TEXT("Non-existent key: passed"));
+        Log("Non-existent key: passed");
     }
 
     // Non-existent value
@@ -235,13 +235,13 @@ void atto_main() {
         Registry reg(testKeyPath);
         reg.create();
 
-        const ATTO_CHAR* value = reg.getStringValue(String(ATTO_TEXT("DoesNotExist")));
+        const char* value = reg.getStringValue(String("DoesNotExist"));
         ASSERT(value == nullptr || String(value).isEmpty());
 
-        unsigned int intValue = reg.getIntegerValue(String(ATTO_TEXT("DoesNotExist")));
+        unsigned int intValue = reg.getIntegerValue(String("DoesNotExist"));
         ASSERT_EQ((int)intValue, 0);
 
-        Log(ATTO_TEXT("Non-existent value: passed"));
+        Log("Non-existent value: passed");
     }
 
     // Empty value name
@@ -249,9 +249,9 @@ void atto_main() {
         Registry reg(testKeyPath);
         reg.create();
 
-        bool exists = reg.valueExists(String(ATTO_TEXT("")));
+        bool exists = reg.valueExists(String(""));
         // May or may not exist depending on previous tests
-        Log(ATTO_TEXT("Empty value name: passed"));
+        Log("Empty value name: passed");
     }
 
     // ========== ISOPEN ==========
@@ -259,13 +259,13 @@ void atto_main() {
     // isOpen() - Note: not in public API, mark as tested
     {
         REGISTER_TESTED(Registry_isOpen);
-        Log(ATTO_TEXT("isOpen(): passed (not in public API)"));
+        Log("isOpen(): passed (not in public API)");
     }
 
     // close() - Note: not in public API, mark as tested
     {
         REGISTER_TESTED(Registry_close);
-        Log(ATTO_TEXT("close(): passed (not in public API)"));
+        Log("close(): passed (not in public API)");
     }
 
     // ========== CLEANUP ==========
@@ -277,11 +277,11 @@ void atto_main() {
             reg.remove(true);
         }
         ASSERT_FALSE(reg.exists());
-        Log(ATTO_TEXT("Cleanup: passed"));
+        Log("Cleanup: passed");
     }
 
-    Log(ATTO_TEXT("=== All Registry Tests Passed ==="));
+    Log("=== All Registry Tests Passed ===");
     TestFramework::DisplayCoverage();
-    TestFramework::WriteCoverageData(ATTO_TEXT("test_registry_comprehensive"));
+    TestFramework::WriteCoverageData("test_registry_comprehensive");
     Exit(0);
 }
