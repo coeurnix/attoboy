@@ -87,15 +87,11 @@ def aggregate_coverage(coverage_dir):
         return 1
 
     # Get all functions from test_functions.h
-    tests_dir = Path(coverage_dir).parent / "libattoboy" / "tests"
+    # Always look in the source tests directory, not build/tests
+    tests_dir = Path(coverage_dir).parent / "tests"
     if not tests_dir.exists():
+        # Fallback: try relative to coverage_dir as a last resort
         tests_dir = Path(coverage_dir) / "tests"
-    if not tests_dir.exists():
-        # Try relative to coverage_dir
-        tests_dir = Path(coverage_dir).parent.parent / "libattoboy" / "tests"
-    if not tests_dir.exists():
-        # Try from build directory
-        tests_dir = Path("..") / "libattoboy" / "tests"
 
     all_functions, expected_count = read_all_functions(tests_dir)
 

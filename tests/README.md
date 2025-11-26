@@ -113,11 +113,11 @@ void atto_main() {
 **Important**:
 - Always use `EnableLoggingToFile()` at the start of your test to ensure output is captured reliably
 - Always call `WriteCoverageData()` at the end to contribute to overall coverage statistics
-- The log file and coverage file will be created in the working directory (usually `build/libattoboy/`)
+- The log file and coverage file will be created in the working directory (usually `build/`)
 
 View test output:
 ```bash
-cat build/libattoboy/my_test.log
+cat build/my_test.log
 ```
 
 ## Python-Cooperative Testing Pattern
@@ -143,7 +143,7 @@ if(test_name STREQUAL "test_exit" AND PYTHON_EXECUTABLE)
             exit
             "${CMAKE_BINARY_DIR}/tests/${test_name}${CMAKE_EXECUTABLE_SUFFIX}"
             42
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/libattoboy"
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     )
 endif()
 ```
