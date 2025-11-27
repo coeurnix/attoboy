@@ -25,6 +25,7 @@
   X(String_constructor_empty)                                                  \
   X(String_constructor_cstr)                                                   \
   X(String_constructor_bool)                                                   \
+  X(String_constructor_char)                                                   \
   X(String_constructor_int)                                                    \
   X(String_constructor_longlong)                                               \
   X(String_constructor_float)                                                  \
@@ -302,6 +303,8 @@
   X(Path_GetDocumentsDirectory)                                                \
   X(Path_GetRoamingAppDirectory)                                               \
   X(Path_GetLocalAppDirectory)                                                 \
+  X(Path_GetCurrentDirectory)                                                  \
+  X(Path_GetCurrentExecutable)                                                 \
   X(File_constructor_empty)                                                    \
   X(File_constructor_path_mode)                                                \
   X(File_constructor_path_mode_binary)                                         \
@@ -489,11 +492,9 @@
   X(Console_onHotkey)                                                          \
   X(Console_offHotkey)                                                         \
   X(Console_Align)                                                             \
-  X(Console_Wrap)                                                              \
-  X(Path_GetCurrentDirectory)                                                  \
-  X(Path_GetCurrentExecutable)
+  X(Console_Wrap)
 
 // Count of all registered functions
-#define FUNCTION_COUNT 487
+#define FUNCTION_COUNT 488
 
 #endif // TEST_FUNCTIONS_H

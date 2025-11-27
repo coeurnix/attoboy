@@ -42,7 +42,7 @@ void waitForKey(Console &con,
                 const String &message = "Press any key to continue...") {
   con.println();
   con.print(message, CON_DARK_GRAY);
-  con.readKey();
+  con.readEvent();
 }
 
 void drawHorizontalLine(Console &con, int width,
@@ -601,7 +601,7 @@ void demoKeyReader(Console &con) {
               CON_CYAN);
 
     con.showCursor();
-    String key = con.readKey();
+    String key = con.readEvent();
     con.hideCursor();
 
     if (key == "Escape") {
@@ -807,7 +807,7 @@ void demoMatrixRain(Console &con) {
   con.printAligned("Press any key to wake up", w, CON_ALIGN_CENTER,
                    CON_DARK_GREEN);
 
-  con.readKey();
+  con.readEvent();
   con.showCursor();
 }
 

@@ -343,7 +343,6 @@ int String::getPositionOf(const String &substring, int start) const {
   if (!p)
     return -1;
 
-  // Convert byte position back to character position
   int bytePos = p - impl->data;
   int charPos = getByteCharacterIndex(impl->data, bytePos, impl->len);
   return charPos >= 0 ? charPos : -1;

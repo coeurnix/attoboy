@@ -25,18 +25,30 @@ String::String(int val) {
   impl->len = len;
 }
 
+String::String(char val) {
+  impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+                                 sizeof(StringImpl));
+  InitializeSRWLock(&impl->lock);
+  char buf[2] = {val, '\0'};
+  impl->data = AllocString(1);
+  if (impl->data) {
+    lstrcpyA(impl->data, buf);
+    impl->len = 1;
+  } else {
+    impl->len = 0;
+  }
+}
+
 String::String(long long val) {
   impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                  sizeof(StringImpl));
   InitializeSRWLock(&impl->lock);
   ATTO_WCHAR buf[32];
 
-  // Convert long long to string without 64-bit division
-  // Split into high/low 32-bit parts and format separately
   bool negative = val < 0;
-  unsigned long long absVal = negative ? -(unsigned long long)val : (unsigned long long)val;
+  unsigned long long absVal =
+      negative ? -(unsigned long long)val : (unsigned long long)val;
 
-  // If it fits in 32 bits, use simple wsprintf
   if (absVal <= 0xFFFFFFFFULL) {
     if (negative) {
       wsprintfA(buf, "-%u", (unsigned int)absVal);
@@ -44,13 +56,9 @@ String::String(long long val) {
       wsprintfA(buf, "%u", (unsigned int)absVal);
     }
   } else {
-    // For larger values, format as high and low parts
-    // Using the fact that 2^32 = 4294967296
     unsigned int high = (unsigned int)(absVal >> 32);
     unsigned int low = (unsigned int)(absVal & 0xFFFFFFFFULL);
 
-    // Approximate: value ≈ high * 4294967296 + low
-    // Format both parts and combine
     if (negative) {
       wsprintfA(buf, "-%u%010u", high, low);
     } else {

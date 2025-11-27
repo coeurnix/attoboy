@@ -10,8 +10,8 @@ void atto_main() {
   {
     ConsoleInput ci;
     REGISTER_TESTED(ConsoleInput_constructor_empty);
-    ASSERT_EQ(ci.completions, (const List*)nullptr);
-    ASSERT_EQ(ci.history, (List*)nullptr);
+    ASSERT_EQ(ci.completions, (const List *)nullptr);
+    ASSERT_EQ(ci.history, (List *)nullptr);
     ASSERT_FALSE(ci.password);
     ASSERT_FALSE(ci.multiline);
     ASSERT_FALSE(ci.continuation.isEmpty());
@@ -91,7 +91,7 @@ void atto_main() {
   // print()
   {
     Console con;
-    Console& ref = con.print("Test");
+    Console &ref = con.print("Test");
     REGISTER_TESTED(Console_print);
     ASSERT_EQ(&ref, &con);
     Log("Console::print(): passed");
@@ -100,7 +100,7 @@ void atto_main() {
   // print() with colors
   {
     Console con;
-    Console& ref = con.print("Test", CON_RED, CON_BLACK);
+    Console &ref = con.print("Test", CON_RED, CON_BLACK);
     ASSERT_EQ(&ref, &con);
     Log("Console::print() [colors]: passed");
   }
@@ -108,7 +108,7 @@ void atto_main() {
   // println()
   {
     Console con;
-    Console& ref = con.println("Test");
+    Console &ref = con.println("Test");
     REGISTER_TESTED(Console_println);
     ASSERT_EQ(&ref, &con);
     Log("Console::println(): passed");
@@ -117,7 +117,7 @@ void atto_main() {
   // println() with empty string
   {
     Console con;
-    Console& ref = con.println();
+    Console &ref = con.println();
     ASSERT_EQ(&ref, &con);
     Log("Console::println() [empty]: passed");
   }
@@ -125,7 +125,7 @@ void atto_main() {
   // clear()
   {
     Console con;
-    Console& ref = con.clear();
+    Console &ref = con.clear();
     REGISTER_TESTED(Console_clear);
     ASSERT_EQ(&ref, &con);
     Log("Console::clear(): passed");
@@ -136,7 +136,7 @@ void atto_main() {
   // printAligned()
   {
     Console con;
-    Console& ref = con.printAligned("Test", 10, CON_ALIGN_LEFT);
+    Console &ref = con.printAligned("Test", 10, CON_ALIGN_LEFT);
     REGISTER_TESTED(Console_printAligned);
     ASSERT_EQ(&ref, &con);
     Log("Console::printAligned(): passed");
@@ -145,7 +145,7 @@ void atto_main() {
   // printAligned() with -1 width (use console width)
   {
     Console con;
-    Console& ref = con.printAligned("Test", -1, CON_ALIGN_CENTER);
+    Console &ref = con.printAligned("Test", -1, CON_ALIGN_CENTER);
     ASSERT_EQ(&ref, &con);
     Log("Console::printAligned() [auto width]: passed");
   }
@@ -153,7 +153,7 @@ void atto_main() {
   // printWrapped()
   {
     Console con;
-    Console& ref = con.printWrapped("This is a long text", 10);
+    Console &ref = con.printWrapped("This is a long text", 10);
     REGISTER_TESTED(Console_printWrapped);
     ASSERT_EQ(&ref, &con);
     Log("Console::printWrapped(): passed");
@@ -162,7 +162,7 @@ void atto_main() {
   // printWrapped() with -1 width (use console width)
   {
     Console con;
-    Console& ref = con.printWrapped("Test");
+    Console &ref = con.printWrapped("Test");
     ASSERT_EQ(&ref, &con);
     Log("Console::printWrapped() [auto width]: passed");
   }
@@ -172,7 +172,7 @@ void atto_main() {
   // setCursor()
   {
     Console con;
-    Console& ref = con.setCursor(0, 0);
+    Console &ref = con.setCursor(0, 0);
     REGISTER_TESTED(Console_setCursor);
     ASSERT_EQ(&ref, &con);
     Log("Console::setCursor(): passed");
@@ -181,7 +181,7 @@ void atto_main() {
   // showCursor()
   {
     Console con;
-    Console& ref = con.showCursor();
+    Console &ref = con.showCursor();
     REGISTER_TESTED(Console_showCursor);
     ASSERT_EQ(&ref, &con);
     Log("Console::showCursor(): passed");
@@ -190,7 +190,7 @@ void atto_main() {
   // hideCursor()
   {
     Console con;
-    Console& ref = con.hideCursor();
+    Console &ref = con.hideCursor();
     REGISTER_TESTED(Console_hideCursor);
     ASSERT_EQ(&ref, &con);
     Log("Console::hideCursor(): passed");
@@ -198,10 +198,10 @@ void atto_main() {
 
   // ========== INPUT ==========
 
-  // readKey() - Cannot test interactively, register only
+  // readEvent() - Cannot test interactively, register only
   {
-    REGISTER_TESTED(Console_readKey);
-    Log("Console::readKey(): registered (interactive)");
+    REGISTER_TESTED(Console_readEvent);
+    Log("Console::readEvent(): registered (interactive)");
   }
 
   // input() - Cannot test interactively, register only
@@ -215,7 +215,7 @@ void atto_main() {
   // progress() with determinate value
   {
     Console con;
-    Console& ref = con.progress(0.5f, "Loading");
+    Console &ref = con.progress(0.5f, "Loading");
     REGISTER_TESTED(Console_progress);
     ASSERT_EQ(&ref, &con);
     Log("Console::progress() [determinate]: passed");
@@ -224,7 +224,7 @@ void atto_main() {
   // progress() with indeterminate value
   {
     Console con;
-    Console& ref = con.progress(-1.0f, "Processing");
+    Console &ref = con.progress(-1.0f, "Processing");
     ASSERT_EQ(&ref, &con);
     Log("Console::progress() [indeterminate]: passed");
   }
@@ -233,7 +233,7 @@ void atto_main() {
   {
     Console con;
     con.progress(0.5f, "Test");
-    Console& ref = con.progressHide();
+    Console &ref = con.progressHide();
     REGISTER_TESTED(Console_progressHide);
     ASSERT_EQ(&ref, &con);
     Log("Console::progressHide(): passed");
@@ -262,8 +262,8 @@ void atto_main() {
   {
     Console con;
     bool called = false;
-    Console& ref =
-        con.onHotkey("Ctrl+Q", [](void* arg) { *(bool*)arg = true; }, &called);
+    Console &ref =
+        con.onHotkey("Ctrl+Q", [](void *arg) { *(bool *)arg = true; }, &called);
     REGISTER_TESTED(Console_onHotkey);
     ASSERT_EQ(&ref, &con);
     Log("Console::onHotkey(): passed");
@@ -272,8 +272,8 @@ void atto_main() {
   // offHotkey()
   {
     Console con;
-    con.onHotkey("Ctrl+Q", [](void* arg) {}, nullptr);
-    Console& ref = con.offHotkey("Ctrl+Q");
+    con.onHotkey("Ctrl+Q", [](void *arg) {}, nullptr);
+    Console &ref = con.offHotkey("Ctrl+Q");
     REGISTER_TESTED(Console_offHotkey);
     ASSERT_EQ(&ref, &con);
     Log("Console::offHotkey(): passed");

@@ -3,7 +3,6 @@
 
 namespace attoboy {
 
-// RAII lock guards for thread safety (shared across all internal headers)
 class ReadLockGuard {
   SRWLOCK *lock;
 
@@ -20,7 +19,6 @@ public:
   ~WriteLockGuard() { ReleaseSRWLockExclusive(lock); }
 };
 
-// UTF-8 <-> UTF-16 conversion utilities for Windows API boundaries
 inline WCHAR *Utf8ToWide(const char *utf8, int *outLen = nullptr) {
   if (!utf8)
     return nullptr;
@@ -57,7 +55,6 @@ inline void FreeConvertedString(void *str) {
     HeapFree(GetProcessHeap(), 0, str);
 }
 
-// UTF-8 utilities for character-based string operations
 inline int countUTF8Characters(const char *str, int byteLen) {
   if (!str || byteLen <= 0)
     return 0;

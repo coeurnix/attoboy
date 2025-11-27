@@ -10,7 +10,6 @@ List &List::sort(bool ascending) {
   if (impl->size <= 1)
     return *this;
 
-  // Simple bubble sort to keep binary size small
   for (int i = 0; i < impl->size - 1; i++) {
     for (int j = 0; j < impl->size - i - 1; j++) {
       int comparison = CompareItems(&impl->items[j], &impl->items[j + 1]);

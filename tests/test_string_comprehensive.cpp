@@ -35,6 +35,14 @@ void atto_main() {
     Log("String(bool): passed");
   }
 
+  // Char constructor
+  {
+    String s('a');
+    REGISTER_TESTED(String_constructor_char);
+    ASSERT_EQ(s, String("a"));
+    Log("String(char): passed");
+  }
+
   // Int constructor
   {
     String s(42);
@@ -162,7 +170,7 @@ void atto_main() {
     ASSERT_EQ(s.at(0), String("h"));
     ASSERT_EQ(s.at(4), String("o"));
     ASSERT_EQ(s.at(-1), String("o")); // Negative index
-    ASSERT_TRUE(s.at(10).isEmpty());             // Out of bounds
+    ASSERT_TRUE(s.at(10).isEmpty());  // Out of bounds
     Log("at(): passed");
   }
 
@@ -230,8 +238,8 @@ void atto_main() {
     ASSERT_EQ(s.getPositionOf(String("world")), 6);
     ASSERT_EQ(s.getPositionOf(String("hello")), 0);
     ASSERT_EQ(s.getPositionOf(String("xyz")), -1); // Not found
-    ASSERT_EQ(s.getPositionOf(String("")), 0);  // Empty string at 0
-    ASSERT_EQ(s.getPositionOf(String(" ")), 5); // Space between
+    ASSERT_EQ(s.getPositionOf(String("")), 0);     // Empty string at 0
+    ASSERT_EQ(s.getPositionOf(String(" ")), 5);    // Space between
     // UTF-8 test
     String utf8("héllo wörld");
     ASSERT_EQ(utf8.getPositionOf(String("wörld")),
@@ -324,8 +332,7 @@ void atto_main() {
   // replace()
   {
     String s("hello world");
-    String result =
-        s.replace(String("world"), String("there"));
+    String result = s.replace(String("world"), String("there"));
     REGISTER_TESTED(String_replace);
     ASSERT_EQ(result, String("hello there"));
     Log("replace(): passed");

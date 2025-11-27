@@ -3,7 +3,6 @@
 
 namespace attoboy {
 
-// Helper function to clamp index to valid range
 static inline int ClampIndex(int index, int size) {
   if (size == 0)
     return 0;
@@ -25,7 +24,6 @@ ValueType List::typeAt(int index) const {
   return impl->items[index].type;
 }
 
-// Template specializations for at()
 template <> bool List::at<bool>(int index) const {
   if (!impl)
     return false;
@@ -128,7 +126,6 @@ template <> Set List::at<Set>(int index) const {
   return Set();
 }
 
-// Template specializations for operator[]
 template <> bool List::operator[]<bool>(int index) const {
   return at<bool>(index);
 }
@@ -157,7 +154,6 @@ template <> Set List::operator[]<Set>(int index) const {
   return at<Set>(index);
 }
 
-// Set implementations
 void List::set_impl(int index, bool value) {
   if (!impl)
     return;

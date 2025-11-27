@@ -154,12 +154,10 @@ String String::reverse() const {
   if (!impl->data || impl->len == 0)
     return String(*this);
 
-  // For UTF-8, reverse at character level, not byte level
   int charCount = countUTF8Characters(impl->data, impl->len);
   if (charCount <= 1)
     return String(*this);
 
-  // Extract characters and reverse them
   String result;
   for (int i = charCount - 1; i >= 0; i--) {
     String charStr = at(i);

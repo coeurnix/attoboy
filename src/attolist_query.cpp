@@ -3,7 +3,6 @@
 
 namespace attoboy {
 
-// Find template specializations
 template <> int List::find<bool>(bool value) const {
   if (!impl)
     return -1;
@@ -73,7 +72,6 @@ template <> int List::find<const char *>(const char *value) const {
   return find<String>(str);
 }
 
-// Contains template specializations
 template <> bool List::contains<bool>(bool value) const {
   return find<bool>(value) != -1;
 }

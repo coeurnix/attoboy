@@ -48,18 +48,14 @@ Path Path::CreateTemporaryFile(const String &prefix, const String &suffix) {
   String resultPath = String(tempFile);
 
   if (!suffix.isEmpty()) {
-    // Find the last '.' and replace everything after it with suffix
-    int dotPos = resultPath.getPositionOf(".", -1); // search from end
+    int dotPos = resultPath.getPositionOf(".", -1);
     if (dotPos != -1) {
       resultPath = resultPath.substring(0, dotPos) + suffix;
     } else {
-      // No extension found, append suffix
       resultPath = resultPath + suffix;
     }
 
-    // Rename the file to the new path
     if (!MoveFile(tempFile, resultPath.c_str())) {
-      // If rename fails, return the original path
       return Path(String(tempFile));
     }
   }

@@ -263,6 +263,35 @@ if(ATTO_BUILD_EXAMPLES)
                 target_link_libraries(ex_${ex_name} PRIVATE -lcomctl32 -lgdi32)
             endif()
         endif()
+
+        # Special handling for DirectX example (requires CRT and standard libraries)
+        if(ex_name STREQUAL "example_directx")
+            if(MSVC)
+                # Override /NODEFAULTLIB to allow CRT linking
+                target_link_options(ex_${ex_name} PRIVATE
+                    /SUBSYSTEM:CONSOLE
+                    /ENTRY:mainCRTStartup
+                )
+                # Remove /NODEFAULTLIB for this target
+                get_target_property(LINK_OPTIONS ex_${ex_name} LINK_OPTIONS)
+                list(REMOVE_ITEM LINK_OPTIONS "/NODEFAULTLIB")
+                list(REMOVE_ITEM LINK_OPTIONS "/ENTRY:atto_main")
+                set_target_properties(ex_${ex_name} PROPERTIES LINK_OPTIONS "${LINK_OPTIONS}")
+                # Add DirectX libraries
+                target_link_libraries(ex_${ex_name} PRIVATE d3d11.lib d3dcompiler.lib dxgi.lib)
+            else()
+                # Override -nostdlib to allow CRT linking
+                target_link_options(ex_${ex_name} PRIVATE -mconsole)
+                # Remove -nostdlib and custom entry point for this target
+                get_target_property(LINK_OPTIONS ex_${ex_name} LINK_OPTIONS)
+                list(REMOVE_ITEM LINK_OPTIONS "-nostdlib")
+                list(REMOVE_ITEM LINK_OPTIONS "-Wl,--entry=_atto_main")
+                list(REMOVE_ITEM LINK_OPTIONS "-Wl,--defsym,main=_atto_main")
+                set_target_properties(ex_${ex_name} PROPERTIES LINK_OPTIONS "${LINK_OPTIONS}")
+                # Add DirectX libraries and standard libs
+                target_link_libraries(ex_${ex_name} PRIVATE -ld3d11 -ld3dcompiler -ldxgi)
+            endif()
+        endif()
     endforeach()
 endif()
 

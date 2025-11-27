@@ -3,7 +3,6 @@
 
 namespace attoboy {
 
-// Template specializations for get()
 template <> bool Map::get<bool, bool>(bool key, bool defaultValue) const {
   if (!impl)
     return defaultValue;
@@ -28,8 +27,7 @@ template <> int Map::get<bool, int>(bool key, int defaultValue) const {
   return impl->values.at<int>(index);
 }
 
-template <>
-float Map::get<bool, float>(bool key, float defaultValue) const {
+template <> float Map::get<bool, float>(bool key, float defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
@@ -41,8 +39,7 @@ float Map::get<bool, float>(bool key, float defaultValue) const {
   return impl->values.at<float>(index);
 }
 
-template <>
-String Map::get<bool, String>(bool key, String defaultValue) const {
+template <> String Map::get<bool, String>(bool key, String defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
@@ -114,8 +111,7 @@ template <> int Map::get<int, int>(int key, int defaultValue) const {
   return impl->values.at<int>(index);
 }
 
-template <>
-float Map::get<int, float>(int key, float defaultValue) const {
+template <> float Map::get<int, float>(int key, float defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
@@ -127,8 +123,7 @@ float Map::get<int, float>(int key, float defaultValue) const {
   return impl->values.at<float>(index);
 }
 
-template <>
-String Map::get<int, String>(int key, String defaultValue) const {
+template <> String Map::get<int, String>(int key, String defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
@@ -176,8 +171,7 @@ template <> Set Map::get<int, Set>(int key, Set defaultValue) const {
   return impl->values.at<Set>(index);
 }
 
-template <>
-bool Map::get<float, bool>(float key, bool defaultValue) const {
+template <> bool Map::get<float, bool>(float key, bool defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
@@ -201,8 +195,7 @@ template <> int Map::get<float, int>(float key, int defaultValue) const {
   return impl->values.at<int>(index);
 }
 
-template <>
-float Map::get<float, float>(float key, float defaultValue) const {
+template <> float Map::get<float, float>(float key, float defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
@@ -263,8 +256,7 @@ template <> Set Map::get<float, Set>(float key, Set defaultValue) const {
   return impl->values.at<Set>(index);
 }
 
-template <>
-bool Map::get<String, bool>(String key, bool defaultValue) const {
+template <> bool Map::get<String, bool>(String key, bool defaultValue) const {
   if (!impl)
     return defaultValue;
   ReadLockGuard guard(&impl->lock);
@@ -350,7 +342,6 @@ template <> Set Map::get<String, Set>(String key, Set defaultValue) const {
   return impl->values.at<Set>(index);
 }
 
-// Template specializations for hasKey()
 template <> bool Map::hasKey<bool>(bool key) const {
   if (!impl)
     return false;
@@ -386,7 +377,6 @@ template <> bool Map::hasKey<const char *>(const char *key) const {
   return impl->keys.find<const char *>(key) >= 0;
 }
 
-// Template specializations for typeAt()
 template <> ValueType Map::typeAt<bool>(bool key) const {
   if (!impl)
     return TYPE_INVALID;
@@ -447,7 +437,6 @@ template <> ValueType Map::typeAt<const char *>(const char *key) const {
   return impl->values.typeAt(index);
 }
 
-// Template specializations for findValue()
 template <> bool Map::findValue<bool, bool>(bool value) const {
   if (!impl)
     return false;
@@ -616,8 +605,6 @@ template <> int Map::findValue<int, String>(String value) const {
   return impl->keys.at<int>(index);
 }
 
-
-
 template <> String Map::findValue<String, String>(String value) const {
   if (!impl)
     return String();
@@ -630,7 +617,6 @@ template <> String Map::findValue<String, String>(String value) const {
   return impl->keys.at<String>(index);
 }
 
-// Remove implementations
 void Map::remove_impl(bool key) {
   if (!impl)
     return;

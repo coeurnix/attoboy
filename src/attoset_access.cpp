@@ -3,7 +3,6 @@
 
 namespace attoboy {
 
-// Template specializations for contains()
 template <> bool Set::contains<bool>(bool value) const {
   if (!impl)
     return false;
@@ -39,7 +38,6 @@ template <> bool Set::contains<const char *>(const char *value) const {
   return impl->values.contains<const char *>(value);
 }
 
-// Remove implementations
 void Set::remove_impl(bool value) {
   if (!impl)
     return;

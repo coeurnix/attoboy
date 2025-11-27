@@ -64,12 +64,15 @@ String GetKeyName(KEY_EVENT_RECORD keyEvent) {
   }
 }
 
-String Console::readKey() {
+String Console::readEvent() {
   AcquireSRWLockExclusive(&impl->lock);
 
   DWORD originalMode;
   GetConsoleMode(impl->hStdIn, &originalMode);
-  SetConsoleMode(impl->hStdIn, 0);
+
+  DWORD readMode =
+      ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS;
+  SetConsoleMode(impl->hStdIn, readMode);
 
   INPUT_RECORD inputRecord;
   DWORD eventsRead;
@@ -85,6 +88,36 @@ String Console::readKey() {
       ReleaseSRWLockExclusive(&impl->lock);
 
       return keyName;
+    } else if (inputRecord.EventType == MOUSE_EVENT) {
+      MOUSE_EVENT_RECORD mouseEvent = inputRecord.Event.MouseEvent;
+
+      if (mouseEvent.dwEventFlags == 0 &&
+          (mouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)) {
+        int x = mouseEvent.dwMousePosition.X;
+        int y = mouseEvent.dwMousePosition.Y;
+
+        bool ctrl = (mouseEvent.dwControlKeyState &
+                     (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0;
+        String result;
+        if (ctrl) {
+          result = String("MouseRight@") + String(x) + String(",") + String(y);
+        } else {
+          result = String("MouseLeft@") + String(x) + String(",") + String(y);
+        }
+
+        SetConsoleMode(impl->hStdIn, originalMode);
+        ReleaseSRWLockExclusive(&impl->lock);
+        return result;
+      } else if (mouseEvent.dwEventFlags == MOUSE_MOVED) {
+        int x = mouseEvent.dwMousePosition.X;
+        int y = mouseEvent.dwMousePosition.Y;
+        String result =
+            String("MouseMove@") + String(x) + String(",") + String(y);
+
+        SetConsoleMode(impl->hStdIn, originalMode);
+        ReleaseSRWLockExclusive(&impl->lock);
+        return result;
+      }
     }
   }
 

@@ -23,7 +23,6 @@ static void PrintString(const String &s) {
     DWORD written;
     DWORD bytesToWrite = s.byteLength() * sizeof(char);
 
-    // Check if handle is a console; if not (e.g., redirected), use WriteFile
     DWORD mode;
     if (GetConsoleMode(hOut, &mode)) {
       WriteConsoleA(hOut, s.c_str(), s.byteLength(), &written, nullptr);
@@ -46,12 +45,10 @@ void EnableLoggingToFile(const String &path, bool truncate) {
 
   if (g_logFileHandle != INVALID_HANDLE_VALUE) {
     if (!truncate) {
-      // Append mode: seek to end
       SetFilePointer(g_logFileHandle, 0, nullptr, FILE_END);
     }
     g_logToFile = true;
   } else {
-    // File creation failed - fall back to console and report error
     g_logFileHandle = nullptr;
     g_logToFile = false;
 

@@ -26,6 +26,8 @@ extern "C" void atto_main() {
                "Downloads a URL to a file or prints to console.\n\n"
                "Usage: example_web_get <url> [output_file]");
 
+  args.requireArgument("url");
+
   // Parse arguments (returns empty Map if -h/--help or error)
   Map parsed = args.parseArguments();
   if (parsed.isEmpty()) {
@@ -66,4 +68,6 @@ extern "C" void atto_main() {
       Exit(1);
     }
   }
+
+  Exit(0);
 }

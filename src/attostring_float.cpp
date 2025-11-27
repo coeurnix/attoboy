@@ -1,13 +1,11 @@
 #include "attostring_internal.h"
 
-// Needed for floating point support when not linking with CRT
 extern "C" {
 int _fltused = 0;
 }
 
 namespace attoboy {
 
-// Helper for float to string conversion
 static void FloatToString(float val, ATTO_LPSTR buffer, int maxLen) {
   if (val < 0) {
     *buffer++ = '-';
@@ -35,7 +33,6 @@ static void FloatToString(float val, ATTO_LPSTR buffer, int maxLen) {
       maxLen--;
     }
 
-    // Strip trailing zeros, keeping at least one decimal digit
     buffer--;
     while (buffer > firstDecimalDigit && *buffer == '0') {
       buffer--;

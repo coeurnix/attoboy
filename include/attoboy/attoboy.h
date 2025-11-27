@@ -100,6 +100,8 @@ public:
   String(const char *str);
   /// Creates a string from a boolean ("true" or "false").
   String(bool value);
+  /// Creates a string from a character.
+  String(char value);
   /// Creates a string from an integer.
   String(int value);
   /// Creates a string from a 64-bit integer.
@@ -1542,10 +1544,10 @@ public:
   /// Returns empty string if input is cancelled (Ctrl+C).
   String input(const String &prompt = "",
                const ConsoleInput *options = nullptr);
-  /// Reads a single key press (blocking).
+  /// Reads a single key press or mouse event (blocking).
   /// Returns a descriptive name: "A", "Enter", "Space", "Ctrl+C", "Alt+X",
-  /// "F1", etc.
-  String readKey();
+  /// "F1", "MouseLeft@x,y", "MouseRight@x,y", "MouseMove@x,y", etc.
+  String readEvent();
 
   //-- Progress Bar --
 
@@ -1725,7 +1727,7 @@ template <typename T> inline T Math::RandomChoice(const List &list) noexcept {
 //------------------------------------------------------------------------------
 
 /// Terminates the process with the given exit code.
-void Exit(int exitCode);
+void Exit(int exitCode = 0);
 /// Pauses the current thread for the given milliseconds.
 void Sleep(int milliseconds);
 /// Returns the value of an environment variable, or empty string if not set.

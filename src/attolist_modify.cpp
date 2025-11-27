@@ -2,7 +2,6 @@
 
 namespace attoboy {
 
-// Prepend implementations
 void List::prepend_impl(bool value) {
   if (!impl)
     return;
@@ -11,7 +10,6 @@ void List::prepend_impl(bool value) {
   if (!EnsureCapacity(impl, impl->size + 1))
     return;
 
-  // Shift all items down by one
   for (int i = impl->size; i > 0; i--) {
     impl->items[i] = impl->items[i - 1];
   }
@@ -71,7 +69,6 @@ void List::prepend_impl(const char *value) {
   impl->items[0].stringVal = AllocString(value);
   impl->size++;
 }
-
 
 void List::prepend_impl(const String &value) {
   if (!impl)
@@ -141,7 +138,6 @@ void List::prepend_impl(const Set &value) {
   impl->size++;
 }
 
-// Insert implementations
 void List::insert_impl(int index, bool value) {
   if (!impl)
     return;
@@ -261,7 +257,6 @@ void List::insert_impl(int index, const char *value) {
   impl->items[index].stringVal = AllocString(value);
   impl->size++;
 }
-
 
 void List::insert_impl(int index, const String &value) {
   if (!impl)
@@ -383,7 +378,6 @@ void List::insert_impl(int index, const Set &value) {
   impl->size++;
 }
 
-// Remove implementation
 List &List::remove(int index) {
   if (!impl)
     return *this;
@@ -407,7 +401,6 @@ List &List::remove(int index) {
   return *this;
 }
 
-// Pop template specializations
 template <> bool List::pop<bool>() {
   if (!impl)
     return false;

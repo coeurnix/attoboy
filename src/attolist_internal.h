@@ -1,13 +1,11 @@
 #pragma once
-#include "attoboy/attoboy.h"
 #include "atto_internal_common.h"
-#include <new> // For placement new
+#include "attoboy/attoboy.h"
+#include <new>
 #include <windows.h>
-
 
 namespace attoboy {
 
-// Forward declaration for internal use
 struct ListImpl;
 class Map;
 class Set;
@@ -26,7 +24,6 @@ struct ListItem {
 
   ListItem() {
     type = TYPE_NULL;
-    // Zero all bytes of union
     floatVal = 0.0f;
   }
 };
@@ -38,7 +35,6 @@ struct ListImpl {
   mutable SRWLOCK lock;
 };
 
-// Inline helper functions for list item allocation
 static inline ListItem *AllocItems(int capacity) {
   if (capacity <= 0)
     return nullptr;
@@ -51,77 +47,70 @@ static inline void FreeItems(ListItem *items) {
     HeapFree(GetProcessHeap(), 0, items);
 }
 
-// Helper functions for String allocation/deallocation without new/delete
 static inline String *AllocString() {
   void *mem = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(String));
   if (!mem)
     return nullptr;
-  return new (mem) String(); // Placement new
+  return new (mem) String();
 }
 
 static inline String *AllocString(const String &other) {
   void *mem = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(String));
   if (!mem)
     return nullptr;
-  return new (mem) String(other); // Placement new with copy constructor
+  return new (mem) String(other);
 }
 
 static inline String *AllocString(const char *str) {
   void *mem = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(String));
   if (!mem)
     return nullptr;
-  return new (mem) String(str); // Placement new
+  return new (mem) String(str);
 }
 
 static inline String *AllocString(const wchar_t *str) {
   void *mem = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(String));
   if (!mem)
     return nullptr;
-  return new (mem) String(str); // Placement new
+  return new (mem) String(str);
 }
 
 static inline void FreeString(String *str) {
   if (!str)
     return;
-  str->~String(); // Explicitly call destructor
+  str->~String();
   HeapFree(GetProcessHeap(), 0, str);
 }
 
-// Helper functions for List allocation/deallocation without new/delete
 static inline List *AllocList() {
   void *mem = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(List));
   if (!mem)
     return nullptr;
-  return new (mem) List(); // Placement new
+  return new (mem) List();
 }
 
 static inline List *AllocList(const List &other) {
   void *mem = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(List));
   if (!mem)
     return nullptr;
-  return new (mem) List(other); // Placement new with copy constructor
+  return new (mem) List(other);
 }
 
 static inline void FreeList(List *list) {
   if (!list)
     return;
-  list->~List(); // Explicitly call destructor
+  list->~List();
   HeapFree(GetProcessHeap(), 0, list);
 }
 
-// Helper functions for Map allocation/deallocation without new/delete
-// Implemented in attolist_mapset.cpp
 Map *AllocMap();
 Map *AllocMap(const Map &other);
 void FreeMap(Map *map);
 
-// Helper functions for Set allocation/deallocation without new/delete
-// Implemented in attolist_mapset.cpp
 Set *AllocSet();
 Set *AllocSet(const Set &other);
 void FreeSet(Set *set);
 
-// Helper function to free a single item's contents
 static inline void FreeItemContents(ListItem *item) {
   if (!item)
     return;
@@ -141,7 +130,6 @@ static inline void FreeItemContents(ListItem *item) {
   item->type = TYPE_NULL;
 }
 
-// Helper function to ensure capacity
 static inline bool EnsureCapacity(ListImpl *impl, int requiredSize) {
   if (!impl || requiredSize <= impl->capacity)
     return true;
@@ -157,7 +145,6 @@ static inline bool EnsureCapacity(ListImpl *impl, int requiredSize) {
   if (!newItems)
     return false;
 
-  // Copy existing items
   for (int i = 0; i < impl->size; i++) {
     newItems[i] = impl->items[i];
   }
@@ -168,17 +155,13 @@ static inline bool EnsureCapacity(ListImpl *impl, int requiredSize) {
   return true;
 }
 
-// Helper function to compare two ListItems with numeric coercion
 static inline bool ItemsEqual(const ListItem *a, const ListItem *b) {
   if (!a || !b)
     return false;
-
-  // Handle numeric coercion: int and float can be equal
   bool aIsNumeric = (a->type == TYPE_INT || a->type == TYPE_FLOAT);
   bool bIsNumeric = (b->type == TYPE_INT || b->type == TYPE_FLOAT);
 
   if (aIsNumeric && bIsNumeric) {
-    // Convert both to float for comparison
     float aVal = 0.0f, bVal = 0.0f;
     if (a->type == TYPE_INT)
       aVal = (float)a->intVal;
@@ -193,7 +176,6 @@ static inline bool ItemsEqual(const ListItem *a, const ListItem *b) {
     return aVal == bVal;
   }
 
-  // For non-numeric types, types must match exactly
   if (a->type != b->type)
     return false;
 
@@ -211,7 +193,6 @@ static inline bool ItemsEqual(const ListItem *a, const ListItem *b) {
   }
 }
 
-// Helper function to convert item to float for sorting
 static inline float ItemToFloat(const ListItem *item) {
   if (!item)
     return 0.0f;
@@ -231,16 +212,13 @@ static inline float ItemToFloat(const ListItem *item) {
   }
 }
 
-// Helper function to compare two items for sorting
 static inline int CompareItems(const ListItem *a, const ListItem *b) {
   if (!a || !b)
     return 0;
-
-  // Try numeric comparison first
-  bool aIsNumeric = (a->type == TYPE_INT || a->type == TYPE_FLOAT ||
-                     a->type == TYPE_BOOL);
-  bool bIsNumeric = (b->type == TYPE_INT || b->type == TYPE_FLOAT ||
-                     b->type == TYPE_BOOL);
+  bool aIsNumeric =
+      (a->type == TYPE_INT || a->type == TYPE_FLOAT || a->type == TYPE_BOOL);
+  bool bIsNumeric =
+      (b->type == TYPE_INT || b->type == TYPE_FLOAT || b->type == TYPE_BOOL);
 
   if (aIsNumeric && bIsNumeric) {
     float aVal = ItemToFloat(a);
@@ -252,14 +230,12 @@ static inline int CompareItems(const ListItem *a, const ListItem *b) {
     return 0;
   }
 
-  // If both are strings, compare as strings
   if (a->type == TYPE_STRING && b->type == TYPE_STRING) {
     if (a->stringVal && b->stringVal)
       return a->stringVal->compare(*b->stringVal);
     return 0;
   }
 
-  // Try converting to string for comparison
   if (a->type == TYPE_STRING || b->type == TYPE_STRING) {
     String aStr =
         (a->type == TYPE_STRING && a->stringVal) ? *a->stringVal : String();
@@ -268,7 +244,6 @@ static inline int CompareItems(const ListItem *a, const ListItem *b) {
     return aStr.compare(bStr);
   }
 
-  // Otherwise, order by type
   return (int)a->type - (int)b->type;
 }
 
