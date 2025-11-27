@@ -40,6 +40,16 @@ String::String(const char *str) {
 
 String String::FromCStr(const char *data, int size) {
   String result;
+
+  // Free the impl allocated by default constructor
+  if (result.impl) {
+    if (result.impl->data) {
+      FreeString(result.impl->data);
+    }
+    HeapFree(GetProcessHeap(), 0, result.impl);
+  }
+
+  // Allocate new impl with the specified data
   result.impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                                         sizeof(StringImpl));
   InitializeSRWLock(&result.impl->lock);

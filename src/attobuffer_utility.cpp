@@ -63,7 +63,7 @@ String Buffer::toString() const {
   }
 
   // For UTF-8 strings stored as bytes, create String directly from the data
-  return String((const char *)impl->data, impl->size);
+  return String::FromCStr((const char *)impl->data, impl->size);
 }
 
 int Buffer::hash() const {

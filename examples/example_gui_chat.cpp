@@ -80,6 +80,11 @@ struct ChatApp {
   AI *ai;
   Conversation *conv;
 
+  // Last used AI settings (for change detection)
+  String *lastBaseUrl;
+  String *lastApiKey;
+  String *lastModel;
+
   // UI state
   bool isSending;
 
@@ -372,6 +377,14 @@ static void CreateControls(ChatApp *app) {
   SendMessageA(app->hApiKeyEdit, EM_SETCUEBANNER, TRUE,
                (LPARAM) "Enter your API key");
 
+  // Load API key from environment variable if available
+  char envApiKey[512] = {0};
+  DWORD envLen = GetEnvironmentVariableA("OPENAI_API_KEY", envApiKey,
+                                         sizeof(envApiKey) - 1);
+  if (envLen > 0 && envLen < sizeof(envApiKey)) {
+    SetWindowTextA(app->hApiKeyEdit, envApiKey);
+  }
+
   // Subclass the message input for Enter key handling
   SetWindowLongPtrA(app->hMessageInput, GWLP_USERDATA, (LONG_PTR)app);
   app->origInputProc = (WNDPROC)SetWindowLongPtrA(
@@ -525,6 +538,21 @@ static void CleanupAI(ChatApp *app) {
     Free(app->ai);
     app->ai = nullptr;
   }
+  if (app->lastBaseUrl) {
+    app->lastBaseUrl->~String();
+    Free(app->lastBaseUrl);
+    app->lastBaseUrl = nullptr;
+  }
+  if (app->lastApiKey) {
+    app->lastApiKey->~String();
+    Free(app->lastApiKey);
+    app->lastApiKey = nullptr;
+  }
+  if (app->lastModel) {
+    app->lastModel->~String();
+    Free(app->lastModel);
+    app->lastModel = nullptr;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -579,11 +607,11 @@ static void HandleSend(ChatApp *app) {
 
   // Check if we need to (re)create the AI instance
   bool needNewAI = (app->ai == nullptr);
-  if (app->ai) {
-    // Check if settings changed
-    if (!app->ai->getBaseUrl().equals(baseUrl) ||
-        !app->ai->getAPIKey().equals(apiKey) ||
-        !app->ai->getModel().equals(model)) {
+  if (app->ai && app->lastBaseUrl && app->lastApiKey && app->lastModel) {
+    // Check if settings changed by comparing with last used settings
+    if (!app->lastBaseUrl->equals(baseUrl) ||
+        !app->lastApiKey->equals(apiKey) ||
+        !app->lastModel->equals(model)) {
       CleanupAI(app);
       needNewAI = true;
       AppendChatText(app,
@@ -596,6 +624,30 @@ static void HandleSend(ChatApp *app) {
     void *aiMem = Alloc(sizeof(AI));
     if (aiMem) {
       app->ai = new (aiMem) AI(baseUrl, apiKey, model);
+
+      // Store the settings for future comparison
+      if (app->lastBaseUrl) {
+        app->lastBaseUrl->~String();
+        Free(app->lastBaseUrl);
+      }
+      if (app->lastApiKey) {
+        app->lastApiKey->~String();
+        Free(app->lastApiKey);
+      }
+      if (app->lastModel) {
+        app->lastModel->~String();
+        Free(app->lastModel);
+      }
+
+      void *urlMem = Alloc(sizeof(String));
+      void *keyMem = Alloc(sizeof(String));
+      void *modelMem = Alloc(sizeof(String));
+
+      if (urlMem && keyMem && modelMem) {
+        app->lastBaseUrl = new (urlMem) String(baseUrl);
+        app->lastApiKey = new (keyMem) String(apiKey);
+        app->lastModel = new (modelMem) String(model);
+      }
     } else {
       AppendChatText(app,
                      "Assistant:\r\n[Error: Memory allocation failed]\r\n\r\n");

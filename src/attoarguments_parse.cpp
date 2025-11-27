@@ -248,22 +248,22 @@ Map Arguments::parseArguments(bool suppressHelp) {
 
           String line;
           if (type == ARG_POSITIONAL) {
-            line = String("  ", name);
+            line = String("  ") + name;
           } else {
-            line = String("  -", name);
+            line = String("  -") + name;
             if (!longName.isEmpty()) {
-              line = String(line, ", --", longName);
+              line = line + ", --" + longName;
             }
           }
 
           if (!description.isEmpty()) {
             while (line.length() < 25) {
-              line = String(line, " ");
+              line = line + " ";
             }
-            line = String(line, "  ", description);
+            line = line + "  " + description;
           }
 
-          line = String(line, "\r\n");
+          line = line + "\r\n";
           PrintString(line);
         }
       }

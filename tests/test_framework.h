@@ -39,10 +39,9 @@ inline void DisplayCoverage() {
 inline void WriteCoverageData(const String &test_name) {
   int tested_count = tested_functions ? tested_functions->length() : 0;
 
-  String data =
-      String(tested_count, " ", FUNCTION_COUNT, "\n");
+  String data = String(tested_count) + " " + String(FUNCTION_COUNT) + "\n";
 
-  String filename = String(test_name, "_coverage.txt");
+  String filename = test_name + "_coverage.txt";
   Path coverage_path(filename);
   coverage_path.writeFromString(data);
 }
