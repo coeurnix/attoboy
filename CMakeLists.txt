@@ -253,6 +253,17 @@ if(ATTO_BUILD_EXAMPLES)
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/examples"
             OUTPUT_NAME "${ex_name}"
         )
+
+        # Special handling for GUI example
+        if(ex_name STREQUAL "example_gui_chat")
+            if(MSVC)
+                target_link_options(ex_${ex_name} PRIVATE /SUBSYSTEM:WINDOWS)
+                target_link_libraries(ex_${ex_name} PRIVATE comctl32.lib gdi32.lib)
+            else()
+                target_link_options(ex_${ex_name} PRIVATE -mwindows)
+                target_link_libraries(ex_${ex_name} PRIVATE -lcomctl32 -lgdi32)
+            endif()
+        endif()
     endforeach()
 endif()
 
