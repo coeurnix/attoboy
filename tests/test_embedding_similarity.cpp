@@ -4,7 +4,7 @@ void atto_main() {
   EnableLoggingToFile("test_embedding_similarity.log", true);
   Log("=== Embedding Similarity Test ===");
 
-  String baseUrl = String("http://localhost:8080/v1/");
+  String baseUrl = String("http://localhost:8469/v1/");
   String apiKey = String("mock-api-key-12345");
   String embeddingModel = String("text-embedding-mock");
 

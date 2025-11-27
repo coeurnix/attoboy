@@ -7,7 +7,7 @@ void atto_main() {
   // Test 1: Basic GET request
   {
     Log("Test 1: Basic GET request");
-    String url = String("http://localhost:8080/test/hello");
+    String url = String("http://localhost:8469/test/hello");
     WebRequest req(url);
 
     WebResponse resp = req.doGet(5000);
@@ -32,7 +32,7 @@ void atto_main() {
   // Test 2: JSON POST request
   {
     Log("Test 2: JSON POST request");
-    String url = String("http://localhost:8080/test/echo");
+    String url = String("http://localhost:8469/test/echo");
 
     Map testData;
     testData.put("name", "libattoboy");
@@ -65,7 +65,7 @@ void atto_main() {
   // Test 3: Status codes
   {
     Log("Test 3: HTTP status codes");
-    String url404 = String("http://localhost:8080/test/status/404");
+    String url404 = String("http://localhost:8469/test/status/404");
     WebRequest req404(url404);
     WebResponse resp404 = req404.doGet(5000);
 
@@ -79,7 +79,7 @@ void atto_main() {
   // Test 4: Response headers
   {
     Log("Test 4: Response headers");
-    String url = String("http://localhost:8080/test/hello");
+    String url = String("http://localhost:8469/test/hello");
     WebRequest req(url);
     WebResponse resp = req.doGet(5000);
 

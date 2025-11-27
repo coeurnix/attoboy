@@ -191,7 +191,7 @@ class MockHTTPHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Unknown endpoint"})
 
 
-def run_server(port=8080):
+def run_server(port=8469):
     """Run the mock HTTP server on specified port."""
     server_address = ('', port)
     httpd = HTTPServer(server_address, MockHTTPHandler)
@@ -216,7 +216,7 @@ def run_server(port=8080):
 
 
 if __name__ == '__main__':
-    port = 8080
+    port = 8469
     if len(sys.argv) > 1 and sys.argv[1].isdigit():
         port = int(sys.argv[1])
     run_server(port)

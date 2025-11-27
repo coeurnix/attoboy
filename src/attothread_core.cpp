@@ -5,17 +5,20 @@ namespace attoboy {
 static DWORD WINAPI ThreadProc(LPVOID param) {
   ThreadImpl *impl = (ThreadImpl *)param;
   if (impl) {
+    void *ret = nullptr;
     if (impl->func) {
-      impl->returnValue = impl->func(impl->arg);
+      ret = impl->func(impl->arg);
     }
     WriteLockGuard guard(&impl->lock);
+    impl->returnValue = ret;
     impl->completed = true;
   }
   return 0;
 }
 
-Thread::Thread(void* (*func)(void*), void *arg) {
-  impl = (ThreadImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(ThreadImpl));
+Thread::Thread(void *(*func)(void *), void *arg) {
+  impl = (ThreadImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+                                 sizeof(ThreadImpl));
   if (impl) {
     InitializeSRWLock(&impl->lock);
     impl->func = func;
@@ -24,7 +27,8 @@ Thread::Thread(void* (*func)(void*), void *arg) {
     impl->completed = false;
     impl->cancelled = false;
     impl->refCount = 1;
-    impl->handle = CreateThread(nullptr, 0, ThreadProc, impl, 0, &impl->threadId);
+    impl->handle =
+        CreateThread(nullptr, 0, ThreadProc, impl, 0, &impl->threadId);
     if (!impl->handle) {
       impl->completed = true;
     }

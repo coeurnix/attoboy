@@ -4,7 +4,7 @@ void atto_main() {
   EnableLoggingToFile("test_conversation_only.log", true);
   Log("=== Conversation Test ===");
 
-  String baseUrl = String("http://localhost:8080/v1/");
+  String baseUrl = String("http://localhost:8469/v1/");
   String apiKey = String("mock-api-key-12345");
   String chatModel = String("gpt-5-mini-mock");
 

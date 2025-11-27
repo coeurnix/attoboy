@@ -20,12 +20,12 @@ def main():
 
     # Start mock server
     mock_server_script = os.path.join(os.path.dirname(__file__), "mock_server.py")
-    print(f"Starting mock server on port 8080...")
+    print(f"Starting mock server on port 8469...")
 
     try:
         # Start server in background
         server_process = subprocess.Popen(
-            [sys.executable, "-u", mock_server_script, "8080"],
+            [sys.executable, "-u", mock_server_script, "8469"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if sys.platform == 'win32' else 0

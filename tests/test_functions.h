@@ -492,6 +492,6 @@
   X(Console_Wrap)
 
 // Count of all registered functions
-#define FUNCTION_COUNT 481
+#define FUNCTION_COUNT 485
 
 #endif // TEST_FUNCTIONS_H
