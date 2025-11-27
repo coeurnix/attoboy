@@ -49,7 +49,7 @@ File::File(const Path &path) {
   }
   ATTO_LSTRCPY(impl->pathStr, pathCStr);
 
-  WCHAR* pathWide = Utf8ToWide(pathCStr);
+  WCHAR *pathWide = Utf8ToWide(pathCStr);
   if (!pathWide) {
     impl->isValid = false;
     return;
@@ -303,6 +303,7 @@ void File::close() {
 
   if (impl->type == FILE_TYPE_SOCKET || impl->type == FILE_TYPE_SERVER_SOCKET) {
     if (impl->sock != INVALID_SOCKET) {
+      shutdown(impl->sock, SD_SEND);
       closesocket(impl->sock);
       impl->sock = INVALID_SOCKET;
     }

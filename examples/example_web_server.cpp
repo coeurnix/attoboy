@@ -13,7 +13,40 @@
 
 #include "attoboy/attoboy.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 using namespace attoboy;
+
+//------------------------------------------------------------------------------
+// Server Control
+//------------------------------------------------------------------------------
+
+static volatile bool g_serverRunning = true;
+static int g_serverPort = 8123;
+
+static void *UnblockAcceptThread(void *arg) {
+  File client("127.0.0.1", g_serverPort);
+  if (client.isValid()) {
+    client.write("GET / HTTP/1.0\r\n\r\n");
+    Sleep(100); // Give time for the request to be processed
+    client.close();
+  }
+  return nullptr;
+}
+
+static BOOL WINAPI ConsoleCtrlHandler(DWORD ctrlType) {
+  if (ctrlType == CTRL_C_EVENT || ctrlType == CTRL_BREAK_EVENT) {
+    g_serverRunning = false;
+    Log("\nShutting down server...");
+
+    // Start thread to unblock accept()
+    Thread unblockThread(UnblockAcceptThread, nullptr);
+
+    return TRUE;
+  }
+  return FALSE;
+}
 
 //------------------------------------------------------------------------------
 // Content-Type Mapping
@@ -174,13 +207,13 @@ static String NormalizePath(const String &path) {
       }
       if (val > 0 && val < 256) {
         char ch = (char)val;
-        decoded = decoded + String(&ch, 1);
+        decoded = decoded + String::FromCStr(&ch, 1);
       }
       i += 2;
     } else if (p[i] == '+') {
       decoded = decoded + " ";
     } else {
-      decoded = decoded + String(&p[i], 1);
+      decoded = decoded + String::FromCStr(&p[i], 1);
     }
   }
 
@@ -284,8 +317,9 @@ static String GenerateDirectoryListing(const Path &dir, const String &urlPath) {
   List files;
 
   for (int i = 0; i < children.length(); ++i) {
-    String name = children.at<String>(i);
-    Path child(dir.toString() + "/" + name);
+    String childPathStr = children.at<String>(i);
+    Path child(childPathStr);
+    String name = child.getName();
     if (child.isDirectory()) {
       dirs.append(name);
     } else {
@@ -312,7 +346,7 @@ static String GenerateDirectoryListing(const Path &dir, const String &urlPath) {
   // Then files
   for (int i = 0; i < files.length(); ++i) {
     String name = files.at<String>(i);
-    Path filePath(dir.toString() + "/" + name);
+    Path filePath(dir.toString() + "\\" + name);
     long long size = filePath.getSize();
 
     String sizeStr;
@@ -395,6 +429,7 @@ static void HandleClient(File &client, const Path &rootDir) {
   }
 
   if (request.isEmpty()) {
+    client.flush();
     client.close();
     return;
   }
@@ -405,6 +440,7 @@ static void HandleClient(File &client, const Path &rootDir) {
   if (!req.valid) {
     Log(req.path, " -> 400");
     SendErrorResponse(client, 400);
+    client.flush();
     client.close();
     return;
   }
@@ -413,6 +449,7 @@ static void HandleClient(File &client, const Path &rootDir) {
   if (req.method != "GET") {
     Log(req.path, " -> 405");
     SendErrorResponse(client, 405);
+    client.flush();
     client.close();
     return;
   }
@@ -423,6 +460,7 @@ static void HandleClient(File &client, const Path &rootDir) {
   if (!IsPathSafe(urlPath)) {
     Log(urlPath, " -> 403");
     SendErrorResponse(client, 403);
+    client.flush();
     client.close();
     return;
   }
@@ -446,6 +484,7 @@ static void HandleClient(File &client, const Path &rootDir) {
   if (!targetPath.exists()) {
     Log(urlPath, " -> 404");
     SendErrorResponse(client, 404);
+    client.flush();
     client.close();
     return;
   }
@@ -454,6 +493,7 @@ static void HandleClient(File &client, const Path &rootDir) {
   if (!targetPath.isWithin(rootDir) && !targetPath.equals(rootDir)) {
     Log(urlPath, " -> 403");
     SendErrorResponse(client, 403);
+    client.flush();
     client.close();
     return;
   }
@@ -472,6 +512,7 @@ static void HandleClient(File &client, const Path &rootDir) {
       client.write(headers);
       client.write(listing);
       Log(urlPath, " -> 200 (directory)");
+      client.flush();
       client.close();
       return;
     }
@@ -481,6 +522,7 @@ static void HandleClient(File &client, const Path &rootDir) {
   if (!targetPath.isRegularFile()) {
     Log(urlPath, " -> 404");
     SendErrorResponse(client, 404);
+    client.flush();
     client.close();
     return;
   }
@@ -508,6 +550,7 @@ static void HandleClient(File &client, const Path &rootDir) {
   }
 
   Log(urlPath, " -> 200");
+  client.flush();
   client.close();
 }
 
@@ -541,6 +584,7 @@ extern "C" void atto_main() {
     LogError("Invalid port number. Must be between 1 and 65535.");
     Exit(1);
   }
+  g_serverPort = port;
 
   // Get root directory
   String rootPath = parsed.get<String, String>("path", ".");
@@ -559,6 +603,9 @@ extern "C" void atto_main() {
     LogError("Path is not a directory: ", rootPath);
     Exit(1);
   }
+
+  // Set up CTRL-C handler
+  SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
 
   // Create server socket
   File server(port);
@@ -579,11 +626,13 @@ extern "C" void atto_main() {
   Log("");
 
   // Main server loop
-  while (true) {
+  while (g_serverRunning) {
     File client = server.accept();
 
     if (client.isValid()) {
       HandleClient(client, rootDir);
     }
   }
+
+  Log("Server stopped.");
 }

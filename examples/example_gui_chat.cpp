@@ -382,7 +382,11 @@ static void CreateControls(ChatApp *app) {
   welcome = welcome + "Enter your Base URL, API Key, and Model above.\r\n";
   welcome =
       welcome + "Then type a message and press Enter or click Send.\r\n\r\n";
-  welcome = welcome + String("-") + "\r\n\r\n";
+  String separator;
+  for (int i = 0; i < 60; ++i) {
+    separator = separator + "-";
+  }
+  welcome = welcome + separator + "\r\n\r\n";
   SetControlText(app->hChatDisplay, welcome);
 }
 
@@ -571,7 +575,7 @@ static void HandleSend(ChatApp *app) {
   SetSendingState(app, true);
 
   // Display user message
-  AppendChatText(app, String("You:\r\n", message, "\r\n\r\n"));
+  AppendChatText(app, String("You:\r\n") + message + "\r\n\r\n");
 
   // Check if we need to (re)create the AI instance
   bool needNewAI = (app->ai == nullptr);
@@ -604,8 +608,7 @@ static void HandleSend(ChatApp *app) {
   if (app->ai && !app->conv) {
     void *convMem = Alloc(sizeof(Conversation));
     if (convMem) {
-      Conversation temp = app->ai->createConversation();
-      app->conv = new (convMem) Conversation(temp);
+      app->conv = new (convMem) Conversation(app->ai->createConversation());
     } else {
       AppendChatText(app,
                      "Assistant:\r\n[Error: Memory allocation failed]\r\n\r\n");
@@ -625,7 +628,7 @@ static void HandleSend(ChatApp *app) {
       // Format the response with proper line endings for Windows
       String formattedResponse = response.replace("\n", "\r\n");
       AppendChatText(app,
-                     String("Assistant:\r\n", formattedResponse, "\r\n\r\n"));
+                     String("Assistant:\r\n") + formattedResponse + "\r\n\r\n");
     }
   } else {
     AppendChatText(
@@ -633,7 +636,11 @@ static void HandleSend(ChatApp *app) {
   }
 
   // Add separator
-  AppendChatText(app, String(60, '-') + "\r\n\r\n");
+  String separator;
+  for (int i = 0; i < 60; ++i) {
+    separator = separator + "-";
+  }
+  AppendChatText(app, separator + "\r\n\r\n");
 
   // Re-enable UI
   SetSendingState(app, false);
@@ -662,7 +669,11 @@ static void HandleClear(ChatApp *app) {
     // Show welcome message again
     String welcome = "=== Conversation Cleared ===\r\n\r\n";
     welcome = welcome + "Ready for a new conversation.\r\n\r\n";
-    welcome = welcome + String(60, '-') + "\r\n\r\n";
+    String separator;
+    for (int i = 0; i < 60; ++i) {
+      separator = separator + "-";
+    }
+    welcome = welcome + separator + "\r\n\r\n";
     AppendChatText(app, welcome);
 
     SetFocus(app->hMessageInput);

@@ -106,8 +106,6 @@ public:
   String(long long value);
   /// Creates a string from a float.
   String(float value);
-  /// Creates a string from raw bytes and length.
-  String(const char *data, int size);
   /// Creates a JSON array string from a list (e.g., [1,"a",true]).
   String(const List &list);
   /// Creates a JSON object string from a map (e.g., {"k":"v"}).
@@ -124,6 +122,11 @@ public:
   String(const String &other);
   /// Destroys the string and frees memory.
   ~String();
+
+  /// Creates a string from raw bytes with specified length (does not require
+  /// null termination).
+  static String FromCStr(const char *data, int size);
+
   /// Assigns another string to this string.
   String &operator=(const String &other);
 

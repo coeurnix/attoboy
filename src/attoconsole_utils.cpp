@@ -55,7 +55,7 @@ List SplitIntoWords(const String &text) {
       str++;
     } else {
       int charWidth = UTF8CharWidth(str);
-      current = current + String(str, charWidth);
+      current = current + String::FromCStr(str, charWidth);
       str += charWidth;
     }
   }
