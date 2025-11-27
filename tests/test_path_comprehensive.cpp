@@ -1,5 +1,8 @@
 #include "test_framework.h"
 
+// Undefine Windows macro that conflicts with our function
+#undef GetCurrentDirectory
+
 void atto_main() {
   EnableLoggingToFile("test_path_comprehensive.log", true);
   Log("=== Comprehensive Path Class Tests ===");
@@ -337,8 +340,7 @@ void atto_main() {
     Path p("test.txt");
     String ext = p.getExtension();
     REGISTER_TESTED(Path_extension);
-    ASSERT_TRUE(ext.equals(String("txt")) ||
-                ext.equals(String(".txt")));
+    ASSERT_TRUE(ext.equals(String("txt")) || ext.equals(String(".txt")));
     Log("getExtension(): passed");
   }
 
@@ -458,11 +460,30 @@ void atto_main() {
 
   // ========== STATIC METHODS ==========
 
+  // GetCurrentDirectory()
+  {
+    Path currentDir = Path::GetCurrentDirectory();
+    REGISTER_TESTED(Path_GetCurrentDirectory);
+    ASSERT_FALSE(currentDir.toString().isEmpty());
+    Log("GetCurrentDirectory(): passed");
+  }
+
+  // GetCurrentExecutable()
+  {
+    Path exePath = Path::GetCurrentExecutable();
+    REGISTER_TESTED(Path_GetCurrentExecutable);
+    ASSERT_FALSE(exePath.toString().isEmpty());
+    Log("GetCurrentExecutable(): passed");
+  }
+
+  // Update task progress - tests are now added
+  // [x] Add tests in test_path_comprehensive.cpp
+
   // ChangeCurrentDirectory()
   {
     // Save current directory to restore after test
     char originalDir[MAX_PATH];
-    GetCurrentDirectory(MAX_PATH, originalDir);
+    GetCurrentDirectoryA(MAX_PATH, originalDir);
 
     Path temp = Path::CreateTemporaryDirectory();
     bool changed = Path::ChangeCurrentDirectory(temp);

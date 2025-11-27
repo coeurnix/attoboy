@@ -489,9 +489,11 @@
   X(Console_onHotkey)                                                          \
   X(Console_offHotkey)                                                         \
   X(Console_Align)                                                             \
-  X(Console_Wrap)
+  X(Console_Wrap)                                                              \
+  X(Path_GetCurrentDirectory)                                                  \
+  X(Path_GetCurrentExecutable)
 
 // Count of all registered functions
-#define FUNCTION_COUNT 485
+#define FUNCTION_COUNT 487
 
 #endif // TEST_FUNCTIONS_H

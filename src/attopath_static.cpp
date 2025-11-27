@@ -1,6 +1,6 @@
+#include "attolist_internal.h"
 #include "attopath_internal.h"
 #include "attostring_internal.h"
-#include "attolist_internal.h"
 #include <shlobj.h>
 
 namespace attoboy {
@@ -32,7 +32,7 @@ List Path::ListVolumes() {
   return result;
 }
 
-Path Path::CreateTemporaryFile(const String &prefix) {
+Path Path::CreateTemporaryFile(const String &prefix, const String &suffix) {
   char tempPath[MAX_PATH];
   char tempFile[MAX_PATH];
 
@@ -45,7 +45,26 @@ Path Path::CreateTemporaryFile(const String &prefix) {
   if (GetTempFileName(tempPath, prefixStr, 0, tempFile) == 0)
     return Path(String());
 
-  return Path(String(tempFile));
+  String resultPath = String(tempFile);
+
+  if (!suffix.isEmpty()) {
+    // Find the last '.' and replace everything after it with suffix
+    int dotPos = resultPath.getPositionOf(".", -1); // search from end
+    if (dotPos != -1) {
+      resultPath = resultPath.substring(0, dotPos) + suffix;
+    } else {
+      // No extension found, append suffix
+      resultPath = resultPath + suffix;
+    }
+
+    // Rename the file to the new path
+    if (!MoveFile(tempFile, resultPath.c_str())) {
+      // If rename fails, return the original path
+      return Path(String(tempFile));
+    }
+  }
+
+  return Path(resultPath);
 }
 
 Path Path::CreateTemporaryDirectory(const String &prefix) {
@@ -79,7 +98,10 @@ Path Path::CreateTemporaryDirectory(const String &prefix) {
 
     LARGE_INTEGER perfCounter;
     QueryPerformanceCounter(&perfCounter);
-    unsigned int randomNum = (unsigned int)((perfCounter.QuadPart ^ (perfCounter.QuadPart >> 32)) & 0xFFFFFF) + attempt * 1231;
+    unsigned int randomNum =
+        (unsigned int)((perfCounter.QuadPart ^ (perfCounter.QuadPart >> 32)) &
+                       0xFFFFFF) +
+        attempt * 1231;
     randomNum = randomNum % 1000000;
 
     char numStr[16];
@@ -115,7 +137,7 @@ Path Path::GetHomeDirectory() {
   if (SHGetFolderPathW(nullptr, CSIDL_PROFILE, nullptr, 0, pathWide) != S_OK)
     return Path(String());
 
-  char* pathUtf8 = WideToUtf8(pathWide);
+  char *pathUtf8 = WideToUtf8(pathWide);
   if (!pathUtf8)
     return Path(String());
 
@@ -127,10 +149,11 @@ Path Path::GetHomeDirectory() {
 Path Path::GetDocumentsDirectory() {
   WCHAR pathWide[MAX_PATH];
 
-  if (SHGetFolderPathW(nullptr, CSIDL_MYDOCUMENTS, nullptr, 0, pathWide) != S_OK)
+  if (SHGetFolderPathW(nullptr, CSIDL_MYDOCUMENTS, nullptr, 0, pathWide) !=
+      S_OK)
     return Path(String());
 
-  char* pathUtf8 = WideToUtf8(pathWide);
+  char *pathUtf8 = WideToUtf8(pathWide);
   if (!pathUtf8)
     return Path(String());
 
@@ -145,7 +168,7 @@ Path Path::GetRoamingAppDirectory() {
   if (SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, 0, pathWide) != S_OK)
     return Path(String());
 
-  char* pathUtf8 = WideToUtf8(pathWide);
+  char *pathUtf8 = WideToUtf8(pathWide);
   if (!pathUtf8)
     return Path(String());
 
@@ -157,16 +180,34 @@ Path Path::GetRoamingAppDirectory() {
 Path Path::GetLocalAppDirectory() {
   WCHAR pathWide[MAX_PATH];
 
-  if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, pathWide) != S_OK)
+  if (SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, pathWide) !=
+      S_OK)
     return Path(String());
 
-  char* pathUtf8 = WideToUtf8(pathWide);
+  char *pathUtf8 = WideToUtf8(pathWide);
   if (!pathUtf8)
     return Path(String());
 
   Path result = Path(String(pathUtf8));
   FreeConvertedString(pathUtf8);
   return result;
+}
+
+#undef GetCurrentDirectory
+Path Path::GetCurrentDirectory() {
+  char path[MAX_PATH];
+  DWORD length = GetCurrentDirectoryA(MAX_PATH, path);
+  if (length == 0 || length >= MAX_PATH)
+    return Path(String());
+  return Path(String(path));
+}
+
+Path Path::GetCurrentExecutable() {
+  char path[MAX_PATH];
+  DWORD length = GetModuleFileNameA(nullptr, path, MAX_PATH);
+  if (length == 0 || length >= MAX_PATH)
+    return Path(String());
+  return Path(String(path));
 }
 
 } // namespace attoboy

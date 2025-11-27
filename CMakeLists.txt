@@ -60,6 +60,7 @@ if(MSVC)
     # MSVC Linker Options
     add_link_options(
         /MACHINE:X86       # Target 32-bit x86 architecture
+        /STACK:1048576     # Set stack size to 1MB
         /SUBSYSTEM:CONSOLE # Console application subsystem
         /NODEFAULTLIB      # Ignore all default libraries (CRT, STL, etc.)
         /OPT:REF           # Remove unreferenced functions and data
@@ -93,7 +94,7 @@ else()
         -nostdlib                    # Do not use standard system startup files or libraries
         -Wl,--entry=_atto_main       # Set entry point to atto_main (bypasses CRT startup)
         -Wl,--defsym,main=_atto_main # makes "main()" still work
-        -Wl,--stack,8388608          # Set stack size to 8MB (default is very small with nostdlib)
+        -Wl,--stack,1048576          # Set stack size to 1MB
     )
 
     set(SYSTEM_LIBS -lkernel32 -luser32 -lws2_32 -ladvapi32 -lcrypt32 -lsecur32 -lshell32 -lwinhttp)

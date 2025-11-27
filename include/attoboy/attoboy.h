@@ -899,7 +899,8 @@ public:
   /// Returns a list of volume drive letters (e.g., "C:", "D:").
   static List ListVolumes();
   /// Creates a temporary file and returns its path.
-  static Path CreateTemporaryFile(const String &prefix = String());
+  static Path CreateTemporaryFile(const String &prefix = String(),
+                                  const String &suffix = String());
   /// Creates a temporary directory and returns its path.
   static Path CreateTemporaryDirectory(const String &prefix = String());
   /// Returns the user's home directory path.
@@ -910,6 +911,10 @@ public:
   static Path GetRoamingAppDirectory();
   /// Returns the local application data directory path.
   static Path GetLocalAppDirectory();
+  /// Returns the current working directory path.
+  static Path GetCurrentDirectory();
+  /// Returns the path to the current executable.
+  static Path GetCurrentExecutable();
 
 private:
   PathImpl *impl;
