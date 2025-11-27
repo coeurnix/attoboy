@@ -397,6 +397,10 @@
   X(Math_radToDeg)                                                             \
   X(Math_isFinite)                                                             \
   X(Math_isNaN)                                                                \
+  X(Math_Add64)                                                                \
+  X(Math_Sub64)                                                                \
+  X(Math_Mul64)                                                                \
+  X(Math_Div64)                                                                \
   X(WebResponse_constructor_copy)                                              \
   X(WebResponse_destructor)                                                    \
   X(WebResponse_operator_assign)                                               \

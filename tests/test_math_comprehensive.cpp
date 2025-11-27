@@ -431,6 +431,56 @@ void atto_main() {
     Log("isNaN(): passed (partial - NAN check skipped)");
   }
 
+  // ========== 64-BIT ARITHMETIC ==========
+
+  // Add64()
+  {
+    REGISTER_TESTED(Math_Add64);
+    ASSERT_EQ(Math::Add64(5LL, 3LL), 8LL);
+    ASSERT_EQ(Math::Add64(-5LL, 3LL), -2LL);
+    ASSERT_EQ(Math::Add64(5LL, -3LL), 2LL);
+    ASSERT_EQ(Math::Add64(-5LL, -3LL), -8LL);
+    ASSERT_EQ(Math::Add64(0LL, 0LL), 0LL);
+    Log("Add64(): passed");
+  }
+
+  // Sub64()
+  {
+    REGISTER_TESTED(Math_Sub64);
+    ASSERT_EQ(Math::Sub64(5LL, 3LL), 2LL);
+    ASSERT_EQ(Math::Sub64(-5LL, 3LL), -8LL);
+    ASSERT_EQ(Math::Sub64(5LL, -3LL), 8LL);
+    ASSERT_EQ(Math::Sub64(-5LL, -3LL), -2LL);
+    ASSERT_EQ(Math::Sub64(0LL, 0LL), 0LL);
+    Log("Sub64(): passed");
+  }
+
+  // Div64()
+  {
+    REGISTER_TESTED(Math_Div64);
+    ASSERT_EQ(Math::Div64(10LL, 2LL), 5LL);
+    ASSERT_EQ(Math::Div64(-10LL, 2LL), -5LL);
+    ASSERT_EQ(Math::Div64(10LL, -2LL), -5LL);
+    ASSERT_EQ(Math::Div64(-10LL, -2LL), 5LL);
+    ASSERT_EQ(Math::Div64(0LL, 5LL), 0LL);
+    ASSERT_EQ(Math::Div64(7LL, 3LL),
+              2LL); // Integer division truncates toward zero
+    Log("Div64(): passed");
+  }
+
+  // Mod64()
+  {
+    REGISTER_TESTED(Math_Mod64);
+    ASSERT_EQ(Math::Mod64(10LL, 3LL), 1LL);
+    ASSERT_EQ(Math::Mod64(-10LL, 3LL), -1LL);
+    ASSERT_EQ(Math::Mod64(10LL, -3LL), 1LL);
+    ASSERT_EQ(Math::Mod64(-10LL, -3LL), -1LL);
+    ASSERT_EQ(Math::Mod64(7LL, 3LL), 1LL);
+    ASSERT_EQ(Math::Mod64(6LL, 3LL), 0LL);
+    ASSERT_EQ(Math::Mod64(0LL, 5LL), 0LL);
+    Log("Mod64(): passed");
+  }
+
   Log("=== All Math Tests Passed ===");
   TestFramework::DisplayCoverage();
   TestFramework::WriteCoverageData("test_math_comprehensive");

@@ -1698,6 +1698,15 @@ public:
   static bool isFinite(float x) noexcept;
   /// Returns true if x is NaN.
   static bool isNaN(float x) noexcept;
+
+  /// Returns the sum of a + b (64-bit integers).
+  static long long Add64(long long a, long long b) noexcept;
+  /// Returns the difference of a - b (64-bit integers).
+  static long long Sub64(long long a, long long b) noexcept;
+  /// Returns the quotient of a / b (64-bit integers).
+  static long long Div64(long long a, long long b) noexcept;
+  /// Returns the remainder of a / b (64-bit integers).
+  static long long Mod64(long long a, long long b) noexcept;
 };
 
 template <typename T> inline T Math::randomChoice(const List &list) noexcept {
@@ -1763,24 +1772,39 @@ void LogImpl(const String *args, int count, const String &prefix);
 /// Prints arguments to the log destination followed by a newline.
 template <typename... Args> void Log(const Args &...args) {
 #if !defined(ATTOBOY_LOG_DISABLE)
-  String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String());
+  constexpr int count = sizeof...(Args);
+  if constexpr (count > 0) {
+    String strings[] = {String(args)...};
+    internal::LogImpl(strings, count, String());
+  } else {
+    internal::LogImpl(nullptr, 0, String());
+  }
 #endif
 }
 
 /// Prints a debug message: "DEBUG HH:MM:SS: ..."
 template <typename... Args> void LogDebug(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE)
-  String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String("DEBUG "));
+  constexpr int count = sizeof...(Args);
+  if constexpr (count > 0) {
+    String strings[] = {String(args)...};
+    internal::LogImpl(strings, count, String("DEBUG "));
+  } else {
+    internal::LogImpl(nullptr, 0, String("DEBUG "));
+  }
 #endif
 }
 
 /// Prints an info message: "INFO HH:MM:SS: ..."
 template <typename... Args> void LogInfo(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE) || defined(ATTOBOY_LOG_INFO_ENABLE)
-  String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String("INFO "));
+  constexpr int count = sizeof...(Args);
+  if constexpr (count > 0) {
+    String strings[] = {String(args)...};
+    internal::LogImpl(strings, count, String("INFO "));
+  } else {
+    internal::LogImpl(nullptr, 0, String("INFO "));
+  }
 #endif
 }
 
@@ -1788,16 +1812,26 @@ template <typename... Args> void LogInfo(const Args &...args) {
 template <typename... Args> void LogWarning(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE) || defined(ATTOBOY_LOG_INFO_ENABLE) ||   \
     defined(ATTOBOY_LOG_WARNING_ENABLE)
-  String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String("WARNING "));
+  constexpr int count = sizeof...(Args);
+  if constexpr (count > 0) {
+    String strings[] = {String(args)...};
+    internal::LogImpl(strings, count, String("WARNING "));
+  } else {
+    internal::LogImpl(nullptr, 0, String("WARNING "));
+  }
 #endif
 }
 
 /// Prints an error message: "ERROR HH:MM:SS: ..."
 template <typename... Args> void LogError(const Args &...args) {
 #if !defined(ATTOBOY_LOG_DISABLE)
-  String strings[] = {String(args)...};
-  internal::LogImpl(strings, sizeof...(Args), String("ERROR "));
+  constexpr int count = sizeof...(Args);
+  if constexpr (count > 0) {
+    String strings[] = {String(args)...};
+    internal::LogImpl(strings, count, String("ERROR "));
+  } else {
+    internal::LogImpl(nullptr, 0, String("ERROR "));
+  }
 #endif
 }
 

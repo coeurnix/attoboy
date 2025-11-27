@@ -3,7 +3,6 @@
 using namespace attoboy;
 
 void atto_main() {
-  String s("Hello from Attoboy!");
-  Log(s);
+  Log("Hello from Attoboy!");
   Exit(0);
 }

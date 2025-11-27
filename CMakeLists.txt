@@ -126,8 +126,6 @@ add_custom_target(print_banner ALL
 # ------------------------------------------------------------------------------
 message(STATUS "Building library sources...")
 file(GLOB_RECURSE LIB_SOURCES "src/*.cpp")
-# Exclude MSVC intrinsics shim since we refactored to avoid 64-bit operations
-list(FILTER LIB_SOURCES EXCLUDE REGEX ".*atto00_intrinsics_msvc\.cpp$")
 add_library(attoboy STATIC ${LIB_SOURCES})
 add_dependencies(attoboy print_banner)
 

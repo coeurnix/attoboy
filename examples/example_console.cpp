@@ -853,7 +853,7 @@ void showGoodbye(Console &con) {
 // Main Entry Point
 //------------------------------------------------------------------------------
 
-extern "C" void atto_main() {
+void atto_main() {
   Console con;
 
   // Show animated welcome

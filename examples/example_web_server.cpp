@@ -4,10 +4,10 @@
 //==============================================================================
 //
 // Usage:
-//   attoboy_httpd                     # Serve current directory on port 8123
-//   attoboy_httpd -p 8080             # Serve current directory on port 8080
-//   attoboy_httpd C:\www              # Serve C:\www on port 8123
-//   attoboy_httpd -p 80 C:\www        # Serve C:\www on port 80
+//   example_web_server                     # Serve current directory on port
+//   8123 example_web_server -p 8080             # Serve current directory on
+//   port 8080 example_web_server C:\www              # Serve C:\www on port
+//   8123 example_web_server -p 80 C:\www        # Serve C:\www on port 80
 //
 //==============================================================================
 
@@ -353,11 +353,11 @@ static String GenerateDirectoryListing(const Path &dir, const String &urlPath) {
     if (size < 1024) {
       sizeStr = String((int)size, " B");
     } else if (size < 1024 * 1024) {
-      sizeStr = String((int)(size / 1024), " KB");
+      sizeStr = String((int)(Math::Div64(size, 1024)), " KB");
     } else if (size < 1024LL * 1024 * 1024) {
-      sizeStr = String((int)(size / (1024 * 1024)), " MB");
+      sizeStr = String((int)(Math::Div64(size, 1024 * 1024)), " MB");
     } else {
-      sizeStr = String((int)(size / (1024LL * 1024 * 1024)), " GB");
+      sizeStr = String((int)(Math::Div64(size, 1024LL * 1024 * 1024)), " GB");
     }
 
     String href = urlPath;
@@ -567,16 +567,19 @@ extern "C" void atto_main() {
   args.setHelp(
       "Attoboy HTTP File Server\n\n"
       "A simple single-threaded HTTP server for serving static files.\n\n"
-      "Usage: attoboy_httpd [options] [path]\n\n"
+      "Usage: example_web_server [options] [path]\n\n"
       "Examples:\n"
-      "  attoboy_httpd                    Serve current directory on port "
+      "  example_web_server                    Serve current directory on port "
       "8123\n"
-      "  attoboy_httpd -p 8080            Serve current directory on port "
+      "  example_web_server -p 8080            Serve current directory on port "
       "8080\n"
-      "  attoboy_httpd C:\\www             Serve C:\\www on port 8123\n"
-      "  attoboy_httpd --port=80 D:\\site  Serve D:\\site on port 80\n");
+      "  example_web_server C:\\www             Serve C:\\www on port 8123\n"
+      "  example_web_server --port=80 D:\\site  Serve D:\\site on port 80\n");
 
   Map parsed = args.parseArguments();
+  if (parsed.isEmpty()) {
+    Exit(1);
+  }
 
   // Get port
   int port = parsed.get<String, String>("p", "8123").toInteger();
