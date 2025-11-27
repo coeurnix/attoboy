@@ -8,20 +8,8 @@ static HANDLE g_logFileHandle = nullptr;
 static bool g_logToFile = false;
 
 static String GetCurrentDatetimeString() {
-  SYSTEMTIME st;
-  GetLocalTime(&st);
-  char buf[32];
-  char *p = buf;
-  *p++ = '0' + (st.wHour / 10);
-  *p++ = '0' + (st.wHour % 10);
-  *p++ = ':';
-  *p++ = '0' + (st.wMinute / 10);
-  *p++ = '0' + (st.wMinute % 10);
-  *p++ = ':';
-  *p++ = '0' + (st.wSecond / 10);
-  *p++ = '0' + (st.wSecond % 10);
-  *p = '\0';
-  return String(buf);
+  DateTime dt;
+  return dt.toString();
 }
 
 static void PrintString(const String &s) {
@@ -52,8 +40,9 @@ void EnableLoggingToFile(const String &path, bool truncate) {
   }
 
   DWORD creationDisposition = truncate ? CREATE_ALWAYS : OPEN_ALWAYS;
-  g_logFileHandle = CreateFileA(path.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
-                                nullptr, creationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr);
+  g_logFileHandle =
+      CreateFileA(path.c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr,
+                  creationDisposition, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (g_logFileHandle != INVALID_HANDLE_VALUE) {
     if (!truncate) {

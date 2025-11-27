@@ -1782,7 +1782,7 @@ template <typename... Args> void Log(const Args &...args) {
 #endif
 }
 
-/// Prints a debug message: "DEBUG HH:MM:SS: ..."
+//// Prints a debug message: "DEBUG YYYY-MM-DDTHH:MM:SS.fffZ: ..."
 template <typename... Args> void LogDebug(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE)
   constexpr int count = sizeof...(Args);
@@ -1795,7 +1795,7 @@ template <typename... Args> void LogDebug(const Args &...args) {
 #endif
 }
 
-/// Prints an info message: "INFO HH:MM:SS: ..."
+//// Prints an info message: "INFO YYYY-MM-DDTHH:MM:SS.fffZ: ..."
 template <typename... Args> void LogInfo(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE) || defined(ATTOBOY_LOG_INFO_ENABLE)
   constexpr int count = sizeof...(Args);
@@ -1808,7 +1808,7 @@ template <typename... Args> void LogInfo(const Args &...args) {
 #endif
 }
 
-/// Prints a warning message: "WARNING HH:MM:SS: ..."
+//// Prints a warning message: "WARNING YYYY-MM-DDTHH:MM:SS.fffZ: ..."
 template <typename... Args> void LogWarning(const Args &...args) {
 #if defined(ATTOBOY_LOG_DEBUG_ENABLE) || defined(ATTOBOY_LOG_INFO_ENABLE) ||   \
     defined(ATTOBOY_LOG_WARNING_ENABLE)
@@ -1822,7 +1822,7 @@ template <typename... Args> void LogWarning(const Args &...args) {
 #endif
 }
 
-/// Prints an error message: "ERROR HH:MM:SS: ..."
+//// Prints an error message: "ERROR YYYY-MM-DDTHH:MM:SS.fffZ: ..."
 template <typename... Args> void LogError(const Args &...args) {
 #if !defined(ATTOBOY_LOG_DISABLE)
   constexpr int count = sizeof...(Args);
