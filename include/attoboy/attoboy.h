@@ -1606,98 +1606,98 @@ public:
   static const float NAN;
 
   /// Returns a random integer.
-  static int random() noexcept;
+  static int Random() noexcept;
   /// Returns a random float in [0.0, 1.0).
-  static float randomFloat() noexcept;
+  static float RandomFloat() noexcept;
   /// Returns a random integer in [start, end).
-  static int randomRange(int start, int end) noexcept;
+  static int RandomRange(int start, int end) noexcept;
   /// Returns a random boolean.
-  static bool randomBool() noexcept;
+  static bool RandomBool() noexcept;
   /// Returns a random element from the list.
-  template <typename T> static T randomChoice(const List &list) noexcept;
+  template <typename T> static T RandomChoice(const List &list) noexcept;
 
   /// Returns the absolute value of x.
-  static int abs(int x) noexcept;
+  static int Abs(int x) noexcept;
   /// Returns the absolute value of x.
-  static float abs(float x) noexcept;
+  static float Abs(float x) noexcept;
   /// Returns the smaller of a and b.
-  static int min(int a, int b) noexcept;
+  static int Min(int a, int b) noexcept;
   /// Returns the smaller of a and b.
-  static float min(float a, float b) noexcept;
+  static float Min(float a, float b) noexcept;
   /// Returns the larger of a and b.
-  static int max(int a, int b) noexcept;
+  static int Max(int a, int b) noexcept;
   /// Returns the larger of a and b.
-  static float max(float a, float b) noexcept;
+  static float Max(float a, float b) noexcept;
   /// Returns x clamped to [minVal, maxVal].
-  static int clamp(int x, int minVal, int maxVal) noexcept;
+  static int Clamp(int x, int minVal, int maxVal) noexcept;
   /// Returns x clamped to [minVal, maxVal].
-  static float clamp(float x, float minVal, float maxVal) noexcept;
+  static float Clamp(float x, float minVal, float maxVal) noexcept;
   /// Returns -1, 0, or 1 based on the sign of x.
-  static int sign(int x) noexcept;
+  static int Sign(int x) noexcept;
   /// Returns -1.0, 0.0, or 1.0 based on the sign of x.
-  static float sign(float x) noexcept;
+  static float Sign(float x) noexcept;
   /// Returns true if x is even.
-  static bool isEven(int x) noexcept;
+  static bool IsEven(int x) noexcept;
   /// Returns true if x is odd.
-  static bool isOdd(int x) noexcept;
+  static bool IsOdd(int x) noexcept;
   /// Returns true if x is a power of two.
-  static bool isPowerOfTwo(int x) noexcept;
+  static bool IsPowerOfTwo(int x) noexcept;
 
   /// Returns the largest integer ≤ x.
-  static float floor(float x) noexcept;
+  static float Floor(float x) noexcept;
   /// Returns the smallest integer ≥ x.
-  static float ceil(float x) noexcept;
+  static float Ceil(float x) noexcept;
   /// Returns x with fractional part removed (toward zero).
-  static float trunc(float x) noexcept;
+  static float Trunc(float x) noexcept;
   /// Returns x rounded to the nearest integer.
-  static float round(float x) noexcept;
+  static float Round(float x) noexcept;
 
   /// Returns 2^x.
-  static float exp2(float x) noexcept;
+  static float Exp2(float x) noexcept;
   /// Returns log₂(x).
-  static float log2(float x) noexcept;
+  static float Log2(float x) noexcept;
   /// Returns the natural logarithm ln(x).
-  static float log(float x) noexcept;
+  static float Ln(float x) noexcept;
   /// Returns log₁₀(x).
-  static float log10(float x) noexcept;
+  static float Log10(float x) noexcept;
   /// Returns e^x.
-  static float exp(float x) noexcept;
+  static float Exp(float x) noexcept;
   /// Returns x^y.
-  static float pow(float x, float y) noexcept;
+  static float Pow(float x, float y) noexcept;
   /// Returns 2^x (integer version).
-  static int pow2(int x) noexcept;
+  static int Pow2(int x) noexcept;
 
   /// Returns the square root of x.
-  static float sqrt(float x) noexcept;
+  static float Sqrt(float x) noexcept;
   /// Returns the sine of x (radians).
-  static float sin(float x) noexcept;
+  static float Sin(float x) noexcept;
   /// Returns the cosine of x (radians).
-  static float cos(float x) noexcept;
+  static float Cos(float x) noexcept;
   /// Returns the tangent of x (radians).
-  static float tan(float x) noexcept;
+  static float Tan(float x) noexcept;
   /// Returns the arctangent of y/x (radians), using signs for quadrant.
-  static float atan2(float y, float x) noexcept;
+  static float Atan2(float y, float x) noexcept;
   /// Returns the arctangent of x (radians).
-  static float atan(float x) noexcept;
+  static float Atan(float x) noexcept;
   /// Returns the arcsine of x (radians).
-  static float asin(float x) noexcept;
+  static float Asin(float x) noexcept;
   /// Returns the hyperbolic cosine of x.
-  static float cosh(float x) noexcept;
+  static float Cosh(float x) noexcept;
 
   /// Returns the floating-point remainder of x/y.
-  static float mod(float x, float y) noexcept;
+  static float Mod(float x, float y) noexcept;
   /// Returns linear interpolation between a and b by t.
-  static float lerp(float a, float b, float t) noexcept;
+  static float Lerp(float a, float b, float t) noexcept;
   /// Returns 0 if x < edge, otherwise 1.
-  static float step(float edge, float x) noexcept;
+  static float Step(float edge, float x) noexcept;
   /// Converts degrees to radians.
-  static float degToRad(float degrees) noexcept;
+  static float DegToRad(float degrees) noexcept;
   /// Converts radians to degrees.
-  static float radToDeg(float radians) noexcept;
+  static float RadToDeg(float radians) noexcept;
   /// Returns true if x is finite (not infinity or NaN).
-  static bool isFinite(float x) noexcept;
+  static bool IsFinite(float x) noexcept;
   /// Returns true if x is NaN.
-  static bool isNaN(float x) noexcept;
+  static bool IsNaN(float x) noexcept;
 
   /// Returns the sum of a + b (64-bit integers).
   static long long Add64(long long a, long long b) noexcept;
@@ -1709,10 +1709,10 @@ public:
   static long long Mod64(long long a, long long b) noexcept;
 };
 
-template <typename T> inline T Math::randomChoice(const List &list) noexcept {
+template <typename T> inline T Math::RandomChoice(const List &list) noexcept {
   if (list.isEmpty())
     return T();
-  return list.at<T>(randomRange(0, list.length()));
+  return list.at<T>(RandomRange(0, list.length()));
 }
 
 //------------------------------------------------------------------------------

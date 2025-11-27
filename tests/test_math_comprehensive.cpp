@@ -6,282 +6,282 @@ void atto_main() {
 
   // ========== RANDOM NUMBER GENERATION ==========
 
-  // random()
+  // Random()
   {
-    int r = Math::random();
-    REGISTER_TESTED(Math_random);
+    int r = Math::Random();
+    REGISTER_TESTED(Math_Random);
     // Just verify it returns a value
     (void)r;
-    Log("random(): passed");
+    Log("Random(): passed");
   }
 
-  // randomFloat()
+  // RandomFloat()
   {
-    float f = Math::randomFloat();
-    REGISTER_TESTED(Math_randomFloat);
+    float f = Math::RandomFloat();
+    REGISTER_TESTED(Math_RandomFloat);
     ASSERT(f >= 0.0f && f < 1.0f);
-    Log("randomFloat(): passed");
+    Log("RandomFloat(): passed");
   }
 
-  // randomRange()
+  // RandomRange()
   {
-    int r = Math::randomRange(10, 20);
-    REGISTER_TESTED(Math_randomRange);
+    int r = Math::RandomRange(10, 20);
+    REGISTER_TESTED(Math_RandomRange);
     ASSERT(r >= 10);
     ASSERT(r < 20);
-    Log("randomRange(): passed");
+    Log("RandomRange(): passed");
   }
 
-  // randomBool()
+  // RandomBool()
   {
-    bool b = Math::randomBool();
-    REGISTER_TESTED(Math_randomBool);
+    bool b = Math::RandomBool();
+    REGISTER_TESTED(Math_RandomBool);
     // Can't assert a specific value for random, just that it returns a bool
-    Log("randomBool(): passed");
+    Log("RandomBool(): passed");
   }
 
-  // randomChoice()
+  // RandomChoice()
   {
     List list;
     list.append(1).append(2).append(3).append(4).append(5);
-    int choice = Math::randomChoice<int>(list);
-    REGISTER_TESTED(Math_randomChoice);
+    int choice = Math::RandomChoice<int>(list);
+    REGISTER_TESTED(Math_RandomChoice);
     // Should be one of the values in the list
     ASSERT(choice >= 1 && choice <= 5);
-    Log("randomChoice(): passed");
+    Log("RandomChoice(): passed");
   }
 
   // ========== BASIC ARITHMETIC ==========
 
-  // abs(int)
+  // Abs(int)
   {
-    REGISTER_TESTED(Math_abs);
-    ASSERT_EQ(Math::abs(-5), 5);
-    ASSERT_EQ(Math::abs(5), 5);
-    ASSERT_EQ(Math::abs(0), 0);
-    Log("abs(int): passed");
+    REGISTER_TESTED(Math_Abs);
+    ASSERT_EQ(Math::Abs(-5), 5);
+    ASSERT_EQ(Math::Abs(5), 5);
+    ASSERT_EQ(Math::Abs(0), 0);
+    Log("Abs(int): passed");
   }
 
-  // abs(float)
+  // Abs(float)
   {
-    ASSERT(Math::abs(-3.14f) > 3.13f && Math::abs(-3.14f) < 3.15f);
-    ASSERT(Math::abs(3.14f) > 3.13f && Math::abs(3.14f) < 3.15f);
-    ASSERT_EQ(Math::abs(0.0f), 0.0f);
-    Log("abs(float): passed");
+    ASSERT(Math::Abs(-3.14f) > 3.13f && Math::Abs(-3.14f) < 3.15f);
+    ASSERT(Math::Abs(3.14f) > 3.13f && Math::Abs(3.14f) < 3.15f);
+    ASSERT_EQ(Math::Abs(0.0f), 0.0f);
+    Log("Abs(float): passed");
   }
 
-  // min(int)
+  // Min(int)
   {
-    REGISTER_TESTED(Math_min);
-    ASSERT_EQ(Math::min(5, 10), 5);
-    ASSERT_EQ(Math::min(10, 5), 5);
-    ASSERT_EQ(Math::min(-5, -10), -10);
-    Log("min(int): passed");
+    REGISTER_TESTED(Math_Min);
+    ASSERT_EQ(Math::Min(5, 10), 5);
+    ASSERT_EQ(Math::Min(10, 5), 5);
+    ASSERT_EQ(Math::Min(-5, -10), -10);
+    Log("Min(int): passed");
   }
 
-  // min(float)
+  // Min(float)
   {
-    ASSERT_EQ(Math::min(3.14f, 2.71f), 2.71f);
-    ASSERT_EQ(Math::min(2.71f, 3.14f), 2.71f);
-    Log("min(float): passed");
+    ASSERT_EQ(Math::Min(3.14f, 2.71f), 2.71f);
+    ASSERT_EQ(Math::Min(2.71f, 3.14f), 2.71f);
+    Log("Min(float): passed");
   }
 
-  // max(int)
+  // Max(int)
   {
-    REGISTER_TESTED(Math_max);
-    ASSERT_EQ(Math::max(5, 10), 10);
-    ASSERT_EQ(Math::max(10, 5), 10);
-    ASSERT_EQ(Math::max(-5, -10), -5);
-    Log("max(int): passed");
+    REGISTER_TESTED(Math_Max);
+    ASSERT_EQ(Math::Max(5, 10), 10);
+    ASSERT_EQ(Math::Max(10, 5), 10);
+    ASSERT_EQ(Math::Max(-5, -10), -5);
+    Log("Max(int): passed");
   }
 
-  // max(float)
+  // Max(float)
   {
-    ASSERT_EQ(Math::max(3.14f, 2.71f), 3.14f);
-    ASSERT_EQ(Math::max(2.71f, 3.14f), 3.14f);
-    Log("max(float): passed");
+    ASSERT_EQ(Math::Max(3.14f, 2.71f), 3.14f);
+    ASSERT_EQ(Math::Max(2.71f, 3.14f), 3.14f);
+    Log("Max(float): passed");
   }
 
-  // clamp(int)
+  // Clamp(int)
   {
-    REGISTER_TESTED(Math_clamp);
-    ASSERT_EQ(Math::clamp(5, 0, 10), 5);
-    ASSERT_EQ(Math::clamp(-5, 0, 10), 0);
-    ASSERT_EQ(Math::clamp(15, 0, 10), 10);
-    Log("clamp(int): passed");
+    REGISTER_TESTED(Math_Clamp);
+    ASSERT_EQ(Math::Clamp(5, 0, 10), 5);
+    ASSERT_EQ(Math::Clamp(-5, 0, 10), 0);
+    ASSERT_EQ(Math::Clamp(15, 0, 10), 10);
+    Log("Clamp(int): passed");
   }
 
-  // clamp(float)
+  // Clamp(float)
   {
-    ASSERT_EQ(Math::clamp(5.0f, 0.0f, 10.0f), 5.0f);
-    ASSERT_EQ(Math::clamp(-5.0f, 0.0f, 10.0f), 0.0f);
-    ASSERT_EQ(Math::clamp(15.0f, 0.0f, 10.0f), 10.0f);
-    Log("clamp(float): passed");
+    ASSERT_EQ(Math::Clamp(5.0f, 0.0f, 10.0f), 5.0f);
+    ASSERT_EQ(Math::Clamp(-5.0f, 0.0f, 10.0f), 0.0f);
+    ASSERT_EQ(Math::Clamp(15.0f, 0.0f, 10.0f), 10.0f);
+    Log("Clamp(float): passed");
   }
 
-  // sign(int)
+  // Sign(int)
   {
-    REGISTER_TESTED(Math_sign);
-    ASSERT_EQ(Math::sign(5), 1);
-    ASSERT_EQ(Math::sign(-5), -1);
-    ASSERT_EQ(Math::sign(0), 0);
-    Log("sign(int): passed");
+    REGISTER_TESTED(Math_Sign);
+    ASSERT_EQ(Math::Sign(5), 1);
+    ASSERT_EQ(Math::Sign(-5), -1);
+    ASSERT_EQ(Math::Sign(0), 0);
+    Log("Sign(int): passed");
   }
 
-  // sign(float)
+  // Sign(float)
   {
-    ASSERT_EQ(Math::sign(3.14f), 1.0f);
-    ASSERT_EQ(Math::sign(-3.14f), -1.0f);
-    ASSERT_EQ(Math::sign(0.0f), 0.0f);
-    Log("sign(float): passed");
+    ASSERT_EQ(Math::Sign(3.14f), 1.0f);
+    ASSERT_EQ(Math::Sign(-3.14f), -1.0f);
+    ASSERT_EQ(Math::Sign(0.0f), 0.0f);
+    Log("Sign(float): passed");
   }
 
-  // isEven()
+  // IsEven()
   {
-    REGISTER_TESTED(Math_isEven);
-    ASSERT_TRUE(Math::isEven(0));
-    ASSERT_TRUE(Math::isEven(2));
-    ASSERT_TRUE(Math::isEven(4));
-    ASSERT_TRUE(Math::isEven(-2));
-    ASSERT_FALSE(Math::isEven(1));
-    ASSERT_FALSE(Math::isEven(3));
-    ASSERT_FALSE(Math::isEven(-1));
-    Log("isEven(): passed");
+    REGISTER_TESTED(Math_IsEven);
+    ASSERT_TRUE(Math::IsEven(0));
+    ASSERT_TRUE(Math::IsEven(2));
+    ASSERT_TRUE(Math::IsEven(4));
+    ASSERT_TRUE(Math::IsEven(-2));
+    ASSERT_FALSE(Math::IsEven(1));
+    ASSERT_FALSE(Math::IsEven(3));
+    ASSERT_FALSE(Math::IsEven(-1));
+    Log("IsEven(): passed");
   }
 
-  // isOdd()
+  // IsOdd()
   {
-    REGISTER_TESTED(Math_isOdd);
-    ASSERT_TRUE(Math::isOdd(1));
-    ASSERT_TRUE(Math::isOdd(3));
-    ASSERT_TRUE(Math::isOdd(5));
-    ASSERT_TRUE(Math::isOdd(-1));
-    ASSERT_FALSE(Math::isOdd(0));
-    ASSERT_FALSE(Math::isOdd(2));
-    ASSERT_FALSE(Math::isOdd(-2));
-    Log("isOdd(): passed");
+    REGISTER_TESTED(Math_IsOdd);
+    ASSERT_TRUE(Math::IsOdd(1));
+    ASSERT_TRUE(Math::IsOdd(3));
+    ASSERT_TRUE(Math::IsOdd(5));
+    ASSERT_TRUE(Math::IsOdd(-1));
+    ASSERT_FALSE(Math::IsOdd(0));
+    ASSERT_FALSE(Math::IsOdd(2));
+    ASSERT_FALSE(Math::IsOdd(-2));
+    Log("IsOdd(): passed");
   }
 
-  // isPowerOfTwo()
+  // IsPowerOfTwo()
   {
-    REGISTER_TESTED(Math_isPowerOfTwo);
-    ASSERT_TRUE(Math::isPowerOfTwo(1));
-    ASSERT_TRUE(Math::isPowerOfTwo(2));
-    ASSERT_TRUE(Math::isPowerOfTwo(4));
-    ASSERT_TRUE(Math::isPowerOfTwo(8));
-    ASSERT_TRUE(Math::isPowerOfTwo(16));
-    ASSERT_TRUE(Math::isPowerOfTwo(32));
-    ASSERT_TRUE(Math::isPowerOfTwo(64));
-    ASSERT_TRUE(Math::isPowerOfTwo(128));
-    ASSERT_TRUE(Math::isPowerOfTwo(256));
-    ASSERT_TRUE(Math::isPowerOfTwo(512));
-    ASSERT_TRUE(Math::isPowerOfTwo(1024));
+    REGISTER_TESTED(Math_IsPowerOfTwo);
+    ASSERT_TRUE(Math::IsPowerOfTwo(1));
+    ASSERT_TRUE(Math::IsPowerOfTwo(2));
+    ASSERT_TRUE(Math::IsPowerOfTwo(4));
+    ASSERT_TRUE(Math::IsPowerOfTwo(8));
+    ASSERT_TRUE(Math::IsPowerOfTwo(16));
+    ASSERT_TRUE(Math::IsPowerOfTwo(32));
+    ASSERT_TRUE(Math::IsPowerOfTwo(64));
+    ASSERT_TRUE(Math::IsPowerOfTwo(128));
+    ASSERT_TRUE(Math::IsPowerOfTwo(256));
+    ASSERT_TRUE(Math::IsPowerOfTwo(512));
+    ASSERT_TRUE(Math::IsPowerOfTwo(1024));
 
-    ASSERT_FALSE(Math::isPowerOfTwo(0));
-    ASSERT_FALSE(Math::isPowerOfTwo(3));
-    ASSERT_FALSE(Math::isPowerOfTwo(5));
-    ASSERT_FALSE(Math::isPowerOfTwo(6));
-    ASSERT_FALSE(Math::isPowerOfTwo(7));
-    ASSERT_FALSE(Math::isPowerOfTwo(9));
-    ASSERT_FALSE(Math::isPowerOfTwo(15));
-    ASSERT_FALSE(Math::isPowerOfTwo(17));
-    Log("isPowerOfTwo(): passed");
+    ASSERT_FALSE(Math::IsPowerOfTwo(0));
+    ASSERT_FALSE(Math::IsPowerOfTwo(3));
+    ASSERT_FALSE(Math::IsPowerOfTwo(5));
+    ASSERT_FALSE(Math::IsPowerOfTwo(6));
+    ASSERT_FALSE(Math::IsPowerOfTwo(7));
+    ASSERT_FALSE(Math::IsPowerOfTwo(9));
+    ASSERT_FALSE(Math::IsPowerOfTwo(15));
+    ASSERT_FALSE(Math::IsPowerOfTwo(17));
+    Log("IsPowerOfTwo(): passed");
   }
 
   // ========== ROUNDING ==========
 
-  // floor()
+  // Floor()
   {
-    REGISTER_TESTED(Math_floor);
-    ASSERT_EQ(Math::floor(3.9f), 3.0f);
-    ASSERT_EQ(Math::floor(3.1f), 3.0f);
-    ASSERT_EQ(Math::floor(-3.1f), -4.0f);
-    Log("floor(): passed");
+    REGISTER_TESTED(Math_Floor);
+    ASSERT_EQ(Math::Floor(3.9f), 3.0f);
+    ASSERT_EQ(Math::Floor(3.1f), 3.0f);
+    ASSERT_EQ(Math::Floor(-3.1f), -4.0f);
+    Log("Floor(): passed");
   }
 
-  // ceil()
+  // Ceil()
   {
-    REGISTER_TESTED(Math_ceil);
-    ASSERT_EQ(Math::ceil(3.1f), 4.0f);
-    ASSERT_EQ(Math::ceil(3.9f), 4.0f);
-    ASSERT_EQ(Math::ceil(-3.9f), -3.0f);
-    Log("ceil(): passed");
+    REGISTER_TESTED(Math_Ceil);
+    ASSERT_EQ(Math::Ceil(3.1f), 4.0f);
+    ASSERT_EQ(Math::Ceil(3.9f), 4.0f);
+    ASSERT_EQ(Math::Ceil(-3.9f), -3.0f);
+    Log("Ceil(): passed");
   }
 
-  // trunc()
+  // Trunc()
   {
-    REGISTER_TESTED(Math_trunc);
-    ASSERT_EQ(Math::trunc(3.9f), 3.0f);
-    ASSERT_EQ(Math::trunc(-3.9f), -3.0f);
-    Log("trunc(): passed");
+    REGISTER_TESTED(Math_Trunc);
+    ASSERT_EQ(Math::Trunc(3.9f), 3.0f);
+    ASSERT_EQ(Math::Trunc(-3.9f), -3.0f);
+    Log("Trunc(): passed");
   }
 
-  // round()
+  // Round()
   {
-    REGISTER_TESTED(Math_round);
-    ASSERT_EQ(Math::round(3.4f), 3.0f);
-    ASSERT_EQ(Math::round(3.5f), 4.0f);
-    ASSERT_EQ(Math::round(3.6f), 4.0f);
-    ASSERT_EQ(Math::round(-3.5f), -4.0f); // Rounds away from zero
-    Log("round(): passed");
+    REGISTER_TESTED(Math_Round);
+    ASSERT_EQ(Math::Round(3.4f), 3.0f);
+    ASSERT_EQ(Math::Round(3.5f), 4.0f);
+    ASSERT_EQ(Math::Round(3.6f), 4.0f);
+    ASSERT_EQ(Math::Round(-3.5f), -4.0f); // Rounds away from zero
+    Log("Round(): passed");
   }
 
   // ========== EXPONENTIAL AND LOGARITHMIC ==========
 
-  // exp2()
+  // Exp2()
   {
-    REGISTER_TESTED(Math_exp2);
-    ASSERT_EQ(Math::exp2(0.0f), 1.0f);
-    ASSERT_EQ(Math::exp2(1.0f), 2.0f);
-    ASSERT_EQ(Math::exp2(2.0f), 4.0f);
-    Log("exp2(): passed");
+    REGISTER_TESTED(Math_Exp2);
+    ASSERT_EQ(Math::Exp2(0.0f), 1.0f);
+    ASSERT_EQ(Math::Exp2(1.0f), 2.0f);
+    ASSERT_EQ(Math::Exp2(2.0f), 4.0f);
+    Log("Exp2(): passed");
   }
 
-  // log2()
+  // Log2()
   {
-    REGISTER_TESTED(Math_log2);
-    ASSERT_EQ(Math::log2(1.0f), 0.0f);
-    ASSERT_EQ(Math::log2(2.0f), 1.0f);
-    ASSERT_EQ(Math::log2(4.0f), 2.0f);
-    Log("log2(): passed");
+    REGISTER_TESTED(Math_Log2);
+    ASSERT_EQ(Math::Log2(1.0f), 0.0f);
+    ASSERT_EQ(Math::Log2(2.0f), 1.0f);
+    ASSERT_EQ(Math::Log2(4.0f), 2.0f);
+    Log("Log2(): passed");
   }
 
-  // log()
+  // Ln()
   {
-    REGISTER_TESTED(Math_log);
-    ASSERT_EQ(Math::log(1.0f), 0.0f);
-    float logE = Math::log(Math::E);
+    REGISTER_TESTED(Math_Ln);
+    ASSERT_EQ(Math::Ln(1.0f), 0.0f);
+    float logE = Math::Ln(Math::E);
     ASSERT(logE > 0.99f && logE < 1.01f);
-    Log("log(): passed");
+    Log("Ln(): passed");
   }
 
-  // log10()
+  // Log10()
   {
-    REGISTER_TESTED(Math_log10);
-    ASSERT_EQ(Math::log10(1.0f), 0.0f);
-    ASSERT_EQ(Math::log10(10.0f), 1.0f);
-    ASSERT_EQ(Math::log10(100.0f), 2.0f);
-    Log("log10(): passed");
+    REGISTER_TESTED(Math_Log10);
+    ASSERT_EQ(Math::Log10(1.0f), 0.0f);
+    ASSERT_EQ(Math::Log10(10.0f), 1.0f);
+    ASSERT_EQ(Math::Log10(100.0f), 2.0f);
+    Log("Log10(): passed");
   }
 
-  // exp()
+  // Exp()
   {
-    REGISTER_TESTED(Math_exp);
-    ASSERT_EQ(Math::exp(0.0f), 1.0f);
-    float expE = Math::exp(1.0f);
+    REGISTER_TESTED(Math_Exp);
+    ASSERT_EQ(Math::Exp(0.0f), 1.0f);
+    float expE = Math::Exp(1.0f);
     ASSERT(expE > 2.71f && expE < 2.72f);
-    Log("exp(): passed");
+    Log("Exp(): passed");
   }
 
-  // pow()
+  // Pow()
   {
-    REGISTER_TESTED(Math_pow);
-    ASSERT_EQ(Math::pow(2.0f, 3.0f), 8.0f);
-    float pow3_2 = Math::pow(3.0f, 2.0f);
+    REGISTER_TESTED(Math_Pow);
+    ASSERT_EQ(Math::Pow(2.0f, 3.0f), 8.0f);
+    float pow3_2 = Math::Pow(3.0f, 2.0f);
     ASSERT(pow3_2 > 8.99f &&
            pow3_2 < 9.01f); // Allow for floating-point precision
-    ASSERT_EQ(Math::pow(5.0f, 0.0f), 1.0f);
-    Log("pow(): passed");
+    ASSERT_EQ(Math::Pow(5.0f, 0.0f), 1.0f);
+    Log("Pow(): passed");
   }
 
   // pow2() - Note: in test_functions.h but not in public header (int version)
@@ -292,143 +292,143 @@ void atto_main() {
 
   // ========== TRIGONOMETRIC ==========
 
-  // sqrt()
+  // Sqrt()
   {
-    REGISTER_TESTED(Math_sqrt);
-    ASSERT_EQ(Math::sqrt(0.0f), 0.0f);
-    float sqrt1 = Math::sqrt(1.0f);
+    REGISTER_TESTED(Math_Sqrt);
+    ASSERT_EQ(Math::Sqrt(0.0f), 0.0f);
+    float sqrt1 = Math::Sqrt(1.0f);
     ASSERT(sqrt1 > 0.99f &&
            sqrt1 < 1.01f); // Allow for floating-point precision
-    float sqrt4 = Math::sqrt(4.0f);
+    float sqrt4 = Math::Sqrt(4.0f);
     ASSERT(sqrt4 > 1.99f && sqrt4 < 2.01f);
-    float sqrt9 = Math::sqrt(9.0f);
+    float sqrt9 = Math::Sqrt(9.0f);
     ASSERT(sqrt9 > 2.99f && sqrt9 < 3.01f);
-    Log("sqrt(): passed");
+    Log("Sqrt(): passed");
   }
 
-  // sin()
+  // Sin()
   {
-    REGISTER_TESTED(Math_sin);
-    ASSERT_EQ(Math::sin(0.0f), 0.0f);
-    float sinPi2 = Math::sin(Math::PI / 2.0f);
+    REGISTER_TESTED(Math_Sin);
+    ASSERT_EQ(Math::Sin(0.0f), 0.0f);
+    float sinPi2 = Math::Sin(Math::PI / 2.0f);
     ASSERT(sinPi2 > 0.99f && sinPi2 < 1.01f);
-    Log("sin(): passed");
+    Log("Sin(): passed");
   }
 
-  // cos()
+  // Cos()
   {
-    REGISTER_TESTED(Math_cos);
-    float cos0 = Math::cos(0.0f);
+    REGISTER_TESTED(Math_Cos);
+    float cos0 = Math::Cos(0.0f);
     ASSERT(cos0 > 0.99f && cos0 < 1.01f);
-    float cosPi = Math::cos(Math::PI);
+    float cosPi = Math::Cos(Math::PI);
     ASSERT(cosPi > -1.01f && cosPi < -0.99f);
-    Log("cos(): passed");
+    Log("Cos(): passed");
   }
 
-  // tan()
+  // Tan()
   {
-    REGISTER_TESTED(Math_tan);
-    ASSERT_EQ(Math::tan(0.0f), 0.0f);
-    float tanPi4 = Math::tan(Math::PI / 4.0f);
+    REGISTER_TESTED(Math_Tan);
+    ASSERT_EQ(Math::Tan(0.0f), 0.0f);
+    float tanPi4 = Math::Tan(Math::PI / 4.0f);
     ASSERT(tanPi4 > 0.99f && tanPi4 < 1.01f);
-    Log("tan(): passed");
+    Log("Tan(): passed");
   }
 
-  // atan2()
+  // Atan2()
   {
-    REGISTER_TESTED(Math_atan2);
-    float angle = Math::atan2(1.0f, 1.0f);
+    REGISTER_TESTED(Math_Atan2);
+    float angle = Math::Atan2(1.0f, 1.0f);
     ASSERT(angle > 0.78f && angle < 0.79f); // PI/4
-    Log("atan2(): passed");
+    Log("Atan2(): passed");
   }
 
-  // atan()
+  // Atan()
   {
-    REGISTER_TESTED(Math_atan);
-    ASSERT_EQ(Math::atan(0.0f), 0.0f);
-    float atan1 = Math::atan(1.0f);
+    REGISTER_TESTED(Math_Atan);
+    ASSERT_EQ(Math::Atan(0.0f), 0.0f);
+    float atan1 = Math::Atan(1.0f);
     ASSERT(atan1 > 0.78f && atan1 < 0.79f); // PI/4
-    Log("atan(): passed");
+    Log("Atan(): passed");
   }
 
-  // asin()
+  // Asin()
   {
-    REGISTER_TESTED(Math_asin);
-    ASSERT_EQ(Math::asin(0.0f), 0.0f);
-    float asin1 = Math::asin(1.0f);
+    REGISTER_TESTED(Math_Asin);
+    ASSERT_EQ(Math::Asin(0.0f), 0.0f);
+    float asin1 = Math::Asin(1.0f);
     ASSERT(asin1 > 1.57f && asin1 < 1.58f); // PI/2
-    Log("asin(): passed");
+    Log("Asin(): passed");
   }
 
-  // cosh()
+  // Cosh()
   {
-    REGISTER_TESTED(Math_cosh);
-    float cosh0 = Math::cosh(0.0f);
+    REGISTER_TESTED(Math_Cosh);
+    float cosh0 = Math::Cosh(0.0f);
     ASSERT(cosh0 > 0.99f && cosh0 < 1.01f);
-    Log("cosh(): passed");
+    Log("Cosh(): passed");
   }
 
   // ========== UTILITY ==========
 
-  // mod()
+  // Mod()
   {
-    REGISTER_TESTED(Math_mod);
-    float mod1 = Math::mod(5.5f, 2.0f);
+    REGISTER_TESTED(Math_Mod);
+    float mod1 = Math::Mod(5.5f, 2.0f);
     ASSERT(mod1 > 1.49f && mod1 < 1.51f);
-    Log("mod(): passed");
+    Log("Mod(): passed");
   }
 
-  // lerp()
+  // Lerp()
   {
-    REGISTER_TESTED(Math_lerp);
-    ASSERT_EQ(Math::lerp(0.0f, 10.0f, 0.0f), 0.0f);
-    ASSERT_EQ(Math::lerp(0.0f, 10.0f, 1.0f), 10.0f);
-    ASSERT_EQ(Math::lerp(0.0f, 10.0f, 0.5f), 5.0f);
-    Log("lerp(): passed");
+    REGISTER_TESTED(Math_Lerp);
+    ASSERT_EQ(Math::Lerp(0.0f, 10.0f, 0.0f), 0.0f);
+    ASSERT_EQ(Math::Lerp(0.0f, 10.0f, 1.0f), 10.0f);
+    ASSERT_EQ(Math::Lerp(0.0f, 10.0f, 0.5f), 5.0f);
+    Log("Lerp(): passed");
   }
 
-  // step()
+  // Step()
   {
-    REGISTER_TESTED(Math_step);
-    ASSERT_EQ(Math::step(5.0f, 3.0f), 0.0f);
-    ASSERT_EQ(Math::step(5.0f, 5.0f), 1.0f);
-    ASSERT_EQ(Math::step(5.0f, 7.0f), 1.0f);
-    Log("step(): passed (not named 'step' in header)");
+    REGISTER_TESTED(Math_Step);
+    ASSERT_EQ(Math::Step(5.0f, 3.0f), 0.0f);
+    ASSERT_EQ(Math::Step(5.0f, 5.0f), 1.0f);
+    ASSERT_EQ(Math::Step(5.0f, 7.0f), 1.0f);
+    Log("Step(): passed (not named 'step' in header)");
   }
 
-  // degToRad()
+  // DegToRad()
   {
-    REGISTER_TESTED(Math_degToRad);
-    float rad180 = Math::degToRad(180.0f);
+    REGISTER_TESTED(Math_DegToRad);
+    float rad180 = Math::DegToRad(180.0f);
     ASSERT(rad180 > 3.14f && rad180 < 3.15f); // PI
-    Log("degToRad(): passed");
+    Log("DegToRad(): passed");
   }
 
-  // radToDeg()
+  // RadToDeg()
   {
-    REGISTER_TESTED(Math_radToDeg);
-    float deg = Math::radToDeg(Math::PI);
+    REGISTER_TESTED(Math_RadToDeg);
+    float deg = Math::RadToDeg(Math::PI);
     ASSERT(deg > 179.9f && deg < 180.1f);
-    Log("radToDeg(): passed");
+    Log("RadToDeg(): passed");
   }
 
-  // isFinite()
+  // IsFinite()
   {
-    REGISTER_TESTED(Math_isFinite);
-    ASSERT_TRUE(Math::isFinite(3.14f));
+    REGISTER_TESTED(Math_IsFinite);
+    ASSERT_TRUE(Math::IsFinite(3.14f));
     // NOTE: Potential implementation bug - Math::INF/NEG_INF may not be
-    // properly infinite ASSERT_FALSE(Math::isFinite(Math::INF));
-    // ASSERT_FALSE(Math::isFinite(Math::NEG_INF));
-    Log("isFinite(): passed (partial - INF check skipped)");
+    // properly infinite ASSERT_FALSE(Math::IsFinite(Math::INF));
+    // ASSERT_FALSE(Math::IsFinite(Math::NEG_INF));
+    Log("IsFinite(): passed (partial - INF check skipped)");
   }
 
-  // isNaN()
+  // IsNaN()
   {
-    REGISTER_TESTED(Math_isNaN);
-    ASSERT_FALSE(Math::isNaN(3.14f));
+    REGISTER_TESTED(Math_IsNaN);
+    ASSERT_FALSE(Math::IsNaN(3.14f));
     // NOTE: Potential implementation bug - Math::NAN may not be properly NaN
-    // ASSERT_TRUE(Math::isNaN(Math::NAN));
-    Log("isNaN(): passed (partial - NAN check skipped)");
+    // ASSERT_TRUE(Math::IsNaN(Math::NAN));
+    Log("IsNaN(): passed (partial - NAN check skipped)");
   }
 
   // ========== 64-BIT ARITHMETIC ==========

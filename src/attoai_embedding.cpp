@@ -72,9 +72,8 @@ Embedding AI::createEmbedding(const String &str, int dimensions, int timeout) {
 
   int embDim = embeddingList.length();
 
-  EmbeddingImpl *embImpl =
-      (EmbeddingImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
-                                 sizeof(EmbeddingImpl));
+  EmbeddingImpl *embImpl = (EmbeddingImpl *)HeapAlloc(
+      GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(EmbeddingImpl));
   if (!embImpl) {
     return Embedding();
   }
@@ -154,7 +153,7 @@ float Embedding::compare(const Embedding &other) const {
     for (int i = 0; i < impl->dimensions; i++) {
       sumSq += impl->data[i] * impl->data[i];
     }
-    impl->cachedNorm = sumSq > 0.0f ? 1.0f / Math::sqrt(sumSq) : 0.0f;
+    impl->cachedNorm = sumSq > 0.0f ? 1.0f / Math::Sqrt(sumSq) : 0.0f;
     impl->normComputed = true;
   }
 
@@ -163,8 +162,7 @@ float Embedding::compare(const Embedding &other) const {
     for (int i = 0; i < other.impl->dimensions; i++) {
       sumSq += other.impl->data[i] * other.impl->data[i];
     }
-    other.impl->cachedNorm =
-        sumSq > 0.0f ? 1.0f / Math::sqrt(sumSq) : 0.0f;
+    other.impl->cachedNorm = sumSq > 0.0f ? 1.0f / Math::Sqrt(sumSq) : 0.0f;
     other.impl->normComputed = true;
   }
 

@@ -2,29 +2,29 @@
 
 namespace attoboy {
 
-float Math::mod(float x, float y) noexcept {
+float Math::Mod(float x, float y) noexcept {
   if (y == 0.0f)
     return 0.0f;
-  return x - trunc(x / y) * y;
+  return x - Trunc(x / y) * y;
 }
 
-float Math::lerp(float a, float b, float t) noexcept { return a + (b - a) * t; }
+float Math::Lerp(float a, float b, float t) noexcept { return a + (b - a) * t; }
 
-float Math::step(float edge, float x) noexcept {
+float Math::Step(float edge, float x) noexcept {
   return x < edge ? 0.0f : 1.0f;
 }
 
-float Math::degToRad(float degrees) noexcept {
+float Math::DegToRad(float degrees) noexcept {
   const float PI = 3.14159265358979323846f;
   return degrees * (PI / 180.0f);
 }
 
-float Math::radToDeg(float radians) noexcept {
+float Math::RadToDeg(float radians) noexcept {
   const float PI = 3.14159265358979323846f;
   return radians * (180.0f / PI);
 }
 
-bool Math::isFinite(float x) noexcept {
+bool Math::IsFinite(float x) noexcept {
   unsigned int bits;
   char *src = reinterpret_cast<char *>(&x);
   char *dst = reinterpret_cast<char *>(&bits);
@@ -34,7 +34,7 @@ bool Math::isFinite(float x) noexcept {
   return exponent != 0xFF;
 }
 
-bool Math::isNaN(float x) noexcept {
+bool Math::IsNaN(float x) noexcept {
   unsigned int bits;
   char *src = reinterpret_cast<char *>(&x);
   char *dst = reinterpret_cast<char *>(&bits);

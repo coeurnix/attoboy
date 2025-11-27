@@ -5,7 +5,7 @@ namespace attoboy {
 static const float LN2 = 0.693147180559945309417f;
 static const float LN10 = 2.302585092994045684018f;
 
-float Math::exp(float x) noexcept {
+float Math::Exp(float x) noexcept {
   if (x == 0.0f)
     return 1.0f;
   if (x < -10.0f)
@@ -19,16 +19,16 @@ float Math::exp(float x) noexcept {
   for (int i = 1; i <= 20; i++) {
     term *= x / static_cast<float>(i);
     result += term;
-    if (abs(term) < 0.000001f)
+    if (Abs(term) < 0.000001f)
       break;
   }
 
   return result;
 }
 
-float Math::exp2(float x) noexcept { return exp(x * LN2); }
+float Math::Exp2(float x) noexcept { return Exp(x * LN2); }
 
-float Math::log(float x) noexcept {
+float Math::Ln(float x) noexcept {
   if (x <= 0.0f)
     return -3.4028235e+38f;
   if (x == 1.0f)
@@ -57,22 +57,22 @@ float Math::log(float x) noexcept {
   return 2.0f * result + static_cast<float>(exponent) * LN2;
 }
 
-float Math::log2(float x) noexcept { return log(x) / LN2; }
+float Math::Log2(float x) noexcept { return Ln(x) / LN2; }
 
-float Math::log10(float x) noexcept { return log(x) / LN10; }
+float Math::Log10(float x) noexcept { return Ln(x) / LN10; }
 
-float Math::pow(float x, float y) noexcept {
+float Math::Pow(float x, float y) noexcept {
   if (y == 0.0f)
     return 1.0f;
   if (x == 0.0f)
     return 0.0f;
-  if (x < 0.0f && y != floor(y))
+  if (x < 0.0f && y != Floor(y))
     return 0.0f;
 
   bool negative = x < 0.0f && (static_cast<int>(y) & 1) != 0;
-  x = abs(x);
+  x = Abs(x);
 
-  float result = exp(y * log(x));
+  float result = Exp(y * Ln(x));
   return negative ? -result : result;
 }
 

@@ -16,7 +16,7 @@ const float Math::NAN = nanBits.value;
 
 static const float PI = 3.14159265358979323846f;
 
-float Math::sqrt(float x) noexcept {
+float Math::Sqrt(float x) noexcept {
   if (x <= 0.0f)
     return 0.0f;
 
@@ -39,8 +39,8 @@ float Math::sqrt(float x) noexcept {
   return x * result;
 }
 
-float Math::sin(float x) noexcept {
-  x = mod(x, 2.0f * PI);
+float Math::Sin(float x) noexcept {
+  x = Mod(x, 2.0f * PI);
   if (x < 0.0f)
     x += 2.0f * PI;
 
@@ -63,25 +63,25 @@ float Math::sin(float x) noexcept {
   return result;
 }
 
-float Math::cos(float x) noexcept { return sin(x + PI / 2.0f); }
+float Math::Cos(float x) noexcept { return Sin(x + PI / 2.0f); }
 
-float Math::tan(float x) noexcept {
-  float c = cos(x);
-  if (abs(c) < 0.0001f)
+float Math::Tan(float x) noexcept {
+  float c = Cos(x);
+  if (Abs(c) < 0.0001f)
     return 0.0f;
-  return sin(x) / c;
+  return Sin(x) / c;
 }
 
-float Math::atan(float x) noexcept {
-  float absx = abs(x);
+float Math::Atan(float x) noexcept {
+  float absx = Abs(x);
   if (absx > 1.0f) {
-    float result = PI / 2.0f - atan(1.0f / x);
+    float result = PI / 2.0f - Atan(1.0f / x);
     return x < 0.0f ? -result : result;
   }
 
   // Range reduction for |x| <= 1: atan(x) = 2 * atan(y) where y = x / (1 +
   // sqrt(1 + x²))
-  float y = absx / (1.0f + sqrt(1.0f + absx * absx));
+  float y = absx / (1.0f + Sqrt(1.0f + absx * absx));
   float y2 = y * y;
   float result = y;
   float term = y;
@@ -99,13 +99,13 @@ float Math::atan(float x) noexcept {
   return x < 0.0f ? -result : result;
 }
 
-float Math::atan2(float y, float x) noexcept {
+float Math::Atan2(float y, float x) noexcept {
   if (x > 0.0f)
-    return atan(y / x);
+    return Atan(y / x);
   if (x < 0.0f && y >= 0.0f)
-    return atan(y / x) + PI;
+    return Atan(y / x) + PI;
   if (x < 0.0f && y < 0.0f)
-    return atan(y / x) - PI;
+    return Atan(y / x) - PI;
   if (x == 0.0f && y > 0.0f)
     return PI / 2.0f;
   if (x == 0.0f && y < 0.0f)
@@ -113,15 +113,15 @@ float Math::atan2(float y, float x) noexcept {
   return 0.0f;
 }
 
-float Math::asin(float x) noexcept {
+float Math::Asin(float x) noexcept {
   if (x < -1.0f || x > 1.0f)
     return 0.0f;
-  return atan2(x, sqrt(1.0f - x * x));
+  return Atan2(x, Sqrt(1.0f - x * x));
 }
 
-float Math::cosh(float x) noexcept {
-  float ex = exp(x);
-  float enx = exp(-x);
+float Math::Cosh(float x) noexcept {
+  float ex = Exp(x);
+  float enx = Exp(-x);
   return (ex + enx) * 0.5f;
 }
 

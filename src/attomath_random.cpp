@@ -11,19 +11,19 @@ static void GetRandomBytes(void *buffer, int size) {
   SystemFunction036(buffer, size);
 }
 
-int Math::random() noexcept {
+int Math::Random() noexcept {
   int value = 0;
   GetRandomBytes(&value, sizeof(value));
   return value;
 }
 
-float Math::randomFloat() noexcept {
+float Math::RandomFloat() noexcept {
   unsigned int value = 0;
   GetRandomBytes(&value, sizeof(value));
   return (value >> 8) * (1.0f / (1U << 24));
 }
 
-int Math::randomRange(int start, int end) noexcept {
+int Math::RandomRange(int start, int end) noexcept {
   if (start >= end) {
     return start;
   }
@@ -33,7 +33,7 @@ int Math::randomRange(int start, int end) noexcept {
   return start + (value % range);
 }
 
-bool Math::randomBool() noexcept {
+bool Math::RandomBool() noexcept {
   unsigned char value = 0;
   GetRandomBytes(&value, sizeof(value));
   return (value & 1) != 0;

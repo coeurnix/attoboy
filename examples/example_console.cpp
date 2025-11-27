@@ -740,9 +740,9 @@ void demoMatrixRain(Console &con) {
   List lengths;
 
   for (int i = 0; i < w; i++) {
-    drops.append(Math::randomRange(-h, 0));
-    speeds.append(Math::randomRange(1, 3));
-    lengths.append(Math::randomRange(4, 12));
+    drops.append(Math::RandomRange(-h, 0));
+    speeds.append(Math::RandomRange(1, 3));
+    lengths.append(Math::RandomRange(4, 12));
   }
 
   // Character set for the rain
@@ -772,7 +772,7 @@ void demoMatrixRain(Console &con) {
             color = CON_DARK_GREEN;
           }
 
-          int charIdx = Math::randomRange(0, chars.length());
+          int charIdx = Math::RandomRange(0, chars.length());
           con.print(chars.at(charIdx), color);
         }
       }
@@ -787,9 +787,9 @@ void demoMatrixRain(Console &con) {
       // Update position
       int newY = y + speed;
       if (newY - len > h) {
-        newY = Math::randomRange(-10, 0);
-        speeds.set(x, Math::randomRange(1, 3));
-        lengths.set(x, Math::randomRange(4, 12));
+        newY = Math::RandomRange(-10, 0);
+        speeds.set(x, Math::RandomRange(1, 3));
+        lengths.set(x, Math::RandomRange(4, 12));
       }
       drops.set(x, newY);
     }

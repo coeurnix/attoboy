@@ -358,26 +358,26 @@
   X(Registry_setInt)                                                           \
   X(Registry_deleteValue)                                                      \
   X(Registry_subKeys)                                                          \
-  X(Math_random)                                                               \
-  X(Math_randomFloat)                                                          \
-  X(Math_randomRange)                                                          \
-  X(Math_randomBool)                                                           \
-  X(Math_randomChoice)                                                         \
-  X(Math_abs)                                                                  \
-  X(Math_min)                                                                  \
-  X(Math_max)                                                                  \
-  X(Math_clamp)                                                                \
-  X(Math_sign)                                                                 \
-  X(Math_isEven)                                                               \
-  X(Math_isOdd)                                                                \
-  X(Math_isPowerOfTwo)                                                         \
-  X(Math_floor)                                                                \
-  X(Math_ceil)                                                                 \
-  X(Math_trunc)                                                                \
-  X(Math_round)                                                                \
-  X(Math_exp2)                                                                 \
-  X(Math_log2)                                                                 \
-  X(Math_log)                                                                  \
+  X(Math_Random)                                                               \
+  X(Math_RandomFloat)                                                          \
+  X(Math_RandomRange)                                                          \
+  X(Math_RandomBool)                                                           \
+  X(Math_RandomChoice)                                                         \
+  X(Math_Abs)                                                                  \
+  X(Math_Min)                                                                  \
+  X(Math_Max)                                                                  \
+  X(Math_Clamp)                                                                \
+  X(Math_Sign)                                                                 \
+  X(Math_IsEven)                                                               \
+  X(Math_IsOdd)                                                                \
+  X(Math_IsPowerOfTwo)                                                         \
+  X(Math_Floor)                                                                \
+  X(Math_Ceil)                                                                 \
+  X(Math_Trunc)                                                                \
+  X(Math_Round)                                                                \
+  X(Math_Exp2)                                                                 \
+  X(Math_Log2)                                                                 \
+  X(Math_Ln)                                                                   \
   X(Math_log10)                                                                \
   X(Math_exp)                                                                  \
   X(Math_pow)                                                                  \
