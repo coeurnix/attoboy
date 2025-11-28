@@ -1,4 +1,4 @@
-# `attoboy::Map` User Guide
+# Map
 
 ## Overview
 

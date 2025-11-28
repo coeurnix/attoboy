@@ -1,4 +1,4 @@
-# `attoboy::Embedding` User Guide
+# Embedding
 
 ## Overview
 

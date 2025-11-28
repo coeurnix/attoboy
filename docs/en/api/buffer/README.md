@@ -1,4 +1,4 @@
-# `attoboy::Buffer` User Guide
+# Buffer
 
 ## Overview
 

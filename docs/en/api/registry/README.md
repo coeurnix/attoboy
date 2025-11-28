@@ -1,4 +1,4 @@
-# `attoboy::Registry` User Guide
+# Registry
 
 ## Overview
 

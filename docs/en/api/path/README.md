@@ -1,4 +1,4 @@
-# `attoboy::Path` User Guide
+# Path
 
 ## Overview
 

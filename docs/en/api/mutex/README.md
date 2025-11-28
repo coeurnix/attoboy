@@ -1,4 +1,4 @@
-# `attoboy::Mutex` User Guide
+# Mutex
 
 ## Overview
 

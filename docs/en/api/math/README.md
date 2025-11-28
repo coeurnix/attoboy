@@ -1,4 +1,4 @@
-# `attoboy::Math` User Guide
+# Math
 
 ## Overview
 

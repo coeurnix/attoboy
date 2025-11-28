@@ -1,4 +1,4 @@
-# `attoboy::AI` User Guide
+# AI
 
 ## Overview
 

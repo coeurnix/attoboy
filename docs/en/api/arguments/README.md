@@ -1,4 +1,4 @@
-# `attoboy::Arguments` User Guide
+# Arguments
 
 ## Overview
 

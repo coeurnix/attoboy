@@ -1,4 +1,4 @@
-# `attoboy::String` User Guide
+# String
 
 ## Overview
 

@@ -1,4 +1,4 @@
-# `attoboy::Thread` User Guide
+# Thread
 
 ## Overview
 
