@@ -92,8 +92,6 @@ using namespace attoboy;
 
 ---
 
-### Constructors, Copy, Assignment, and Destruction
-
 #### `Registry(const String &key)`
 
 **Signature**
@@ -263,8 +261,6 @@ reg = other;  // reg now refers to the "OtherApp" key
 
 ---
 
-### Key Lifecycle
-
 #### `bool exists() const`
 
 **Signature**
@@ -396,8 +392,6 @@ bool ok = reg.remove(true);
 *This example removes an application’s registry key recursively, which might be part of an uninstall routine.*
 
 ---
-
-### Value Existence and Retrieval
 
 #### `bool valueExists(const String &name = String()) const`
 
@@ -578,8 +572,6 @@ unsigned int timeoutMs = reg.getIntegerValue("TimeoutMs");  // 0 if missing
 
 ---
 
-### Value Modification and Deletion
-
 #### `bool setStringValue(const String &name, const String &str)`
 
 **Signature**
@@ -752,8 +744,6 @@ reg.deleteValue("OldSetting");
 *This example deletes a single named value from an application’s registry key.*
 
 ---
-
-### Enumeration
 
 #### `List listValueNames() const`
 

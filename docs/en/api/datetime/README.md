@@ -60,8 +60,6 @@ using namespace attoboy;
 
 ---
 
-### Constructors, Copy, Assignment, and Destruction
-
 #### `DateTime()`
 
 **Signature**
@@ -295,8 +293,6 @@ b = a;  // b now represents the same time as a
 *This example reassigns a `DateTime` to match another.*
 
 ---
-
-### Arithmetic and Comparison
 
 #### `DateTime &add(long long milliseconds)`
 
@@ -566,8 +562,6 @@ if (actual != scheduled) {
 *This example detects whether the actual time differs from the scheduled one.*
 
 ---
-
-### Conversion and Representation
 
 #### `long long timestamp() const`
 

@@ -74,8 +74,6 @@ using namespace attoboy;
 
 ---
 
-### Construction, Copying, and Destruction
-
 #### `Arguments()`
 
 **Signature**
@@ -241,8 +239,6 @@ other = args;  // other now has the same argument definitions
 *This example assigns one parser’s configuration to another.*
 
 ---
-
-### Configuring Expected Arguments
 
 #### `Arguments &addFlag(const String &name, const String &description = String(), bool defaultValue = false, const String &longName = String())`
 
@@ -545,8 +541,6 @@ if (parsed.isEmpty()) {
 
 ---
 
-### Querying Parsed Arguments
-
 #### `String getArgument(const String &name) const`
 
 **Signature**
@@ -662,8 +656,6 @@ if (!parsed.isEmpty()) {
 
 ---
 
-### Parsing the Command Line
-
 #### `Map parseArguments(bool suppressHelp = false)`
 
 **Signature**
@@ -740,3 +732,55 @@ if (parsed.isEmpty()) {
 ```
 
 *This example demonstrates a typical full flow: configuring arguments, enforcing a required parameter, parsing the command line, and then using the resulting values.*
+
+
+---
+
+#### `List getAllArguments() const`
+
+**Signature**
+
+```cpp
+List getAllArguments() const;
+```
+
+**Synopsis**
+Returns a list of all raw command-line arguments (including `argv[0]`).
+
+**Parameters**
+
+* *(none)*
+
+**Return value**
+
+* A `List` of `String` values containing every command-line argument captured by the `Arguments` object:
+
+  * Index `0` corresponds to `argv[0]` (typically the program name).
+  * Subsequent elements correspond to each argument token in the order the operating system passed them to the process.
+
+**In Depth**
+
+While `parseArguments()` gives you a validated, structured view of the command line, `getAllArguments()` exposes the **raw** arguments exactly as they were captured when the `Arguments` instance was constructed.
+
+This is useful when you:
+
+* Want to log or audit the full command line for debugging or diagnostics.
+* Need to implement custom parsing logic for special cases that are not covered by `addFlag`, `addParameter`, or `addPositionalParameter`.
+* Want to compare your high-level parsed configuration with the original `argv` the process received.
+
+The returned `List` is independent of the parsed `Map`; calling `parseArguments()` does not change the raw argument list. Typically, each entry in the list corresponds to one element of the traditional `argv[]` array in C or C++.
+
+**Example**
+
+```cpp
+Arguments args;
+
+// Inspect or log the raw command line
+List all = args.getAllArguments();
+
+for (int i = 0; i < all.size(); ++i) {
+  LogInfo("argv[", i, "] = ", all[i]);
+}
+```
+
+*This example retrieves every raw command-line argument, including the program name, and logs them in order for debugging or auditing purposes.*

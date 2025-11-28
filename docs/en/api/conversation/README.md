@@ -95,8 +95,6 @@ Each member of `attoboy::Conversation` is documented below, including signature,
 
 ---
 
-### Constructors, Assignment, and Destruction
-
 #### `Conversation(const Conversation &other)`
 
 **Signature**
@@ -228,8 +226,6 @@ convo2 = convo1;  // now both share the same conversation
 
 ---
 
-### Sending Messages
-
 #### `String ask(const String &prompt, int timeout = -1)`
 
 **Signature**
@@ -286,8 +282,6 @@ if (!reply.isEmpty()) {
 *This example starts a conversation, sends a question, checks for errors by testing `isEmpty()`, and then asks a follow-up using the same conversation context.*
 
 ---
-
-### Conversation History
 
 #### `List getConversationList() const`
 
@@ -412,8 +406,6 @@ if (ok) {
 
 ---
 
-### Branching and Associated AI
-
 #### `Conversation duplicate() const`
 
 **Signature**
@@ -509,8 +501,6 @@ String reply = convo.ask("Respond with JSON describing a cat.");
 *This example retrieves the managing `AI` from a conversation and updates its configuration before asking a question.*
 
 ---
-
-### Token Usage Tracking
 
 #### `int getPromptTokensUsed() const`
 

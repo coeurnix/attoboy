@@ -119,8 +119,6 @@ Each entry below covers one public constructor, method, or static function of `a
 
 ---
 
-### Constructors, Copy, Assignment, and Destruction
-
 #### `WebRequest(const String &url, const Map &params = Map(), const Map &headers = Map())`
 
 **Signature**
@@ -337,8 +335,6 @@ WebResponse r = b.doGet();
 *This example shows reassigning a `WebRequest` so that two variables share the same underlying request.*
 
 ---
-
-### HTTP Operations
 
 #### `WebResponse doGet(int timeout = -1)`
 
@@ -762,8 +758,6 @@ if (response.succeeded()) {
 
 ---
 
-### Inspecting Request Configuration and State
-
 #### `String getUrl() const`
 
 **Signature**
@@ -946,8 +940,6 @@ if (req.hasCompleted()) {
 *This example checks whether a `WebRequest` has already been used before calling `doGet()`.*
 
 ---
-
-### Static Helper
 
 #### `static bool Download(const String &url, const String &savePath, const Map &params = Map(), const Map &headers = Map(), bool overwrite = true, int timeout = -1)`
 

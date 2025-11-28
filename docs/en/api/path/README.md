@@ -57,8 +57,6 @@ using namespace attoboy;
 
 ---
 
-### Constructors, Copy, Assignment, and Destruction
-
 #### `Path(const String &pathStr)`
 
 **Signature**
@@ -214,8 +212,6 @@ p = q;  // p now refers to "C:\\new\\file.txt"
 *This example reassigns a `Path` variable to refer to a new location.*
 
 ---
-
-### Existence and Type Queries
 
 #### `bool exists() const`
 
@@ -432,8 +428,6 @@ bool special = p.isOther();
 *This example checks whether a path refers to a special filesystem object.*
 
 ---
-
-### Metadata and Attributes
 
 #### `long long getSize() const`
 
@@ -731,8 +725,6 @@ cacheDir.setHidden(true);
 
 ---
 
-### Filesystem Modifications
-
 #### `bool moveTo(const Path &dest) const`
 
 **Signature**
@@ -933,8 +925,6 @@ bool ok = logsDir.makeDirectory(true);
 
 ---
 
-### Symbolic Link Operations
-
 #### `Path getSymbolicLinkTarget() const`
 
 **Signature**
@@ -1010,8 +1000,6 @@ bool ok = linkPath.setSymbolicLinkTarget(targetPath);
 *This example creates or updates a symbolic link to point at a real file.*
 
 ---
-
-### Path Components and String Representation
 
 #### `String getName() const`
 
@@ -1232,8 +1220,6 @@ String text = p.toString();  // "C:\\data\\file.txt"
 
 ---
 
-### Equality and Containment
-
 #### `bool equals(const Path &other) const`
 
 **Signature**
@@ -1392,8 +1378,6 @@ bool inside = file.isWithin(root);  // true
 
 ---
 
-### Directory Listing
-
 #### `List listChildren(bool recursive = false) const`
 
 **Signature**
@@ -1437,8 +1421,6 @@ int count = entries.length();
 *This example lists the immediate children of a logs directory.*
 
 ---
-
-### File I/O Helpers
 
 #### `String readToString() const`
 
@@ -1664,8 +1646,6 @@ out.appendFromBuffer(chunk);
 *This example appends binary data to an existing file.*
 
 ---
-
-### Static Utility Functions
 
 #### `static bool ChangeCurrentDirectory(const Path &path)`
 

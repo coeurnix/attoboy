@@ -1,5 +1,5 @@
-#include "attowebrequest_internal.h"
 #include "attostring_internal.h"
+#include "attowebrequest_internal.h"
 
 namespace attoboy {
 
@@ -110,7 +110,7 @@ Map WebResponse::asJson() const {
   if (!impl->body || impl->bodySize == 0)
     return Map();
 
-  String jsonStr((const char *)impl->body, impl->bodySize);
+  String jsonStr = String::FromCStr((const char *)impl->body, impl->bodySize);
   Map parsed = Map::FromJSONString(jsonStr);
 
   return parsed;
@@ -122,7 +122,7 @@ String WebResponse::asString() const {
   ReadLockGuard lock(&impl->lock);
   if (!impl->body || impl->bodySize == 0)
     return String();
-  return String((const char *)impl->body, impl->bodySize);
+  return String::FromCStr((const char *)impl->body, impl->bodySize);
 }
 
 Buffer WebResponse::asBuffer() const {

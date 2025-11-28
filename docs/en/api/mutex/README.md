@@ -90,7 +90,7 @@ Each entry below covers one public constructor, method, or operator of `attoboy:
 
 ---
 
-### `Mutex()`
+#### `Mutex()`
 
 **Signature**
 
@@ -128,7 +128,7 @@ Mutex m;  // newly created, initially unlocked
 
 ---
 
-### `Mutex(const Mutex &other)`
+#### `Mutex(const Mutex &other)`
 
 **Signature**
 
@@ -178,7 +178,7 @@ void useCopy() {
 
 ---
 
-### `~Mutex()`
+#### `~Mutex()`
 
 **Signature**
 
@@ -223,7 +223,7 @@ void useMutex() {
 
 ---
 
-### `Mutex &operator=(const Mutex &other)`
+#### `Mutex &operator=(const Mutex &other)`
 
 **Signature**
 
@@ -267,7 +267,7 @@ b = a;  // b now shares a's underlying mutex
 
 ---
 
-### `void lock()`
+#### `void lock()`
 
 **Signature**
 
@@ -325,7 +325,7 @@ Thread t2(&worker, nullptr);
 
 ---
 
-### `void unlock()`
+#### `void unlock()`
 
 **Signature**
 
@@ -392,7 +392,7 @@ void *worker(void *arg) {
 
 ---
 
-### `bool tryLock()`
+#### `bool tryLock()`
 
 **Signature**
 

@@ -90,8 +90,6 @@ Each entry below covers a public constructor, method, or operator of `attoboy::E
 
 ---
 
-### Construction, Assignment, and Destruction
-
 #### `Embedding(const Embedding &other)`
 
 **Signature**
@@ -240,8 +238,6 @@ float sim = e1.compare(e2);  // Should be near 1.0
 *This example assigns one embedding to another, resulting in two handles to the same underlying vector.*
 
 ---
-
-### Vector Operations
 
 #### `float compare(const Embedding &other) const`
 

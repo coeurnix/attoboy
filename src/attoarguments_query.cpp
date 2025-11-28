@@ -29,13 +29,20 @@ bool Arguments::hasArgument(const String &name) const {
     Map argDef = impl->argDefs->at<Map>(i);
     String argName = argDef.get<String, String>("name");
     if (argName == name) {
-      String defaultValue =
-          argDef.get<String, String>("defaultValue");
+      String defaultValue = argDef.get<String, String>("defaultValue");
       return !defaultValue.isEmpty();
     }
   }
 
   return false;
+}
+
+List Arguments::getAllArguments() const {
+  if (!impl)
+    return List();
+
+  ReadLockGuard guard(&impl->lock);
+  return impl->cmdLineArgs->duplicate();
 }
 
 } // namespace attoboy

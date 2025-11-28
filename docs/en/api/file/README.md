@@ -78,8 +78,6 @@ Each entry below covers one public constructor, method, or operator of `attoboy:
 
 ---
 
-### Construction, Copy, Assignment, and Destruction
-
 #### `File(const Path &path)`
 
 **Signature**
@@ -350,8 +348,6 @@ if (f1.isValid()) {
 
 ---
 
-### Basic Properties and Introspection
-
 #### `String getPath() const`
 
 **Signature**
@@ -609,8 +605,6 @@ if (f.isValid()) {
 
 ---
 
-### Reading
-
 #### `Buffer readAllToBuffer()`
 
 **Signature**
@@ -861,8 +855,6 @@ if (f.isValid()) {
 
 ---
 
-### Writing
-
 #### `int write(const Buffer &buf)`
 
 **Signature**
@@ -1080,8 +1072,6 @@ if (f.isValid()) {
 
 ---
 
-### Positioning (Files Only)
-
 #### `bool setPosition(long long pos)`
 
 **Signature**
@@ -1253,8 +1243,6 @@ if (f.isValid()) {
 
 ---
 
-### Type Inspection
-
 #### `bool isRegularFile() const`
 
 **Signature**
@@ -1415,8 +1403,6 @@ if (f.isNamedPipe()) {
 
 ---
 
-### Server-Side Connections
-
 #### `File accept()`
 
 **Signature**
@@ -1464,8 +1450,6 @@ if (server.isValid() && server.isServerSocket()) {
 *This example accepts a single connection on a server socket, exchanges a simple text message, and closes the client connection.*
 
 ---
-
-### Equality and Comparison
 
 #### `bool equals(const File &other) const`
 

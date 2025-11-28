@@ -105,8 +105,6 @@ Each entry below covers one public constructor, method, static function, or oper
 
 ---
 
-### Constructors, Copy, Assignment, and Destruction
-
 #### `Buffer()`
 
 **Signature**
@@ -376,8 +374,6 @@ a = b;  // a now contains "second"
 
 ---
 
-### Basic Properties and Access
-
 #### `int length() const`
 
 **Signature**
@@ -531,8 +527,6 @@ buf.clear();  // buf is now empty
 *This example removes all bytes from a buffer so it can be reused.*
 
 ---
-
-### Mutating Operations (Append, Prepend, Insert, Remove, Reverse, Trim)
 
 #### `Buffer &append(const String &str)`
 
@@ -1022,8 +1016,6 @@ buf.trim();        // capacity shrinks to a small size
 
 ---
 
-### Slicing and Sub-buffers
-
 #### `Buffer slice(int start, int end = -1) const`
 
 **Signature**
@@ -1063,8 +1055,6 @@ Buffer payload = buf.slice(6);    // "PAYLOAD"
 *This example splits a buffer into header and payload sub-buffers using `slice()`.*
 
 ---
-
-### Compression and Decompression
 
 #### `Buffer compress() const`
 
@@ -1149,8 +1139,6 @@ Buffer restored   = compressed.decompress();
 *This example shows compressing and then decompressing a buffer to recover the original bytes.*
 
 ---
-
-### Encryption and Decryption (ChaCha20)
 
 #### `Buffer crypt(const String &key, const String &nonce) const`
 
@@ -1334,8 +1322,6 @@ Buffer decrypted = encrypted.crypt(key, nonce);
 
 ---
 
-### Base64 and Text Conversion
-
 #### `String toBase64() const`
 
 **Signature**
@@ -1456,8 +1442,6 @@ String text = buf.toString();  // "Hello, world"
 *This example converts buffer bytes into a text string when the data is known to be UTF-8.*
 
 ---
-
-### Equality, Hashing, and Concatenation
 
 #### `bool compare(const Buffer &other) const`
 

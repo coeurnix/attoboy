@@ -226,6 +226,7 @@
   X(Arguments_operator_brackets)                                               \
   X(Arguments_has)                                                             \
   X(Arguments_get)                                                             \
+  X(Arguments_getAllArguments)                                                 \
   X(Thread_constructor_empty)                                                  \
   X(Thread_constructor_function)                                               \
   X(Thread_destructor)                                                         \
@@ -495,6 +496,6 @@
   X(Console_Wrap)
 
 // Count of all registered functions
-#define FUNCTION_COUNT 488
+#define FUNCTION_COUNT 489
 
 #endif // TEST_FUNCTIONS_H

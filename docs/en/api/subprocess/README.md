@@ -226,8 +226,6 @@ String output = Subprocess::Capture(exe, "--list", "--json");
 
 ---
 
-### Constructors, Copy, Assignment, and Destruction
-
 #### `template <typename... Args> Subprocess(const Path &executable, const Args &...args)`
 
 **Signature**
@@ -414,8 +412,6 @@ a = b;  // 'a' now refers to the same process as 'b'
 *This example reassigns one `Subprocess` to share the handle of another.*
 
 ---
-
-### Process State and Lifecycle
 
 #### `bool isValid() const`
 
@@ -646,8 +642,6 @@ if (proc.isValid()) {
 *This example retrieves and records the process ID of a worker subprocess.*
 
 ---
-
-### Streaming I/O
 
 #### `bool hasAvailable() const`
 

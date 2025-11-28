@@ -61,8 +61,6 @@ All members of `Math` are static and accessed as `Math::Name(...)` or `Math::CON
 
 ---
 
-### Mathematical Constants
-
 #### `Math::PI`
 
 **Signature**
@@ -315,8 +313,6 @@ if (Math::IsNaN(value)) {
 
 ---
 
-### Random Number Generation
-
 #### `static int Random() noexcept`
 
 **Signature**
@@ -507,8 +503,6 @@ String color = Math::RandomChoice<String>(options);
 *This example selects a random color from a list of strings.*
 
 ---
-
-### Basic Integer and Floating-Point Helpers
 
 #### `static int Abs(int x) noexcept`
 
@@ -967,8 +961,6 @@ bool ok = Math::IsPowerOfTwo(size);  // true
 
 ---
 
-### Rounding and Truncation
-
 #### `static float Floor(float x) noexcept`
 
 **Signature**
@@ -1113,8 +1105,6 @@ float r = Math::Round(x);  // 3.0f
 *This example rounds a value to the nearest integer.*
 
 ---
-
-### Exponentials, Logarithms, and Powers
 
 #### `static float Exp2(float x) noexcept`
 
@@ -1357,8 +1347,6 @@ int value = Math::Pow2(bits);  // 32
 *This example computes 2⁵ as an integer.*
 
 ---
-
-### Square Root and Trigonometric Functions
 
 #### `static float Sqrt(float x) noexcept`
 
@@ -1637,8 +1625,6 @@ float value = Math::Cosh(x);
 
 ---
 
-### Miscellaneous Float Utilities
-
 #### `static float Mod(float x, float y) noexcept`
 
 **Signature**
@@ -1897,8 +1883,6 @@ bool bad = Math::IsNaN(value);  // true
 *This example detects a NaN value using `IsNaN`.*
 
 ---
-
-### 64-bit Integer Arithmetic
 
 #### `static long long Add64(long long a, long long b) noexcept`
 

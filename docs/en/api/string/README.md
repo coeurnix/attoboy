@@ -110,8 +110,6 @@ Each entry below covers one public constructor, method, static function, or oper
 
 ---
 
-### Constructors, Copy, Assignment, and Destruction
-
 #### `String()`
 
 **Signature**
@@ -689,8 +687,6 @@ name = other;  // name now represents "Bob"
 
 ---
 
-### Basic Properties and Access
-
 #### `int length() const`
 
 **Signature**
@@ -850,8 +846,6 @@ const char *p = s.c_str();
 
 ---
 
-### Character and Byte Access
-
 #### `String at(int index) const`
 
 **Signature**
@@ -929,8 +923,6 @@ String b0 = text.byteAt(0);   // "A"
 *This example reads the first byte of a simple ASCII string.*
 
 ---
-
-### Substrings and Duplication
 
 #### `String substring(int start, int end = -1) const`
 
@@ -1045,8 +1037,6 @@ String copy = original.duplicate();
 *This example obtains an explicit duplicate of a string value.*
 
 ---
-
-### Searching and Matching
 
 #### `bool contains(const String &sub) const`
 
@@ -1226,8 +1216,6 @@ int next = text.getPositionOf("na", pos + 2);  // 4
 
 ---
 
-### Numeric and Boolean Conversion
-
 #### `bool isNumber() const`
 
 **Signature**
@@ -1378,8 +1366,6 @@ bool enabled = flag.toBool();  // true
 *This example interprets a case-insensitive boolean string.*
 
 ---
-
-### Building and Transforming Strings
 
 #### `String append(const String &s) const`
 
@@ -1747,8 +1733,6 @@ String ellipsis = dot.repeat(3);  // "..."
 
 ---
 
-### Equality, Comparison, Concatenation, and Hashing
-
 #### `bool equals(const String &other) const`
 
 **Signature**
@@ -1972,8 +1956,6 @@ int h = key.hash();
 
 ---
 
-### Splitting, Joining, and Line Handling
-
 #### `List lines() const`
 
 **Signature**
@@ -2132,8 +2114,6 @@ List tokens = text.split();
 
 ---
 
-### Formatting
-
 #### `String format(const List &list) const`
 
 **Signature**
@@ -2225,8 +2205,6 @@ String result = tmpl.format(args);
 *This example uses a map to fill named placeholders in a template string.*
 
 ---
-
-### Related Non-member Operator
 
 #### `String operator+(const char *lhs, const String &rhs)`
 

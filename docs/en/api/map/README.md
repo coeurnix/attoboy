@@ -91,8 +91,6 @@ Each entry below covers one public constructor, method, static function, or oper
 
 ---
 
-### Class Description
-
 **Synopsis (class)**
 Key-value map with mixed types for both keys and values.
 Keys must be unique. Order is not guaranteed.
@@ -100,8 +98,6 @@ Keys must be unique. Order is not guaranteed.
 This synopsis applies to the class as a whole. The sections below describe each member in detail.
 
 ---
-
-### Constructors, Copy, Assignment, and Destruction
 
 #### `Map()`
 
@@ -369,8 +365,6 @@ a = b;
 
 ---
 
-### Basic Properties
-
 #### `int length() const`
 
 **Signature**
@@ -447,8 +441,6 @@ if (m.isEmpty()) {
 *This example uses `isEmpty()` to decide when to initialize the map.*
 
 ---
-
-### Lookup and Inspection
 
 #### `template <typename K, typename V> V get(K key, V defaultValue = V()) const`
 
@@ -757,8 +749,6 @@ List vals = user.values();
 
 ---
 
-### Mutation and Combination
-
 #### `template <typename K, typename V> Map &put(K key, V value)`
 
 **Signature**
@@ -984,8 +974,6 @@ work.put("mode", "development");
 
 ---
 
-### JSON Serialization
-
 #### `String toJSONString() const`
 
 **Signature**
@@ -1085,8 +1073,6 @@ Map user = Map::FromJSONString(json);
 *This example parses a JSON object into a map for further processing.*
 
 ---
-
-### Equality Operators
 
 #### `bool compare(const Map &other) const`
 

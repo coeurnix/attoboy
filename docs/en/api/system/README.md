@@ -1,4 +1,4 @@
-# attoboy Global Functions and Logging – User Guide
+# Globals
 
 ## Overview
 
@@ -112,10 +112,6 @@ The log functions use an internal helper to prefix messages with timestamps and,
 
 ---
 
-## Reference
-
-### Application Entry Point
-
 #### `atto_main`
 
 **Signature**
@@ -163,8 +159,6 @@ void atto_main() {
 *This example defines `atto_main()`, enables console logging, logs a startup message, and then exits with code 0.*
 
 ---
-
-### Process Control and Timing
 
 #### `Exit(int exitCode = 0)`
 
@@ -262,8 +256,6 @@ while (attempts < 3) {
 
 ---
 
-### Environment Variables
-
 #### `String GetEnv(const String &name)`
 
 **Signature**
@@ -358,8 +350,6 @@ if (!SetEnv("MY_APP_MODE", "test")) {
 *This example sets an environment variable and logs whether it succeeded.*
 
 ---
-
-### Memory Management
 
 #### `void *Alloc(int size)`
 
@@ -521,8 +511,6 @@ buffer = nullptr;
 
 ---
 
-### User and Process Information
-
 #### `String GetUserName()`
 
 **Signature**
@@ -646,8 +634,6 @@ LogInfo("Process ID: ", pid);
 *This example logs the current process’s ID for diagnostic purposes.*
 
 ---
-
-### Logging Configuration
 
 #### `void EnableLoggingToFile(const String &path, bool truncate = false)`
 

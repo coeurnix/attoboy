@@ -82,7 +82,7 @@ Each entry below covers one public constructor, method, or operator of `attoboy:
 
 ---
 
-### `Thread(void *(*func)(void *), void *arg = nullptr)`
+#### `Thread(void *(*func)(void *), void *arg = nullptr)`
 
 **Signature**
 
@@ -137,7 +137,7 @@ Thread t(&worker, msg);
 
 ---
 
-### `Thread(const Thread &other)`
+#### `Thread(const Thread &other)`
 
 **Signature**
 
@@ -183,7 +183,7 @@ Thread copy(original);  // shares the same underlying thread
 
 ---
 
-### `~Thread()`
+#### `~Thread()`
 
 **Signature**
 
@@ -233,7 +233,7 @@ void *worker(void *arg) {
 
 ---
 
-### `Thread &operator=(const Thread &other)`
+#### `Thread &operator=(const Thread &other)`
 
 **Signature**
 
@@ -279,7 +279,7 @@ b = a;  // now both a and b refer to the same thread created for a
 
 ---
 
-### `void *await()`
+#### `void *await()`
 
 **Signature**
 
@@ -334,7 +334,7 @@ String *result = (String *)resultPtr;
 
 ---
 
-### `void cancel()`
+#### `void cancel()`
 
 **Signature**
 
@@ -388,7 +388,7 @@ t.cancel();  // force termination (use with care)
 
 ---
 
-### `bool isRunning() const`
+#### `bool isRunning() const`
 
 **Signature**
 
@@ -439,7 +439,7 @@ void *result = t.await();  // safe: thread is no longer running
 
 ---
 
-### `bool equals(const Thread &other) const`
+#### `bool equals(const Thread &other) const`
 
 **Signature**
 
@@ -485,7 +485,7 @@ bool same = a.equals(b);  // true
 
 ---
 
-### `bool operator==(const Thread &other) const`
+#### `bool operator==(const Thread &other) const`
 
 **Signature**
 
@@ -533,7 +533,7 @@ bool ac = (a == c); // false
 
 ---
 
-### `bool operator!=(const Thread &other) const`
+#### `bool operator!=(const Thread &other) const`
 
 **Signature**
 

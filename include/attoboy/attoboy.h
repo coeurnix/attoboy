@@ -788,6 +788,9 @@ public:
   /// missing.
   Map parseArguments(bool suppressHelp = false);
 
+  /// Returns a list of all raw command-line arguments (including argv[0]).
+  List getAllArguments() const;
+
 private:
   ArgumentsImpl *impl;
 };
@@ -1263,9 +1266,8 @@ public:
 
   /// Downloads a file from URL to disk. Returns true on success.
   static bool Download(const String &url, const String &savePath,
-                       const Map &params = Map(),
-                       const Map &headers = Map(), bool overwrite = true,
-                       int timeout = -1);
+                       const Map &params = Map(), const Map &headers = Map(),
+                       bool overwrite = true, int timeout = -1);
 
 private:
   WebRequestImpl *impl;
@@ -1352,7 +1354,8 @@ public:
 
   /// Sets the model name. Returns this AI for chaining.
   AI &setModel(const String &model);
-  /// Sets the system prompt (empty string to clear). Returns this AI for chaining.
+  /// Sets the system prompt (empty string to clear). Returns this AI for
+  /// chaining.
   AI &setSystemPrompt(const String &prompt);
   /// Sets max response tokens (-1 for model default). Returns this AI for
   /// chaining.

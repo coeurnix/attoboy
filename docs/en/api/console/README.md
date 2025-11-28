@@ -112,8 +112,6 @@ This section covers every public constructor, destructor, member function, stati
 
 ---
 
-### Construction, Lifetime, and Ownership
-
 #### `Console::Console()`
 
 **Signature**
@@ -282,8 +280,6 @@ Console b;
 
 ---
 
-### Console Size
-
 #### `int Console::width() const`
 
 **Signature**
@@ -368,8 +364,6 @@ console.println("Console height: " + String(h));
 *This example prints the current console height in rows.*
 
 ---
-
-### Basic Output
 
 #### `Console &Console::print(const String &text, ConsoleColor fg = CON_WHITE, ConsoleColor bg = CON_BLACK)`
 
@@ -509,8 +503,6 @@ console.println("Screen cleared.");
 
 ---
 
-### Formatted Output
-
 #### `Console &Console::printAligned(const String &text, int width, ConsoleAlign align = CON_ALIGN_LEFT, ConsoleColor fg = CON_WHITE, ConsoleColor bg = CON_BLACK)`
 
 **Signature**
@@ -619,8 +611,6 @@ console.println();
 *This example prints a paragraph that automatically wraps to the console width.*
 
 ---
-
-### Cursor Control
 
 #### `Console &Console::setCursor(int x, int y)`
 
@@ -751,10 +741,6 @@ console.println("Rendering a full-screen interface without a blinking cursor..."
 ```
 
 *This example hides the cursor while rendering an interface.*
-
----
-
-### Input
 
 ---
 
@@ -1327,8 +1313,6 @@ while (true) {
 
 ---
 
-### Progress Bar
-
 #### `Console &Console::progress(float percent, const String &label = "")`
 
 **Signature**
@@ -1425,8 +1409,6 @@ console.println("Operation finished.");
 
 ---
 
-### Interactive Menu
-
 #### `int Console::menu(const List &options, const String &title = "")`
 
 **Signature**
@@ -1489,8 +1471,6 @@ if (choice == 0) {
 *This example displays a simple main menu and handles the user’s choice.*
 
 ---
-
-### Global Hotkeys
 
 #### `Console &Console::onHotkey(const String &key, void (*callback)(void *), void *arg = nullptr)`
 
@@ -1596,8 +1576,6 @@ console.offHotkey("Ctrl+Q");          // Disable the hotkey again
 *This example shows how to unregister a hotkey by key name.*
 
 ---
-
-### Static Text Utilities
 
 #### `static String Console::Align(const String &text, int width, ConsoleAlign align = CON_ALIGN_LEFT)`
 

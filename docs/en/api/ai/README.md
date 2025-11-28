@@ -123,8 +123,6 @@ Each entry below covers one public constructor, method, or operator of `attoboy:
 
 ---
 
-### Construction, Copy, Assignment, and Destruction
-
 #### `AI(const String &baseUrl, const String &apiKey, const String &model)`
 
 **Signature**
@@ -315,8 +313,6 @@ ai2 = ai1;
 *This example reassigns an `AI` instance to share the configuration of another.*
 
 ---
-
-### Configuration Methods (Fluent Interface)
 
 #### `AI &setModel(const String &model)`
 
@@ -520,8 +516,6 @@ ai.setJsonMode(true);
 
 ---
 
-### Configuration Getters
-
 #### `String getModel() const`
 
 **Signature**
@@ -696,8 +690,6 @@ String key = ai.getAPIKey();
 *This example retrieves the API key, with a reminder to treat it as sensitive.*
 
 ---
-
-### Token Usage and Finish Reason
 
 #### `int getPromptTokensUsed() const`
 
@@ -939,8 +931,6 @@ String reason = ai.getFinishReason();
 *This example checks whether the response was truncated due to the token limit.*
 
 ---
-
-### Core Operations
 
 #### `String ask(const String &prompt, int timeout = -1)`
 

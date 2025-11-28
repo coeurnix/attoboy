@@ -124,8 +124,6 @@ using namespace attoboy;
 
 ---
 
-### Constructors, Copy, Assignment, and Destruction
-
 #### `WebResponse(const WebResponse &other)`
 
 **Signature**
@@ -263,8 +261,6 @@ if (b.succeeded()) {
 *This example reassigns one response to share another response’s data.*
 
 ---
-
-### Status and Metadata
 
 #### `bool succeeded() const`
 
@@ -522,8 +518,6 @@ String requestId   = headers.get("X-Request-ID", String());
 *This example reads some common headers from the response.*
 
 ---
-
-### Body Access
 
 #### `Map asJson() const`
 

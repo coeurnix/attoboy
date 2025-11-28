@@ -13,6 +13,11 @@ import markdown
 LANG_NAMES = {"en": "English", "ru": "Russian", "zh": "Chinese"}
 DEFAULT_LANGS = ("en", "ru", "zh")
 
+def slugify(value: str) -> str:
+  value = value.lower()
+  value = re.sub(r"[^\w]+", "-", value)
+  return value.strip("-") or "item"
+
 HTML_TEMPLATE = """
 <!doctype html>
 <html lang="en">
@@ -35,9 +40,10 @@ HTML_TEMPLATE = """
 body { margin: 0; background: radial-gradient(circle at 20% 20%, rgba(124,160,255,0.08), transparent 35%), radial-gradient(circle at 80% 0%, rgba(124,224,214,0.08), transparent 35%), var(--bg); color: #eef2ff; font-family: "Space Grotesk","Segoe UI",sans-serif; line-height: 1.6; }
 a { color: var(--accent); text-decoration: none; }
 a:hover { color: var(--accent-2); }
+.muted { color: var(--muted); }
 .topbar { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px); background: rgba(7,11,22,0.9); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; gap: 16px; }
 .brand { display: flex; align-items: center; gap: 12px; }
-.brand-icon { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #7ce0d6, #7ca6ff); display: grid; place-items: center; color: #0b1022; font-weight: 700; letter-spacing: 1px; }
+.brand-icon { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #7ce0d6, #7ca6ff); display: grid; place-items: center; color: #0b1022; font-weight: 700; letter-spacing: 1px; text-decoration: none; }
 .brand-text { display: flex; flex-direction: column; gap: 2px; }
 .brand-title { font-size: 18px; font-weight: 700; }
 .brand-sub { font-size: 12px; color: var(--muted); }
@@ -64,6 +70,10 @@ a:hover { color: var(--accent-2); }
 .nav-item { width: 100%; text-align: left; border: 1px solid transparent; background: transparent; color: #eef2ff; padding: 10px 10px; border-radius: 10px; cursor: pointer; transition: all 0.18s ease; }
 .nav-item:hover { background: rgba(255,255,255,0.04); border-color: var(--border); }
 .nav-item.active { background: linear-gradient(135deg, rgba(124,224,214,0.16), rgba(124,166,255,0.16)); border-color: var(--accent); color: #fff; }
+.nav-sub { margin: 6px 0 10px 8px; border-left: 1px solid var(--border); padding-left: 8px; display: grid; gap: 6px; }
+.nav-sub-item { width: 100%; text-align: left; border: 1px solid transparent; background: rgba(255,255,255,0.02); color: var(--muted); padding: 6px 8px; border-radius: 8px; cursor: pointer; transition: all 0.18s ease; font-size: 13px; }
+.nav-sub-item:hover { border-color: var(--border); color: #eef2ff; }
+.nav-sub-item.active { border-color: var(--accent); color: #fff; background: rgba(124,224,214,0.08); }
 .content-card { background: rgba(15,22,43,0.9); border: 1px solid var(--border); border-radius: 16px; padding: 24px 24px 32px; box-shadow: var(--shadow); }
 article h1, article h2, article h3, article h4 { color: #fff; }
 article h1 { font-size: 32px; margin-bottom: 14px; }
@@ -90,14 +100,14 @@ article blockquote { border-left: 3px solid var(--accent); margin: 18px 0; paddi
 <body>
 <div class="topbar">
   <div class="brand">
-    <div class="brand-icon">A</div>
+    <a class="brand-icon" id="brand-link" href="#">A</a>
     <div class="brand-text">
       <div class="brand-title">attoboy</div>
       <div class="brand-sub">C++ library documentation</div>
     </div>
   </div>
   <div class="top-actions">
-    <a class="github-link" href="https://github.com/coeurnix/attoboy" target="_blank" rel="noopener">View on GitHub</a>
+    <a class="github-link" href="https://github.com/coeurnix/attoboy" target="_blank" rel="noopener">GitHub</a>
     <div class="lang-switch" id="language-switch"></div>
     <div class="search-box">
       <input id="search-input" type="search" placeholder="Search the docs...">
@@ -121,12 +131,31 @@ const DOCS = __DOCS__;
 const LANGUAGE_NAMES = __LANG_MAP__;
 let currentLang = "__DEFAULT_LANG__";
 let currentSlug = "home";
+let currentAnchor = null;
+let suppressHashChange = false;
 
 const navList = document.getElementById("nav-list");
 const contentEl = document.getElementById("doc-content");
 const searchInput = document.getElementById("search-input");
 const searchResults = document.getElementById("search-results");
 const langSwitch = document.getElementById("language-switch");
+const brandLink = document.getElementById("brand-link");
+
+const FUNCTION_INDEX = {};
+Object.keys(DOCS).forEach((lang) => {
+  const list = [];
+  (DOCS[lang] || []).forEach((page) => {
+    (page.functions || []).forEach((fn) => {
+      list.push({
+        ...fn,
+        pageSlug: page.slug,
+        pageLabel: page.label,
+        search: (fn.signature + " " + fn.synopsis + " " + fn.title).toLowerCase(),
+      });
+    });
+  });
+  FUNCTION_INDEX[lang] = list;
+});
 
 function getPage(lang, slug) {
   const pages = DOCS[lang] || [];
@@ -136,10 +165,29 @@ function getPage(lang, slug) {
   return null;
 }
 
+function ensureSlug(slug, lang) {
+  if (getPage(lang, slug)) return slug;
+  if (getPage(lang, "home")) return "home";
+  const pages = DOCS[lang] || [];
+  return pages.length ? pages[0].slug : slug;
+}
+
+function navigateTo(slug, anchor = null, langOverride = null) {
+  if (langOverride && DOCS[langOverride]) {
+    currentLang = langOverride;
+  }
+  currentSlug = ensureSlug(slug, currentLang);
+  currentAnchor = anchor || null;
+  renderLanguages();
+  renderNavigation();
+  renderPage();
+  closeSearch();
+}
+
 function setLanguage(lang) {
   if (!DOCS[lang]) return;
   currentLang = lang;
-  if (!getPage(currentLang, currentSlug)) currentSlug = "home";
+  currentSlug = ensureSlug(currentSlug, currentLang);
   renderLanguages();
   renderNavigation();
   renderPage();
@@ -147,11 +195,13 @@ function setLanguage(lang) {
 }
 
 function renderLanguages() {
-  langSwitch.innerHTML = Object.keys(DOCS).map((lang) => {
-    const active = lang === currentLang ? "active" : "";
-    const label = LANGUAGE_NAMES[lang] || lang.toUpperCase();
-    return `<button data-lang="${lang}" class="${active}">${label}</button>`;
-  }).join("");
+  langSwitch.innerHTML = Object.keys(DOCS)
+    .map((lang) => {
+      const active = lang === currentLang ? "active" : "";
+      const label = LANGUAGE_NAMES[lang] || lang.toUpperCase();
+      return `<button data-lang="${lang}" class="${active}">${label}</button>`;
+    })
+    .join("");
   langSwitch.querySelectorAll("button").forEach((btn) => {
     btn.addEventListener("click", () => setLanguage(btn.dataset.lang));
   });
@@ -159,7 +209,7 @@ function renderLanguages() {
 
 function renderNavigation() {
   const pages = DOCS[currentLang] || [];
-  const baseOrder = ["home", "getting-started", "tutorial", "api-index"];
+  const baseOrder = ["project-readme", "home", "getting-started", "tutorial", "api-index"];
   const apiPages = pages.filter((p) => p.slug.startsWith("api-") && p.slug !== "api-index");
   const markup = [];
   for (const slug of baseOrder) {
@@ -174,36 +224,40 @@ function renderNavigation() {
     for (const page of apiPages) {
       const active = page.slug === currentSlug ? "active" : "";
       markup.push(`<button class="nav-item ${active}" data-slug="${page.slug}">${page.label}</button>`);
+      if (page.slug === currentSlug && page.functions && page.functions.length) {
+        const sub = page.functions
+          .map((fn) => {
+            const activeFn = currentAnchor === fn.id ? "active" : "";
+            return `<button class="nav-sub-item ${activeFn}" data-slug="${page.slug}" data-anchor="${fn.id}">${fn.title}</button>`;
+          })
+          .join("");
+        markup.push(`<div class="nav-sub">${sub}</div>`);
+      }
     }
   }
   navList.innerHTML = markup.join("");
-  navList.querySelectorAll("button").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      currentSlug = btn.dataset.slug;
-      renderNavigation();
-      renderPage();
-      closeSearch();
-    });
+  navList.querySelectorAll(".nav-item").forEach((btn) => {
+    btn.addEventListener("click", () => navigateTo(btn.dataset.slug));
+  });
+  navList.querySelectorAll(".nav-sub-item").forEach((btn) => {
+    btn.addEventListener("click", () => navigateTo(btn.dataset.slug, btn.dataset.anchor));
   });
 }
 
 function escapeHtml(value) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 function highlightCpp(code) {
-  const patterns = [
-    { type: "comment", regex: /\\/\\*[\\s\\S]*?\\*\\/|\\/\\/[^\\n]*/g },
-    { type: "string", regex: /"(?:\\\\.|[^"\\\\])*"|'(?:\\\\.|[^'\\\\])*'/g },
-    { type: "number", regex: /\\b0x[0-9a-fA-F]+\\b|\\b\\d+\\.\\d+f?\\b|\\b\\d+f?\\b|\\b\\d+\\b/g },
-    { type: "keyword", regex: /\\b(?:alignas|alignof|asm|auto|bool|break|case|catch|char|class|const|constexpr|continue|decltype|default|delete|do|double|dynamic_cast|else|enum|explicit|export|extern|false|float|for|friend|goto|if|inline|int|long|mutable|namespace|new|noexcept|nullptr|operator|private|protected|public|register|reinterpret_cast|return|short|signed|sizeof|static|static_cast|struct|switch|template|this|thread_local|throw|true|try|typedef|typeid|typename|union|unsigned|using|virtual|void|volatile|wchar_t|while)\\b/g },
-    { type: "directive", regex: /#[ \\t]*[a-zA-Z_]\\w*/g }
+const patterns = [
+    { type: "comment", regex: /\/\*[\s\S]*?\*\/|\/\/.*$/gm },
+    { type: "string", regex: /"(?:[^"\\\\]]|\\\\.)*"|'(?:[^'\\\\]]|\\\\.)*'/g },
+    { type: "number", regex: /\b0x[0-9a-fA-F]+\b|\b\d+\.\d+f?\b|\b\d+f?\b|\b\d+\b/g },
+    { type: "keyword", regex: /\b(?:alignas|alignof|asm|auto|bool|break|case|catch|char|class|const|constexpr|continue|decltype|default|delete|do|double|dynamic_cast|else|enum|explicit|export|extern|false|float|for|friend|goto|if|inline|int|long|mutable|namespace|new|noexcept|nullptr|operator|private|protected|public|register|reinterpret_cast|return|short|signed|sizeof|static|static_cast|struct|switch|template|this|thread_local|throw|true|try|typedef|typeid|typename|union|unsigned|using|virtual|void|volatile|wchar_t|while)\b/g },
+    { type: "directive", regex: /#[ \t]*[a-zA-Z_]\w*/g },
   ];
   const matches = [];
+
   for (const pattern of patterns) {
     pattern.regex.lastIndex = 0;
     let m;
@@ -248,7 +302,17 @@ function renderPage() {
   contentEl.innerHTML = page.html;
   document.title = page.title + " | attoboy";
   highlightContent();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  setHashFromState();
+  if (currentAnchor) {
+    const target = document.getElementById(currentAnchor);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  } else {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 }
 
 function closeSearch() {
@@ -257,8 +321,15 @@ function closeSearch() {
 }
 
 function escapeRegex(value) {
-  const specials = /[-/\\\\^$*+?.()|[\\]{}]/g;
-  return value.replace(specials, "\\\\$&");
+  const specials = /[-\/\^$*+?.()|[\]{}]/g;
+  return value.replace(specials, "\$&");
+}
+
+function highlightTerm(text, term) {
+  if (!term) return escapeHtml(text);
+  const safe = escapeHtml(text);
+  const re = new RegExp("(" + escapeRegex(term) + ")", "ig");
+  return safe.replace(re, "<mark>$1</mark>");
 }
 
 function snippet(text, query) {
@@ -282,35 +353,88 @@ function runSearch(term) {
     closeSearch();
     return;
   }
-  const pages = DOCS[currentLang] || [];
   const results = [];
-  for (const page of pages) {
-    if (page.text.toLowerCase().includes(query.toLowerCase())) {
-      results.push(page);
+  const funcs = FUNCTION_INDEX[currentLang] || [];
+  const qLower = query.toLowerCase();
+  for (const fn of funcs) {
+    if (fn.search.includes(qLower)) {
+      results.push({ type: "function", item: fn });
     }
     if (results.length === 5) break;
+  }
+  if (results.length < 5) {
+    const pages = DOCS[currentLang] || [];
+    for (const page of pages) {
+      if (page.text.toLowerCase().includes(qLower)) {
+        results.push({ type: "page", item: page });
+      }
+      if (results.length === 5) break;
+    }
   }
   if (!results.length) {
     searchResults.innerHTML = '<div class="result"><div class="snippet">No matches found</div></div>';
     searchResults.classList.add("open");
     return;
   }
-  searchResults.innerHTML = results.map((page) => {
-    const preview = snippet(page.text, query);
-    return `<div class="result" data-slug="${page.slug}">
+  searchResults.innerHTML = results
+    .map((entry) => {
+      if (entry.type === "function") {
+        const fn = entry.item;
+        const sig = highlightTerm(fn.signature, query);
+        const syn = fn.synopsis ? highlightTerm(fn.synopsis, query) : "";
+        return `<div class="result" data-slug="${fn.pageSlug}" data-anchor="${fn.id}">
+        <div class="title">${sig}</div>
+        <div class="snippet"><span class="muted">${fn.pageLabel}</span>${syn ? " → " + syn : ""}</div>
+      </div>`;
+      }
+      const page = entry.item;
+      const preview = snippet(page.text, query);
+      return `<div class="result" data-slug="${page.slug}">
       <div class="title">${page.label}</div>
       <div class="snippet">${preview}</div>
     </div>`;
-  }).join("");
+    })
+    .join("");
   searchResults.classList.add("open");
   searchResults.querySelectorAll(".result").forEach((item) => {
     item.addEventListener("click", () => {
-      currentSlug = item.dataset.slug;
-      renderNavigation();
-      renderPage();
+      navigateTo(item.dataset.slug, item.dataset.anchor || null);
       closeSearch();
     });
   });
+}
+
+function parseHashString(hashValue) {
+  if (!hashValue) return null;
+  const cleaned = hashValue.replace(/^#\/?/, "");
+  if (!cleaned) return null;
+  const parts = cleaned.split("/").filter(Boolean);
+  if (parts.length >= 2) {
+    return { lang: parts[0], slug: parts[1], anchor: parts[2] || null };
+  }
+  return null;
+}
+
+function setHashFromState() {
+  const target = `#/${currentLang}/${currentSlug}` + (currentAnchor ? `/${currentAnchor}` : "");
+  if (window.location.hash === target) return;
+  suppressHashChange = true;
+  window.location.hash = target;
+  setTimeout(() => {
+    suppressHashChange = false;
+  }, 0);
+}
+
+function applyHash(hashValue) {
+  const parsed = parseHashString(hashValue);
+  if (!parsed || !DOCS[parsed.lang]) return false;
+  currentLang = parsed.lang;
+  currentSlug = ensureSlug(parsed.slug, currentLang);
+  currentAnchor = parsed.anchor || null;
+  renderLanguages();
+  renderNavigation();
+  renderPage();
+  return true;
 }
 
 searchInput.addEventListener("input", (event) => runSearch(event.target.value));
@@ -319,10 +443,48 @@ searchInput.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closeSearch();
 });
 
+contentEl.addEventListener("click", (event) => {
+  const link = event.target.closest("a");
+  if (!link) return;
+  const href = link.getAttribute("href") || "";
+  if (href.startsWith("#/")) {
+    event.preventDefault();
+    const parsed = parseHashString(href);
+    if (parsed) {
+      navigateTo(parsed.slug, parsed.anchor || null, parsed.lang || currentLang);
+    }
+  } else if (href.startsWith("#")) {
+    event.preventDefault();
+    currentAnchor = href.slice(1);
+    renderPage();
+  }
+});
+
+brandLink.addEventListener("click", (event) => {
+  event.preventDefault();
+  const targetSlug = getPage(currentLang, "project-readme") ? "project-readme" : "home";
+  navigateTo(targetSlug);
+});
+
+window.addEventListener("hashchange", () => {
+  if (suppressHashChange) return;
+  applyHash(window.location.hash);
+});
+
+const initial = parseHashString(window.location.hash);
+if (initial && DOCS[initial.lang]) {
+  currentLang = initial.lang;
+  currentSlug = ensureSlug(initial.slug, currentLang);
+  currentAnchor = initial.anchor || null;
+} else {
+  currentSlug = ensureSlug(currentSlug, currentLang);
+}
+
 renderLanguages();
 renderNavigation();
 renderPage();
 </script>
+
 </body>
 </html>
 """
@@ -334,7 +496,7 @@ def read_markdown(path: Path) -> str:
 
 def convert_markdown(md_text: str) -> str:
   md = markdown.Markdown(
-      extensions=["fenced_code", "tables", "toc", "sane_lists", "codehilite", "attr_list"]
+      extensions=["fenced_code", "tables", "toc", "sane_lists", "codehilite", "attr_list"] 
   )
   return md.convert(md_text)
 
@@ -353,10 +515,192 @@ def to_plain_text(html_text: str) -> str:
   return text.strip()
 
 
-def add_page(pages: list[dict[str, str]], slug: str, path: Path, fallback_label: str) -> None:
+def find_signature(block: str) -> str:
+  match = re.search(r"\*{1,2}Signature\*{1,2}.*?```[^\n]*\n(.*?)```", block, re.S)
+  if not match:
+    match = re.search(r"```[^\n]*\n(.*?)```", block, re.S)
+  if match:
+    return match.group(1).strip()
+  return ""
+
+
+def find_synopsis(block: str) -> str:
+  match = re.search(
+      r"\*{1,2}Synopsis\*{1,2}\s*\n+(.+?)(?=(\n\s*\n\*\*|\n####|\n###|\n##|\n#|\Z))",
+      block,
+      re.S,
+  )
+  if match:
+    synopsis = re.sub(r"\s+", " ", match.group(1)).strip()
+    return synopsis
+  return ""
+
+
+def strip_signature_modifiers(signature: str) -> str:
+  leading = re.compile(
+      r"^(?:(?:inline|static|constexpr|consteval|constinit|virtual|friend|extern|volatile)\s+)+",
+      re.I,
+  )
+  cleaned = leading.sub("", signature).strip()
+  cleaned = re.sub(r"\s+", " ", cleaned)
+  cleaned = re.sub(
+      r"\)\s+(?:const|noexcept(?:\([^)]+\))?|override|final)(?=\s|;|$)",
+      ")",
+      cleaned,
+      flags=re.I,
+  )
+  cleaned = re.sub(
+      r"\s+(?:const|noexcept(?:\([^)]+\))?|override|final)(?=;|$)",
+      "",
+      cleaned,
+      flags=re.I,
+  )
+  return cleaned.strip()
+
+
+def extract_functions(md_text: str, page_slug: str) -> tuple[str, list[dict[str, str]]]:
+  pattern = re.compile(
+      r"^(?P<header>(?P<level>###|####)\s+`?(?P<title>[^`\n]+)`?\s*(?P<attrs>\{#[^}]+\})?\s*\n)(?P<body>.*?)(?=^(?:###|####)\s+`?|^##\s+|^#\s+|\Z)",
+      re.M | re.S,
+  )
+  parts: list[str] = []
+  functions: list[dict[str, str]] = []
+  last_end = 0
+  seen: set[str] = set()
+  for match in pattern.finditer(md_text):
+    parts.append(md_text[last_end:match.start()])
+    title = match.group("title").strip()
+    attrs = match.group("attrs")
+    level = match.group("level")
+    anchor = None
+    if attrs:
+      anchor_match = re.search(r"\{#([^}]+)\}", attrs)
+      if anchor_match:
+        anchor = anchor_match.group(1)
+    if not anchor:
+      base_anchor = slugify(title)
+      anchor = base_anchor
+      counter = 2
+      while anchor in seen:
+        anchor = f"{base_anchor}-{counter}"
+        counter += 1
+      header = f"{level} `{title}` {{#{anchor}}}\n"
+    else:
+      header = match.group("header")
+    seen.add(anchor)
+    body = match.group("body")
+    signature = strip_signature_modifiers(find_signature(body) or title)
+    synopsis = find_synopsis(body)
+    functions.append(
+        {
+            "id": anchor,
+            "title": title,
+            "signature": signature,
+            "synopsis": synopsis,
+        }
+    )
+    parts.append(header + body)
+    last_end = match.end()
+  parts.append(md_text[last_end:])
+  return "".join(parts), functions
+
+
+def build_slug_map(base: Path, entries: list[tuple[str, Path]]) -> dict[str, str]:
+  mapping: dict[str, str] = {}
+  for slug, path in entries:
+    try:
+      rel = path.relative_to(base)
+    except ValueError:
+      continue
+    rel_posix = rel.as_posix().lstrip("./")
+    variants = {rel_posix}
+    if rel_posix.endswith("/"):
+      variants.add(rel_posix.rstrip("/"))
+    if rel.name.lower() == "readme.md":
+      parent = rel.parent.as_posix()
+      variants.add(parent)
+      if parent:
+        variants.add(parent.rstrip("/") + "/")
+      variants.add(rel_posix[:-3])
+    variants.add(rel.with_suffix("").as_posix())
+    for key in variants:
+      if key not in mapping:
+        mapping[key] = slug
+  return mapping
+
+
+def rewrite_links(
+    md_text: str, base: Path, page_path: Path, lang: str, slug_map: dict[str, str]
+) -> str:
+  link_pattern = re.compile(r"\[(?P<label>[^\]]+)\]\((?P<href>[^)]+)\)")
+  try:
+    current_rel = page_path.relative_to(base).as_posix().lstrip("./")
+  except ValueError:
+    current_rel = ""
+
+  def replace(match: re.Match[str]) -> str:
+    label = match.group("label")
+    href = match.group("href")
+    if re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*://", href) or href.startswith("mailto:"):
+      return match.group(0)
+    if href.startswith("#"):
+      anchor = href[1:]
+      current_slug = slug_map.get(current_rel, "")
+      if not current_slug:
+        return match.group(0)
+      target = f"#/{lang}/{current_slug}"
+      if anchor:
+        target += f"/{anchor}"
+      return f"[{label}]({target})"
+    anchor = ""
+    path_part = href
+    if "#" in href:
+      path_part, anchor = href.split("#", 1)
+    resolved = (page_path.parent / path_part).resolve()
+    try:
+      rel = resolved.relative_to(base).as_posix().lstrip("./")
+    except ValueError:
+      return match.group(0)
+    if rel.endswith("/"):
+      rel = rel.rstrip("/")
+    candidates = [rel]
+    if rel.endswith("README.md"):
+      parent = Path(rel).parent.as_posix()
+      candidates.append(parent)
+    candidates.append(Path(rel).with_suffix("").as_posix())
+    slug = None
+    for candidate in candidates:
+      if candidate in slug_map:
+        slug = slug_map[candidate]
+        break
+    if not slug:
+      return match.group(0)
+    target = f"#/{lang}/{slug}"
+    if anchor:
+      target += f"/{anchor}"
+    return f"[{label}]({target})"
+
+  return link_pattern.sub(replace, md_text)
+
+
+def add_page(
+    pages: list[dict[str, str]],
+    slug: str,
+    path: Path,
+    fallback_label: str,
+    base: Path,
+    lang: str,
+    slug_map: dict[str, str],
+) -> None:
   if not path.exists():
     return
   md_text = read_markdown(path)
+  functions: list[dict[str, str]] = []
+  if slug.startswith("api-"):
+    md_text, functions = extract_functions(md_text, slug)
+  for function in functions:
+    function["title"] = strip_signature_modifiers(function["title"])
+  md_text = rewrite_links(md_text, base, path, lang, slug_map)
   html_text = convert_markdown(md_text)
   title = extract_title(md_text, fallback_label)
   pages.append(
@@ -366,24 +710,32 @@ def add_page(pages: list[dict[str, str]], slug: str, path: Path, fallback_label:
           "label": title,
           "html": html_text,
           "text": to_plain_text(html_text),
+          "functions": functions,
       }
   )
 
 
 def collect_language(root: Path, lang: str) -> list[dict[str, str]]:
+  # todo: give labels in the right language
   base = root / lang
   if not base.is_dir():
     raise FileNotFoundError(f"Missing language directory: {base}")
-  pages: list[dict[str, str]] = []
-  add_page(pages, "home", base / "README.md", "Overview")
-  add_page(pages, "getting-started", base / "getting-started" / "README.md", "Getting started")
-  add_page(pages, "tutorial", base / "tutorial" / "README.md", "Tutorial")
-  add_page(pages, "api-index", base / "api" / "README.md", "API")
+  entries: list[tuple[str, Path, str]] = []
+  entries.append(("home", base / "README.md", "Overview"))
+  entries.append(
+      ("getting-started", base / "getting-started" / "README.md", "Getting started")
+  )
+  entries.append(("tutorial", base / "tutorial" / "README.md", "Tutorial"))
+  entries.append(("api-index", base / "api" / "README.md", "API"))
   api_dir = base / "api"
   if api_dir.is_dir():
     for entry in sorted(api_dir.iterdir()):
       if entry.is_dir():
-        add_page(pages, f"api-{entry.name}", entry / "README.md", entry.name)
+        entries.append((f"api-{entry.name}", entry / "README.md", entry.name))
+  slug_map = build_slug_map(base, [(slug, path) for slug, path, _ in entries])
+  pages: list[dict[str, str]] = []
+  for slug, path, label in entries:
+    add_page(pages, slug, path, label, base, lang, slug_map)
   return pages
 
 
@@ -407,6 +759,8 @@ def build_payload(root: Path, languages: list[str]) -> dict[str, list[dict[str, 
 def write_html(output_path: Path, data: dict[str, list[dict[str, str]]], start_lang: str) -> None:
   data_json = json.dumps(data, ensure_ascii=False)
   lang_json = json.dumps(LANG_NAMES, ensure_ascii=False)
+  data_json = data_json.replace("</", "<\\/")
+  lang_json = lang_json.replace("</", "<\\/")
   html_text = (
       HTML_TEMPLATE.replace("__DOCS__", data_json)
       .replace("__LANG_MAP__", lang_json)
@@ -454,3 +808,5 @@ def main() -> None:
 
 if __name__ == "__main__":
   main()
+
+

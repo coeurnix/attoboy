@@ -88,8 +88,6 @@ Each entry below covers one public constructor, method, static function, or oper
 
 ---
 
-### Constructors, Copy, Assignment, and Destruction
-
 #### `List()`
 
 **Signature**
@@ -371,8 +369,6 @@ a = b;
 
 ---
 
-### Basic Properties
-
 #### `int length() const`
 
 **Signature**
@@ -442,8 +438,6 @@ if (values.isEmpty()) {
 *This example initializes a list only if it is currently empty.*
 
 ---
-
-### Mutating Operations (Structure and Order)
 
 #### `template <typename T> List &append(T value)`
 
@@ -837,8 +831,6 @@ allTags.concat(tags);
 
 ---
 
-### Element Access and Inspection
-
 #### `template <typename T> T pop()`
 
 **Signature**
@@ -1077,8 +1069,6 @@ List copy = original.duplicate();
 
 ---
 
-### Search and Membership
-
 #### `template <typename T> int find(T value) const`
 
 **Signature**
@@ -1151,8 +1141,6 @@ bool hasFive = values.contains(5); // false
 *This example checks whether certain values are present in the list.*
 
 ---
-
-### CSV and JSON Serialization
 
 #### `String toCSVString() const`
 
@@ -1329,8 +1317,6 @@ List values = List::FromJSONString(json);
 *This example parses JSON array text into a `List` suitable for further processing.*
 
 ---
-
-### Equality and Concatenation Operators
 
 #### `bool compare(const List &other) const`
 

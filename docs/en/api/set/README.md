@@ -100,8 +100,6 @@ Each entry below covers one public constructor, method, static function, or oper
 
 ---
 
-### Constructors, Copy, Assignment, and Destruction
-
 #### `Set()`
 
 **Signature**
@@ -383,8 +381,6 @@ a = b;
 
 ---
 
-### Basic Properties
-
 #### `int length() const`
 
 **Signature**
@@ -454,8 +450,6 @@ if (s.isEmpty()) {
 *This example initializes the set with a value only if it is currently empty.*
 
 ---
-
-### Core Mutating Operations
 
 #### `template <typename T> Set &put(T value)`
 
@@ -589,8 +583,6 @@ s.clear();
 *This example removes all values from a set.*
 
 ---
-
-### Set Operations (Union, Intersection, Difference)
 
 #### `Set &setUnion(const Set &other)`
 
@@ -728,8 +720,6 @@ a.subtract(b);
 
 ---
 
-### Membership, Duplication, and Conversion
-
 #### `template <typename T> bool contains(T value) const`
 
 **Signature**
@@ -843,8 +833,6 @@ List asList = numbers.toList();
 
 ---
 
-### JSON Serialization
-
 #### `String toJSONString() const`
 
 **Signature**
@@ -934,8 +922,6 @@ Set flags = Set::FromJSONString(json);
 *This example parses a JSON array into a set, automatically removing duplicates.*
 
 ---
-
-### Equality and Concatenation Operators
 
 #### `bool compare(const Set &other) const`
 
