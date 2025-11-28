@@ -67,7 +67,7 @@ void atto_main() {
     ASSERT_TRUE(ai.getModel().equals(String("gpt-5-nano-2025-08-07")));
 
     String systemPrompt = String("You are a helpful assistant.");
-    ai.setSystemPrompt(&systemPrompt);
+    ai.setSystemPrompt(systemPrompt);
     REGISTER_TESTED(AI_setSystemPrompt);
     String sp = ai.getSystemPrompt();
     ASSERT_FALSE(sp.isEmpty());
@@ -143,7 +143,7 @@ void atto_main() {
     AI ai(baseUrl, apiKey, chatModel);
     String systemPrompt =
         String("You are a pirate. Always respond like a pirate.");
-    ai.setSystemPrompt(&systemPrompt);
+    ai.setSystemPrompt(systemPrompt);
 
     String response = ai.ask(String("What is your favorite color?"));
     if (!response.isEmpty()) {

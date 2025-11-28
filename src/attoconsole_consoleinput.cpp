@@ -3,7 +3,7 @@
 namespace attoboy {
 
 ConsoleInput::ConsoleInput()
-    : completions(nullptr), history(nullptr), password(false), multiline(false),
+    : completions(List()), history(List()), password(false), multiline(false),
       continuation("> ") {}
 
 ConsoleInput::ConsoleInput(const ConsoleInput &other)

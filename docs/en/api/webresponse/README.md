@@ -101,11 +101,9 @@ A common workflow:
 
 4. Access the body in the most appropriate form:
 
-   * JSON API: `const Map *json = res.asJson();`
+   * JSON API: `const Map json = res.asJson();`
    * Text: `String body = res.asString();`
    * Binary: `Buffer data = res.asBuffer();`
-
-`WebResponse` instances are cheap to copy, and their lifetime controls the lifetime of any internal parsed JSON object returned by `asJson()`.
 
 ---
 
@@ -152,7 +150,6 @@ Creates a copy (shares the underlying response).
 The copy constructor creates a new `WebResponse` that **shares** the same underlying implementation as `other`. This is a shallow copy:
 
 * Status code, headers, and body are shared internally.
-* Any parsed JSON object returned by `asJson()` can be accessed through any copy as long as at least one copy remains alive.
 
 Because `WebResponse` is logically immutable from the user’s perspective, sharing is safe and efficient.
 
@@ -198,9 +195,6 @@ The destructor releases any underlying resources associated with the response, s
 
 * Internal network handles.
 * Buffers used to store the body.
-* Parsed JSON representation used by `asJson()`.
-
-After a `WebResponse` is destroyed, any pointers returned by `asJson()` for that response must not be used. Because `asString()` and `asBuffer()` return values by copy, those returned objects remain valid independently of the `WebResponse` lifetime.
 
 **Example**
 
@@ -531,16 +525,16 @@ String requestId   = headers.get("X-Request-ID", String());
 
 ### Body Access
 
-#### `const Map *asJson() const`
+#### `Map asJson() const`
 
 **Signature**
 
 ```cpp
-const Map *asJson() const;
+Map asJson() const;
 ```
 
 **Synopsis**
-Parses body as JSON object. Returns nullptr if not a JSON object.
+Parses body as JSON object. Returns empty Map if not a JSON object.
 
 **Parameters**
 
@@ -548,7 +542,7 @@ Parses body as JSON object. Returns nullptr if not a JSON object.
 
 **Return value**
 
-* Pointer to a `Map` representing the JSON object parsed from the body, or `nullptr` if:
+* `Map` representing the JSON object parsed from the body, or an empty `Map` if:
 
   * The body is empty,
   * The body is not valid JSON, or
@@ -559,15 +553,13 @@ Parses body as JSON object. Returns nullptr if not a JSON object.
 `asJson()` is a convenience function for JSON-based APIs:
 
 * It attempts to parse the response body as JSON.
-* If parsing succeeds and the top-level value is a JSON object (`{ ... }`), it returns a pointer to an internal `Map` representing that object.
-* If parsing fails or the top-level value is not an object (for example, `[...]`), it returns `nullptr`.
+* If parsing succeeds and the top-level value is a JSON object (`{ ... }`), it returns a `Map` representing that object.
+* If parsing fails or the top-level value is not an object (for example, `[...]`), it returns an empty `Map`.
 
 Important details:
 
-* The returned `Map` is owned by the `WebResponse` object:
-
-  * The pointer remains valid as long as the `WebResponse` (or any copy sharing its implementation) is alive.
-  * Do **not** store the pointer beyond the lifetime of the response.
+* The returned `Map` is a value that you own; you can store it as needed.
+* Use `isEmpty()` to check if the JSON parsing succeeded.
 * The `Map` contents can be accessed using `Map` methods like `get`, `hasKey`, `keys`, etc.
 
 If you expect a JSON **array** at the top level, you should instead parse the body manually (for example, using `List::FromJSONString(response.asString())`), since `asJson()` is specifically for JSON objects.
@@ -580,11 +572,11 @@ WebResponse response = WebRequest("https://api.example.com/user/42").doGet();
 if (!response.succeeded()) {
   // handle error...
 } else {
-  const Map *json = response.asJson();
-  if (json != nullptr) {
+  Map json = response.asJson();
+  if (!json.isEmpty()) {
     // Extract fields with defaults
-    String name = json->get("name", String("Unknown"));
-    int age     = json->get("age", 0);
+    String name = json.get("name", String("Unknown"));
+    int age     = json.get("age", 0);
 
     // Use parsed data...
   } else {

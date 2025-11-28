@@ -37,7 +37,7 @@ void atto_main() {
 
   Log("Creating WebRequest...");
   {
-    WebRequest req(url, nullptr, &headers);
+    WebRequest req(url, Map(), headers);
 
     Log("Calling doPost (timeout 10 seconds)...");
     WebResponse resp = req.doPost(requestBody, 10000);

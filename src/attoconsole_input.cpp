@@ -2,7 +2,7 @@
 
 namespace attoboy {
 
-String Console::input(const String &prompt, const ConsoleInput *options) {
+String Console::input(const String &prompt, const ConsoleInput &options) {
   AcquireSRWLockExclusive(&impl->lock);
 
   if (!prompt.isEmpty()) {
@@ -16,13 +16,13 @@ String Console::input(const String &prompt, const ConsoleInput *options) {
   SetConsoleMode(impl->hStdIn, ENABLE_PROCESSED_INPUT | ENABLE_LINE_INPUT |
                                    ENABLE_ECHO_INPUT);
 
-  bool password = options && options->password;
-  bool multiline = options && options->multiline;
-  List *history = options ? options->history : nullptr;
-  const List *completions = options ? options->completions : nullptr;
+  bool password = options.password;
+  bool multiline = options.multiline;
+  List history = options.history;
+  List completions = options.completions;
 
   String buffer = "";
-  int historyIndex = history ? history->length() : 0;
+  int historyIndex = history.length();
   String savedInput = "";
 
   CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -57,10 +57,10 @@ String Console::input(const String &prompt, const ConsoleInput *options) {
         if (multiline && (shift || ctrl)) {
           buffer = buffer + "\n";
           WriteConsoleA(impl->hStdOut, "\n", 1, &eventsRead, nullptr);
-          if (options && !options->continuation.isEmpty()) {
-            const char *cont = options->continuation.c_str();
+          if (!options.continuation.isEmpty()) {
+            const char *cont = options.continuation.c_str();
             WriteConsoleA(impl->hStdOut, cont,
-                          options->continuation.byteLength(), &eventsRead,
+                          options.continuation.byteLength(), &eventsRead,
                           nullptr);
           }
         } else {
@@ -85,12 +85,12 @@ String Console::input(const String &prompt, const ConsoleInput *options) {
           }
         }
       } else if (vk == VK_UP) {
-        if (history && history->length() > 0 && historyIndex > 0) {
-          if (historyIndex == history->length()) {
+        if (!history.isEmpty() && historyIndex > 0) {
+          if (historyIndex == history.length()) {
             savedInput = buffer;
           }
           historyIndex--;
-          buffer = history->at<String>(historyIndex);
+          buffer = history.at<String>(historyIndex);
           COORD pos = {(SHORT)startX, (SHORT)startY};
           SetConsoleCursorPosition(impl->hStdOut, pos);
           String spaces = String(" ").repeat(savedInput.length() + 10);
@@ -107,12 +107,12 @@ String Console::input(const String &prompt, const ConsoleInput *options) {
           }
         }
       } else if (vk == VK_DOWN) {
-        if (history && historyIndex < history->length()) {
+        if (!history.isEmpty() && historyIndex < history.length()) {
           historyIndex++;
-          if (historyIndex >= history->length()) {
+          if (historyIndex >= history.length()) {
             buffer = savedInput;
           } else {
-            buffer = history->at<String>(historyIndex);
+            buffer = history.at<String>(historyIndex);
           }
           COORD pos = {(SHORT)startX, (SHORT)startY};
           SetConsoleCursorPosition(impl->hStdOut, pos);
@@ -130,9 +130,9 @@ String Console::input(const String &prompt, const ConsoleInput *options) {
           }
         }
       } else if (vk == VK_TAB) {
-        if (completions && completions->length() > 0) {
-          for (int i = 0; i < completions->length(); i++) {
-            String comp = completions->at<String>(i);
+        if (!completions.isEmpty()) {
+          for (int i = 0; i < completions.length(); i++) {
+            String comp = completions.at<String>(i);
             if (comp.startsWith(buffer) && comp != buffer) {
               buffer = comp;
               COORD pos = {(SHORT)startX, (SHORT)startY};
@@ -166,10 +166,6 @@ String Console::input(const String &prompt, const ConsoleInput *options) {
   }
 
   WriteConsoleA(impl->hStdOut, "\n", 1, &eventsRead, nullptr);
-
-  if (history && !buffer.isEmpty()) {
-    history->append(buffer);
-  }
 
   SetConsoleMode(impl->hStdIn, originalMode);
   ReleaseSRWLockExclusive(&impl->lock);

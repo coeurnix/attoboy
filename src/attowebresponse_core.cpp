@@ -16,7 +16,6 @@ WebResponse::WebResponse() {
   impl->body = nullptr;
   impl->bodySize = 0;
   impl->headers = nullptr;
-  impl->jsonCache = nullptr;
 }
 
 WebResponse::WebResponse(const WebResponse &other) {
@@ -35,8 +34,6 @@ WebResponse::~WebResponse() {
         HeapFree(GetProcessHeap(), 0, impl->body);
       if (impl->headers)
         delete impl->headers;
-      if (impl->jsonCache)
-        delete impl->jsonCache;
       HeapFree(GetProcessHeap(), 0, impl);
     }
   }
@@ -51,8 +48,6 @@ WebResponse &WebResponse::operator=(const WebResponse &other) {
         HeapFree(GetProcessHeap(), 0, impl->body);
       if (impl->headers)
         delete impl->headers;
-      if (impl->jsonCache)
-        delete impl->jsonCache;
       HeapFree(GetProcessHeap(), 0, impl);
     }
     impl = other.impl;
@@ -107,25 +102,18 @@ Map WebResponse::getResponseHeaders() const {
   return *impl->headers;
 }
 
-const Map *WebResponse::asJson() const {
+Map WebResponse::asJson() const {
   if (!impl)
-    return nullptr;
-  WriteLockGuard lock(&impl->lock);
-
-  if (impl->jsonCache)
-    return impl->jsonCache;
+    return Map();
+  ReadLockGuard lock(&impl->lock);
 
   if (!impl->body || impl->bodySize == 0)
-    return nullptr;
+    return Map();
 
   String jsonStr((const char *)impl->body, impl->bodySize);
   Map parsed = Map::FromJSONString(jsonStr);
 
-  if (parsed.isEmpty())
-    return nullptr;
-
-  impl->jsonCache = new Map(parsed);
-  return impl->jsonCache;
+  return parsed;
 }
 
 String WebResponse::asString() const {

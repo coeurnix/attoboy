@@ -58,20 +58,20 @@ String AI::ask(const String &prompt, int timeout) {
     requestBody.put("response_format", responseFormat);
   }
 
-  WebRequest request(url, nullptr, &headers);
+  WebRequest request(url, Map(), headers);
   WebResponse response = request.doPost(requestBody, timeout);
 
   if (!response.succeeded()) {
     return String();
   }
 
-  const Map *jsonResponse = response.asJson();
-  if (!jsonResponse) {
+  Map jsonResponse = response.asJson();
+  if (jsonResponse.isEmpty()) {
     return String();
   }
 
-  if (jsonResponse->hasKey("usage")) {
-    Map usage = jsonResponse->get<String, Map>("usage");
+  if (jsonResponse.hasKey("usage")) {
+    Map usage = jsonResponse.get<String, Map>("usage");
     WriteLockGuard wlock(&impl->lock);
     if (usage.hasKey("prompt_tokens")) {
       int promptTokens = usage.get<String, int>("prompt_tokens");
@@ -83,11 +83,11 @@ String AI::ask(const String &prompt, int timeout) {
     }
   }
 
-  if (!jsonResponse->hasKey("choices")) {
+  if (!jsonResponse.hasKey("choices")) {
     return String();
   }
 
-  List choices = jsonResponse->get<String, List>("choices");
+  List choices = jsonResponse.get<String, List>("choices");
   if (choices.isEmpty()) {
     return String();
   }

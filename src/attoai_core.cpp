@@ -81,12 +81,12 @@ AI &AI::setModel(const String &model) {
   return *this;
 }
 
-AI &AI::setSystemPrompt(const String *prompt) {
+AI &AI::setSystemPrompt(const String &prompt) {
   if (!impl)
     return *this;
   WriteLockGuard lock(&impl->lock);
   FreeAIString(impl->systemPrompt);
-  impl->systemPrompt = prompt ? DuplicateString(prompt->c_str()) : nullptr;
+  impl->systemPrompt = prompt.isEmpty() ? nullptr : DuplicateString(prompt.c_str());
   return *this;
 }
 

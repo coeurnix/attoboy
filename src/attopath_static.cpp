@@ -189,8 +189,7 @@ Path Path::GetLocalAppDirectory() {
   return result;
 }
 
-#undef GetCurrentDirectory
-Path Path::GetCurrentDirectory() {
+Path Path::GetWorkingDirectory() {
   char path[MAX_PATH];
   DWORD length = GetCurrentDirectoryA(MAX_PATH, path);
   if (length == 0 || length >= MAX_PATH)

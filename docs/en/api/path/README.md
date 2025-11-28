@@ -1960,12 +1960,12 @@ cacheDir.makeDirectory(true);
 
 ---
 
-#### `static Path GetCurrentDirectory()`
+#### `static Path GetWorkingDirectory()`
 
 **Signature**
 
 ```cpp
-static Path GetCurrentDirectory();
+static Path GetWorkingDirectory();
 ```
 
 **Synopsis**
@@ -1977,7 +1977,7 @@ Returns the current working directory path.
 
 **Return value**
 
-* `Path` representing the process’s current working directory.
+* `Path` representing the process's current working directory.
 
 **In Depth**
 
@@ -1986,7 +1986,7 @@ This function retrieves the directory that the operating system uses as the base
 **Example**
 
 ```cpp
-Path current = Path::GetCurrentDirectory();
+Path current = Path::GetWorkingDirectory();
 String currentStr = current.toString();
 ```
 

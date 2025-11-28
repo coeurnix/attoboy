@@ -37,7 +37,7 @@ extern "C" void atto_main() {
   // Set up input options with command history
   List history;
   ConsoleInput inputOptions;
-  inputOptions.history = &history;
+  inputOptions.history = history;
   inputOptions.multiline = true;
 
   // Welcome message
@@ -49,7 +49,7 @@ extern "C" void atto_main() {
   // Main chat loop
   while (true) {
     // Get user input with a prompt
-    String userMessage = console.input("You: ", &inputOptions);
+    String userMessage = console.input("You: ", inputOptions);
 
     // Check for empty input (Ctrl+C) or quit commands
     if (userMessage.isEmpty()) {

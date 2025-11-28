@@ -12,7 +12,7 @@ void atto_main() {
     Map headers;
     headers.put("User-Agent", "libattoboy-test");
 
-    WebRequest req(String("http://example.com"), &params, &headers);
+    WebRequest req(String("http://example.com"), params, headers);
     REGISTER_TESTED(WebRequest_constructor);
 
     String url = req.getUrl();
@@ -93,10 +93,10 @@ void atto_main() {
       REGISTER_TESTED(WebResponse_asBuffer);
       ASSERT_TRUE(bodyBuf.length() > 0);
 
-      // asJson returns nullptr for HTML, but test the method exists
-      const Map *jsonData = resp.asJson();
+      // asJson returns empty Map for HTML, but test the method exists
+      Map jsonData = resp.asJson();
       REGISTER_TESTED(WebResponse_asJson);
-      (void)jsonData; // May be null for HTML
+      (void)jsonData; // May be empty for HTML
 
       // Test copy and assignment
       WebResponse respCopy = resp;
@@ -144,7 +144,7 @@ void atto_main() {
     Path tempFile = Path::CreateTemporaryFile(String("webrequest_dl_"));
     bool downloaded = WebRequest::Download(
         String("http://example.com"), tempFile.toString(),
-        nullptr, nullptr, true, 10000);
+        Map(), Map(), true, 10000);
     REGISTER_TESTED(WebRequest_Download);
 
     if (downloaded && tempFile.exists() && tempFile.getSize() > 0) {

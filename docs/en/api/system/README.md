@@ -202,8 +202,8 @@ Because `Exit()` does not return, you should:
 ```cpp
 using namespace attoboy;
 
-if (!Path::GetCurrentDirectory().exists()) {
-  LogError("Current directory does not exist; exiting.");
+if (!Path::GetWorkingDirectory().exists()) {
+  LogError("Current working directory does not exist; exiting.");
   Exit(1);
 }
 ```

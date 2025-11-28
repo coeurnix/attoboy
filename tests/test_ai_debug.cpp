@@ -59,7 +59,7 @@ void atto_main() {
     Log("Request JSON:", requestJson);
 
     {
-      WebRequest req(url, nullptr, &headers);
+      WebRequest req(url, Map(), headers);
       WebResponse resp = req.doPost(requestBody, -1);
 
       Log("WebResponse received");
@@ -70,10 +70,10 @@ void atto_main() {
       String respBody = resp.asString();
       Log("Response body:", respBody);
 
-      const Map *jsonResp = resp.asJson();
-      if (jsonResp) {
+      Map jsonResp = resp.asJson();
+      if (!jsonResp.isEmpty()) {
         Log("JSON parsed successfully");
-        Log("JSON keys:", jsonResp->keys().length());
+        Log("JSON keys:", jsonResp.keys().length());
       } else {
         LogError("JSON parsing failed");
       }

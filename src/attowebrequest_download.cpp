@@ -4,7 +4,7 @@
 namespace attoboy {
 
 bool WebRequest::Download(const String &url, const String &savePath,
-                          const Map *params, const Map *headers,
+                          const Map &params, const Map &headers,
                           bool overwrite, int timeout) {
   Path filePath(savePath);
 

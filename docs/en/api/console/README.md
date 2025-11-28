@@ -771,8 +771,6 @@ You use `ConsoleInput` when you want to move beyond a basic, single-line prompt 
 * **Password entry** with masked characters.
 * **Multi-line input** with a custom continuation prompt.
 
-The struct does not own any external objects. When you set pointers like `completions` or `history`, you remain responsible for keeping those `List` instances alive as long as `Console::input()` may use them.
-
 ---
 
 #### Reference
@@ -783,33 +781,28 @@ Each field is public and can be set directly.
 
 ---
 
-###### `const List *ConsoleInput::completions`
+###### `List ConsoleInput::completions`
 
 **Signature**
 
 ```cpp
-const List *completions;
+List completions;
 ```
 
 **Synopsis**
-Tab completion candidates (nullptr for no completion).
+Tab completion candidates (empty list for no completion).
 
 **Meaning**
 
-* Pointer to a `List` of possible completion strings.
-* If `nullptr`, tab completion is disabled.
+* `List` of possible completion strings.
+* If empty, tab completion is disabled.
 
 **In Depth**
 
-When `completions` is non-null, `Console::input()` can offer tab completion using the candidate values in the list. Typical behavior:
+When `completions` is non-empty, `Console::input()` can offer tab completion using the candidate values in the list. Typical behavior:
 
 * Pressing **Tab** cycles through or suggests completions.
 * The exact UI (inline replacement, hints, etc.) follows the library implementation.
-
-Important lifetime rule:
-
-* The `List` pointed to by `completions` must remain valid for the entire duration of the `Console::input()` call.
-* The console does **not** take ownership and does **not** free this list.
 
 **Example**
 
@@ -818,13 +811,9 @@ Console console;
 ConsoleInput opts;
 
 // Prepare completion candidates:
-List completions;
-completions.append("start").append("status").append("stop");
+opts.completions.append("start").append("status").append("stop");
 
-// Wire completions into options:
-opts.completions = &completions;
-
-String cmd = console.input("> ", &opts);
+String cmd = console.input("> ", opts);
 console.println("Command: " + cmd);
 ```
 
@@ -832,26 +821,26 @@ console.println("Command: " + cmd);
 
 ---
 
-###### `List *ConsoleInput::history`
+###### `List ConsoleInput::history`
 
 **Signature**
 
 ```cpp
-List *history;
+List history;
 ```
 
 **Synopsis**
-Command history buffer (read/write, nullptr for no history).
+Command history buffer (read/write, empty list for no history).
 History is automatically updated with each input.
 
 **Meaning**
 
-* Pointer to a `List` that stores previous input lines.
-* If `nullptr`, no history is kept and up/down arrows do not navigate past commands.
+* `List` that stores previous input lines.
+* If empty, no history is kept and up/down arrows do not navigate past commands.
 
 **In Depth**
 
-When `history` is non-null:
+When `history` is non-empty:
 
 * `Console::input()` treats the list as both **input** and **output**:
 
@@ -861,32 +850,23 @@ When `history` is non-null:
 
   * For example, with default commands or previously saved history.
 
-Lifetime and ownership:
-
-* The `List` must outlive the call to `Console::input()`.
-* You own the list; you can save it between calls, serialize it, or clear it as needed.
-
 **Example**
 
 ```cpp
 Console console;
 ConsoleInput opts;
 
-// Shared history across multiple inputs:
-List history;
-opts.history = &history;
-
 console.println("Type commands; Up/Down to navigate history, blank to quit.");
 
 while (true) {
-  String line = console.input("> ", &opts);
+  String line = console.input("> ", opts);
   if (line.trim().isEmpty()) {
     break;
   }
   console.println("You entered: " + line);
 }
 
-// history now contains all entered lines
+// opts.history now contains all entered lines
 ```
 
 *This example enables persistent history across multiple input calls, with up/down arrow navigation.*
@@ -1066,8 +1046,8 @@ Creates default input options (no completion, no history, single-line, visible).
 
 The default constructor initializes all fields to sensible defaults:
 
-* `completions = nullptr` – no tab completion.
-* `history = nullptr` – no command history.
+* `completions = List()` – no tab completion.
+* `history = List()` – no command history.
 * `password = false` – input is visible.
 * `multiline = false` – single-line input only.
 * `continuation = String()` – empty continuation prompt.
@@ -1109,9 +1089,8 @@ Creates a copy of another ConsoleInput.
 
 The copy constructor duplicates all configuration fields:
 
-* Pointer fields (`completions`, `history`) are copied as **pointers**:
-
-  * Both the original and the copy refer to the same `List` instances.
+* `List` fields (`completions`, `history`) are deep copied:
+  * The original and the copy have their own separate copies of all the elements.
 * Value fields (`password`, `multiline`, `continuation`) are copied by value.
 
 Use this when you want to start from an existing configuration and tweak it slightly.
@@ -1193,7 +1172,7 @@ Assigns another ConsoleInput to this one.
 
 The assignment operator replaces the current configuration with the contents of `other`:
 
-* Pointer fields now point to the same `List` instances as `other`.
+* `List` fields now point to copies of the same `List` instances as `other`.
 * Boolean fields and `continuation` are copied by value.
 
 Self-assignment is safe.
@@ -1215,13 +1194,13 @@ b = a;  // b now has the same configuration as a
 ---
 ---
 
-#### `String Console::input(const String &prompt = "", const ConsoleInput *options = nullptr)`
+#### `String Console::input(const String &prompt = "", const ConsoleInput &options = ConsoleInput())`
 
 **Signature**
 
 ```cpp
 String input(const String &prompt = "",
-             const ConsoleInput *options = nullptr);
+             const ConsoleInput &options = ConsoleInput());
 ```
 
 **Synopsis**
@@ -1232,32 +1211,32 @@ Returns empty string if input is cancelled (Ctrl+C).
 **Parameters**
 
 * `prompt` – Text shown before the input area (for example `"> "`).
-* `options` – Pointer to a `ConsoleInput` configuration structure, or `nullptr` to use defaults.
+* `options` – `ConsoleInput` configuration structure. Defaults to a default-constructed `ConsoleInput` if not provided.
 
 **Return value**
 
-* A `String` containing the user’s input line, or an empty `String` if the input was cancelled (for example via `Ctrl+C`).
+* A `String` containing the user's input line, or an empty `String` if the input was cancelled (for example via `Ctrl+C`).
 
 **In Depth**
 
 `input()` is the high-level input function that supports:
 
 * Prompt text (for example `"> "`).
-* Optional **history**, if `options->history` is provided:
+* Optional **history**, if `options.history` is provided:
 
   * Up/down arrows to navigate previous commands.
-* Optional **tab completion**, if `options->completions` is provided:
+* Optional **tab completion**, if `options.completions` is provided:
 
   * Suggestions based on a list of candidate strings.
-* **Password mode**, when `options->password` is true:
+* **Password mode**, when `options.password` is true:
 
   * Input characters are masked (for example with `'*'`).
-* **Multi-line mode**, when `options->multiline` is true:
+* **Multi-line mode**, when `options.multiline` is true:
 
   * `Shift+Enter` or `Ctrl+Enter` inserts a newline.
   * The `ConsoleInput::continuation` string is used as the prompt for subsequent lines.
 
-When `options` is `nullptr`, the function uses reasonable defaults:
+When `options` is default-constructed, the function uses reasonable defaults:
 
 * No history.
 * No tab completion.
@@ -1276,7 +1255,7 @@ List history;
 opts.history = &history;
 
 // Prompt for a command:
-String line = console.input("> ", &opts);
+String line = console.input("> ", opts);
 
 if (!line.isEmpty()) {
   console.println("You typed: " + line);

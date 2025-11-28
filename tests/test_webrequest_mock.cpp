@@ -47,16 +47,16 @@ void atto_main() {
       return;
     }
 
-    const Map *jsonResp = resp.asJson();
+    Map jsonResp = resp.asJson();
     REGISTER_TESTED(WebResponse_asJson);
 
-    if (!jsonResp) {
+    if (jsonResp.isEmpty()) {
       LogError("Test 2 FAILED: Could not parse JSON");
       return;
     }
 
-    ASSERT_TRUE(jsonResp->hasKey("name"));
-    String name = jsonResp->get<String, String>("name");
+    ASSERT_TRUE(jsonResp.hasKey("name"));
+    String name = jsonResp.get<String, String>("name");
     ASSERT_TRUE(name.equals(String("libattoboy")));
 
     Log("Test 2: PASSED");

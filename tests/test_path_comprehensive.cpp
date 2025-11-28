@@ -460,12 +460,12 @@ void atto_main() {
 
   // ========== STATIC METHODS ==========
 
-  // GetCurrentDirectory()
+  // GetWorkingDirectory()
   {
-    Path currentDir = Path::GetCurrentDirectory();
+    Path currentDir = Path::GetWorkingDirectory();
     REGISTER_TESTED(Path_GetCurrentDirectory);
     ASSERT_FALSE(currentDir.toString().isEmpty());
-    Log("GetCurrentDirectory(): passed");
+    Log("GetWorkingDirectory(): passed");
   }
 
   // GetCurrentExecutable()

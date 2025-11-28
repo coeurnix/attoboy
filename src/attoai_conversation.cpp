@@ -130,20 +130,20 @@ String Conversation::ask(const String &prompt, int timeout) {
   headers.put("Authorization", authHeader);
   headers.put("Content-Type", "application/json");
 
-  WebRequest request(url, nullptr, &headers);
+  WebRequest request(url, Map(), headers);
   WebResponse response = request.doPost(requestBody, timeout);
 
   if (!response.succeeded()) {
     return String();
   }
 
-  const Map *jsonResponse = response.asJson();
-  if (!jsonResponse) {
+  Map jsonResponse = response.asJson();
+  if (jsonResponse.isEmpty()) {
     return String();
   }
 
-  if (jsonResponse->hasKey("usage")) {
-    Map usage = jsonResponse->get<String, Map>("usage");
+  if (jsonResponse.hasKey("usage")) {
+    Map usage = jsonResponse.get<String, Map>("usage");
     int promptTokens = 0;
     int completionTokens = 0;
 
@@ -167,11 +167,11 @@ String Conversation::ask(const String &prompt, int timeout) {
     }
   }
 
-  if (!jsonResponse->hasKey("choices")) {
+  if (!jsonResponse.hasKey("choices")) {
     return String();
   }
 
-  List choices = jsonResponse->get<String, List>("choices");
+  List choices = jsonResponse.get<String, List>("choices");
   if (choices.isEmpty()) {
     return String();
   }

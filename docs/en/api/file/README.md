@@ -352,16 +352,16 @@ if (f1.isValid()) {
 
 ### Basic Properties and Introspection
 
-#### `const char *getPath() const`
+#### `String getPath() const`
 
 **Signature**
 
 ```cpp
-const char *getPath() const;
+String getPath() const;
 ```
 
 **Synopsis**
-Returns the file path, or nullptr for sockets.
+Returns the file path, or empty string for sockets.
 
 **Parameters**
 
@@ -369,15 +369,13 @@ Returns the file path, or nullptr for sockets.
 
 **Return value**
 
-* Pointer to a null-terminated C string containing the path for regular files, or `nullptr` if the `File` represents a socket or other non-file handle.
+* `String` containing the path for regular files, or an empty string if the `File` represents a socket or other non-file handle.
 
 **In Depth**
 
 Use `getPath()` to query the path associated with a regular file. This is helpful when logging or debugging.
 
-For sockets (client or server) and possibly named pipes, there is no file path, so the function returns `nullptr`.
-
-The returned pointer remains valid while the `File` object exists and is not modified.
+For sockets (client or server) and possibly named pipes, there is no file path, so the function returns an empty string.
 
 **Example**
 
@@ -385,8 +383,10 @@ The returned pointer remains valid while the `File` object exists and is not mod
 File f(Path("data.txt"));
 
 if (f.isValid() && f.isRegularFile()) {
-  const char *path = f.getPath();
-  // path points to "data.txt" (or the full resolved path)
+  String path = f.getPath();
+  if (!path.isEmpty()) {
+    // path contains "data.txt" (or the full resolved path)
+  }
 }
 ```
 
@@ -394,16 +394,16 @@ if (f.isValid() && f.isRegularFile()) {
 
 ---
 
-#### `const char *getHost() const`
+#### `String getHost() const`
 
 **Signature**
 
 ```cpp
-const char *getHost() const;
+String getHost() const;
 ```
 
 **Synopsis**
-Returns the socket host, or nullptr for files.
+Returns the socket host, or empty string for files.
 
 **Parameters**
 
@@ -411,11 +411,11 @@ Returns the socket host, or nullptr for files.
 
 **Return value**
 
-* Pointer to a null-terminated C string containing the host name for sockets, or `nullptr` for file-based handles.
+* `String` containing the host name for sockets, or an empty string for file-based handles.
 
 **In Depth**
 
-For a TCP client socket created with `File(const String &host, int port)`, `getHost()` returns the host you connected to. For regular files and non-socket handles, there is no host, so it returns `nullptr`.
+For a TCP client socket created with `File(const String &host, int port)`, `getHost()` returns the host you connected to. For regular files and non-socket handles, there is no host, so it returns an empty string.
 
 **Example**
 
@@ -423,7 +423,10 @@ For a TCP client socket created with `File(const String &host, int port)`, `getH
 File socket("example.com", 80);
 
 if (socket.isValid() && socket.isSocket()) {
-  const char *host = socket.getHost();  // "example.com"
+  String host = socket.getHost();  // "example.com"
+  if (!host.isEmpty()) {
+    // Use host name
+  }
 }
 ```
 

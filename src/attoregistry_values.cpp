@@ -38,15 +38,15 @@ bool Registry::valueExists(const String &name) const {
   return result == ERROR_SUCCESS;
 }
 
-const char *Registry::getStringValue(const String &name) const {
+String Registry::getStringValue(const String &name) const {
   if (!impl)
-    return nullptr;
+    return String();
 
   ReadLockGuard guard(&impl->lock);
 
   RegistryImpl *mutableImpl = const_cast<RegistryImpl *>(impl);
   if (!EnsureKeyOpen(mutableImpl))
-    return nullptr;
+    return String();
 
   const char *valueName = name.isEmpty() ? nullptr : name.c_str();
   DWORD type;
@@ -54,40 +54,37 @@ const char *Registry::getStringValue(const String &name) const {
 
   LONG result = RegQueryValueEx(impl->hKey, valueName, nullptr, &type, nullptr, &size);
   if (result != ERROR_SUCCESS || (type != REG_SZ && type != REG_EXPAND_SZ))
-    return nullptr;
+    return String();
 
   if (size == 0)
-    return "";
+    return String("");
 
   ATTO_LPSTR buffer = AllocRegistryString(size / sizeof(ATTO_WCHAR) + 1);
   if (!buffer)
-    return nullptr;
+    return String();
 
   result = RegQueryValueEx(impl->hKey, valueName, nullptr, &type,
                            (LPBYTE)buffer, &size);
   if (result != ERROR_SUCCESS) {
     FreeRegistryString(buffer);
-    return nullptr;
+    return String();
   }
 
-  static ATTO_LPSTR cachedValue = nullptr;
-  if (cachedValue) {
-    FreeRegistryString(cachedValue);
-  }
-  cachedValue = buffer;
+  String resultStr(buffer);
+  FreeRegistryString(buffer);
 
-  return cachedValue;
+  return resultStr;
 }
 
-const unsigned char *Registry::getBinaryValue(const String &name) const {
+Buffer Registry::getBinaryValue(const String &name) const {
   if (!impl)
-    return nullptr;
+    return Buffer();
 
   ReadLockGuard guard(&impl->lock);
 
   RegistryImpl *mutableImpl = const_cast<RegistryImpl *>(impl);
   if (!EnsureKeyOpen(mutableImpl))
-    return nullptr;
+    return Buffer();
 
   const char *valueName = name.isEmpty() ? nullptr : name.c_str();
   DWORD type;
@@ -95,28 +92,25 @@ const unsigned char *Registry::getBinaryValue(const String &name) const {
 
   LONG result = RegQueryValueEx(impl->hKey, valueName, nullptr, &type, nullptr, &size);
   if (result != ERROR_SUCCESS || type != REG_BINARY)
-    return nullptr;
+    return Buffer();
 
   if (size == 0)
-    return nullptr;
+    return Buffer();
 
   unsigned char *buffer = (unsigned char *)HeapAlloc(GetProcessHeap(), 0, size);
   if (!buffer)
-    return nullptr;
+    return Buffer();
 
   result = RegQueryValueEx(impl->hKey, valueName, nullptr, &type, buffer, &size);
   if (result != ERROR_SUCCESS) {
     HeapFree(GetProcessHeap(), 0, buffer);
-    return nullptr;
+    return Buffer();
   }
 
-  static unsigned char *cachedValue = nullptr;
-  if (cachedValue) {
-    HeapFree(GetProcessHeap(), 0, cachedValue);
-  }
-  cachedValue = buffer;
+  Buffer resultBuf(buffer, size);
+  HeapFree(GetProcessHeap(), 0, buffer);
 
-  return cachedValue;
+  return resultBuf;
 }
 
 unsigned int Registry::getIntegerValue(const String &name) const {

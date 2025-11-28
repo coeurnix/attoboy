@@ -37,7 +37,7 @@ In addition, you can set a **system prompt** via `setSystemPrompt`. A system pro
 
 * Describes the overall behavior or “role” of the AI (for example, “You are a concise assistant that answers in JSON.”).
 * Applies to all subsequent calls from that `AI` instance and any conversations created from it.
-* Can be cleared by passing `nullptr` to `setSystemPrompt`.
+* Can be cleared by passing an empty String to `setSystemPrompt`.
 
 In practice, this lets you separate **global behavior** (system prompt) from **per-request content** (prompt text passed to `ask` or `Conversation::ask`).
 
@@ -368,20 +368,20 @@ ai.setModel("gpt-4.1-large");
 
 ---
 
-#### `AI &setSystemPrompt(const String *prompt)`
+#### `AI &setSystemPrompt(const String &prompt)`
 
 **Signature**
 
 ```cpp
-AI &setSystemPrompt(const String *prompt);
+AI &setSystemPrompt(const String &prompt);
 ```
 
 **Synopsis**
-Sets the system prompt (nullptr to clear). Returns this AI for chaining.
+Sets the system prompt (empty string to clear). Returns this AI for chaining.
 
 **Parameters**
 
-* `prompt` – Pointer to a `String` holding the system prompt, or `nullptr` to clear it.
+* `prompt` – `String` holding the system prompt, or an empty string to clear it.
 
 **Return value**
 
@@ -391,17 +391,12 @@ Sets the system prompt (nullptr to clear). Returns this AI for chaining.
 
 The system prompt provides **global instructions** that influence how the AI behaves across all requests for this `AI` instance:
 
-* It typically describes the assistant’s role, style, and constraints.
+* It typically describes the assistant's role, style, and constraints.
 * It is combined with each user prompt during calls to `ask` and `Conversation::ask`.
 
-To set a system prompt:
+To set a system prompt, pass a `String` containing the instructions.
 
-1. Create a `String` containing the instructions.
-2. Pass a pointer to that `String` into `setSystemPrompt`.
-
-To clear the system prompt, pass `nullptr`. After the call, the client returns to having no system prompt.
-
-The implementation copies the content of the referenced `String` into internal state, so you do not need to keep the original `String` object alive after the call.
+To clear the system prompt, pass an empty string. After the call, the client returns to having no system prompt.
 
 **Example**
 
@@ -417,7 +412,7 @@ String sys(
   "Use simple language and avoid technical jargon."
 );
 
-ai.setSystemPrompt(&sys);
+ai.setSystemPrompt(sys);
 ```
 
 *This example configures a system prompt that shapes how the AI responds to all future requests.*

@@ -484,7 +484,7 @@ void demoInteractiveInput(Console &con) {
   ConsoleInput pwdOptions;
   pwdOptions.password = true;
 
-  String pwd = con.input("     Enter secret: ", &pwdOptions);
+  String pwd = con.input("     Enter secret: ", pwdOptions);
   con.print("     You entered ", CON_WHITE);
   con.print(String(pwd.length()), CON_YELLOW);
   con.println(" characters (masked).", CON_WHITE);
@@ -498,9 +498,9 @@ void demoInteractiveInput(Console &con) {
   List commands("help", "history", "exit", "clear", "color", "compile",
                 "connect");
   ConsoleInput compOptions;
-  compOptions.completions = &commands;
+  compOptions.completions = commands;
 
-  String cmd = con.input("     Command: ", &compOptions);
+  String cmd = con.input("     Command: ", compOptions);
   if (!cmd.isEmpty()) {
     con.print("     Selected: ", CON_WHITE);
     con.println(cmd, CON_GREEN);
@@ -514,12 +514,12 @@ void demoInteractiveInput(Console &con) {
 
   List history("ls -la", "cd /home", "make clean", "git status");
   ConsoleInput histOptions;
-  histOptions.history = &history;
+  histOptions.history = history;
 
   con.print("     Previous commands: ", CON_DARK_GRAY);
   con.println(String(", ").join(history), CON_DARK_GRAY);
 
-  String histCmd = con.input("     $ ", &histOptions);
+  String histCmd = con.input("     $ ", histOptions);
   if (!histCmd.isEmpty()) {
     con.print("     Executed: ", CON_WHITE);
     con.println(histCmd, CON_GREEN);
@@ -535,7 +535,7 @@ void demoInteractiveInput(Console &con) {
   multiOptions.multiline = true;
   multiOptions.continuation = "  ... ";
 
-  String multiText = con.input("     Message: ", &multiOptions);
+  String multiText = con.input("     Message: ", multiOptions);
   if (!multiText.isEmpty()) {
     List textLines = multiText.lines();
     con.print("     You entered ", CON_WHITE);

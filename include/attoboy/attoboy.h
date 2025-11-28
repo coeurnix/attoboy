@@ -914,7 +914,7 @@ public:
   /// Returns the local application data directory path.
   static Path GetLocalAppDirectory();
   /// Returns the current working directory path.
-  static Path GetCurrentDirectory();
+  static Path GetWorkingDirectory();
   /// Returns the path to the current executable.
   static Path GetCurrentExecutable();
 
@@ -938,10 +938,10 @@ public:
   /// Assigns another file (shares the underlying handle).
   File &operator=(const File &other);
 
-  /// Returns the file path, or nullptr for sockets.
-  const char *getPath() const;
-  /// Returns the socket host, or nullptr for files.
-  const char *getHost() const;
+  /// Returns the file path, or empty string for sockets.
+  String getPath() const;
+  /// Returns the socket host, or empty string for files.
+  String getHost() const;
   /// Returns the socket port, or -1 for files.
   int getPort() const;
 
@@ -1159,10 +1159,10 @@ public:
 
   /// Returns true if the value exists (empty name = default value).
   bool valueExists(const String &name = String()) const;
-  /// Returns the string value, or nullptr if not found.
-  const char *getStringValue(const String &name = String()) const;
-  /// Returns the binary value, or nullptr if not found.
-  const unsigned char *getBinaryValue(const String &name = String()) const;
+  /// Returns the string value, or empty string if not found.
+  String getStringValue(const String &name = String()) const;
+  /// Returns the binary value, or empty buffer if not found.
+  Buffer getBinaryValue(const String &name = String()) const;
   /// Returns the integer value (0 if not found).
   unsigned int getIntegerValue(const String &name = String()) const;
   /// Sets a string value. Returns true on success.
@@ -1210,8 +1210,8 @@ public:
   /// Returns a map of response headers.
   Map getResponseHeaders() const;
 
-  /// Parses body as JSON object. Returns nullptr if not a JSON object.
-  const Map *asJson() const;
+  /// Parses body as JSON object. Returns empty map if not a JSON object.
+  Map asJson() const;
   /// Returns the body as a string.
   String asString() const;
   /// Returns the body as a buffer.
@@ -1227,8 +1227,8 @@ class WebRequest {
 public:
   /// Creates a request. params become query string; headers are sent with
   /// request.
-  WebRequest(const String &url, const Map *params = nullptr,
-             const Map *headers = nullptr);
+  WebRequest(const String &url, const Map &params = Map(),
+             const Map &headers = Map());
   /// Creates a copy (shares the underlying request).
   WebRequest(const WebRequest &other);
   /// Destroys the request and frees resources.
@@ -1263,8 +1263,8 @@ public:
 
   /// Downloads a file from URL to disk. Returns true on success.
   static bool Download(const String &url, const String &savePath,
-                       const Map *params = nullptr,
-                       const Map *headers = nullptr, bool overwrite = true,
+                       const Map &params = Map(),
+                       const Map &headers = Map(), bool overwrite = true,
                        int timeout = -1);
 
 private:
@@ -1352,8 +1352,8 @@ public:
 
   /// Sets the model name. Returns this AI for chaining.
   AI &setModel(const String &model);
-  /// Sets the system prompt (nullptr to clear). Returns this AI for chaining.
-  AI &setSystemPrompt(const String *prompt);
+  /// Sets the system prompt (empty string to clear). Returns this AI for chaining.
+  AI &setSystemPrompt(const String &prompt);
   /// Sets max response tokens (-1 for model default). Returns this AI for
   /// chaining.
   AI &setMaxTokens(int max = -1);
@@ -1447,11 +1447,11 @@ enum ConsoleAlign {
 /// Configuration for interactive console input.
 /// All fields have sensible defaults; set only what you need.
 struct ConsoleInput {
-  /// Tab completion candidates (nullptr for no completion).
-  const List *completions;
-  /// Command history buffer (read/write, nullptr for no history).
+  /// Tab completion candidates (empty list for no completion).
+  List completions;
+  /// Command history buffer (read/write, empty list for no history).
   /// History is automatically updated with each input.
-  List *history;
+  List history;
   /// Mask input with asterisks for password entry.
   bool password;
   /// Allow multi-line input (Shift+Enter or Ctrl+Enter inserts newline).
@@ -1543,7 +1543,7 @@ public:
   /// Supports up/down arrow history, tab completion with hints, and more.
   /// Returns empty string if input is cancelled (Ctrl+C).
   String input(const String &prompt = "",
-               const ConsoleInput *options = nullptr);
+               const ConsoleInput &options = ConsoleInput());
   /// Reads a single key press or mouse event (blocking).
   /// Returns a descriptive name: "A", "Enter", "Space", "Ctrl+C", "Alt+X",
   /// "F1", "MouseLeft@x,y", "MouseRight@x,y", "MouseMove@x,y", etc.

@@ -15,7 +15,6 @@ struct WebResponseImpl {
   unsigned char *body;
   int bodySize;
   Map *headers;
-  Map *jsonCache;
   mutable SRWLOCK lock;
   volatile LONG refCount;
 };

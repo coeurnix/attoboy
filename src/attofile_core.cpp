@@ -259,18 +259,18 @@ File &File::operator=(const File &other) {
   return *this;
 }
 
-const char *File::getPath() const {
+String File::getPath() const {
   if (!impl)
-    return nullptr;
+    return String();
   ReadLockGuard lock(&impl->lock);
-  return impl->pathStr;
+  return impl->pathStr ? String(impl->pathStr) : String();
 }
 
-const char *File::getHost() const {
+String File::getHost() const {
   if (!impl)
-    return nullptr;
+    return String();
   ReadLockGuard lock(&impl->lock);
-  return impl->hostStr;
+  return impl->hostStr ? String(impl->hostStr) : String();
 }
 
 int File::getPort() const {

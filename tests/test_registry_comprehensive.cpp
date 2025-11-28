@@ -83,10 +83,10 @@ void atto_main() {
         REGISTER_TESTED(Registry_setString);
         ASSERT_TRUE(set);
 
-        const char* retrieved = reg.getStringValue(String("TestString"));
+        String retrieved = reg.getStringValue(String("TestString"));
         REGISTER_TESTED(Registry_getString);
-        ASSERT(retrieved != nullptr);
-        ASSERT_EQ(String(retrieved), testValue);
+        ASSERT_FALSE(retrieved.isEmpty());
+        ASSERT_EQ(retrieved, testValue);
 
         Log("setStringValue() and getStringValue(): passed");
     }
@@ -119,8 +119,8 @@ void atto_main() {
         bool set = reg.setBinaryValue(String("TestBinary"), testBuf);
         ASSERT_TRUE(set);
 
-        const unsigned char* retrieved = reg.getBinaryValue(String("TestBinary"));
-        ASSERT(retrieved != nullptr);
+        Buffer retrieved = reg.getBinaryValue(String("TestBinary"));
+        ASSERT_FALSE(retrieved.isEmpty());
 
         Log("setBinaryValue() and getBinaryValue(): passed");
     }
@@ -209,9 +209,9 @@ void atto_main() {
         bool set = reg.setStringValue(String(""), String("DefaultValue"));
         ASSERT_TRUE(set);
 
-        const char* retrieved = reg.getStringValue(String(""));
-        ASSERT(retrieved != nullptr);
-        ASSERT_EQ(String(retrieved), String("DefaultValue"));
+        String retrieved = reg.getStringValue(String(""));
+        ASSERT_FALSE(retrieved.isEmpty());
+        ASSERT_EQ(retrieved, String("DefaultValue"));
 
         Log("Default value operations: passed");
     }
@@ -223,9 +223,9 @@ void atto_main() {
         Registry reg("HKEY_CURRENT_USER\\Software\\NonExistentKey123456");
         ASSERT_FALSE(reg.exists());
 
-        const char* value = reg.getStringValue(String("test"));
-        // Should return nullptr
-        ASSERT(value == nullptr || String(value).isEmpty());
+        String value = reg.getStringValue(String("test"));
+        // Should return empty string
+        ASSERT(value.isEmpty());
 
         Log("Non-existent key: passed");
     }
@@ -235,8 +235,8 @@ void atto_main() {
         Registry reg(testKeyPath);
         reg.create();
 
-        const char* value = reg.getStringValue(String("DoesNotExist"));
-        ASSERT(value == nullptr || String(value).isEmpty());
+        String value = reg.getStringValue(String("DoesNotExist"));
+        ASSERT(value.isEmpty());
 
         unsigned int intValue = reg.getIntegerValue(String("DoesNotExist"));
         ASSERT_EQ((int)intValue, 0);

@@ -59,7 +59,7 @@ void atto_main() {
 
   Log("15. Creating WebRequest...");
   {
-    WebRequest request(url, nullptr, &headers);
+    WebRequest request(url, Map(), headers);
     Log("16. WebRequest created");
 
     Log("17. Calling doPost (timeout 10 seconds)...");
@@ -87,24 +87,24 @@ void atto_main() {
     }
 
     Log("25. Getting JSON...");
-    const Map *jsonResponse = response.asJson();
+    Map jsonResponse = response.asJson();
 
-    if (!jsonResponse) {
-      LogError("26. JSON is nullptr!");
+    if (jsonResponse.isEmpty()) {
+      LogError("26. JSON is empty!");
       Exit(1);
     }
-    Log("26. JSON is NOT nullptr");
+    Log("26. JSON is NOT empty");
 
-    List keys = jsonResponse->keys();
+    List keys = jsonResponse.keys();
     Log("27. JSON has", keys.length(), "keys");
     for (int i = 0; i < keys.length(); i++) {
       String key = keys.at<String>(i);
       Log("    Key", i, ":", key);
     }
 
-    if (jsonResponse->hasKey("error")) {
+    if (jsonResponse.hasKey("error")) {
       Log("28. JSON has 'error' key!");
-      Map errorObj = jsonResponse->get<String, Map>("error");
+      Map errorObj = jsonResponse.get<String, Map>("error");
       if (errorObj.hasKey("message")) {
         String errMsg = errorObj.get<String, String>("message");
         LogError("Error message:", errMsg);
@@ -112,13 +112,13 @@ void atto_main() {
       Exit(1);
     }
 
-    if (!jsonResponse->hasKey("choices")) {
+    if (!jsonResponse.hasKey("choices")) {
       LogError("28. JSON does not have 'choices' key!");
       Exit(1);
     }
     Log("28. JSON has 'choices' key");
 
-    List choices = jsonResponse->get<String, List>("choices");
+    List choices = jsonResponse.get<String, List>("choices");
     Log("29. Choices list length:", choices.length());
 
     if (choices.isEmpty()) {

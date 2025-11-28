@@ -30,20 +30,20 @@ Embedding AI::createEmbedding(const String &str, int dimensions, int timeout) {
     requestBody.put("dimensions", dimensions);
   }
 
-  WebRequest request(url, nullptr, &headers);
+  WebRequest request(url, Map(), headers);
   WebResponse response = request.doPost(requestBody, timeout);
 
   if (!response.succeeded()) {
     return Embedding();
   }
 
-  const Map *jsonResponse = response.asJson();
-  if (!jsonResponse) {
+  Map jsonResponse = response.asJson();
+  if (jsonResponse.isEmpty()) {
     return Embedding();
   }
 
-  if (jsonResponse->hasKey("usage")) {
-    Map usage = jsonResponse->get<String, Map>("usage");
+  if (jsonResponse.hasKey("usage")) {
+    Map usage = jsonResponse.get<String, Map>("usage");
     if (usage.hasKey("prompt_tokens")) {
       int promptTokens = usage.get<String, int>("prompt_tokens");
       WriteLockGuard wlock(&impl->lock);
@@ -51,11 +51,11 @@ Embedding AI::createEmbedding(const String &str, int dimensions, int timeout) {
     }
   }
 
-  if (!jsonResponse->hasKey("data")) {
+  if (!jsonResponse.hasKey("data")) {
     return Embedding();
   }
 
-  List data = jsonResponse->get<String, List>("data");
+  List data = jsonResponse.get<String, List>("data");
   if (data.isEmpty()) {
     return Embedding();
   }

@@ -121,13 +121,13 @@ Each entry below covers one public constructor, method, or static function of `a
 
 ### Constructors, Copy, Assignment, and Destruction
 
-#### `WebRequest(const String &url, const Map *params = nullptr, const Map *headers = nullptr)`
+#### `WebRequest(const String &url, const Map &params = Map(), const Map &headers = Map())`
 
 **Signature**
 
 ```cpp
-WebRequest(const String &url, const Map *params = nullptr,
-           const Map *headers = nullptr);
+WebRequest(const String &url, const Map &params = Map(),
+           const Map &headers = Map());
 ```
 
 **Synopsis**
@@ -141,12 +141,12 @@ request.
   Example: `"https://api.example.com/users"`.
 
 * `params` *(optional)*
-  Pointer to a `Map` whose key–value pairs will be appended to the URL as
-  query string parameters. If `nullptr`, no additional query parameters are added.
+  `Map` whose key–value pairs will be appended to the URL as
+  query string parameters. If empty, no additional query parameters are added.
 
 * `headers` *(optional)*
-  Pointer to a `Map` of headers to send with the request. Keys and values are converted
-  to strings. If `nullptr`, no custom headers are added.
+  `Map` of headers to send with the request. Keys and values are converted
+  to strings. If empty, no custom headers are added.
 
 **Return value**
 
@@ -187,7 +187,7 @@ params.put("q", "attoboy").put("page", 1);
 Map headers;
 headers.put("Authorization", "Bearer XYZ");
 
-WebRequest request(url, &params, &headers);
+WebRequest request(url, params, headers);
 WebResponse response = request.doGet(5000);  // 5-second timeout
 
 if (response.succeeded()) {
@@ -949,14 +949,14 @@ if (req.hasCompleted()) {
 
 ### Static Helper
 
-#### `static bool Download(const String &url, const String &savePath, const Map *params = nullptr, const Map *headers = nullptr, bool overwrite = true, int timeout = -1)`
+#### `static bool Download(const String &url, const String &savePath, const Map &params = Map(), const Map &headers = Map(), bool overwrite = true, int timeout = -1)`
 
 **Signature**
 
 ```cpp
 static bool Download(const String &url, const String &savePath,
-                     const Map *params = nullptr,
-                     const Map *headers = nullptr, bool overwrite = true,
+                     const Map &params = Map(),
+                     const Map &headers = Map(), bool overwrite = true,
                      int timeout = -1);
 ```
 
@@ -972,10 +972,10 @@ Downloads a file from URL to disk. Returns true on success.
   Path (as a `String`) to the file on disk where the downloaded data should be written. The path should be valid for the current user and system.
 
 * `params` *(optional)*
-  Pointer to a `Map` of query parameters to append to the URL. If `nullptr`, no extra parameters are added.
+  `Map` of query parameters to append to the URL. If empty, no extra parameters are added.
 
 * `headers` *(optional)*
-  Pointer to a `Map` of headers to send with the request. If `nullptr`, no custom headers are added.
+  `Map` of headers to send with the request. If empty, no custom headers are added.
 
 * `overwrite` *(optional)*
   If `true` (default), an existing file at `savePath` may be overwritten. If `false`, existing files should cause the function to fail (implementation dependent).
@@ -1028,7 +1028,7 @@ Path destPath = Path::GetDocumentsDirectory()
 // In practice, build a proper path string:
 String savePath("C:\\Users\\User\\Documents\\report.pdf");
 
-bool ok = WebRequest::Download(url, savePath, &params, &headers,
+bool ok = WebRequest::Download(url, savePath, params, headers,
                                true,   // overwrite if exists
                                30000); // 30-second timeout
 

@@ -10,8 +10,8 @@ void atto_main() {
   {
     ConsoleInput ci;
     REGISTER_TESTED(ConsoleInput_constructor_empty);
-    ASSERT_EQ(ci.completions, (const List *)nullptr);
-    ASSERT_EQ(ci.history, (List *)nullptr);
+    ASSERT_TRUE(ci.completions.isEmpty());
+    ASSERT_TRUE(ci.history.isEmpty());
     ASSERT_FALSE(ci.password);
     ASSERT_FALSE(ci.multiline);
     ASSERT_FALSE(ci.continuation.isEmpty());

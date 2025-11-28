@@ -209,8 +209,6 @@ The destructor closes the underlying registry key handle when the last `Registry
 * No manual cleanup is required.
 * You cannot accidentally forget to close a key.
 
-Be careful not to keep raw pointers returned by functions like `getStringValue()` or `getBinaryValue()` beyond the lifetime of the `Registry` object, because their validity is tied to the object’s internal resources.
-
 **Example**
 
 ```cpp
@@ -442,16 +440,16 @@ if (reg.valueExists("WindowWidth")) {
 
 ---
 
-#### `const char *getStringValue(const String &name = String()) const`
+#### `String getStringValue(const String &name = String()) const`
 
 **Signature**
 
 ```cpp
-const char *getStringValue(const String &name = String()) const;
+String getStringValue(const String &name = String()) const;
 ```
 
 **Synopsis**
-Returns the string value, or nullptr if not found.
+Returns the string value, or empty string if not found.
 
 **Parameters**
 
@@ -459,49 +457,42 @@ Returns the string value, or nullptr if not found.
 
 **Return value**
 
-* Pointer to a null-terminated UTF-8 string representing the value.
-* `nullptr` if the value does not exist or cannot be represented as a string.
+* `String` containing the value.
+* Empty string if the value does not exist or cannot be represented as a string.
 
 **In Depth**
 
 `getStringValue()` reads a **string-type** value from the registry. Important points:
 
-* The returned pointer is **owned by the `Registry` object**; do not `Free` or modify it.
-* The pointer remains valid only as long as the `Registry` object is alive and unchanged.
-* If you need to store the value for longer, construct an `attoboy::String` from it:
-
-  ```cpp
-  String copy(p);
-  ```
-
-If the value does not exist (or is not a string), the function returns `nullptr`, which you should check before use.
+* The returned `String` is a value that you own; you can store it as needed.
+* If the value does not exist (or is not a string), the function returns an empty string.
+* Use `isEmpty()` to check if a value was found, or combine with `valueExists()` for clarity.
 
 **Example**
 
 ```cpp
 Registry reg("HKEY_CURRENT_USER\\Software\\MyApp");
 
-const char *p = reg.getStringValue("InstallPath");
-if (p != nullptr) {
-  String installPath(p);
+String installPath = reg.getStringValue("InstallPath");
+if (!installPath.isEmpty()) {
   // use installPath as a String
 }
 ```
 
-*This example reads a string value and wraps it into an `attoboy::String` for further use.*
+*This example reads a string value and checks if it's non-empty before using it.*
 
 ---
 
-#### `const unsigned char *getBinaryValue(const String &name = String()) const`
+#### `Buffer getBinaryValue(const String &name = String()) const`
 
 **Signature**
 
 ```cpp
-const unsigned char *getBinaryValue(const String &name = String()) const;
+Buffer getBinaryValue(const String &name = String()) const;
 ```
 
 **Synopsis**
-Returns the binary value, or nullptr if not found.
+Returns the binary value, or empty buffer if not found.
 
 **Parameters**
 
@@ -509,36 +500,32 @@ Returns the binary value, or nullptr if not found.
 
 **Return value**
 
-* Pointer to a binary buffer (`const unsigned char *`) containing the value data.
-* `nullptr` if the value does not exist or is not a binary value.
+* `Buffer` containing the value data.
+* Empty buffer if the value does not exist or is not a binary value.
 
 **In Depth**
 
-`getBinaryValue()` retrieves a binary registry value. The pointer:
+`getBinaryValue()` retrieves a binary registry value. The returned `Buffer`:
 
-* Is read-only and owned by the `Registry` object.
-* Remains valid only while the `Registry` object remains alive and unchanged.
-* Does **not** directly expose the data length via this API; how you interpret the bytes is up to your application.
+* Is a value that you own; you can store it as needed.
+* Can be checked with `isEmpty()` or `length()` to determine if the value exists.
+* Provides `length()` to access the size of the binary data.
 
-Because the size is not directly available, this function is best suited when:
-
-* You control both writing and reading sides and embed size or structure information inside the binary data.
-* You treat the binary data as a fixed-size structure known by your application.
-
-For simple configuration, string or integer values are usually more convenient.
+This makes it convenient to work with binary data, as you have both the data and its length readily available.
 
 **Example**
 
 ```cpp
 Registry reg("HKEY_CURRENT_USER\\Software\\MyApp");
 
-const unsigned char *data = reg.getBinaryValue("Signature");
-if (data != nullptr) {
+Buffer data = reg.getBinaryValue("Signature");
+if (!data.isEmpty()) {
   // Interpret data using your own format or protocol.
+  int size = data.length();
 }
 ```
 
-*This example reads a binary value and leaves interpretation of the bytes to the application.*
+*This example reads a binary value and checks if it's non-empty before using it.*
 
 ---
 
@@ -667,8 +654,6 @@ Typical use cases:
 
 * Caching small binary blobs (signatures, checksums).
 * Storing fixed-format data that your application knows how to decode.
-
-Since there is no direct size accessor when reading via `getBinaryValue()`, it is good practice to encode any necessary length or structure information within the binary payload itself.
 
 **Example**
 
