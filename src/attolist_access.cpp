@@ -154,6 +154,59 @@ template <> Set List::operator[]<Set>(int index) const {
   return at<Set>(index);
 }
 
+ListValueView::ListValueView() : list(nullptr), index(0) {}
+
+ListValueView::ListValueView(const List *listPtr, int idx)
+    : list(listPtr), index(idx) {}
+
+ListValueView::operator bool() const {
+  if (!list)
+    return false;
+  return list->at<bool>(index);
+}
+
+ListValueView::operator int() const {
+  if (!list)
+    return 0;
+  return list->at<int>(index);
+}
+
+ListValueView::operator float() const {
+  if (!list)
+    return 0.0f;
+  return list->at<float>(index);
+}
+
+ListValueView::operator String() const {
+  if (!list)
+    return String();
+  return list->at<String>(index);
+}
+
+ListValueView::operator List() const {
+  if (!list)
+    return List();
+  return list->at<List>(index);
+}
+
+ListValueView::operator Map() const {
+  if (!list)
+    return Map();
+  return list->at<Map>(index);
+}
+
+ListValueView::operator Set() const {
+  if (!list)
+    return Set();
+  return list->at<Set>(index);
+}
+
+ListValueView List::at(int index) const { return ListValueView(this, index); }
+
+ListValueView List::operator[](int index) const {
+  return ListValueView(this, index);
+}
+
 void List::set_impl(int index, bool value) {
   if (!impl)
     return;

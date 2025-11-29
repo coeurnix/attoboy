@@ -289,8 +289,8 @@ void atto_main() {
   Log("Shopping list has ", groceries.length(), " items");
   
   // Access by index
-  String first = groceries.at<String>(0);   // "milk"
-  String last = groceries.at<String>(-1);   // "butter"
+  String first = groceries.at(0);   // "milk"
+  String last = groceries.at(-1);   // "butter"
   Log("First: ", first, ", Last: ", last);
   
   // Add items
@@ -304,7 +304,15 @@ void atto_main() {
 }
 ```
 
-Notice the syntax `groceries.at<String>(0)`. When retrieving values from a list, you specify what type you expect in angle brackets. This tells attoboy how to interpret the stored value.
+Notice the syntax `groceries.at(0)`. If you prefer, you can also use the `[]` operator :
+
+```cpp
+void atto_main() {
+  List groceries("milk", "bread", "eggs", "butter");
+  Log("First: ", groceries[0], ", Last: ", groceries[-1]);
+  Exit();
+}
+```
 
 Lists support method chaining—most operations return the list itself, so you can write fluent code:
 
@@ -354,13 +362,13 @@ void atto_main() {
   Map person("name", "Alice", "age", 30, "city", "Seattle");
   
   // Retrieve values
-  String name = person.get<String, String>("name", "Unknown");
-  int age = person.get<String, int>("age", 0);
+  String name = person.get("name", "Unknown");
+  int age = person.get("age", 0);
   
   Log(name, " is ", age, " years old");
   
   // Check for keys
-  if (person.hasKey<String>("email")) {
+  if (person.hasKey("email")) {
     Log("Has email");
   } else {
     Log("No email on record");
@@ -447,7 +455,7 @@ void atto_main() {
   
   // Parse JSON back
   Map parsed = Map::FromJSONString(json);
-  Log("Name from JSON: ", parsed.get<String, String>("name", ""));
+  Log("Name from JSON: ", parsed.get("name", ""));
   
   // CSV for tabular data
   List table;
@@ -543,7 +551,7 @@ void atto_main() {
   Log("Files in current directory:");
   
   for (int i = 0; i < children.length(); i++) {
-    String name = children.at<String>(i);
+    String name = children.at(i);
     Path child(current.toString() + "\\" + name);
     
     if (child.isDirectory()) {
@@ -651,9 +659,9 @@ void atto_main() {
     Exit(1);  // User asked for help or required args missing
   }
   
-  bool verbose = parsed.get<String, String>("v", "false").toBool();
-  String outputPath = parsed.get<String, String>("o", "");
-  String inputPath = parsed.get<String, String>("input", "");
+  bool verbose = parsed.get("v", "false").toBool();
+  String outputPath = parsed.get("o", "");
+  String inputPath = parsed.get("input", "");
   
   if (verbose) {
     Log("Processing ", inputPath, " -> ", outputPath);
@@ -800,8 +808,8 @@ void atto_main() {
   
   if (response.succeeded()) {
     Map userData = response.asJson();
-    String name = userData.get<String, String>("name", "Unknown");
-    String bio = userData.get<String, String>("bio", "No bio");
+    String name = userData.get("name", "Unknown");
+    String bio = userData.get("bio", "No bio");
     
     Log("Name: ", name);
     Log("Bio: ", bio);
@@ -1281,18 +1289,18 @@ void saveNotes(List notes) {
 void atto_main() {
   Console con;
   List notes = loadNotes();
-  
+
   con.println("Mini Notes", CON_CYAN);
   con.println(String("-").repeat(40), CON_DARK_GRAY);
-  
+
   ConsoleInput inputOptions;
   inputOptions.completions = List("add", "list", "delete", "quit");
   inputOptions.history = List();
-  
+
   bool running = true;
   while (running) {
     String cmd = con.input("> ", inputOptions);
-    
+
     if (cmd == "quit" || cmd.isEmpty()) {
       running = false;
     } else if (cmd == "add") {
@@ -1308,8 +1316,8 @@ void atto_main() {
         con.println("No notes yet.", CON_DARK_GRAY);
       } else {
         for (int i = 0; i < notes.length(); i++) {
-          Map note = notes.at<Map>(i);
-          String text = note.get<String, String>("text", "");
+          Map note = notes.at(i);
+          String text = note.get("text", "");
           con.println(String(i + 1, ". ", text));
         }
       }
@@ -1327,13 +1335,13 @@ void atto_main() {
       con.println("Commands: add, list, delete <num>, quit", CON_DARK_GRAY);
     }
   }
-  
+
   con.println("Goodbye!", CON_CYAN);
   Exit();
 }
 ```
 
-This tiny application demonstrates file I/O, JSON persistence, console interaction with tab completion, colored output, and a simple command loop. When compiled, it produces an executable around 30 kilobytes that stores notes persistently and runs on any Windows system.
+This tiny application demonstrates file I/O, JSON persistence, console interaction with tab completion, colored output, and a simple command loop. When compiled, it produces an executable around 35 kilobytes that stores notes persistently and runs on any Windows system.
 
 ---
 

@@ -879,4 +879,324 @@ String Map::findValue<String, const char *>(const char *value) const {
   return findValue<String, String>(String(value));
 }
 
+bool DefaultValue::asBool() const {
+  if (type == TYPE_BOOL)
+    return boolVal;
+  return false;
+}
+
+int DefaultValue::asInt() const {
+  if (type == TYPE_INT)
+    return intVal;
+  return 0;
+}
+
+float DefaultValue::asFloat() const {
+  if (type == TYPE_FLOAT)
+    return floatVal;
+  return 0.0f;
+}
+
+String DefaultValue::asString() const {
+  if (type == TYPE_STRING)
+    return stringVal;
+  return String();
+}
+
+List DefaultValue::asList() const {
+  if (type == TYPE_LIST)
+    return listVal;
+  return List();
+}
+
+Map DefaultValue::asMap() const {
+  if (type == TYPE_MAP)
+    return mapVal;
+  return Map();
+}
+
+Set DefaultValue::asSet() const {
+  if (type == TYPE_SET)
+    return setVal;
+  return Set();
+}
+
+MapValueView::MapValueView()
+    : map(nullptr), keyType(KEY_INVALID), boolKey(false), intKey(0),
+      floatKey(0.0f), stringKey(), hasDefault(false), defaultValue() {}
+
+MapValueView::MapValueView(const Map *mapPtr, bool key)
+    : map(mapPtr), keyType(KEY_BOOL), boolKey(key), intKey(0), floatKey(0.0f),
+      stringKey(), hasDefault(false), defaultValue() {}
+
+MapValueView::MapValueView(const Map *mapPtr, int key)
+    : map(mapPtr), keyType(KEY_INT), boolKey(false), intKey(key),
+      floatKey(0.0f), stringKey(), hasDefault(false), defaultValue() {}
+
+MapValueView::MapValueView(const Map *mapPtr, float key)
+    : map(mapPtr), keyType(KEY_FLOAT), boolKey(false), intKey(0), floatKey(key),
+      stringKey(), hasDefault(false), defaultValue() {}
+
+MapValueView::MapValueView(const Map *mapPtr, const char *key)
+    : map(mapPtr), keyType(KEY_STRING), boolKey(false), intKey(0),
+      floatKey(0.0f), stringKey(key), hasDefault(false), defaultValue() {}
+
+MapValueView::MapValueView(const Map *mapPtr, const String &key)
+    : map(mapPtr), keyType(KEY_STRING), boolKey(false), intKey(0),
+      floatKey(0.0f), stringKey(key), hasDefault(false), defaultValue() {}
+
+MapValueView::MapValueView(const Map *mapPtr, bool key,
+                           const DefaultValue &def)
+    : map(mapPtr), keyType(KEY_BOOL), boolKey(key), intKey(0), floatKey(0.0f),
+      stringKey(), hasDefault(true), defaultValue(def) {}
+
+MapValueView::MapValueView(const Map *mapPtr, int key,
+                           const DefaultValue &def)
+    : map(mapPtr), keyType(KEY_INT), boolKey(false), intKey(key),
+      floatKey(0.0f), stringKey(), hasDefault(true), defaultValue(def) {}
+
+MapValueView::MapValueView(const Map *mapPtr, float key,
+                           const DefaultValue &def)
+    : map(mapPtr), keyType(KEY_FLOAT), boolKey(false), intKey(0), floatKey(key),
+      stringKey(), hasDefault(true), defaultValue(def) {}
+
+MapValueView::MapValueView(const Map *mapPtr, const char *key,
+                           const DefaultValue &def)
+    : map(mapPtr), keyType(KEY_STRING), boolKey(false), intKey(0),
+      floatKey(0.0f), stringKey(key), hasDefault(true), defaultValue(def) {}
+
+MapValueView::MapValueView(const Map *mapPtr, const String &key,
+                           const DefaultValue &def)
+    : map(mapPtr), keyType(KEY_STRING), boolKey(false), intKey(0),
+      floatKey(0.0f), stringKey(key), hasDefault(true), defaultValue(def) {}
+
+MapValueView::operator bool() const {
+  if (!map) {
+    if (hasDefault)
+      return defaultValue.asBool();
+    return false;
+  }
+  switch (keyType) {
+  case KEY_BOOL:
+    return map->get<bool, bool>(boolKey,
+                                hasDefault ? defaultValue.asBool() : false);
+  case KEY_INT:
+    return map->get<int, bool>(intKey,
+                               hasDefault ? defaultValue.asBool() : false);
+  case KEY_FLOAT:
+    return map->get<float, bool>(floatKey,
+                                 hasDefault ? defaultValue.asBool() : false);
+  case KEY_STRING:
+    return map->get<String, bool>(stringKey,
+                                  hasDefault ? defaultValue.asBool() : false);
+  default:
+    return hasDefault ? defaultValue.asBool() : false;
+  }
+}
+
+MapValueView::operator int() const {
+  if (!map) {
+    if (hasDefault)
+      return defaultValue.asInt();
+    return 0;
+  }
+  switch (keyType) {
+  case KEY_BOOL:
+    return map->get<bool, int>(boolKey,
+                               hasDefault ? defaultValue.asInt() : 0);
+  case KEY_INT:
+    return map->get<int, int>(intKey, hasDefault ? defaultValue.asInt() : 0);
+  case KEY_FLOAT:
+    return map->get<float, int>(floatKey,
+                                hasDefault ? defaultValue.asInt() : 0);
+  case KEY_STRING:
+    return map->get<String, int>(stringKey,
+                                 hasDefault ? defaultValue.asInt() : 0);
+  default:
+    return hasDefault ? defaultValue.asInt() : 0;
+  }
+}
+
+MapValueView::operator float() const {
+  if (!map) {
+    if (hasDefault)
+      return defaultValue.asFloat();
+    return 0.0f;
+  }
+  switch (keyType) {
+  case KEY_BOOL:
+    return map->get<bool, float>(boolKey,
+                                 hasDefault ? defaultValue.asFloat() : 0.0f);
+  case KEY_INT:
+    return map->get<int, float>(intKey,
+                                hasDefault ? defaultValue.asFloat() : 0.0f);
+  case KEY_FLOAT:
+    return map->get<float, float>(floatKey,
+                                  hasDefault ? defaultValue.asFloat() : 0.0f);
+  case KEY_STRING:
+    return map->get<String, float>(stringKey,
+                                   hasDefault ? defaultValue.asFloat() : 0.0f);
+  default:
+    return hasDefault ? defaultValue.asFloat() : 0.0f;
+  }
+}
+
+MapValueView::operator String() const {
+  if (!map) {
+    if (hasDefault)
+      return defaultValue.asString();
+    return String();
+  }
+  switch (keyType) {
+  case KEY_BOOL:
+    return map->get<bool, String>(boolKey,
+                                  hasDefault ? defaultValue.asString()
+                                             : String());
+  case KEY_INT:
+    return map->get<int, String>(intKey,
+                                 hasDefault ? defaultValue.asString()
+                                            : String());
+  case KEY_FLOAT:
+    return map->get<float, String>(floatKey,
+                                   hasDefault ? defaultValue.asString()
+                                              : String());
+  case KEY_STRING:
+    return map->get<String, String>(stringKey,
+                                    hasDefault ? defaultValue.asString()
+                                               : String());
+  default:
+    return hasDefault ? defaultValue.asString() : String();
+  }
+}
+
+MapValueView::operator List() const {
+  if (!map) {
+    if (hasDefault)
+      return defaultValue.asList();
+    return List();
+  }
+  switch (keyType) {
+  case KEY_BOOL:
+    return map->get<bool, List>(boolKey,
+                                hasDefault ? defaultValue.asList() : List());
+  case KEY_INT:
+    return map->get<int, List>(intKey,
+                               hasDefault ? defaultValue.asList() : List());
+  case KEY_FLOAT:
+    return map->get<float, List>(floatKey,
+                                 hasDefault ? defaultValue.asList() : List());
+  case KEY_STRING:
+    return map->get<String, List>(stringKey,
+                                  hasDefault ? defaultValue.asList() : List());
+  default:
+    return hasDefault ? defaultValue.asList() : List();
+  }
+}
+
+MapValueView::operator Map() const {
+  if (!map) {
+    if (hasDefault)
+      return defaultValue.asMap();
+    return Map();
+  }
+  switch (keyType) {
+  case KEY_BOOL:
+    return map->get<bool, Map>(boolKey,
+                               hasDefault ? defaultValue.asMap() : Map());
+  case KEY_INT:
+    return map->get<int, Map>(intKey,
+                              hasDefault ? defaultValue.asMap() : Map());
+  case KEY_FLOAT:
+    return map->get<float, Map>(floatKey,
+                                hasDefault ? defaultValue.asMap() : Map());
+  case KEY_STRING:
+    return map->get<String, Map>(stringKey,
+                                 hasDefault ? defaultValue.asMap() : Map());
+  default:
+    return hasDefault ? defaultValue.asMap() : Map();
+  }
+}
+
+MapValueView::operator Set() const {
+  if (!map) {
+    if (hasDefault)
+      return defaultValue.asSet();
+    return Set();
+  }
+  switch (keyType) {
+  case KEY_BOOL:
+    return map->get<bool, Set>(boolKey,
+                               hasDefault ? defaultValue.asSet() : Set());
+  case KEY_INT:
+    return map->get<int, Set>(intKey,
+                              hasDefault ? defaultValue.asSet() : Set());
+  case KEY_FLOAT:
+    return map->get<float, Set>(floatKey,
+                                hasDefault ? defaultValue.asSet() : Set());
+  case KEY_STRING:
+    return map->get<String, Set>(stringKey,
+                                 hasDefault ? defaultValue.asSet() : Set());
+  default:
+    return hasDefault ? defaultValue.asSet() : Set();
+  }
+}
+
+MapValueView Map::get(bool key) const { return MapValueView(this, key); }
+
+MapValueView Map::get(int key) const { return MapValueView(this, key); }
+
+MapValueView Map::get(float key) const { return MapValueView(this, key); }
+
+MapValueView Map::get(const char *key) const {
+  return MapValueView(this, key);
+}
+
+MapValueView Map::get(const String &key) const {
+  return MapValueView(this, key);
+}
+
+MapValueView Map::get(bool key, const DefaultValue &defaultValue) const {
+  return MapValueView(this, key, defaultValue);
+}
+
+MapValueView Map::get(int key, const DefaultValue &defaultValue) const {
+  return MapValueView(this, key, defaultValue);
+}
+
+MapValueView Map::get(float key, const DefaultValue &defaultValue) const {
+  return MapValueView(this, key, defaultValue);
+}
+
+MapValueView Map::get(const char *key, const DefaultValue &defaultValue) const {
+  return MapValueView(this, key, defaultValue);
+}
+
+MapValueView Map::get(const String &key, const DefaultValue &defaultValue) const {
+  return MapValueView(this, key, defaultValue);
+}
+
+MapValueView Map::get(const char *key, const char *defaultValue) const {
+  return MapValueView(this, key, DefaultValue(defaultValue));
+}
+
+MapValueView Map::operator[](bool key) const {
+  return MapValueView(this, key);
+}
+
+MapValueView Map::operator[](int key) const {
+  return MapValueView(this, key);
+}
+
+MapValueView Map::operator[](float key) const {
+  return MapValueView(this, key);
+}
+
+MapValueView Map::operator[](const char *key) const {
+  return MapValueView(this, key);
+}
+
+MapValueView Map::operator[](const String &key) const {
+  return MapValueView(this, key);
+}
+
 } // namespace attoboy

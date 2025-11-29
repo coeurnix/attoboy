@@ -60,6 +60,10 @@ class WebResponse;
 class AI;
 class Embedding;
 class Conversation;
+struct ListValueView;
+struct MapValueView;
+struct SetValueView;
+struct DefaultValue;
 
 //------------------------------------------------------------------------------
 // Core Types
@@ -300,9 +304,12 @@ public:
 
   /// Removes and returns the element at index.
   template <typename T> T pop();
+  /// Returns a typed view of the element at index.
+  ListValueView at(int index) const;
   /// Returns the element at index.
   template <typename T> T at(int index) const;
   /// Returns the element at index.
+  ListValueView operator[](int index) const;
   template <typename T> T operator[](int index) const;
   /// Returns the type of the element at index.
   ValueType typeAt(int index) const;
@@ -406,9 +413,40 @@ public:
   /// Returns true if the map is empty.
   bool isEmpty() const;
 
+  /// Returns a typed view of the value for key, or null-type if not found.
+  MapValueView get(bool key) const;
+  /// Returns a typed view of the value for key, or null-type if not found.
+  MapValueView get(int key) const;
+  /// Returns a typed view of the value for key, or null-type if not found.
+  MapValueView get(float key) const;
+  /// Returns a typed view of the value for key, or null-type if not found.
+  MapValueView get(const char *key) const;
+  /// Returns a typed view of the value for key, or null-type if not found.
+  MapValueView get(const String &key) const;
+  /// Returns a typed view of the value for key, or defaultValue if not found.
+  MapValueView get(bool key, const DefaultValue &defaultValue) const;
+  /// Returns a typed view of the value for key, or defaultValue if not found.
+  MapValueView get(int key, const DefaultValue &defaultValue) const;
+  /// Returns a typed view of the value for key, or defaultValue if not found.
+  MapValueView get(float key, const DefaultValue &defaultValue) const;
+  /// Returns a typed view of the value for key, or defaultValue if not found.
+  MapValueView get(const char *key, const DefaultValue &defaultValue) const;
+  /// Returns a typed view of the value for key, or defaultValue if not found.
+  MapValueView get(const String &key, const DefaultValue &defaultValue) const;
+  /// Returns a typed view of the value for key, or defaultValue if not found.
+  MapValueView get(const char *key, const char *defaultValue) const;
   /// Returns the value for key, or defaultValue if not found.
   template <typename K, typename V> V get(K key, V defaultValue = V()) const;
   /// Returns the value for key, or null-type if not found.
+  MapValueView operator[](bool key) const;
+  /// Returns the value for key, or null-type if not found.
+  MapValueView operator[](int key) const;
+  /// Returns the value for key, or null-type if not found.
+  MapValueView operator[](float key) const;
+  /// Returns the value for key, or null-type if not found.
+  MapValueView operator[](const char *key) const;
+  /// Returns the value for key, or null-type if not found.
+  MapValueView operator[](const String &key) const;
   template <typename K, typename V> V operator[](K key) const;
   /// Returns true if the map contains the key.
   template <typename K> bool hasKey(K key) const;
@@ -515,6 +553,7 @@ template <typename K> inline Map &Map::remove(K key) {
 /// Duplicates are silently ignored. Order is not guaranteed.
 class Set {
 public:
+  friend struct SetValueView;
   /// Creates an empty set.
   Set();
   /// Creates an empty set with reserved capacity.
@@ -560,6 +599,11 @@ public:
   Set &intersect(const Set &other);
   /// Removes all values in other (difference). Returns this set for chaining.
   Set &subtract(const Set &other);
+
+  /// Returns the value at index.
+  SetValueView at(int index) const;
+  /// Returns the value at index.
+  SetValueView operator[](int index) const;
 
   /// Returns true if the set contains the value.
   template <typename T> bool contains(T value) const;
@@ -607,6 +651,122 @@ private:
     variadic_put(rest...);
   }
   void variadic_put() {}
+};
+
+/// Default value holder for Map lookups.
+struct DefaultValue {
+  ValueType type;
+  bool boolVal;
+  int intVal;
+  float floatVal;
+  String stringVal;
+  List listVal;
+  Map mapVal;
+  Set setVal;
+
+  DefaultValue() : type(TYPE_INVALID), boolVal(false), intVal(0), floatVal(0.0f) {}
+  DefaultValue(bool value)
+      : type(TYPE_BOOL), boolVal(value), intVal(0), floatVal(0.0f) {}
+  DefaultValue(int value)
+      : type(TYPE_INT), boolVal(false), intVal(value), floatVal(0.0f) {}
+  DefaultValue(float value)
+      : type(TYPE_FLOAT), boolVal(false), intVal(0), floatVal(value) {}
+  DefaultValue(const char *value)
+      : type(TYPE_STRING), boolVal(false), intVal(0), floatVal(0.0f),
+        stringVal(value) {}
+  DefaultValue(const String &value)
+      : type(TYPE_STRING), boolVal(false), intVal(0), floatVal(0.0f),
+        stringVal(value) {}
+  DefaultValue(const List &value)
+      : type(TYPE_LIST), boolVal(false), intVal(0), floatVal(0.0f),
+        stringVal(), listVal(value) {}
+  DefaultValue(const Map &value)
+      : type(TYPE_MAP), boolVal(false), intVal(0), floatVal(0.0f),
+        stringVal(), listVal(), mapVal(value) {}
+  DefaultValue(const Set &value)
+      : type(TYPE_SET), boolVal(false), intVal(0), floatVal(0.0f),
+        stringVal(), listVal(), mapVal(), setVal(value) {}
+
+  bool asBool() const;
+  int asInt() const;
+  float asFloat() const;
+  String asString() const;
+  List asList() const;
+  Map asMap() const;
+  Set asSet() const;
+};
+
+/// Read-only view of a List element with implicit conversion.
+struct ListValueView {
+  ListValueView();
+  ListValueView(const List *list, int index);
+
+  operator bool() const;
+  operator int() const;
+  operator float() const;
+  operator String() const;
+  operator List() const;
+  operator Map() const;
+  operator Set() const;
+
+private:
+  const List *list;
+  int index;
+};
+
+/// Read-only view of a Map value with optional default fallback.
+struct MapValueView {
+  MapValueView();
+  MapValueView(const Map *map, bool key);
+  MapValueView(const Map *map, int key);
+  MapValueView(const Map *map, float key);
+  MapValueView(const Map *map, const char *key);
+  MapValueView(const Map *map, const String &key);
+  MapValueView(const Map *map, bool key, const DefaultValue &defaultValue);
+  MapValueView(const Map *map, int key, const DefaultValue &defaultValue);
+  MapValueView(const Map *map, float key, const DefaultValue &defaultValue);
+  MapValueView(const Map *map, const char *key,
+               const DefaultValue &defaultValue);
+  MapValueView(const Map *map, const String &key,
+               const DefaultValue &defaultValue);
+
+  operator bool() const;
+  operator int() const;
+  operator float() const;
+  operator String() const;
+  operator List() const;
+  operator Map() const;
+  operator Set() const;
+
+private:
+  enum KeyType { KEY_INVALID = 0, KEY_BOOL, KEY_INT, KEY_FLOAT, KEY_STRING };
+
+  const Map *map;
+  KeyType keyType;
+  bool boolKey;
+  int intKey;
+  float floatKey;
+  String stringKey;
+  bool hasDefault;
+  DefaultValue defaultValue;
+};
+
+/// Read-only view of a Set element with implicit conversion.
+struct SetValueView {
+  SetValueView();
+  SetValueView(const Set *set, int index);
+
+  operator bool() const;
+  operator int() const;
+  operator float() const;
+  operator String() const;
+  operator List() const;
+  operator Map() const;
+  operator Set() const;
+
+private:
+  const Set *set;
+  int index;
 };
 
 //------------------------------------------------------------------------------

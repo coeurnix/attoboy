@@ -38,6 +38,66 @@ template <> bool Set::contains<const char *>(const char *value) const {
   return impl->values.contains<const char *>(value);
 }
 
+SetValueView::SetValueView() : set(nullptr), index(0) {}
+
+SetValueView::SetValueView(const Set *setPtr, int idx)
+    : set(setPtr), index(idx) {}
+
+SetValueView::operator bool() const {
+  if (!set || !set->impl)
+    return false;
+  ReadLockGuard guard(&set->impl->lock);
+  return set->impl->values.at<bool>(index);
+}
+
+SetValueView::operator int() const {
+  if (!set || !set->impl)
+    return 0;
+  ReadLockGuard guard(&set->impl->lock);
+  return set->impl->values.at<int>(index);
+}
+
+SetValueView::operator float() const {
+  if (!set || !set->impl)
+    return 0.0f;
+  ReadLockGuard guard(&set->impl->lock);
+  return set->impl->values.at<float>(index);
+}
+
+SetValueView::operator String() const {
+  if (!set || !set->impl)
+    return String();
+  ReadLockGuard guard(&set->impl->lock);
+  return set->impl->values.at<String>(index);
+}
+
+SetValueView::operator List() const {
+  if (!set || !set->impl)
+    return List();
+  ReadLockGuard guard(&set->impl->lock);
+  return set->impl->values.at<List>(index);
+}
+
+SetValueView::operator Map() const {
+  if (!set || !set->impl)
+    return Map();
+  ReadLockGuard guard(&set->impl->lock);
+  return set->impl->values.at<Map>(index);
+}
+
+SetValueView::operator Set() const {
+  if (!set || !set->impl)
+    return Set();
+  ReadLockGuard guard(&set->impl->lock);
+  return set->impl->values.at<Set>(index);
+}
+
+SetValueView Set::at(int index) const { return SetValueView(this, index); }
+
+SetValueView Set::operator[](int index) const {
+  return SetValueView(this, index);
+}
+
 void Set::remove_impl(bool value) {
   if (!impl)
     return;

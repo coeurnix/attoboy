@@ -54,8 +54,8 @@ void atto_main() {
         con.println("No notes yet.", CON_DARK_GRAY);
       } else {
         for (int i = 0; i < notes.length(); i++) {
-          Map note = notes.at<Map>(i);
-          String text = note.get<String, String>("text", "");
+          Map note = notes.at(i);
+          String text = note.get("text", "");
           con.println(String(i + 1, ". ", text));
         }
       }
