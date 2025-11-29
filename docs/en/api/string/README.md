@@ -609,25 +609,26 @@ When a `String` goes out of scope or is otherwise destroyed, its destructor rele
 
 ---
 
-#### `static String FromCStr(const char *data, int size)`
+#### `static String FromCStr(const char *data, int size, const String &encoding = "utf-8")`
 
 **Signature**
 
 ```cpp
-static String FromCStr(const char *data, int size);
+static String FromCStr(const char *data, int size, const String &encoding = "utf-8");
 ```
 
 **Synopsis**
-Creates a string from raw bytes with specified length (does not require null termination).
+Creates a string from raw bytes with specified length (does not require null termination). encoding defaults to "utf-8".
 
 **Parameters**
 
-* `data` – Pointer to a buffer containing UTF-8 bytes.
+* `data` – Pointer to a buffer containing bytes in the specified `encoding`.
 * `size` – Number of bytes to copy from `data`.
+* `encoding` – Name of the character encoding used by `data`. Defaults to `"utf-8"`. The bytes are converted into the `String`’s internal UTF-8 representation.
 
 **Return value**
 
-* A `String` containing exactly `size` bytes from `data`, followed by an internal null terminator.
+* A `String` containing the converted text for exactly `size` bytes from `data`.
 
 **In Depth**
 
@@ -635,17 +636,25 @@ Unlike the `const char *` constructor, this static function does **not** require
 
 * You have a buffer that might include embedded nulls.
 * You are working with a substring of a larger buffer that is not separately null-terminated.
+* You are receiving data in a known encoding and need it converted into the internal UTF-8 representation.
 
-The bytes are interpreted as UTF-8; you are responsible for ensuring that the slice boundaries do not split multi-byte characters if you intend to do character-based operations.
+The `encoding` parameter lets you describe how the input bytes should be interpreted. When omitted, the bytes are assumed to already be UTF-8. If you provide another encoding name such as `"ansi"` or `"cp1252"`, the function attempts to convert from that encoding into UTF-8. If the input bytes are not valid for the given encoding, the behavior depends on the underlying conversion implementation (for example, invalid sequences may be replaced or cause conversion to fail).
+
+When you plan to use character-based operations such as `length()`, `substring()`, or `at()`, make sure that:
+
+* The `size` and `encoding` values describe complete characters (do not cut through a multi-byte code unit sequence).
+* The source buffer indeed contains text in the specified encoding.
 
 **Example**
 
 ```cpp
 const char raw[] = "Hello, world!";
 String partial = String::FromCStr(raw, 5);  // "Hello"
-```
 
-*This example creates a `String` from the first 5 bytes of a C-style buffer without requiring a null terminator at that position.*
+// Explicitly specifying encoding (input already in UTF-8)
+String utf8 = String::FromCStr(raw, sizeof(raw) - 1, "utf-8");
+```
+*This example creates a `String` from the first 5 bytes of a C-style buffer and a full-length version explicitly in UTF-8 encoding.*
 
 ---
 
@@ -843,6 +852,57 @@ const char *p = s.c_str();
 ```
 
 *This example obtains a C-style pointer for interoperability with APIs that are not aware of `String`.*
+
+---
+
+#### `char *c_str_allocated(const String &encoding = "utf-8") const`
+
+**Signature**
+
+```cpp
+char *c_str_allocated(const String &encoding = "utf-8") const;
+```
+
+**Synopsis**
+Returns a heap-allocated C string in the specified encoding. The caller is responsible for freeing the returned pointer with Free(). encoding defaults to "utf-8" for UTF-8 output.
+
+**Parameters**
+
+* `encoding` – Name of the desired output encoding. Defaults to `"utf-8"` for UTF-8 output.
+
+**Return value**
+
+* Pointer to a newly allocated, null-terminated C string containing the text encoded as requested. You *must* release this memory by calling `Free()` when you are done with it.
+
+**In Depth**
+
+Where `c_str()` exposes a read-only pointer into the `String`’s internal buffer, `c_str_allocated()` creates a **separate heap-allocated copy** of the contents as a C-style string. This is useful when you need to pass ownership of a buffer to APIs that expect to take or hold onto a `char *` beyond the lifetime of the `String` object.
+
+Key points:
+
+* The returned pointer is allocated using attoboy’s own allocation mechanism.
+* You **must** free it by calling `Free(ptr)` once you no longer need the buffer.
+* The `encoding` parameter controls how the internal UTF-8 text is converted to the output bytes. With the default `"utf-8"`, you get a UTF-8 encoded C string. Other encoding names may be supported depending on the underlying conversion facilities.
+* If some characters are not representable in the requested encoding, the conversion may replace them or fail, depending on the implementation.
+
+Because this function performs both allocation and (optionally) encoding conversion, it may be more expensive than simply calling `c_str()`. Use it only when you truly need an independent, caller-owned buffer.
+
+**Example**
+
+```cpp
+String s("Hello, world");
+
+// Get a UTF-8 C string that the caller owns
+char *buffer = s.c_str_allocated();
+
+// Use buffer with a C API that stores the pointer
+some_c_api_using_string(buffer);
+
+// When finished with the buffer, you MUST free it with Free()
+Free(buffer);
+```
+
+*This example obtains a heap-allocated C string, passes it to a C API, and then properly frees it using `Free()`.
 
 ---
 

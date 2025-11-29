@@ -51,7 +51,7 @@ const unsigned char *Buffer::c_ptr(int *len) const {
   return impl->data;
 }
 
-String Buffer::toString() const {
+String Buffer::toString(const String &encoding) const {
   if (!impl) {
     return String();
   }
@@ -62,7 +62,8 @@ String Buffer::toString() const {
     return String();
   }
 
-  return String::FromCStr((const char *)impl->data, impl->size);
+  UINT codePage = ParseEncodingToCodePage(encoding);
+  return ConvertCodePageToUTF8((const char *)impl->data, impl->size, codePage);
 }
 
 int Buffer::hash() const {

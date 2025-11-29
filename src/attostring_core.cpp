@@ -38,34 +38,35 @@ String::String(const char *str) {
   }
 }
 
-String String::FromCStr(const char *data, int size) {
-  String result;
+String String::FromCStr(const char *data, int size, const String &encoding) {
+  if (!data || size <= 0)
+    return String();
 
-  if (result.impl) {
-    if (result.impl->data) {
-      FreeString(result.impl->data);
+  UINT codePage = ParseEncodingToCodePage(encoding);
+  if (codePage == CP_UTF8) {
+    String result;
+    if (result.impl) {
+      if (result.impl->data) {
+        FreeString(result.impl->data);
+      }
+      HeapFree(GetProcessHeap(), 0, result.impl);
     }
-    HeapFree(GetProcessHeap(), 0, result.impl);
-  }
 
-  result.impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
-                                        sizeof(StringImpl));
-  InitializeSRWLock(&result.impl->lock);
+    result.impl = (StringImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+                                          sizeof(StringImpl));
+    InitializeSRWLock(&result.impl->lock);
 
-  if (!data || size <= 0) {
-    result.impl->data = AllocString(0);
-    result.impl->len = 0;
+    result.impl->data = AllocString(size);
+    if (result.impl->data) {
+      memcpy(result.impl->data, data, size);
+      result.impl->len = size;
+    } else {
+      result.impl->len = 0;
+    }
     return result;
-  }
-
-  result.impl->data = AllocString(size);
-  if (result.impl->data) {
-    memcpy(result.impl->data, data, size);
-    result.impl->len = size;
   } else {
-    result.impl->len = 0;
+    return ConvertCodePageToUTF8(data, size, codePage);
   }
-  return result;
 }
 
 String::String(const String &other) {
@@ -150,6 +151,16 @@ String String::duplicate() const { return String(*this); }
 
 const char *String::c_str() const {
   return (impl && impl->data) ? impl->data : "";
+}
+
+char *String::c_str_allocated(const String &encoding) const {
+  if (!impl || !impl->data || impl->len == 0)
+    return nullptr;
+
+  ReadLockGuard guard(&impl->lock);
+
+  UINT codePage = ParseEncodingToCodePage(encoding);
+  return ConvertUTF8ToCodePage(impl->data, impl->len, codePage);
 }
 
 } // namespace attoboy

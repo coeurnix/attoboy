@@ -3,7 +3,6 @@
 #include "attoboy/attoboy.h"
 #include <windows.h>
 
-
 namespace attoboy {
 
 using ATTO_LPSTR = LPSTR;
@@ -33,5 +32,10 @@ static inline void FreeString(ATTO_LPSTR str) {
 void MyStrNCpy(ATTO_WCHAR *dest, const ATTO_WCHAR *src, int count);
 int MyStrNCmp(const ATTO_WCHAR *s1, const ATTO_WCHAR *s2, int count);
 ATTO_WCHAR *MyStrStr(const ATTO_WCHAR *haystack, const ATTO_WCHAR *needle);
+
+// Encoding conversion utilities
+UINT ParseEncodingToCodePage(const String &encoding);
+char *ConvertUTF8ToCodePage(const char *utf8, int utf8_len, UINT codePage);
+String ConvertCodePageToUTF8(const char *data, int data_len, UINT codePage);
 
 } // namespace attoboy

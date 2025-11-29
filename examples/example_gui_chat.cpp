@@ -481,18 +481,55 @@ static String GetControlText(HWND hwnd) {
   if (len == 0)
     return String();
 
-  char *buf = (char *)Alloc(len + 1);
-  if (!buf)
+  char *ansiBuf = (char *)Alloc(len + 1);
+  if (!ansiBuf)
     return String();
 
-  GetWindowTextA(hwnd, buf, len + 1);
-  String result(buf, len);
-  Free(buf);
+  GetWindowTextA(hwnd, ansiBuf, len + 1);
+
+  // Convert ANSI to UTF-8
+  int wideLen = MultiByteToWideChar(CP_ACP, 0, ansiBuf, -1, nullptr, 0);
+  if (wideLen == 0) {
+    Free(ansiBuf);
+    return String();
+  }
+
+  wchar_t *wideBuf = (wchar_t *)Alloc(wideLen * sizeof(wchar_t));
+  if (!wideBuf) {
+    Free(ansiBuf);
+    return String();
+  }
+
+  MultiByteToWideChar(CP_ACP, 0, ansiBuf, -1, wideBuf, wideLen);
+  Free(ansiBuf);
+
+  int utf8Len = WideCharToMultiByte(CP_UTF8, 0, wideBuf, -1, nullptr, 0,
+                                    nullptr, nullptr);
+  if (utf8Len == 0) {
+    Free(wideBuf);
+    return String();
+  }
+
+  char *utf8Buf = (char *)Alloc(utf8Len);
+  if (!utf8Buf) {
+    Free(wideBuf);
+    return String();
+  }
+
+  WideCharToMultiByte(CP_UTF8, 0, wideBuf, -1, utf8Buf, utf8Len, nullptr,
+                      nullptr);
+  Free(wideBuf);
+
+  String result =
+      String::FromCStr(utf8Buf, utf8Len - 1); // -1 to exclude null terminator
+  Free(utf8Buf);
   return result;
 }
 
 static void SetControlText(HWND hwnd, const String &text) {
-  SetWindowTextA(hwnd, text.c_str());
+  char *ansi_text = text.c_str_allocated("ansi");
+  SetWindowTextA(hwnd, ansi_text);
+  Free(ansi_text);
 }
 
 static void AppendChatText(ChatApp *app, const String &text) {
@@ -501,7 +538,9 @@ static void AppendChatText(ChatApp *app, const String &text) {
   SendMessageA(app->hChatDisplay, EM_SETSEL, len, len);
 
   // Insert the text
-  SendMessageA(app->hChatDisplay, EM_REPLACESEL, FALSE, (LPARAM)text.c_str());
+  char *ansi_text = text.c_str_allocated("ansi");
+  SendMessageA(app->hChatDisplay, EM_REPLACESEL, FALSE, (LPARAM)ansi_text);
+  Free(ansi_text);
 
   ScrollChatToBottom(app);
 }
@@ -610,8 +649,7 @@ static void HandleSend(ChatApp *app) {
   if (app->ai && app->lastBaseUrl && app->lastApiKey && app->lastModel) {
     // Check if settings changed by comparing with last used settings
     if (!app->lastBaseUrl->equals(baseUrl) ||
-        !app->lastApiKey->equals(apiKey) ||
-        !app->lastModel->equals(model)) {
+        !app->lastApiKey->equals(apiKey) || !app->lastModel->equals(model)) {
       CleanupAI(app);
       needNewAI = true;
       AppendChatText(app,

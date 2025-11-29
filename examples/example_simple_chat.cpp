@@ -15,6 +15,17 @@
 
 using namespace attoboy;
 
+volatile bool progressRunning = false;
+
+void *progressThreadFunc(void *arg) {
+  Console *con = (Console *)arg;
+  while (progressRunning) {
+    con->progress(-1.0f, "Waiting for AI response...");
+    Sleep(100);
+  }
+  return nullptr;
+}
+
 extern "C" void atto_main() {
   // Get API key from environment
   String apiKey = GetEnv("OPENAI_API_KEY");
@@ -65,11 +76,17 @@ extern "C" void atto_main() {
     }
 
     // Show that we're waiting for a response
-    console.print("AI: ", CON_CYAN);
+    progressRunning = true;
+    Thread progressThread(progressThreadFunc, &console);
 
     // Send message to the AI and get response
     String response = conversation.ask(userMessage);
 
+    progressRunning = false;
+    progressThread.await();
+    console.progressHide();
+
+    console.print("AI: ", CON_CYAN);
     if (response.isEmpty()) {
       console.println("(Error: No response received)", CON_RED);
     } else {
@@ -84,4 +101,5 @@ extern "C" void atto_main() {
   console.println();
   console.print("Session tokens used: ", CON_DARK_GRAY);
   console.println(String(ai.getTotalTokensUsed()), CON_DARK_GRAY);
+  Exit();
 }

@@ -117,6 +117,33 @@ void atto_main() {
     Log("String(const String&): passed");
   }
 
+  // FromCStr - UTF-8
+  {
+    const char *data = "hello world";
+    String s = String::FromCStr(data, 11, "utf-8");
+    REGISTER_TESTED(String_FromCStr_utf8);
+    ASSERT_EQ(s, String("hello world"));
+    Log("FromCStr(utf-8): passed");
+  }
+
+  // FromCStr - ANSI (basic test)
+  {
+    const char *data = "hello";
+    String s = String::FromCStr(data, 5, "ansi");
+    REGISTER_TESTED(String_FromCStr_ansi);
+    ASSERT_FALSE(s.isEmpty()); // Should create some string
+    Log("FromCStr(ansi): passed");
+  }
+
+  // FromCStr - Code page 1252
+  {
+    const char *data = "hello";
+    String s = String::FromCStr(data, 5, "1252");
+    REGISTER_TESTED(String_FromCStr_cp1252);
+    ASSERT_FALSE(s.isEmpty()); // Should create some string
+    Log("FromCStr(1252): passed");
+  }
+
   // Destructor (implicitly tested by all the above)
   {
     REGISTER_TESTED(String_destructor);
@@ -159,6 +186,57 @@ void atto_main() {
     const char *cstr = s.c_str();
     ASSERT(cstr != nullptr);
     Log("c_str(): passed");
+  }
+
+  // c_str_allocated() - UTF-8
+  {
+    String s("test");
+    REGISTER_TESTED(String_c_str_allocated_utf8);
+    char *cstr = s.c_str_allocated("utf-8");
+    ASSERT(cstr != nullptr);
+    ASSERT_EQ(lstrcmpA(cstr, "test"), 0);
+    Free(cstr);
+    Log("c_str_allocated(utf-8): passed");
+  }
+
+  // c_str_allocated() - ANSI (basic test)
+  {
+    String s("hello");
+    REGISTER_TESTED(String_c_str_allocated_ansi);
+    char *ansi = s.c_str_allocated("ansi");
+    ASSERT(ansi != nullptr);
+    Free(ansi);
+    Log("c_str_allocated(ansi): passed");
+  }
+
+  // c_str_allocated() - UTF-16 (basic test) -- since UNICODE is not defined,
+  // this should fail
+  {
+    String s("hello");
+    REGISTER_TESTED(String_c_str_allocated_utf16);
+    char *utf16 = s.c_str_allocated("utf-16");
+    ASSERT(utf16 == nullptr);
+    Log("c_str_allocated(utf-16): passed");
+  }
+
+  // c_str_allocated() - Code page 1252 (Latin-1)
+  {
+    String s("hello");
+    REGISTER_TESTED(String_c_str_allocated_cp1252);
+    char *cp1252 = s.c_str_allocated("1252");
+    ASSERT(cp1252 != nullptr);
+    Free(cp1252);
+    Log("c_str_allocated(1252): passed");
+  }
+
+  // c_str_allocated() - Code page alias "cp1252"
+  {
+    String s("hello");
+    REGISTER_TESTED(String_c_str_allocated_cp1252_alias);
+    char *cp1252 = s.c_str_allocated("cp1252");
+    ASSERT(cp1252 != nullptr);
+    Free(cp1252);
+    Log("c_str_allocated(cp1252): passed");
   }
 
   // ========== ACCESS & SLICING ==========

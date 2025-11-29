@@ -126,8 +126,9 @@ public:
   ~String();
 
   /// Creates a string from raw bytes with specified length (does not require
-  /// null termination).
-  static String FromCStr(const char *data, int size);
+  /// null termination). encoding defaults to "utf-8".
+  static String FromCStr(const char *data, int size,
+                         const String &encoding = "utf-8");
 
   /// Assigns another string to this string.
   String &operator=(const String &other);
@@ -140,6 +141,10 @@ public:
   bool isEmpty() const;
   /// Returns a pointer to the null-terminated C string.
   const char *c_str() const;
+  /// Returns a heap-allocated C string in the specified encoding.
+  /// The caller is responsible for freeing the returned pointer with Free().
+  /// encoding defaults to "utf-8" for UTF-8 output.
+  char *c_str_allocated(const String &encoding = "utf-8") const;
   /// Returns the character at index as a string. Negative indices count from
   /// end.
   String at(int index) const;
@@ -725,8 +730,9 @@ public:
   String toBase64() const;
   /// Creates a buffer from a Base64-encoded string.
   static Buffer fromBase64(const String &base64);
-  /// Converts the buffer's bytes to a string.
-  String toString() const;
+  /// Converts the buffer's bytes to a String, based on the specified
+  /// sourceEncoding. sourceEncoding defaults to "utf-8".
+  String toString(const String &sourceEncoding = "utf-8") const;
 
   /// Returns true if this buffer equals the other.
   bool compare(const Buffer &other) const;

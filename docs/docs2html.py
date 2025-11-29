@@ -18,7 +18,7 @@ def slugify(value: str) -> str:
   value = re.sub(r"[^\w]+", "-", value)
   return value.strip("-") or "item"
 
-HTML_TEMPLATE = """
+HTML_TEMPLATE = r"""
 <!doctype html>
 <html lang="en">
 <head>
@@ -88,9 +88,10 @@ article th, article td { border: 1px solid var(--border); padding: 8px; }
 article blockquote { border-left: 3px solid var(--accent); margin: 18px 0; padding-left: 12px; color: var(--muted); }
 .tok-keyword { color: #7ca6ff; }
 .tok-string { color: #8ee6b2; }
-.tok-number { color: #ffd580; }
+.tok-number { color: #ff9080 }
 .tok-comment { color: #8291b4; }
 .tok-directive { color: #f0a8ff; }
+.tok-attoboy { color: #ffff80; }
 @media (max-width: 980px) {
   .layout { grid-template-columns: 1fr; }
   .sidebar { position: static; height: auto; }
@@ -249,12 +250,13 @@ function escapeHtml(value) {
 }
 
 function highlightCpp(code) {
-const patterns = [
-    { type: "comment", regex: /\/\*[\s\S]*?\*\/|\/\/.*$/gm },
-    { type: "string", regex: /"(?:[^"\\\\]]|\\\\.)*"|'(?:[^'\\\\]]|\\\\.)*'/g },
-    { type: "number", regex: /\b0x[0-9a-fA-F]+\b|\b\d+\.\d+f?\b|\b\d+f?\b|\b\d+\b/g },
+  const patterns = [
+{ type: "comment", regex: /\/\*[\s\S]*?\*\/|\/\/.*$/gm },
+    { type: "string", regex: /"(?:\\.|[^\\"])*"|' (?:\\.|[^\\'])*'/g },
+    { type: "number", regex: /\b0[xX][0-9a-fA-F]+(?:[uU][lL]{0,2}|[lL]{1,2}[uU]?)?\b|\b0[bB][01]+(?:[uU][lL]{0,2}|[lL]{1,2}[uU]?)?\b|\b(?:\d[\d_]*\.\d[\d_]*)|\b\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d[\d_]*)?[fFlL]?\b|\b\.\d[\d_]*(?:[eE][+-]?\d[\d_]*)?[fFlL]?\b/g },
     { type: "keyword", regex: /\b(?:alignas|alignof|asm|auto|bool|break|case|catch|char|class|const|constexpr|continue|decltype|default|delete|do|double|dynamic_cast|else|enum|explicit|export|extern|false|float|for|friend|goto|if|inline|int|long|mutable|namespace|new|noexcept|nullptr|operator|private|protected|public|register|reinterpret_cast|return|short|signed|sizeof|static|static_cast|struct|switch|template|this|thread_local|throw|true|try|typedef|typeid|typename|union|unsigned|using|virtual|void|volatile|wchar_t|while)\b/g },
     { type: "directive", regex: /#[ \t]*[a-zA-Z_]\w*/g },
+    { type: "attoboy", regex: /\b(?:String|List|Map|Set|Arguments|AI|Buffer|Console|Conversation|DateTime|Embedding|File|Math|Mutex|Path|Registry|Subprocess|Thread|Log|LogInfo|LogError|LogDebug|LogWarning|WebRequest|WebResponse|atto_main|attoboy::|Exit)\b/g },    
   ];
   const matches = [];
 
@@ -599,6 +601,8 @@ def extract_functions(md_text: str, page_slug: str) -> tuple[str, list[dict[str,
             "synopsis": synopsis,
         }
     )
+    body = re.sub(r'\*\*Signature\*\*.*?(?=\*\*Synopsis\*\*)', '', body, flags=re.DOTALL)
+    header = re.sub(r'####', '###', header)
     parts.append(header + body)
     last_end = match.end()
   parts.append(md_text[last_end:])

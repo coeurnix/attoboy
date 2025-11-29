@@ -1405,41 +1405,60 @@ Buffer decoded = Buffer::fromBase64(encoded);
 
 ---
 
-#### `String toString() const`
+#### `String toString(const String &encoding = "utf-8") const`
 
 **Signature**
 
 ```cpp
-String toString() const;
+String toString(const String &sourceEncoding = "utf-8") const;
 ```
 
 **Synopsis**
-Converts the buffer's bytes to a string.
+Converts the buffer's bytes to a String, based on the specified sourceEncoding. encoding defaults to "utf-8".
 
 **Parameters**
 
-* *(none)*
+* `sourceEncoding` – Name of the character encoding in which the buffer’s bytes are currently stored. Defaults to `"utf-8"`. The bytes are interpreted as text in this encoding and converted into the `String`’s internal UTF-8 representation.
 
 **Return value**
 
-* `String` built from the buffer’s bytes, interpreted as UTF-8.
+* `String` built from the buffer’s bytes, converted to UTF-8 from the specified encoding.
 
 **In Depth**
 
-`toString()` assumes that the buffer contains valid UTF-8 text and constructs a `String` accordingly. If the bytes are not valid UTF-8, the result may contain replacement characters or undefined behavior depending on the implementation.
+`toString()` treats the buffer contents as **text** that is currently encoded in `sourceEncoding` and converts it into a UTF-8 `String`. Conceptually:
 
-Use this only when you know the buffer is holding text (for example, when reading a UTF-8 file or HTTP response body that you know is text).
+* The buffer holds raw bytes as read from a file, socket, or other binary source.
+* Those bytes are assumed to represent text in the specified encoding (for example, UTF-8, ANSI/Windows-1252, or another code page).
+* `toString()` decodes those bytes and produces a `String` whose internal representation is UTF-8.
+
+With the default `"utf-8"`, the bytes are assumed to already be UTF-8 and are wrapped (or validated and wrapped) into a `String`. When you pass another encoding name, the function attempts to **convert from that encoding into UTF-8**.
+
+If the bytes are not valid for the given encoding, the result depends on the underlying conversion implementation. Common behaviors include:
+
+* Replacing invalid sequences with a placeholder character.
+* Producing a partial or empty result.
+* Returning an empty String.
+
+You should call `toString()` only when you know the buffer is holding textual data encoded in the specified encoding (for example, a log file saved as ANSI, or a response from a legacy service). For compressed, encrypted, or arbitrary binary data, keep using `Buffer` as raw bytes and avoid converting to `String`.
 
 **Example**
 
 ```cpp
 Buffer buf;
-buf.append("Hello, world");
+// ... read raw bytes from a file or socket encoded in ANSI (Windows-1252) into buf ...
 
-String text = buf.toString();  // "Hello, world"
+// Interpret the stored bytes as Windows-1252 ("ANSI") and convert them to UTF-8 String
+String text = buf.toString("ansi");
+
+// For data already stored as UTF-8, you can rely on the default:
+Buffer utf8Buf;
+// ... fill utf8Buf with UTF-8 text bytes ...
+String utf8Text = utf8Buf.toString();  // same as utf8Buf.toString("utf-8")
 ```
 
-*This example converts buffer bytes into a text string when the data is known to be UTF-8.*
+*This example converts bytes stored in an ANSI code page into a UTF-8 `String`, and shows the default path for data already stored as UTF-8.*
+
 
 ---
 

@@ -35,11 +35,19 @@
   X(String_constructor_variadic)                                               \
   X(String_constructor_utf8)                                                   \
   X(String_constructor_copy)                                                   \
+  X(String_FromCStr_utf8)                                                      \
+  X(String_FromCStr_ansi)                                                      \
+  X(String_FromCStr_cp1252)                                                    \
   X(String_destructor)                                                         \
   X(String_operator_assign)                                                    \
   X(String_length)                                                             \
   X(String_isEmpty)                                                            \
   X(String_c_str)                                                              \
+  X(String_c_str_allocated_utf8)                                               \
+  X(String_c_str_allocated_ansi)                                               \
+  X(String_c_str_allocated_utf16)                                              \
+  X(String_c_str_allocated_cp1252)                                             \
+  X(String_c_str_allocated_cp1252_alias)                                       \
   X(String_at)                                                                 \
   X(String_substring)                                                          \
   X(String_duplicate)                                                          \
@@ -217,6 +225,8 @@
   X(Buffer_toBase64)                                                           \
   X(Buffer_fromBase64)                                                         \
   X(Buffer_toString)                                                           \
+  X(Buffer_toString_utf8)                                                      \
+  X(Buffer_toString_ansi)                                                      \
   X(Buffer_append)                                                             \
   X(Arguments_constructor)                                                     \
   X(Arguments_destructor)                                                      \
@@ -382,25 +392,25 @@
   X(Math_Exp2)                                                                 \
   X(Math_Log2)                                                                 \
   X(Math_Ln)                                                                   \
-  X(Math_log10)                                                                \
-  X(Math_exp)                                                                  \
-  X(Math_pow)                                                                  \
-  X(Math_pow2)                                                                 \
-  X(Math_sqrt)                                                                 \
-  X(Math_sin)                                                                  \
-  X(Math_cos)                                                                  \
-  X(Math_tan)                                                                  \
-  X(Math_atan2)                                                                \
-  X(Math_atan)                                                                 \
-  X(Math_asin)                                                                 \
-  X(Math_cosh)                                                                 \
-  X(Math_mod)                                                                  \
-  X(Math_lerp)                                                                 \
-  X(Math_step)                                                                 \
-  X(Math_degToRad)                                                             \
-  X(Math_radToDeg)                                                             \
-  X(Math_isFinite)                                                             \
-  X(Math_isNaN)                                                                \
+  X(Math_Log10)                                                                \
+  X(Math_Exp)                                                                  \
+  X(Math_Pow)                                                                  \
+  X(Math_Pow2)                                                                 \
+  X(Math_Sqrt)                                                                 \
+  X(Math_Sin)                                                                  \
+  X(Math_Cos)                                                                  \
+  X(Math_Tan)                                                                  \
+  X(Math_Atan2)                                                                \
+  X(Math_Atan)                                                                 \
+  X(Math_Asin)                                                                 \
+  X(Math_Cosh)                                                                 \
+  X(Math_Mod)                                                                  \
+  X(Math_Lerp)                                                                 \
+  X(Math_Step)                                                                 \
+  X(Math_DegToRad)                                                             \
+  X(Math_RadToDeg)                                                             \
+  X(Math_IsFinite)                                                             \
+  X(Math_IsNaN)                                                                \
   X(Math_Add64)                                                                \
   X(Math_Sub64)                                                                \
   X(Math_Mul64)                                                                \
@@ -496,6 +506,6 @@
   X(Console_Wrap)
 
 // Count of all registered functions
-#define FUNCTION_COUNT 489
+#define FUNCTION_COUNT 499
 
 #endif // TEST_FUNCTIONS_H
