@@ -62,7 +62,6 @@ class Embedding;
 class Conversation;
 struct ListValueView;
 struct MapValueView;
-struct SetValueView;
 struct DefaultValue;
 
 //------------------------------------------------------------------------------
@@ -553,7 +552,6 @@ template <typename K> inline Map &Map::remove(K key) {
 /// Duplicates are silently ignored. Order is not guaranteed.
 class Set {
 public:
-  friend struct SetValueView;
   /// Creates an empty set.
   Set();
   /// Creates an empty set with reserved capacity.
@@ -599,11 +597,6 @@ public:
   Set &intersect(const Set &other);
   /// Removes all values in other (difference). Returns this set for chaining.
   Set &subtract(const Set &other);
-
-  /// Returns the value at index.
-  SetValueView at(int index) const;
-  /// Returns the value at index.
-  SetValueView operator[](int index) const;
 
   /// Returns true if the set contains the value.
   template <typename T> bool contains(T value) const;
@@ -664,7 +657,8 @@ struct DefaultValue {
   Map mapVal;
   Set setVal;
 
-  DefaultValue() : type(TYPE_INVALID), boolVal(false), intVal(0), floatVal(0.0f) {}
+  DefaultValue()
+      : type(TYPE_INVALID), boolVal(false), intVal(0), floatVal(0.0f) {}
   DefaultValue(bool value)
       : type(TYPE_BOOL), boolVal(value), intVal(0), floatVal(0.0f) {}
   DefaultValue(int value)
@@ -678,14 +672,14 @@ struct DefaultValue {
       : type(TYPE_STRING), boolVal(false), intVal(0), floatVal(0.0f),
         stringVal(value) {}
   DefaultValue(const List &value)
-      : type(TYPE_LIST), boolVal(false), intVal(0), floatVal(0.0f),
-        stringVal(), listVal(value) {}
+      : type(TYPE_LIST), boolVal(false), intVal(0), floatVal(0.0f), stringVal(),
+        listVal(value) {}
   DefaultValue(const Map &value)
-      : type(TYPE_MAP), boolVal(false), intVal(0), floatVal(0.0f),
-        stringVal(), listVal(), mapVal(value) {}
+      : type(TYPE_MAP), boolVal(false), intVal(0), floatVal(0.0f), stringVal(),
+        listVal(), mapVal(value) {}
   DefaultValue(const Set &value)
-      : type(TYPE_SET), boolVal(false), intVal(0), floatVal(0.0f),
-        stringVal(), listVal(), mapVal(), setVal(value) {}
+      : type(TYPE_SET), boolVal(false), intVal(0), floatVal(0.0f), stringVal(),
+        listVal(), mapVal(), setVal(value) {}
 
   bool asBool() const;
   int asInt() const;
@@ -749,24 +743,6 @@ private:
   String stringKey;
   bool hasDefault;
   DefaultValue defaultValue;
-};
-
-/// Read-only view of a Set element with implicit conversion.
-struct SetValueView {
-  SetValueView();
-  SetValueView(const Set *set, int index);
-
-  operator bool() const;
-  operator int() const;
-  operator float() const;
-  operator String() const;
-  operator List() const;
-  operator Map() const;
-  operator Set() const;
-
-private:
-  const Set *set;
-  int index;
 };
 
 //------------------------------------------------------------------------------

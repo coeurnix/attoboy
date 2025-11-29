@@ -23,7 +23,9 @@ Because `List` can hold mixed types, each element has an associated **type tag**
 * `TYPE_STRING`, `TYPE_LIST`, `TYPE_MAP`, `TYPE_SET`
 * `TYPE_NULL`, `TYPE_INVALID`, `TYPE_UNKNOWN` for special or error states
 
-The `typeAt()` function lets you inspect the type stored at a given index before retrieving it, so you can safely decide which template parameter to use with `at<T>()`, `pop<T>()`, or `operator[]<T>()`.
+The `typeAt()` function lets you inspect the type stored at a given index before retrieving it, so you can safely decide which C++ type to use when reading the value.
+
+For convenience, the `at()` and `operator[]` accessors return a lightweight proxy type (`ListValueView`) that can be implicitly converted to the concrete type you need. This allows concise expressions such as `String s = list.at(1);` or `int x = list[i];` without specifying template parameters. When you assign the proxy to a variable of type `T`, it uses the same conversion rules as the templated `at<T>()` and `operator[]<T>()` overloads.
 
 ### Indexing and Negative Indices
 
@@ -872,6 +874,64 @@ int last = values.pop<int>();
 
 ---
 
+#### `ListValueView at(int index) const`
+
+**Signature**
+
+```cpp
+ListValueView at(int index) const;
+```
+
+**Synopsis**
+Returns a typed view of the element at index.
+
+**Parameters**
+
+* `index` – Element index to access. Negative indices count from the end.
+
+**Return value**
+
+* A `ListValueView` proxy referring to the element at the given index.
+
+**In Depth**
+
+This overload of `at()` returns a **proxy object** that refers to the element at `index` without immediately committing to a concrete C++ type. In typical use, you do not need to work with `ListValueView` directly:
+
+* When you **assign** the result to a variable of type `T`, the proxy converts itself to `T`.
+* The conversion uses the same logic and constraints as `at<T>(index)`.
+
+This design lets you write simple, idiomatic code:
+
+```cpp
+String name = values.at(0);
+int count   = values.at(1);
+```
+
+instead of explicitly spelling out template arguments.
+
+You must still ensure that:
+
+1. `index` is within bounds (`-length() <= index < length()`).
+2. The runtime type of the element is compatible with the C++ type you are converting to (for example, the stored value is a number when you convert to `int`, or a string when you convert to `String`).
+
+If either condition is violated, the result is undefined or may not be meaningful.
+
+**Example**
+
+```cpp
+List values("Alice", "Bob", 42);
+
+// Implicit conversion from ListValueView to String
+String first = values.at(0);  // "Alice"
+
+// Implicit conversion from ListValueView to int
+int answer = values.at(2);    // 42 (if TYPE_INT-compatible)
+```
+
+*This example shows how the non-templated `at()` returns a proxy that conveniently converts to the desired type.*
+
+---
+
 #### `template <typename T> T at(int index) const`
 
 **Signature**
@@ -893,21 +953,82 @@ Returns the element at index.
 
 **In Depth**
 
-`at<T>()` returns a copy of the element at the specified index, converted to the requested type `T`. You must:
+This templated overload returns a copy of the element at the specified index, converted explicitly to the requested type `T`.
+
+It behaves conceptually the same as taking the `ListValueView` from the non-templated `at(int)` and then converting that proxy to `T`. The main differences are:
+
+* You state the type `T` **explicitly** in the call site (for example, `at<String>(index)`).
+* It can be clearer in code where you want to emphasize the expected type or avoid relying on implicit conversions.
+
+As with the proxy overload, you must:
 
 1. Ensure `index` is within bounds (`-length() <= index < length()`).
-2. Ensure the element at that index has a type compatible with `T`, which you can check using `typeAt(index)`.
-
-If the type does not match, the behavior is undefined or may produce a meaningless value.
+2. Ensure the element’s runtime type is compatible with `T`, which you can verify using `typeAt(index)`.
 
 **Example**
 
 ```cpp
 List values("Alice", "Bob");
-String name = values.at<String>(0);  // "Alice"
+
+// Explicit type selection
+String name = values.at<String>(0);
+
+// This is equivalent in intent to:
+String name2 = values.at(0);  // via ListValueView
 ```
 
-*This example retrieves a string element by index using `at<String>()`.*
+*This example retrieves a string element by index using the templated `at<T>()` when you want the type to be explicit.*
+
+---
+
+#### `ListValueView operator[](int index) const`
+
+**Signature**
+
+```cpp
+ListValueView operator[](int index) const;
+```
+
+**Synopsis**
+Returns a typed view of the element at index.
+
+**Parameters**
+
+* `index` – Element index to access. Negative indices count from the end.
+
+**Return value**
+
+* A `ListValueView` proxy referring to the element at the given index.
+
+**In Depth**
+
+This overload enables idiomatic **bracket syntax** for element access while still supporting mixed types. It returns the same proxy type as `at(int)`, so you can write:
+
+```cpp
+String name = values[0];
+int    age  = values[1];
+```
+
+The proxy converts to whatever C++ type you use on the left-hand side of the assignment (or in initialization), subject to the same rules as `at<T>()`.
+
+Key points:
+
+* Indexing rules (including negative indices) are identical to `at()`.
+* Bounds and type compatibility are not checked automatically; you can use `length()` and `typeAt()` if you need guards.
+* If the element’s runtime type is not compatible with the target C++ type, the result is undefined or may not be meaningful.
+
+If you prefer more explicit error-prone code, you can combine bracket access with `typeAt()` to decide how to interpret the value.
+
+**Example**
+
+```cpp
+List values("Alice", "Bob", 42);
+
+String second = values[1];  // "Bob"
+int answer    = values[2];  // 42 (if TYPE_INT-compatible)
+```
+
+*This example demonstrates idiomatic bracket-based element access using the proxy-returning overload.*
 
 ---
 
@@ -932,13 +1053,15 @@ Returns the element at index.
 
 **In Depth**
 
-This operator is a more idiomatic way to access elements with bracket syntax:
+This templated overload is the more explicit counterpart to the proxy-based `operator[](int)`:
 
-```cpp
-T value = list[index];
-```
+* It immediately returns a value of type `T`.
+* It behaves like taking `list.at(index)` (the proxy) and converting it to `T`.
 
-However, because `List` stores mixed types, you **must** specify the template parameter explicitly in code that expects a particular type (for example, `list.at<String>(i)` is usually clearer than `list<String>[i]`).
+In most everyday code, you will use the non-templated `operator[]` and let the compiler deduce the appropriate conversion from assignment or initialization. The templated form is useful when:
+
+* You want to be explicit about the expected type, or
+* You are calling `operator[]` in a context where the target type is not obvious from the surrounding code.
 
 Indexing and type-matching rules are the same as for `at<T>()`.
 
@@ -946,10 +1069,15 @@ Indexing and type-matching rules are the same as for `at<T>()`.
 
 ```cpp
 List values("Alice", "Bob");
-String second = values.operator[]<String>(1);  // "Bob"
+
+// Explicit template syntax
+String second = values.operator[]<String>(1);
+
+// Semantically similar, but more concise:
+String second2 = values[1];
 ```
 
-*This example demonstrates element access through the bracket-like operator.*
+*This example contrasts explicit template-based access with the more concise proxy-based bracket syntax.*
 
 ---
 

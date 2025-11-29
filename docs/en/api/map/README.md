@@ -39,7 +39,30 @@ Because values can be mixed types, you may need to know **what type** is stored 
 * `TYPE_STRING`, `TYPE_LIST`, `TYPE_MAP`, `TYPE_SET`
 * `TYPE_NULL`, `TYPE_INVALID`, `TYPE_UNKNOWN` for special or error states
 
-You can use `typeAt()` to check the value’s type for a key before deciding which template parameter to use when calling `get<K,V>()` or `operator[]<K,V>()`.
+You can use `typeAt()` to check the value’s type for a key before deciding **which C++ type you want to read it into** (for example, `int`, `float`, or `String`) when calling `get()` or `operator[]`.
+
+### Value Proxies (`MapValueView`)
+
+`Map` uses an internal **value proxy type** (i.e., `MapValueView`) to make lookups convenient:
+
+* Functions like `get()` and `operator[]` return a proxy object.
+* That proxy can be **implicitly converted** to the C++ type you assign it to.
+
+In practice, this means you can write:
+
+```cpp
+Map m("name", "Alice", "age", 30);
+
+String name = m.get("name");  // proxy converts to String
+int age     = m["age"];       // proxy converts to int
+```
+
+You almost never need to mention `MapValueView` explicitly; you simply:
+
+1. Call `get()` or `operator[]`.
+2. Assign the result to a variable of the type you want.
+
+If the key is missing (or the stored type is incompatible), the proxy converts to a sensible **“null” value** for the target type (for example, `0` for integers, `false` for `bool`, empty `String` for `String`).
 
 ### Mutability, RAII, and Chaining
 
@@ -442,7 +465,204 @@ if (m.isEmpty()) {
 
 ---
 
-#### `template <typename K, typename V> V get(K key, V defaultValue = V()) const`
+#### `MapValueView get(…) const` (proxy lookup without explicit default)
+
+**Signature**
+
+```cpp
+MapValueView get(bool key) const;
+MapValueView get(int key) const;
+MapValueView get(float key) const;
+MapValueView get(const char *key) const;
+MapValueView get(const String &key) const;
+```
+
+**Synopsis**
+Returns a typed view of the value for key, or null-type if not found.
+
+**Parameters**
+
+* `key` – Key to search for. Overloads exist for:
+
+  * `bool`
+  * `int`
+  * `float`
+  * `const char *`
+  * `String`
+
+**Return value**
+
+* A `MapValueView` proxy representing the value associated with `key`, or a special **null-type proxy** if the key is not found.
+
+**In Depth**
+
+These overloads provide the most common way to **read values without templates**:
+
+```cpp
+Map config("timeoutMs", 5000, "debug", true);
+
+int timeout = config.get("timeoutMs");  // proxy → int
+bool debug  = config.get("debug");      // proxy → bool
+```
+
+You normally do **not** work with `MapValueView` directly. Instead, you assign the result of `get()` to a variable of the type you expect:
+
+* If the key **exists** and the stored value is compatible with your target type, the proxy converts to that type.
+* If the key **does not exist**, the proxy converts to the **“null” value** of the target type:
+
+  * `0` for numeric types,
+  * `false` for `bool`,
+  * empty `String` for `String`, and so on.
+
+If you need to distinguish between “key not present” and “present but default-like” (for example, `0` is a valid value), you should pair this with `hasKey()` or `typeAt()`.
+
+**Example**
+
+```cpp
+Map stats("score", 42, "lives", 3);
+
+int score  = stats.get("score");    // 42
+int lives  = stats.get("lives");    // 3
+int coins  = stats.get("coins");    // 0 (key missing → null int)
+bool debug = stats.get("debug");    // false (key missing → null bool)
+
+if (!stats.hasKey("coins")) {
+  // Key truly does not exist, even though the proxy converted to 0.
+}
+```
+
+*This example shows proxy-based lookups without templates and how missing keys convert to default values.*
+
+---
+
+#### `MapValueView get(…, const DefaultValue &defaultValue) const` (proxy lookup with explicit default)
+
+**Signature**
+
+```cpp
+MapValueView get(bool key, const DefaultValue &defaultValue) const;
+MapValueView get(int key, const DefaultValue &defaultValue) const;
+MapValueView get(float key, const DefaultValue &defaultValue) const;
+MapValueView get(const char *key, const DefaultValue &defaultValue) const;
+MapValueView get(const String &key, const DefaultValue &defaultValue) const;
+MapValueView get(const char *key, const char *defaultValue) const;
+```
+
+**Synopsis**
+Returns a typed view of the value for key, or defaultValue if not found.
+
+**Parameters**
+
+* `key` – Key to search for. Overloads exist for:
+
+  * `bool`
+  * `int`
+  * `float`
+  * `const char *`
+  * `String`
+* `defaultValue` – Fallback value to use if `key` is not present. The parameter type is deduced from the argument you pass.
+
+**Return value**
+
+* A `MapValueView` proxy:
+
+  * If the key exists, the proxy represents the stored value.
+  * If the key does not exist, the proxy represents `defaultValue`.
+
+**In Depth**
+
+These overloads are the **default-aware** versions of `get()`:
+
+* They let you specify a **per-call default** without using templates.
+* The returned proxy still converts to the type of the variable you assign to, but when the key is missing, it converts as if the map contained `defaultValue`.
+
+For example, if the key `"retries"` is absent:
+
+* `get("retries", 3)` behaves as if the map stored `3` under `"retries"`.
+
+This is often the most readable way to express configuration defaults.
+
+**Example**
+
+```cpp
+Map config("timeoutMs", 5000);
+
+int timeout = config.get("timeoutMs", 1000);   // 5000 (stored)
+int retries = config.get("retries", 3);        // 3 (fallback)
+String host = config.get("host", "localhost"); // "localhost" (fallback)
+```
+
+*This example shows how to supply explicit defaults without any template syntax.*
+
+---
+
+#### `MapValueView operator[](…) const` (proxy index access)
+
+**Signature**
+
+```cpp
+MapValueView operator[](bool key) const;
+MapValueView operator[](int key) const;
+MapValueView operator[](float key) const;
+MapValueView operator[](const char *key) const;
+MapValueView operator[](const String &key) const;
+```
+
+**Synopsis**
+Returns the value for key, or null-type if not found.
+
+**Parameters**
+
+* `key` – Key to search for. Overloads exist for:
+
+  * `bool`
+  * `int`
+  * `float`
+  * `const char *`
+  * `String`
+
+**Return value**
+
+* A `MapValueView` proxy representing the value for `key`, or a null-type proxy if the key is not present.
+
+**In Depth**
+
+`operator[]` provides a **concise, array-style syntax** for lookups using proxies:
+
+```cpp
+Map user("name", "Alice", "age", 30);
+
+String name = user["name"]; // proxy → String
+int age      = user["age"]; // proxy → int
+int score    = user["score"]; // proxy → 0 (null int)
+```
+
+Behavior is the same as `get(key)`:
+
+* If the key exists, the proxy converts to the stored value.
+* If the key does not exist, the proxy converts to the **null value** for the type you assign to.
+
+Because missing keys silently convert to null values, use `hasKey()` if you must distinguish “missing” from “present but default-like”.
+
+**Example**
+
+```cpp
+Map settings("volume", 75, "muted", false);
+
+int  volume = settings["volume"];    // 75
+bool muted  = settings["muted"];     // false
+bool night  = settings["nightMode"]; // false (missing → null bool)
+
+if (!settings.hasKey("nightMode")) {
+  // Feature not configured at all
+}
+```
+
+*This example shows bracket-based lookups with implicit conversion via the proxy type.*
+
+---
+
+#### `template <typename K, typename V> V get(K key, V defaultValue = V()) const` (advanced typed lookup)
 
 **Signature**
 
@@ -455,7 +675,7 @@ Returns the value for key, or defaultValue if not found.
 
 **Parameters**
 
-* `key` – Key to search for. Can be `bool`, `int`, `float`, `const char *`, or `String`.
+* `key` – Key to search for. Typically `bool`, `int`, `float`, `const char *`, or `String`.
 * `defaultValue` – Value to return if `key` is not present. Defaults to a default-constructed `V`.
 
 **Return value**
@@ -464,15 +684,25 @@ Returns the value for key, or defaultValue if not found.
 
 **In Depth**
 
-`get()` is the safest way to look up values:
+This template version of `get()` provides **direct typed access** without going through an explicit proxy variable. It is functionally similar to:
 
-* If the key exists, the associated value is returned (converted to `V`).
-* If the key does not exist, `defaultValue` is returned without modifying the map.
+```cpp
+V value = map.get(key, defaultValue);
+```
 
-Considerations:
+using the proxy overloads, but:
 
-* You must choose `V` consistent with how the value was stored. For example, if the value for `"age"` is an integer, you should retrieve it with `get<String,int>` or simply `get(key, 0)` where the compiler infers `V = int`.
-* If the stored type is incompatible with `V`, the result is undefined or may not be meaningful.
+* The type `V` is tied to the template parameter rather than to an intermediate variable.
+* The map’s internal proxy implementation can be bypassed or specialized more directly.
+
+For most code, the non-template proxy overloads are simpler and more readable:
+
+```cpp
+int timeout = config.get("timeoutMs", 1000);      // preferred
+int timeout2 = config.get<String,int>("timeoutMs", 1000); // advanced
+```
+
+Use this template form when you need explicit control over the template parameters or when interacting with code patterns that rely on template argument deduction.
 
 **Example**
 
@@ -483,11 +713,11 @@ int timeout = config.get<String,int>("timeoutMs", 1000); // 5000
 int retries = config.get<String,int>("retries", 3);      // 3 (default)
 ```
 
-*This example retrieves a known key and falls back to a default value for a missing key.*
+*This example mirrors the proxy-based `get()` with explicit template parameters.*
 
 ---
 
-#### `template <typename K, typename V> V operator[](K key) const`
+#### `template <typename K, typename V> V operator[](K key) const` (advanced typed index access)
 
 **Signature**
 
@@ -504,36 +734,43 @@ Returns the value for key, or null-type if not found.
 
 **Return value**
 
-* The value associated with `key` converted to `V` if found; otherwise a default-constructed `V` (the “null-type” of `V`).
+* The value associated with `key` converted to type `V` if found; otherwise a default-constructed `V` (the “null-type” of `V`).
 
 **In Depth**
 
-This operator provides a more concise syntax for lookups:
+This template operator provides an **explicitly typed variant** of `operator[]`, where the result type is determined by the template parameter `V`:
 
 ```cpp
-V value = map[key];
+int  score = map.operator[]<String,int>("score");
+bool ok    = map.operator[]<int,bool>(42);
 ```
 
-However, unlike `get()`, you cannot explicitly supply a default value; if the key is missing:
+In most cases, the proxy-based overloads are more natural:
 
-* A default-constructed `V` is returned (for example, `0` for numeric types, `false` for `bool`, empty `String` for `String`).
+```cpp
+int  score = map["score"]; // proxy-based
+bool ok    = map[42];      // proxy-based
+```
 
-Because the class supports mixed types:
+You can still use this template form when:
 
-* You should ensure that `V` is compatible with the stored value for the key.
-* For explicitness and clarity, many codebases prefer `get()` with an explicit default.
+* You want to specify `V` explicitly, or
+* You are working in template-heavy code that benefits from explicit template arguments.
+
+Missing keys behave like the proxy-based `operator[]`:
+
+* If the key is not present, the operator returns a default-constructed `V`.
 
 **Example**
 
 ```cpp
-Map user("name", "Alice", "age", 30);
+Map status("ready", true);
 
-String name = user.operator[]<String,String>("name"); // "Alice"
-int age = user.operator[]<String,int>("age");         // 30
-int missing = user.operator[]<String,int>("score");   // 0 (default int)
+bool ready = status.operator[]<String,bool>("ready");  // true
+bool error = status.operator[]<String,bool>("error");  // false (default bool)
 ```
 
-*This example shows direct lookup using the bracket-like operator, including the default value on a missing key.*
+*This example uses the template form to explicitly control the result type, mirroring proxy-based behavior.*
 
 ---
 
