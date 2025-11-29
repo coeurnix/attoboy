@@ -105,13 +105,11 @@ List List::slice(int start, int end) const {
   if (impl->size == 0)
     return List();
 
-  // Handle negative indices
   if (start < 0)
     start = 0;
   if (end < 0)
     end = impl->size;
 
-  // Clamp to valid range
   if (start >= impl->size)
     return List();
   if (end > impl->size)
@@ -180,8 +178,6 @@ List List::slice(int start, int end) const {
   return result;
 }
 
-List List::duplicate() const {
-  return List(*this);
-}
+List List::duplicate() const { return List(*this); }
 
 } // namespace attoboy

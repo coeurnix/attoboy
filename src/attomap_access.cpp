@@ -697,4 +697,186 @@ bool Map::operator==(const Map &other) const { return compare(other); }
 
 bool Map::operator!=(const Map &other) const { return !compare(other); }
 
+template <> bool Map::operator[]<bool, bool>(bool key) const {
+  return get<bool, bool>(key);
+}
+
+template <> int Map::operator[]<bool, int>(bool key) const {
+  return get<bool, int>(key);
+}
+
+template <> float Map::operator[]<bool, float>(bool key) const {
+  return get<bool, float>(key);
+}
+
+template <> String Map::operator[]<bool, String>(bool key) const {
+  return get<bool, String>(key);
+}
+
+template <> List Map::operator[]<bool, List>(bool key) const {
+  return get<bool, List>(key);
+}
+
+template <> Map Map::operator[]<bool, Map>(bool key) const {
+  return get<bool, Map>(key);
+}
+
+template <> Set Map::operator[]<bool, Set>(bool key) const {
+  return get<bool, Set>(key);
+}
+
+template <> bool Map::operator[]<int, bool>(int key) const {
+  return get<int, bool>(key);
+}
+
+template <> int Map::operator[]<int, int>(int key) const {
+  return get<int, int>(key);
+}
+
+template <> float Map::operator[]<int, float>(int key) const {
+  return get<int, float>(key);
+}
+
+template <> String Map::operator[]<int, String>(int key) const {
+  return get<int, String>(key);
+}
+
+template <> List Map::operator[]<int, List>(int key) const {
+  return get<int, List>(key);
+}
+
+template <> Map Map::operator[]<int, Map>(int key) const {
+  return get<int, Map>(key);
+}
+
+template <> Set Map::operator[]<int, Set>(int key) const {
+  return get<int, Set>(key);
+}
+
+template <> bool Map::operator[]<float, bool>(float key) const {
+  return get<float, bool>(key);
+}
+
+template <> int Map::operator[]<float, int>(float key) const {
+  return get<float, int>(key);
+}
+
+template <> float Map::operator[]<float, float>(float key) const {
+  return get<float, float>(key);
+}
+
+template <> String Map::operator[]<float, String>(float key) const {
+  return get<float, String>(key);
+}
+
+template <> List Map::operator[]<float, List>(float key) const {
+  return get<float, List>(key);
+}
+
+template <> Map Map::operator[]<float, Map>(float key) const {
+  return get<float, Map>(key);
+}
+
+template <> Set Map::operator[]<float, Set>(float key) const {
+  return get<float, Set>(key);
+}
+
+template <> bool Map::operator[]<String, bool>(String key) const {
+  return get<String, bool>(key);
+}
+
+template <> int Map::operator[]<String, int>(String key) const {
+  return get<String, int>(key);
+}
+
+template <> float Map::operator[]<String, float>(String key) const {
+  return get<String, float>(key);
+}
+
+template <> String Map::operator[]<String, String>(String key) const {
+  return get<String, String>(key);
+}
+
+template <> List Map::operator[]<String, List>(String key) const {
+  return get<String, List>(key);
+}
+
+template <> Map Map::operator[]<String, Map>(String key) const {
+  return get<String, Map>(key);
+}
+
+template <> Set Map::operator[]<String, Set>(String key) const {
+  return get<String, Set>(key);
+}
+
+template <>
+bool Map::get<const char *, bool>(const char *key, bool defaultValue) const {
+  return get<String, bool>(String(key), defaultValue);
+}
+
+template <>
+int Map::get<const char *, int>(const char *key, int defaultValue) const {
+  return get<String, int>(String(key), defaultValue);
+}
+
+template <>
+float Map::get<const char *, float>(const char *key, float defaultValue) const {
+  return get<String, float>(String(key), defaultValue);
+}
+
+template <>
+String Map::get<const char *, String>(const char *key,
+                                      String defaultValue) const {
+  return get<String, String>(String(key), defaultValue);
+}
+
+template <>
+List Map::get<const char *, List>(const char *key, List defaultValue) const {
+  return get<String, List>(String(key), defaultValue);
+}
+
+template <>
+Map Map::get<const char *, Map>(const char *key, Map defaultValue) const {
+  return get<String, Map>(String(key), defaultValue);
+}
+
+template <>
+Set Map::get<const char *, Set>(const char *key, Set defaultValue) const {
+  return get<String, Set>(String(key), defaultValue);
+}
+
+template <> bool Map::operator[]<const char *, bool>(const char *key) const {
+  return operator[]<String, bool>(String(key));
+}
+
+template <> int Map::operator[]<const char *, int>(const char *key) const {
+  return operator[]<String, int>(String(key));
+}
+
+template <> float Map::operator[]<const char *, float>(const char *key) const {
+  return operator[]<String, float>(String(key));
+}
+
+template <>
+String Map::operator[]<const char *, String>(const char *key) const {
+  return operator[]<String, String>(String(key));
+}
+
+template <> List Map::operator[]<const char *, List>(const char *key) const {
+  return operator[]<String, List>(String(key));
+}
+
+template <> Map Map::operator[]<const char *, Map>(const char *key) const {
+  return operator[]<String, Map>(String(key));
+}
+
+template <> Set Map::operator[]<const char *, Set>(const char *key) const {
+  return operator[]<String, Set>(String(key));
+}
+
+template <>
+String Map::findValue<String, const char *>(const char *value) const {
+  return findValue<String, String>(String(value));
+}
+
 } // namespace attoboy

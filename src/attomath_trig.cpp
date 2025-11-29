@@ -2,7 +2,6 @@
 
 namespace attoboy {
 
-// Initialize constants declared in header
 const float Math::INF = 1e30f;
 const float Math::NEG_INF = -1e30f;
 
@@ -79,20 +78,18 @@ float Math::Atan(float x) noexcept {
     return x < 0.0f ? -result : result;
   }
 
-  // Range reduction for |x| <= 1: atan(x) = 2 * atan(y) where y = x / (1 +
-  // sqrt(1 + x²))
   float y = absx / (1.0f + Sqrt(1.0f + absx * absx));
   float y2 = y * y;
   float result = y;
   float term = y;
 
-  term *= y2; // y^3
+  term *= y2;
   result -= term / 3.0f;
-  term *= y2; // y^5
+  term *= y2;
   result += term / 5.0f;
-  term *= y2; // y^7
+  term *= y2;
   result -= term / 7.0f;
-  term *= y2; // y^9
+  term *= y2;
   result += term / 9.0f;
 
   result *= 2.0f;
