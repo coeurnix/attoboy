@@ -563,4 +563,12 @@ void Map::put_impl(const String &key, const Set &value) {
   }
 }
 
+void Map::put_impl(const ListValueView &key, bool value) {
+  put_impl(String(key), value);
+}
+
+void Map::put_impl(const MapValueView &key, bool value) {
+  put_impl(String(key), value);
+}
+
 } // namespace attoboy

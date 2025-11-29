@@ -145,6 +145,27 @@ add_custom_command(TARGET attoboy POST_BUILD
 )
 
 # ------------------------------------------------------------------------------
+# Distribution Target
+# ------------------------------------------------------------------------------
+if(MSVC)
+    set(LIB_PATH lib/Release/attoboy.lib)
+else()
+    set(LIB_PATH lib/libattoboy.a)
+endif()
+
+add_custom_target(dist ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/dist/include/attoboy"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/dist/lib"
+    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/include/attoboy/attoboy.h" "${CMAKE_BINARY_DIR}/dist/include/attoboy/"
+    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/${LIB_PATH}" "${CMAKE_BINARY_DIR}/dist/lib/"
+    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/scripts/attobuild.bat" "${CMAKE_BINARY_DIR}/dist/"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/dist/docs"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/docs/html" "${CMAKE_BINARY_DIR}/dist/docs"
+    DEPENDS attoboy
+    COMMENT "Creating distribution package in build/dist/"
+)
+
+# ------------------------------------------------------------------------------
 # Tests (Built as Exes in build/tests/ with CTest)
 # ------------------------------------------------------------------------------
 if(ATTO_BUILD_TESTS)

@@ -1,5 +1,4 @@
 # Tutorial
-## A Gentle Introduction to Attoboy
 
 ---
 

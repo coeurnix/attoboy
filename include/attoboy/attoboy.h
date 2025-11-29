@@ -523,6 +523,8 @@ private:
   void put_impl(const String &key, const List &value);
   void put_impl(const String &key, const Map &value);
   void put_impl(const String &key, const Set &value);
+  void put_impl(const ListValueView &key, bool value);
+  void put_impl(const MapValueView &key, bool value);
   void remove_impl(bool key);
   void remove_impl(int key);
   void remove_impl(float key);
