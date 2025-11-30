@@ -74,7 +74,7 @@ The `dist` folder has everything you need: headers, library, docs, and the `atto
 
 - **[Getting Started](docs/en/getting-started/README.md)** — Installation and first steps
 - **[Tutorial](docs/en/tutorial/README.md)** — Comprehensive walkthrough of all features
-- **API Reference** — Full docs in `docs/html/index.html`
+- **API Reference** — Full docs in `docs/index.html`
 
 
 

@@ -284,7 +284,7 @@ The **[Tutorial](../tutorial/README.md)** is the best place to start learning at
 
 ### API Documentation
 
-The **docs/html/** folder (included in your `dist` folder) contains complete API documentation for every class and function in attoboy. Open `docs/html/index.html` in your web browser to browse the full reference.
+The **docs** folder (included in your `dist` folder) contains complete API documentation for every class and function in attoboy. Open `docs/index.html` in your web browser to browse the full reference.
 
 Here's a quick peek at the main types you'll use:
 

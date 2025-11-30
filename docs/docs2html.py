@@ -1,5 +1,5 @@
 # Builds a single-page HTML app for the attoboy documentation in all languages.
-# Usage: python docs2html.py --output html/index.html
+# Usage: python docs2html.py --output index.html
 # Requires the Python `markdown` package listed in requirements.txt.
 
 import argparse
@@ -813,7 +813,7 @@ def parse_args() -> argparse.Namespace:
   )
   parser.add_argument(
       "--output",
-      default=Path(__file__).parent / "html" / "index.html",
+      default=Path(__file__).parent / "index.html",
       type=Path,
       help="Destination HTML file.",
   )

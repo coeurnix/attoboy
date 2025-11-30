@@ -284,7 +284,7 @@ cmake --build build_msvc --config Release --target coverage_live
 
 ### API 文档
 
-`dist` 目录中的 **docs/html/** 文件夹包含 attoboy 中每个类和函数的完整 API 文档。用浏览器打开 `docs/html/index.html` 即可查看完整参考。
+`dist` 目录中的 **docs** 文件夹包含 attoboy 中每个类和函数的完整 API 文档。用浏览器打开 `docs/index.html` 即可查看完整参考。
 
 下面是你会经常使用的一些主要类型概览：
 
