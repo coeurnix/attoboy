@@ -1,0 +1,2308 @@
+# String
+
+## 概览
+
+`attoboy::String` 类是 attoboy 库中的核心文本类型。它表示一个**不可变的 UTF-8 字符串**，并提供丰富的操作用于检查、搜索、变换、拆分/合并以及格式化。其设计目标是：
+
+* **易于使用**：构造函数接受多种常见类型（布尔值、数字、容器）。
+* **默认安全**：基于字符的操作遵守 UTF-8 码点边界。
+* **方便**：与 `List`、`Map` 和 `Set` 的集成，支持简单的 JSON 风格转换和模板化格式化。
+* **适合微型二进制**：无需 C++ 标准库或 CRT 也可工作。
+
+从高层来看，你可以将 `String` 视为 attoboy 对 `std::string` 的替代，但具有：
+
+* **UTF-8 感知能力**（字符 vs. 字节）。
+* **不可变性**：一旦创建，其内容永不改变。
+* 内建与多种 attoboy 类型之间的互相转换。
+
+### 不可变性与值语义
+
+`String` 是**不可变的**：其成员函数不会修改已有字符串对象的内容。任何“修改”字符串的操作都会返回一个**新的** `String`，其中包含变换后的内容。
+
+例如：
+
+```cpp
+using namespace attoboy;
+
+String original("hello");
+String upper = original.upper();
+
+// original is still "hello"
+// upper is "HELLO"
+```
+
+这种不可变性有多方面的好处：
+
+* 你可以在程序的多个部分（以及多线程之间）安全地共享 `String` 实例，而无需担心被意外修改。
+* 接收 `String` 参数的函数无需为安全起见进行拷贝；它们知道该对象不能被更改。
+* 在内部实现上，可以在拷贝或赋值时通过共享底层存储来优化内存使用。
+
+### UTF-8、字符与字节
+
+库在各处统一使用 **UTF-8 编码**。这在实践上有两个后果：
+
+1. 一个用户可见的字符（Unicode **码点**）可能占用**多个字节**。
+2. 某些操作是根据**字符**（码点）定义的，而另一些操作则基于**原始字节**。
+
+`String` API 同时暴露这两种视图：
+
+* **基于字符（UTF-8 感知）**：
+
+  * `length()`
+  * `at()`
+  * `substring()`
+  * `getPositionOf()`
+  * `trim()`、`upper()`、`lower()`、`reverse()`（按字符）
+* **基于字节（原始）**：
+
+  * `byteLength()`
+  * `byteAt()`
+  * `byteSubstring()`
+  * `FromCStr()`（使用原始字节长度）
+
+在处理人类可读文本（用户界面、日志等）时，你几乎总是应该使用**基于字符**的操作。当你处理协议或二进制编码且精确字节位置很重要时，再使用基于字节的版本。
+
+### 索引与负索引
+
+若干 `String` 函数接受**索引**（位置）或**区间**：
+
+* 索引是**从 0 开始**的，其中 `0` 表示第一个字符（或字节）。
+* 一些函数显式支持**负索引**，用于从末尾开始计数：
+
+  * `at(int index)`
+  * `byteAt(int index)`
+  * `substring(int start, int end = -1)`
+
+对于这些函数：
+
+* `-1` 表示“最后一个字符”。
+* `-2` 表示“倒数第二个字符”，以此类推。
+
+对于 `substring(start, end)`：
+
+* `start` 和 `end` 是字符索引。
+* `end` 是**排他**的（位置为 `end` 的字符不包含在结果中）。
+* 如果 `end` 为 `-1`（默认值），子串将一直延伸到字符串末尾。
+
+### 与其他 attoboy 类型的集成
+
+`String` 类与其他 attoboy 核心类型紧密配合：
+
+* `String(const List &list)` 和 `String(const Set &set)` 生成 JSON 数组字符串。
+* `String(const Map &map)` 生成 JSON 对象字符串。
+* `format(const List &list)` 和 `format(const Map &map)` 替换 `{0}` 或 `{key}` 等占位符。
+* `lines()`、`split()` 和 `join()` 与 `List` 集成，实现简单的分词与重组。
+
+这使得在数据结构之间移动文本、序列化为 JSON 以及构建模板化消息都变得非常简单，无需额外库。
+
+---
+
+## 参考
+
+下面的每个条目介绍 `attoboy::String` 的一个公共构造函数、方法、静态函数或运算符。对每一项，你将看到：
+
+* **Signature**——头文件中的精确声明。
+* **Synopsis**——原始的一行 Doxygen 注释。
+* **Parameters** 与 **Return value** 说明。
+* **In Depth**——额外细节、注意事项以及一个简短示例。
+
+> **注意：** 所有示例都假定 `using namespace attoboy;`。
+
+---
+
+#### `String()`
+
+**Signature**
+
+```cpp
+String();
+```
+
+**Synopsis**  
+创建一个空字符串。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+默认构造函数创建一个不包含任何字符和任何字节的 `String`。对于这样的字符串：
+
+* `length()` 返回 `0`。
+* `byteLength()` 返回 `0`。
+* `isEmpty()` 返回 `true`。
+* `c_str()` 返回指向单个 `'\0'` 字节的指针。
+
+空字符串是自然的默认值，也是通过拼接等操作构建新字符串时常见的起点。
+
+**Example**
+
+```cpp
+String s;
+String message = s.append("Hello");  // message == "Hello"
+```
+
+*此示例从空的 `String` 开始，通过追加文本构建了一个新的字符串。*
+
+---
+
+#### `String(const char *str)`
+
+**Signature**
+
+```cpp
+String(const char *str);
+```
+
+**Synopsis**  
+从以空字符结尾的 C 字符串创建一个字符串。
+
+**Parameters**
+
+* `str` – 指向以空字符结尾的 UTF-8 编码字节序列的指针。
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+该构造函数是从原始 C 风格字符串转换到 `attoboy::String` 的主要桥梁。内容会被拷贝到内部表示中，因此之后你可以安全地修改或释放原始缓冲区。
+
+关键点：
+
+* 输入必须是**以空字符结尾**的。
+* 字节被解释为 UTF-8。如果字节序列不是有效的 UTF-8，则基于字符的操作可能会出现意外行为。
+* 在多数设计中，将 `nullptr` 作为输入会被视为一个空字符串；为避免歧义，应尽量传入有效指针。
+
+**Example**
+
+```cpp
+const char *raw = "Hello, UTF-8 🌍";
+String s(raw);
+int chars = s.length();      // character count (including emoji)
+int bytes = s.byteLength();  // raw byte count
+```
+
+*此示例将 C 风格 UTF-8 字符串封装为不可变的 `String`，并对比了字符数与字节数。*
+
+---
+
+#### `String(bool value)`
+
+**Signature**
+
+```cpp
+String(bool value);
+```
+
+**Synopsis**  
+从布尔值创建字符串（"true" 或 "false"）。
+
+**Parameters**
+
+* `value` – 要转换的布尔值。
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+该构造函数将布尔值转换为文字 `"true"` 或 `"false"`（全小写）。在日志记录、消息格式化或构造 JSON 时可避免手动拼接字符串。
+
+**Example**
+
+```cpp
+bool enabled = true;
+String text(enabled);   // "true"
+String msg = String("Feature enabled = ") + text;
+```
+
+*此示例将布尔标志转换为可读字符串，并拼接进一条消息。*
+
+---
+
+#### `String(char value)`
+
+**Signature**
+
+```cpp
+String(char value);
+```
+
+**Synopsis**  
+从一个字符创建字符串。
+
+**Parameters**
+
+* `value` – 作为单字符字符串存储的单字节值。
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+该构造函数创建一个恰好包含一个字节的 `String`。对于 ASCII 字符，这对应一个字符。对于通用 Unicode 文本，更推荐从 UTF-8 编码的 `const char *` 构造，或通过组合已有的 `String` 实例来构建。
+
+**Example**
+
+```cpp
+String exclamation('!');
+String word("Go");
+String sentence = word + exclamation;  // "Go!"
+```
+
+*此示例先构建一个单词，然后将由 `char` 创建的单字符 `String` 追加到其后。*
+
+---
+
+#### `String(int value)`
+
+**Signature**
+
+```cpp
+String(int value);
+```
+
+**Synopsis**  
+从整数创建字符串。
+
+**Parameters**
+
+* `value` – 要转换的 32 位整数。
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+该构造函数将整数转换为十进制表示（如 `42` → `"42"`，`-5` → `"-5"`）。不会包含千位分隔符或其他额外格式。
+
+**Example**
+
+```cpp
+int score = 42;
+String scoreText(score);  // "42"
+String label = String("Score: ") + scoreText;  // "Score: 42"
+```
+
+*此示例将整数分数转换为文本，并拼接成一个标签。*
+
+---
+
+#### `String(long long value)`
+
+**Signature**
+
+```cpp
+String(long long value);
+```
+
+**Synopsis**  
+从 64 位整数创建字符串。
+
+**Parameters**
+
+* `value` – 要转换的 64 位整数。
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+行为类似于 `String(int)`，但支持 `long long` 的完整取值范围。当需要将较大的计数器、时间戳或可能超出 32 位整数范围的大小转换为字符串时，应使用此构造函数。
+
+**Example**
+
+```cpp
+long long totalBytes = 1048576;
+String bytesText(totalBytes);  // "1048576"
+```
+
+*此示例将 64 位值（例如字节大小）转换为文本以便报告。*
+
+---
+
+#### `String(float value)`
+
+**Signature**
+
+```cpp
+String(float value);
+```
+
+**Synopsis**  
+从浮点数创建字符串。
+
+**Parameters**
+
+* `value` – 要转换的浮点值。
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+将 `float` 转换为十进制文本表示。确切的格式（小数位数、尾随零）遵循库内部的格式化规则，但可预期为常见的可读十进制字符串。
+
+**Example**
+
+```cpp
+float ratio = 0.5f;
+String text(ratio);  // e.g., "0.5"
+String label = String("Ratio: ") + text;
+```
+
+*此示例将浮点值转换为简单字符串。*
+
+---
+
+#### `String(const List &list)`
+
+**Signature**
+
+```cpp
+String(const List &list);
+```
+
+**Synopsis**  
+从列表创建 JSON 数组字符串（例如 [1,"a",true]）。
+
+**Parameters**
+
+* `list` – 其元素将被序列化为 JSON 的 `List`。
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+该构造函数将 `List` 渲染为 JSON 数组，其中每个元素根据其类型进行序列化：
+
+* 数字作为 JSON 数字。
+* 布尔值作为 `true`/`false`。
+* 字符串作为带引号且转义的 JSON 字符串。
+* 嵌套的 `List`、`Map` 和 `Set` 值会成为嵌套数组/对象。
+
+这在记录结构化数据或发送简单 JSON 载荷时特别有用，无需完整 JSON 库。
+
+**Example**
+
+```cpp
+List values;
+values.append(1).append("two").append(true);
+
+String json(values);  // e.g., "[1,\"two\",true]"
+```
+
+*此示例将包含多种类型的列表转换为 JSON 数组字符串。*
+
+---
+
+#### `String(const Map &map)`
+
+**Signature**
+
+```cpp
+String(const Map &map);
+```
+
+**Synopsis**  
+从映射创建 JSON 对象字符串（例如 {"k":"v"}）。
+
+**Parameters**
+
+* `map` – 其键值对将被序列化为 JSON 的 `Map`。
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+该构造函数将 `Map` 渲染为 JSON 对象。键和值都会被转换为 JSON；键通常为字符串，但其他类型会在需要时转换为字符串。
+
+键在 map 中必须唯一；生成的 JSON 使用这些键作为对象属性名。
+
+**Example**
+
+```cpp
+Map user;
+user.put("name", "Alice").put("age", 30);
+
+String json(user);  // e.g., "{\"name\":\"Alice\",\"age\":30}"
+```
+
+*此示例将属性映射转换为 JSON 对象字符串。*
+
+---
+
+#### `String(const Set &set)`
+
+**Signature**
+
+```cpp
+String(const Set &set);
+```
+
+**Synopsis**  
+从集合创建 JSON 数组字符串。
+
+**Parameters**
+
+* `set` – 其值将被序列化为 JSON 的 `Set`。
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+该构造函数将 `Set` 渲染为 JSON 数组字符串，与 `String(const List &list)` 类似。由于集合是无序的，JSON 数组中元素的顺序不作保证。
+
+重复值已由 `Set` 自身去重。
+
+**Example**
+
+```cpp
+Set tags;
+tags.put("red").put("blue").put("green");
+
+String json(tags);  // e.g., "[\"red\",\"blue\",\"green\"]"
+```
+
+*此示例将字符串集合转换为 JSON 数组字符串。*
+
+---
+
+#### `template <typename T, typename U, typename... Args> String(const T &first, const U &second, const Args &...rest)`
+
+**Signature**
+
+```cpp
+template <typename T, typename U, typename... Args>
+String(const T &first, const U &second, const Args &...rest)
+    : String(String(first) + String(second) + String(rest...)) {}
+```
+
+**Synopsis**  
+将多个值拼接为一个字符串。
+
+**Parameters**
+
+* `first` – 要转换为 `String` 的第一个值。
+* `second` – 要转换为 `String` 的第二个值。
+* `rest` – 零个或多个额外值，将被转换并依次追加。
+
+每个参数都可以是任何可构造为 `String` 的类型，例如 `const char *`、`String`、`int`、`bool`、`List` 等。
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+这个可变参数构造函数提供了一种简洁方式，可从一组异构值构建一个 `String`。内部实现中，每个参数都会被转换为 `String`，并按顺序拼接。
+
+你可以将其理解为：
+
+```cpp
+String(String(first)) + String(second) + String(rest)...
+```
+
+这在构建消息或日志时尤其方便，避免手动用 `+` 链式拼接。
+
+**Example**
+
+```cpp
+int id = 7;
+String status = "OK";
+
+String line("Task #", id, " status: ", status);
+// e.g., "Task #7 status: OK"
+```
+
+*此示例使用可变参数构造函数，从字面量、整数和其他字符串混合构建一条消息。*
+
+---
+
+#### `String(const String &other)`
+
+**Signature**
+
+```cpp
+String(const String &other);
+```
+
+**Synopsis**  
+创建另一个字符串的副本。
+
+**Parameters**
+
+* `other` – 要拷贝的现有 `String`。
+
+**Return value**
+
+* *(构造函数；不适用)*
+
+**In Depth**
+
+拷贝构造函数创建一个与 `other` 拥有相同内容的新 `String`。由于 `String` 是不可变的，拷贝在概念上是独立的，并且安全共享。内部实现可以为提高效率而共享存储。
+
+**Example**
+
+```cpp
+String original("hello");
+String copy(original);
+// both represent "hello"
+```
+
+*此示例展示了字符串值的拷贝。*
+
+---
+
+#### `~String()`
+
+**Signature**
+
+```cpp
+~String();
+```
+
+**Synopsis**  
+销毁字符串并释放内存。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* *(析构函数；不适用)*
+
+**In Depth**
+
+当 `String` 超出作用域或被销毁时，其析构函数会释放所有内部资源（例如堆分配的缓冲区）。由于 `String` 采用 RAII，你无需手动释放内存。
+
+**Example**
+
+```cpp
+{
+  String temp("temporary");
+  // temp is valid here
+}
+// temp is destroyed here; memory is released automatically
+```
+
+*此示例展示了 `String` 在离开作用域时的自动清理。*
+
+---
+
+#### `static String FromCStr(const char *data, int size, const String &encoding = "utf-8")`
+
+**Signature**
+
+```cpp
+static String FromCStr(const char *data, int size, const String &encoding = "utf-8");
+```
+
+**Synopsis**  
+从具有指定长度的原始字节创建字符串（不要求以空字符结尾）。编码默认为 "utf-8"。
+
+**Parameters**
+
+* `data` – 指向包含指定 `encoding` 编码字节的缓冲区的指针。
+* `size` – 从 `data` 中拷贝的字节数。
+* `encoding` – `data` 所使用字符编码的名称。默认为 `"utf-8"`。这些字节将被转换为 `String` 的内部 UTF-8 表示。
+
+**Return value**
+
+* 一个 `String`，包含从 `data` 中前 `size` 个字节转换得到的文本。
+
+**In Depth**
+
+与 `const char *` 构造函数不同，这个静态函数**不**要求源缓冲区以 `'\0'` 结尾。它非常适合在以下场景使用：
+
+* 你有一个可能包含嵌入空字节的缓冲区。
+* 你正在处理一个更大缓冲区中的子区间，这个子区间本身并未单独以空字符终止。
+* 你接收到了某种已知编码的数据，需要将其转换为内部的 UTF-8 表示。
+
+`encoding` 参数用于描述输入字节应如何解释。省略时，假定字节已经是 UTF-8。如果你提供其他编码名，例如 `"ansi"` 或 `"cp1252"`，函数会尝试从该编码转换为 UTF-8。如果输入字节不是给定编码下的有效数据，其行为取决于底层转换实现（例如，可能用替代字符取代非法序列，或转换失败）。
+
+当你计划使用 `length()`、`substring()` 或 `at()` 等基于字符的操作时，应确保：
+
+* `size` 和 `encoding` 所描述的是完整字符（不要切断多字节编码单元序列）。
+* 源缓冲区确实包含指定编码的文本。
+
+**Example**
+
+```cpp
+const char raw[] = "Hello, world!";
+String partial = String::FromCStr(raw, 5);  // "Hello"
+
+// Explicitly specifying encoding (input already in UTF-8)
+String utf8 = String::FromCStr(raw, sizeof(raw) - 1, "utf-8");
+```
+*此示例从 C 风格缓冲区的前 5 个字节构建了一个 `String`，以及一个显式指定 UTF-8 编码的完整版本。*
+
+---
+
+#### `String &operator=(const String &other)`
+
+**Signature**
+
+```cpp
+String &operator=(const String &other);
+```
+
+**Synopsis**  
+将另一个字符串赋值给此字符串。
+
+**Parameters**
+
+* `other` – 其值将被赋给本对象的字符串。
+
+**Return value**
+
+* 对 `*this` 的引用，以便进行赋值链式调用。
+
+**In Depth**
+
+拷贝赋值运算符会用 `other` 的内容替换左侧对象的内容。由于 `String` 是不可变的，该操作本质上只是让变量引用与 `other` 相同的逻辑值。
+
+自赋值是安全的；典型实现会高效地检测并处理这种情况。
+
+**Example**
+
+```cpp
+String name("Alice");
+String other("Bob");
+
+name = other;  // name now represents "Bob"
+```
+
+*此示例将一个 `String` 变量重新赋值为与另一个变量共享相同文本。*
+
+---
+
+#### `int length() const`
+
+**Signature**
+
+```cpp
+int length() const;
+```
+
+**Synopsis**  
+返回字符串中的 UTF-8 字符数。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 字符串中 Unicode 码点的数量（可能小于 `byteLength()`）。
+
+**In Depth**
+
+`length()` 统计的是**字符**数量，而不是字节数量。对于纯 ASCII 文本，`length()` 与 `byteLength()` 相等。对于非 ASCII 字符（如 emoji 或非拉丁文字），单个字符可能由多个字节存储，因此 `byteLength()` 可能更大。
+
+当你关心用户可见的字符（光标位置、“最多 80 个字符”之类的校验规则等）时，应使用 `length()`。
+
+**Example**
+
+```cpp
+String ascii("hello");
+String unicode("🌍");  // earth emoji
+
+int la = ascii.length();    // 5
+int ba = ascii.byteLength(); // 5
+
+int lu = unicode.length();   // 1 (one character)
+int bu = unicode.byteLength(); // > 1 bytes
+```
+
+*此示例对比了 ASCII 与 Unicode 文本的字符计数和字节计数。*
+
+---
+
+#### `int byteLength() const`
+
+**Signature**
+
+```cpp
+int byteLength() const;
+```
+
+**Synopsis**  
+返回字符串中的字节数。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 内部 UTF-8 表示中的字节数（不包括结尾的空字符）。
+
+**In Depth**
+
+`byteLength()` 告诉你字符串内容的原始存储大小。可在以下场景使用：
+
+* 写入需要字节计数的二进制协议。
+* 为保存 UTF-8 数据的拷贝分配缓冲区。
+
+如果字符串包含非 ASCII 字符，`byteLength()` 可能大于 `length()`。
+
+**Example**
+
+```cpp
+String s("Hello, 🌍");
+int bytes = s.byteLength();  // raw UTF-8 bytes
+```
+
+*此示例获取 UTF-8 文本的字节长度。*
+
+---
+
+#### `bool isEmpty() const`
+
+**Signature**
+
+```cpp
+bool isEmpty() const;
+```
+
+**Synopsis**  
+如果字符串为空则返回 true。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 若字符串不包含任何字符则返回 `true`，否则返回 `false`。
+
+**In Depth**
+
+这是一个方便函数，等价于 `length() == 0`。在检查输入是否为空或可选字段是否存在时，它通常更清晰、更具表达力。
+
+**Example**
+
+```cpp
+String name;
+
+if (name.isEmpty()) {
+  name = "Anonymous";
+}
+```
+
+*此示例在字符串为空时为其赋予默认名称。*
+
+---
+
+#### `const char *c_str() const`
+
+**Signature**
+
+```cpp
+const char *c_str() const;
+```
+
+**Synopsis**  
+返回指向以空字符结尾的 C 字符串的指针。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 指向由 `String` 拥有的、以空字符结尾的 UTF-8 字节序列的指针。
+
+**In Depth**
+
+该函数暴露内部数据的只读 C 风格字符串视图。返回的指针：
+
+* 在 `String` 对象仍然存活期间保持有效。
+* 不应被修改。
+* 可以传递给接受 `const char *` 的 C API。
+
+由于 `String` 是不可变的，对同一对象调用其他方法不会改变该缓冲区。
+
+**Example**
+
+```cpp
+String s("Hello");
+const char *p = s.c_str();
+// p can be passed to C-style APIs that expect a const char*.
+```
+
+*此示例获取 C 风格指针以与不认识 `String` 的 API 互操作。*
+
+---
+
+#### `char *c_str_allocated(const String &encoding = "utf-8") const`
+
+**Signature**
+
+```cpp
+char *c_str_allocated(const String &encoding = "utf-8") const;
+```
+
+**Synopsis**  
+返回一个在堆上分配的、使用指定编码的 C 字符串。调用方负责使用 Free() 释放该指针。编码默认为 "utf-8" 以生成 UTF-8 输出。
+
+**Parameters**
+
+* `encoding` – 期望输出编码的名称。默认为 `"utf-8"`，表示生成 UTF-8 输出。
+
+**Return value**
+
+* 指向新分配的、以空字符结尾的 C 字符串的指针，其中包含按请求编码的文本。你*必须*在不再需要时调用 `Free()` 释放该内存。
+
+**In Depth**
+
+与暴露 `String` 内部缓冲区只读指针的 `c_str()` 不同，`c_str_allocated()` 会创建一个**单独的堆分配副本**作为 C 风格字符串。当你需要将缓冲区的所有权交给可能在 `String` 对象生命周期之外持有 `char *` 的 API 时，这非常有用。
+
+关键点：
+
+* 返回的指针使用 attoboy 自身的分配机制进行分配。
+* 你**必须**在不再需要该缓冲区时调用 `Free(ptr)` 释放它。
+* `encoding` 参数控制内部 UTF-8 文本如何转换为输出字节。使用默认的 `"utf-8"` 时，会得到 UTF-8 编码的 C 字符串。其它编码名可能取决于底层转换设施的支持情况。
+* 如果某些字符在请求编码中不可表示，转换可能会用替代字符替换，或失败，具体取决于实现。
+
+由于此函数既进行分配，又（可选地）执行编码转换，因此可能比简单调用 `c_str()` 更昂贵。仅在你确实需要独立的、由调用方拥有的缓冲区时才使用它。
+
+**Example**
+
+```cpp
+String s("Hello, world");
+
+// Get a UTF-8 C string that the caller owns
+char *buffer = s.c_str_allocated();
+
+// Use buffer with a C API that stores the pointer
+some_c_api_using_string(buffer);
+
+// When finished with the buffer, you MUST free it with Free()
+Free(buffer);
+```
+
+*此示例获取一个堆分配的 C 字符串，将其传递给 C API，并最终使用 `Free()` 正确释放。*
+
+---
+
+#### `String at(int index) const`
+
+**Signature**
+
+```cpp
+String at(int index) const;
+```
+
+**Synopsis**  
+返回给定索引处的字符（作为字符串）。负索引从末尾计数。
+
+**Parameters**
+
+* `index` – 字符索引（从 0 开始）。负值表示从末尾开始计数。
+
+**Return value**
+
+* 一个 `String`，恰好包含一个字符（一个 Unicode 码点）。
+
+**In Depth**
+
+`at()` 返回位置 `index` 处的字符，并以新的单字符字符串形式给出。它遵守 UTF-8 码点边界，因此不会返回半个多字节字符。
+
+支持负索引：
+
+* `-1` – 最后一个字符。
+* `-2` – 倒数第二个字符，依此类推。
+
+如果 `index` 超出范围，其行为由实现定义；实践中你应在调用前确保 `0 <= index < length()`（或对应的负索引范围）。
+
+**Example**
+
+```cpp
+String text("Hello");
+String first = text.at(0);   // "H"
+String last  = text.at(-1);  // "o"
+```
+
+*此示例提取字符串的首字符和尾字符。*
+
+---
+
+#### `String byteAt(int index) const`
+
+**Signature**
+
+```cpp
+String byteAt(int index) const;
+```
+
+**Synopsis**  
+返回给定索引处的单个字节（作为字符串）。负索引从末尾计数。
+
+**Parameters**
+
+* `index` – 字节索引（从 0 开始）。负值表示从字节序列末尾开始计数。
+
+**Return value**
+
+* 一个 `String`，恰好包含一个字节。
+
+**In Depth**
+
+`byteAt()` 提供基于字节的访问。这主要适用于调试或底层操作；大部分文本逻辑应使用 `at()`。
+
+如果字符串包含多字节字符，`byteAt()` 可能返回非 ASCII 的延续字节，该字节本身并不能作为独立字符有意义地解释。
+
+**Example**
+
+```cpp
+String text("A");
+String b0 = text.byteAt(0);   // "A"
+```
+
+*此示例读取简单 ASCII 字符串的第一个字节。*
+
+---
+
+#### `String substring(int start, int end = -1) const`
+
+**Signature**
+
+```cpp
+String substring(int start, int end = -1) const;
+```
+
+**Synopsis**  
+返回从 start 到 end（排他）的子串。负索引用于从末尾计数。
+
+**Parameters**
+
+* `start` – 要包含的第一个字符的字符索引。可为负数以从末尾计数。
+* `end` – 要包含的最后一个字符之后的位置（排他）的字符索引。`-1` 表示“直到字符串末尾”。
+
+**Return value**
+
+* 包含指定字符范围的新 `String`。
+
+**In Depth**
+
+`substring()` 基于**字符**工作，而非字节。它遵守 UTF-8 边界，因此你可以安全地截取包含多字节字符的文本。
+
+常见用法：
+
+* `substring(0, n)` – 前 `n` 个字符。
+* `substring(0)` 或 `substring(0, -1)` – 完整拷贝。
+* `substring(-n)` – 后 `n` 个字符。
+
+你应确保有效区间在 `[0, length()]` 范围内。传入超出范围的索引会产生由实现定义的结果。
+
+**Example**
+
+```cpp
+String text("Hello, world");
+String hello = text.substring(0, 5);  // "Hello"
+String world = text.substring(7);     // "world"
+```
+
+*此示例通过起止索引提取两个子串。*
+
+---
+
+#### `String byteSubstring(int start, int end = -1) const`
+
+**Signature**
+
+```cpp
+String byteSubstring(int start, int end = -1) const;
+```
+
+**Synopsis**  
+返回基于字节的从 start 到 end（排他）的子串。
+
+**Parameters**
+
+* `start` – 要包含的第一个字节的字节索引。
+* `end` – 要包含的最后一个字节之后的位置（排他）的字节索引。`-1` 表示“直到字节序列末尾”。
+
+**Return value**
+
+* 包含指定字节范围的新 `String`。
+
+**In Depth**
+
+`byteSubstring()` 基于原始字节工作，而非字符。如果你在多字节字符中间进行切割，结果可能包含无效的 UTF-8。仅在你有意进行字节级数据处理（例如协议分帧、自定义编码）时使用该函数。
+
+**Example**
+
+```cpp
+String raw("abcdef");
+String mid = raw.byteSubstring(2, 4);  // "cd"
+```
+
+*此示例从简单 ASCII 字符串中截取一个两字节的切片。*
+
+---
+
+#### `String duplicate() const`
+
+**Signature**
+
+```cpp
+String duplicate() const;
+```
+
+**Synopsis**  
+返回此字符串的副本。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 一个新 `String`，其文本与原字符串相同。
+
+**In Depth**
+
+`duplicate()` 是获得 `String` 副本的一种显式方式。由于 `String` 是不可变的，拷贝主要在语义上更清晰：当你希望强调自己正在使用一个独立的值时很有用，尽管修改本就总是返回新字符串。
+
+**Example**
+
+```cpp
+String original("hello");
+String copy = original.duplicate();
+// original and copy both represent "hello"
+```
+
+*此示例显式获取字符串值的副本。*
+
+---
+
+#### `bool contains(const String &sub) const`
+
+**Signature**
+
+```cpp
+bool contains(const String &sub) const;
+```
+
+**Synopsis**  
+如果此字符串包含给定子串则返回 true。
+
+**Parameters**
+
+* `sub` – 要搜索的子串。
+
+**Return value**
+
+* 若 `sub` 至少在此字符串中出现一次则为 `true`，否则为 `false`。
+
+**In Depth**
+
+`contains()` 是用于检查子串是否存在的便捷函数。它通常会对字符序列或字节序列执行直接搜索（由实现决定），并不会使用正则表达式。
+
+如果 `sub` 为空，其行为由实现定义；在大多数设计中，空子串被视为从位置 0 起即“存在”，但你应避免传入空字符串。
+
+**Example**
+
+```cpp
+String text("Hello, world");
+bool hasWorld = text.contains("world");  // true
+```
+
+*此示例检查字符串中是否包含某个词。*
+
+---
+
+#### `bool startsWith(const String &sub) const`
+
+**Signature**
+
+```cpp
+bool startsWith(const String &sub) const;
+```
+
+**Synopsis**  
+如果此字符串以给定子串开头则返回 true。
+
+**Parameters**
+
+* `sub` – 前缀候选。
+
+**Return value**
+
+* 若 `sub` 与此字符串前缀匹配则为 `true`，否则为 `false`。
+
+**In Depth**
+
+`startsWith()` 常用于协议检测、路径检查以及简单的前缀路由。匹配是精确且区分大小写的。
+
+**Example**
+
+```cpp
+String path("/api/users");
+bool isApi = path.startsWith("/api/");  // true
+```
+
+*此示例检测一个路径是否具有特定前缀。*
+
+---
+
+#### `bool endsWith(const String &sub) const`
+
+**Signature**
+
+```cpp
+bool endsWith(const String &sub) const;
+```
+
+**Synopsis**  
+如果此字符串以给定子串结尾则返回 true。
+
+**Parameters**
+
+* `sub` – 后缀候选。
+
+**Return value**
+
+* 若 `sub` 与此字符串后缀匹配则为 `true`，否则为 `false`。
+
+**In Depth**
+
+`endsWith()` 适用于文件扩展名检查、简单模式校验以及类似的后缀规则。匹配是精确且区分大小写的。
+
+**Example**
+
+```cpp
+String filename("report.txt");
+bool isTxt = filename.endsWith(".txt");  // true
+```
+
+*此示例使用 `endsWith()` 检查文件扩展名。*
+
+---
+
+#### `int count(const String &sub) const`
+
+**Signature**
+
+```cpp
+int count(const String &sub) const;
+```
+
+**Synopsis**  
+返回子串的不重叠出现次数。
+
+**Parameters**
+
+* `sub` – 要计数的子串。
+
+**Return value**
+
+* 在此字符串中 `sub` 的不重叠出现次数。
+
+**In Depth**
+
+`count()` 会遍历字符串，并在每次发现一个不与前一次重叠的 `sub` 出现时递增计数。例如，在 `"aaaa"` 中统计 `"aa"` 的数量会得到 2（`"aa" + "aa"`）。
+
+如果 `sub` 为空，结果未定义；请避免传入空子串。
+
+**Example**
+
+```cpp
+String text("one, two, three, two");
+int twos = text.count("two");  // 2
+```
+
+*此示例统计一个单词在句子中出现的次数。*
+
+---
+
+#### `int getPositionOf(const String &sub, int start = 0) const`
+
+**Signature**
+
+```cpp
+int getPositionOf(const String &sub, int start = 0) const;
+```
+
+**Synopsis**  
+返回子串的字符索引，若未找到则返回 -1。
+
+**Parameters**
+
+* `sub` – 要搜索的子串。
+* `start` – 开始搜索的字符索引（默认为 `0`）。
+
+**Return value**
+
+* 首次匹配的位置（从 `start` 起的字符索引），若未找到则为 `-1`。
+
+**In Depth**
+
+该函数会在给定字符位置处开始，查找 `sub` 的**第一次出现**。它以字符（而非字节）为单位报告位置，这使得与 `substring()` 组合使用时更加方便。
+
+如果你需要找到所有出现位置，可以使用循环，将 `start` 设为上次找到的位置加上 `sub` 的长度。
+
+**Example**
+
+```cpp
+String text("banana");
+int pos = text.getPositionOf("na");  // 2
+int next = text.getPositionOf("na", pos + 2);  // 4
+```
+
+*此示例找到 `"banana"` 中 `"na"` 的第一次和第二次出现。*
+
+---
+
+#### `bool isNumber() const`
+
+**Signature**
+
+```cpp
+bool isNumber() const;
+```
+
+**Synopsis**  
+若字符串为有效的整数或小数则返回 true。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 若内容可以解析为数字则为 `true`，否则为 `false`。
+
+**In Depth**
+
+`isNumber()` 检查字符串是否可以被解释为：
+
+* 整数（如 `"42"`、`"-7"`），或
+* 十进制浮点数（如 `"3.14"`、`"0.5"`）。
+
+当你需要区分“有效数值 0”与“无效字符串但同样会返回 0 的默认值”时，应在调用 `toInteger()` 或 `toFloat()` 前先使用此函数。
+
+**Example**
+
+```cpp
+String s("123");
+if (s.isNumber()) {
+  int n = s.toInteger();  // 123
+}
+```
+
+*此示例在将字符串转换为整数前先验证其为数值。*
+
+---
+
+#### `int toInteger() const`
+
+**Signature**
+
+```cpp
+int toInteger() const;
+```
+
+**Synopsis**  
+将字符串转换为整数。若无效则返回 0。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 解析得到的整数值；若字符串不是有效整数则为 `0`。
+
+**In Depth**
+
+`toInteger()` 尝试将内容解析为十进制整数（可带符号）。若解析失败，会返回 `0` 作为回退值。这意味着仅凭 `toInteger()` 无法区分 `"0"` 与无效文本；如需检测无效输入，请先使用 `isNumber()`。
+
+**Example**
+
+```cpp
+String s("42");
+int value = s.toInteger();  // 42
+
+String bad("abc");
+int fallback = bad.toInteger();  // 0
+```
+
+*此示例展示了成功和回退的整数转换。*
+
+---
+
+#### `float toFloat() const`
+
+**Signature**
+
+```cpp
+float toFloat() const;
+```
+
+**Synopsis**  
+将字符串转换为浮点数。若无效则返回 0.0。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 解析得到的浮点值；若字符串不是有效数字则为 `0.0f`。
+
+**In Depth**
+
+`toFloat()` 将字符串解析为十进制浮点数。若解析失败，会返回 `0.0f`。与 `toInteger()` 类似，如需区分有效的 `0.0` 与无效文本，应先使用 `isNumber()`。
+
+**Example**
+
+```cpp
+String s("3.5");
+float value = s.toFloat();  // 3.5f
+```
+
+*此示例将十进制文本转换为 `float`。*
+
+---
+
+#### `bool toBool() const`
+
+**Signature**
+
+```cpp
+bool toBool() const;
+```
+
+**Synopsis**  
+对于 "true"、"yes"、"1"、"on"（不区分大小写）返回 true。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 若文本匹配某个已识别的“真”值则为 `true`，否则为 `false`。
+
+**In Depth**
+
+该辅助函数会将多种常见用户输入解释为布尔值：
+
+* 识别的**真值**（不区分大小写）：`"true"`、`"yes"`、`"1"`、`"on"`。
+* 任何其他值，包括 `"false"`、`"no"`、`"0"` 以及空字符串，都会得到 `false`。
+
+这对于接受灵活布尔输入的配置值或命令行参数很有用。
+
+**Example**
+
+```cpp
+String flag("YES");
+bool enabled = flag.toBool();  // true
+```
+
+*此示例解释一个大小写不敏感的布尔字符串。*
+
+---
+
+#### `String append(const String &s) const`
+
+**Signature**
+
+```cpp
+String append(const String &s) const;
+```
+
+**Synopsis**  
+返回一个在末尾追加子串的新字符串。
+
+**Parameters**
+
+* `s` – 要追加到此字符串末尾的文本。
+
+**Return value**
+
+* 新 `String`，等价于 `(*this + s)`。
+
+**In Depth**
+
+`append()` 等价于 `operator+`，只是以方法形式呈现。在偏向方法调用风格的流式调用链中通常更方便。
+
+**Example**
+
+```cpp
+String base("Hello");
+String result = base.append(", world");  // "Hello, world"
+```
+
+*此示例在基础字符串后追加文本。*
+
+---
+
+#### `String prepend(const String &s) const`
+
+**Signature**
+
+```cpp
+String prepend(const String &s) const;
+```
+
+**Synopsis**  
+返回一个在前面添加子串的新字符串。
+
+**Parameters**
+
+* `s` – 要放在此字符串前面的文本。
+
+**Return value**
+
+* 新 `String`，等价于 `(s + *this)`。
+
+**In Depth**
+
+`prepend()` 与 `append()` 相反，它将参数放在原字符串之前。
+
+**Example**
+
+```cpp
+String name("Alice");
+String label = name.prepend("User: ");  // "User: Alice"
+```
+
+*此示例在名字前面加上标签。*
+
+---
+
+#### `String insert(int index, const String &s) const`
+
+**Signature**
+
+```cpp
+String insert(int index, const String &s) const;
+```
+
+**Synopsis**  
+返回一个在给定索引处插入子串的新字符串。
+
+**Parameters**
+
+* `index` – 插入 `s` 的字符索引。
+* `s` – 要插入的文本。
+
+**Return value**
+
+* 在指定字符位置将 `s` 插入到原字符串中得到的新 `String`。
+
+**In Depth**
+
+`insert()` 是基于字符的操作：
+
+* `index` 以字符计量（与 `length()` 相同）。
+* 你应传入介于 `0` 与 `length()` 之间的值。超出此范围的值会产生由实现定义的行为。
+
+`insert(0, s)` 等价于 `s + *this`。`insert(length(), s)` 等价于 `append(s)`。
+
+**Example**
+
+```cpp
+String base("Hello world");
+String updated = base.insert(5, ",");  // "Hello, world"
+```
+
+*此示例在两个单词之间插入逗号。*
+
+---
+
+#### `String remove(int start, int end) const`
+
+**Signature**
+
+```cpp
+String remove(int start, int end) const;
+```
+
+**Synopsis**  
+返回一个移除了从 start 到 end 之间字符的新字符串。
+
+**Parameters**
+
+* `start` – 要移除的第一个字符的字符索引。
+* `end` – 要移除的最后一个字符之后的位置（排他）的字符索引。
+
+**Return value**
+
+* 移除指定字符区间后得到的新 `String`。
+
+**In Depth**
+
+`remove()` 基于字符工作，并返回跳过指定区间的新字符串。其行为类似于：
+
+```cpp
+substring(0, start) + substring(end)
+```
+
+索引必须指向字符串中的有效字符位置。
+
+**Example**
+
+```cpp
+String text("Hello, world");
+String noComma = text.remove(5, 6);  // "Hello world"
+```
+
+*此示例从字符串中移除单个字符（逗号）。*
+
+---
+
+#### `String replace(const String &target, const String &replacement) const`
+
+**Signature**
+
+```cpp
+String replace(const String &target, const String &replacement) const;
+```
+
+**Synopsis**  
+返回一个将所有 target 出现位置替换后的新字符串。
+
+**Parameters**
+
+* `target` – 要搜索的子串。
+* `replacement` – 用来替换每个 `target` 出现位置的文本。
+
+**Return value**
+
+* 新 `String`，其中每个不重叠的 `target` 都被替换为 `replacement`。
+
+**In Depth**
+
+`replace()` 执行全局且不重叠的替换。它不会使用正则表达式。如果 `target` 为空，其行为未定义；请始终传入非空的 `target`。
+
+**Example**
+
+```cpp
+String text("color color");
+String american = text.replace("color", "colour");  // "colour colour"
+```
+
+*此示例将所有出现的单词替换为另一个单词。*
+
+---
+
+#### `String trim() const`
+
+**Signature**
+
+```cpp
+String trim() const;
+```
+
+**Synopsis**  
+返回一个去除首尾空白的新字符串。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 去除两端空白后得到的新 `String`。
+
+**In Depth**
+
+`trim()` 移除字符串开头和结尾的空白。对“空白”的精确定义由实现决定，但通常包括空格、制表符和换行符。
+
+字符串内部（非空白字符之间）的空白不会受影响。
+
+**Example**
+
+```cpp
+String raw("   hello  \n");
+String cleaned = raw.trim();  // "hello"
+```
+
+*此示例剥离围绕标记的多余空白。*
+
+---
+
+#### `String upper() const`
+
+**Signature**
+
+```cpp
+String upper() const;
+```
+
+**Synopsis**  
+返回一个将所有字符转为大写的新字符串。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 新 `String`，其中适用的字符被转换为大写。
+
+**In Depth**
+
+`upper()` 将字母字符转换为大写。对于 ASCII 字母，这是直接映射。对于 Unicode 字母，具体行为取决于实现对 Unicode 的支持情况。
+
+在做不区分大小写的比较时，可以将两个字符串都调用 `lower()` 或 `upper()` 后再比较。
+
+**Example**
+
+```cpp
+String text("Hello");
+String shout = text.upper();  // "HELLO"
+```
+
+*此示例将所有字母转为大写。*
+
+---
+
+#### `String lower() const`
+
+**Signature**
+
+```cpp
+String lower() const;
+```
+
+**Synopsis**  
+返回一个将所有字符转为小写的新字符串。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 新 `String`，其中适用的字符被转换为小写。
+
+**In Depth**
+
+`lower()` 是 `upper()` 的对应操作。在进行简单的大小写不敏感比较时尤其有用：
+
+```cpp
+a.lower().equals(b.lower())
+```
+
+**Example**
+
+```cpp
+String text("HeLLo");
+String normalized = text.lower();  // "hello"
+```
+
+*此示例将混合大小写文本转换为小写。*
+
+---
+
+#### `String reverse() const`
+
+**Signature**
+
+```cpp
+String reverse() const;
+```
+
+**Synopsis**  
+返回一个字符顺序反转的新字符串。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 新 `String`，其字符顺序为原字符串的反转。
+
+**In Depth**
+
+`reverse()` 在**字符**层面上工作，因此多字节 UTF-8 字符保持完整，不会被拆为字节。
+
+**Example**
+
+```cpp
+String text("abc");
+String reversed = text.reverse();  // "cba"
+```
+
+*此示例反转字符串中的字符顺序。*
+
+---
+
+#### `String repeat(int count) const`
+
+**Signature**
+
+```cpp
+String repeat(int count) const;
+```
+
+**Synopsis**  
+返回一个将内容重复 count 次的新字符串。
+
+**Parameters**
+
+* `count` – 重复整个字符串的次数。
+
+**Return value**
+
+* 新 `String`，等于当前字符串与自身拼接 `count` 次的结果。
+
+**In Depth**
+
+若 `count` 为：
+
+* `0` – 结果为空字符串。
+* `1` – 结果为原字符串的一个副本。
+* 负数 – 行为由实现定义；请传入非负的计数。
+
+**Example**
+
+```cpp
+String dot(".");
+String ellipsis = dot.repeat(3);  // "..."
+```
+
+*此示例将单字符字符串重复以构造省略号。*
+
+---
+
+#### `bool equals(const String &other) const`
+
+**Signature**
+
+```cpp
+bool equals(const String &other) const;
+```
+
+**Synopsis**  
+若此字符串等于另一个字符串则返回 true。
+
+**Parameters**
+
+* `other` – 要比较的字符串。
+
+**Return value**
+
+* 若两个字符串包含完全相同的字节序列则为 `true`，否则为 `false`。
+
+**In Depth**
+
+`equals()` 执行精确、区分大小写的相等性检查。它等价于 `operator==`，但有些开发者更偏好使用具名方法，尤其是在链式调用或作为回调传递时更清晰。
+
+**Example**
+
+```cpp
+String a("test");
+String b("test");
+bool same = a.equals(b);  // true
+```
+
+*此示例使用 `equals()` 方法比较两个字符串。*
+
+---
+
+#### `int compare(const String &other) const`
+
+**Signature**
+
+```cpp
+int compare(const String &other) const;
+```
+
+**Synopsis**  
+按字典序比较。返回 <0、0 或 >0。
+
+**Parameters**
+
+* `other` – 用于比较的字符串。
+
+**Return value**
+
+* 若 `*this` 在字典序上小于 `other`，则返回负值。
+* 若两者相等，返回 `0`。
+* 若 `*this` 在字典序上大于 `other`，则返回正值。
+
+**In Depth**
+
+`compare()` 根据底层字节序列（或字符序列，取决于实现）执行字典序比较。它适用于排序与排序相关的操作。
+
+**Example**
+
+```cpp
+String a("apple");
+String b("banana");
+
+int result = a.compare(b);  // result < 0
+```
+
+*此示例比较两个字符串以确定其排序顺序。*
+
+---
+
+#### `bool operator==(const String &other) const`
+
+**Signature**
+
+```cpp
+bool operator==(const String &other) const;
+```
+
+**Synopsis**  
+若此字符串等于另一个字符串则返回 true。
+
+**Parameters**
+
+* `other` – 要比较的字符串。
+
+**Return value**
+
+* 若字符串相等则为 `true`，否则为 `false`。
+
+**In Depth**
+
+该运算符是 `equals(other)` 的更符合 C++ 习惯的简写。可按常规方式使用：
+
+```cpp
+if (a == b) { ... }
+```
+
+**Example**
+
+```cpp
+String a("hello");
+String b("hello");
+String c("world");
+
+bool ab = (a == b);  // true
+bool ac = (a == c);  // false
+```
+
+*此示例使用相等运算符比较字符串。*
+
+---
+
+#### `bool operator!=(const String &other) const`
+
+**Signature**
+
+```cpp
+bool operator!=(const String &other) const;
+```
+
+**Synopsis**  
+若此字符串不等于另一个字符串则返回 true。
+
+**Parameters**
+
+* `other` – 要比较的字符串。
+
+**Return value**
+
+* 若字符串不相等则为 `true`，若相等则为 `false`。
+
+**In Depth**
+
+该运算符只是 `operator==` 的逻辑非。
+
+**Example**
+
+```cpp
+String a("hello");
+String b("world");
+
+if (a != b) {
+  // strings differ
+}
+```
+
+*此示例在两个字符串不相等时进行分支。*
+
+---
+
+#### `String operator+(const String &other) const`
+
+**Signature**
+
+```cpp
+String operator+(const String &other) const;
+```
+
+**Synopsis**  
+返回此字符串与另一个字符串拼接后的结果。
+
+**Parameters**
+
+* `other` – 要追加到此字符串末尾的字符串。
+
+**Return value**
+
+* 新 `String`，包含 `*this` 与 `other` 拼接后的内容。
+
+**In Depth**
+
+该运算符是连接字符串的主要方式。它不会修改任一操作数，而是返回包含合并文本的新字符串。
+
+**Example**
+
+```cpp
+String first("Hello");
+String second(" world");
+String combined = first + second;  // "Hello world"
+```
+
+*此示例使用 `+` 运算符拼接两个字符串。*
+
+---
+
+#### `int hash() const`
+
+**Signature**
+
+```cpp
+int hash() const;
+```
+
+**Synopsis**  
+返回此字符串的哈希码。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 从字符串内容派生的整数哈希码。
+
+**In Depth**
+
+该哈希码适合在哈希表或集合中使用。具体算法未指定，并可能在库版本之间发生变化，因此你不应将哈希码持久化，也不应依赖其稳定性。
+
+**Example**
+
+```cpp
+String key("user:42");
+int h = key.hash();
+// h can be used in a custom hash-based structure
+```
+
+*此示例从字符串键计算哈希码。*
+
+---
+
+#### `List lines() const`
+
+**Signature**
+
+```cpp
+List lines() const;
+```
+
+**Synopsis**  
+按换行符拆分此字符串为列表。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 一个 `List`，其中每个元素都是一个表示一行文本的 `String`。
+
+**In Depth**
+
+`lines()` 在换行符边界处将字符串拆分为独立的行。对 `'\r\n'` 与 `'\n'` 的精确处理是实现特定的，但典型行为是在 `'\n'` 处分割并去掉末尾的 `'\r'`。
+
+在处理配置文件、日志或任何多行文本时都非常有用。
+
+**Example**
+
+```cpp
+String text("first line\nsecond line");
+List ls = text.lines();
+// ls[0] == "first line"
+// ls[1] == "second line"
+```
+
+*此示例将多行字符串拆分为独立的行。*
+
+---
+
+#### `String join(const List &list) const`
+
+**Signature**
+
+```cpp
+String join(const List &list) const;
+```
+
+**Synopsis**  
+使用此字符串作为分隔符连接列表元素。
+
+**Parameters**
+
+* `list` – 要连接的 `List`。每个元素都会被转换为 `String`。
+
+**Return value**
+
+* 新 `String`，由所有元素连接而成，并在其间插入 `*this` 作为分隔符。
+
+**In Depth**
+
+`join()` 将当前 `String` 视为**分隔符**。例如，`String(", ").join(items)` 会用 `", "` 将各元素连接起来。
+
+如果 `list` 为空，结果为空字符串。如果 `list` 仅有一个元素，则不会插入分隔符。
+
+**Example**
+
+```cpp
+List items;
+items.append("a").append("b").append("c");
+
+String sep(", ");
+String joined = sep.join(items);  // "a, b, c"
+```
+
+*此示例使用逗号和空格作为分隔符连接列表项。*
+
+---
+
+#### `List split(const String &sep, int max = 1) const`
+
+**Signature**
+
+```cpp
+List split(const String &sep, int max = 1) const;
+```
+
+**Synopsis**  
+按分隔符拆分为列表。max 控制最大拆分次数。
+
+**Parameters**
+
+* `sep` – 非空分隔子串。
+* `max` – 要执行的最大拆分次数。默认值 `1` 表示“至多拆分一次”，因此结果最多为两个元素。
+
+**Return value**
+
+* 由 `String` 片段组成的 `List`。
+
+**In Depth**
+
+该函数在每次出现 `sep` 时对字符串进行拆分，最多拆分 `max` 次：
+
+* 若 `max == 1`（默认），你最多得到两部分：第一个 `sep` 之前的部分和其后的所有内容。
+* 若 `max <= 0`，行为由实现定义；请传入 `max >= 1`。
+
+分隔符自身不会出现在结果中。
+
+**Example**
+
+```cpp
+String text("key=value=extra");
+List parts = text.split("=", 1);
+// parts[0] == "key"
+// parts[1] == "value=extra"
+```
+
+*此示例仅在第一个 `=` 处分割，保留字符串的其余部分。*
+
+---
+
+#### `List split() const`
+
+**Signature**
+
+```cpp
+List split() const;
+```
+
+**Synopsis**  
+按空白字符拆分为列表。
+
+**Parameters**
+
+* *(无)*
+
+**Return value**
+
+* 由 `String` 组成的 `List`，各元素由一个或多个空白字符分隔。
+
+**In Depth**
+
+此便捷重载将字符串按空白（空格、制表符、换行符等）拆分为标记。连续空白通常被视为单个分隔符。
+
+由首尾空白产生的空标记通常会被丢弃。
+
+**Example**
+
+```cpp
+String text(" one  two   three ");
+List tokens = text.split();
+// tokens[0] == "one"
+// tokens[1] == "two"
+// tokens[2] == "three"
+```
+
+*此示例按空白对字符串进行分词。*
+
+---
+
+#### `String format(const List &list) const`
+
+**Signature**
+
+```cpp
+String format(const List &list) const;
+```
+
+**Synopsis**  
+将 {0}、{1} 等占位符替换为列表元素。
+
+**Parameters**
+
+* `list` – 其元素将被替换进模板字符串的 `List`。
+
+**Return value**
+
+* 新 `String`，其中 `{n}` 占位符被对应元素的字符串表示替换。
+
+**In Depth**
+
+该函数将当前字符串视为**模板**，并将形如 `{0}`、`{1}`、`{2}` … 的占位符替换为 `list[0]`、`list[1]` 等的 `String` 表示。
+
+示例模板：
+
+* 模板：`"Hello, {0}! You have {1} messages."`
+* 列表：`["Alice", 3]`
+* 结果：`"Hello, Alice! You have 3 messages."`
+
+若某个占位符索引超出 `list` 范围，其行为由实现定义；你应确保列表包含所有所需的值。
+
+**Example**
+
+```cpp
+String tmpl("Hello, {0}! You have {1} messages.");
+
+List args;
+args.append("Alice").append(3);
+
+String message = tmpl.format(args);
+// "Hello, Alice! You have 3 messages."
+```
+
+*此示例使用基于列表的占位符格式化问候语。*
+
+---
+
+#### `String format(const Map &map) const`
+
+**Signature**
+
+```cpp
+String format(const Map &map) const;
+```
+
+**Synopsis**  
+将 {key} 占位符替换为映射中的值。
+
+**Parameters**
+
+* `map` – 为具名占位符提供值的 `Map`。
+
+**Return value**
+
+* 新 `String`，其中 `{key}` 占位符被对应 map 值的字符串表示替换。
+
+**In Depth**
+
+该重载支持**具名占位符**，通常比数字索引更清晰。例如：
+
+* 模板：`"Name: {name}, Age: {age}"`
+* Map：`{ "name": "Alice", "age": 30 }`
+* 结果：`"Name: Alice, Age: 30"`
+
+若某个占位符键在 map 中不存在，其行为由实现定义；最佳实践是确保 map 包含所有引用的键。
+
+**Example**
+
+```cpp
+String tmpl("Name: {name}, Age: {age}");
+
+Map args;
+args.put("name", "Alice").put("age", 30);
+
+String result = tmpl.format(args);
+// "Name: Alice, Age: 30"
+```
+
+*此示例通过 map 填充模板字符串中的具名占位符。*
+
+---
+
+#### `String operator+(const char *lhs, const String &rhs)`
+
+**Signature**
+
+```cpp
+inline String operator+(const char *lhs, const String &rhs) {
+  return String(lhs) + rhs;
+}
+```
+
+**Synopsis**  
+用于自然语法的字符串拼接运算符："Hello " + myString
+
+**Parameters**
+
+* `lhs` – 左侧的 C 风格 UTF-8 字符串。
+* `rhs` – 右侧的 `String`。
+
+**Return value**
+
+* 新 `String`，等价于 `String(lhs).operator+(rhs)`。
+
+**In Depth**
+
+这个非成员运算符允许你编写如下表达式：
+
+```cpp
+"Hello " + myString
+```
+
+而无需在左侧显式构造 `String`。在组合字符串字面量和 `String` 对象时，这提高了可读性。
+
+**Example**
+
+```cpp
+String name("Alice");
+String greeting = "Hello, " + name;  // "Hello, Alice"
+```
+
+*此示例使用自由函数 `operator+` 以自然顺序拼接字面量与 `String`。*
