@@ -83,20 +83,20 @@ The `dist` folder has everything you need: headers, library, docs, and the `atto
 The library includes 15 working examples (with MSVC build sizes):
 
 - `example_hello.exe` (4KB) — "Hello world"
+- `example_minesweeper.exe` (14KB) — Minesweeper game
 - `example_timer.exe` (23KB) — Command timer utility
 - `example_crypt.exe` (24KB) — File encryption with ChaCha20
 - `example_csv_to_json.exe` (25KB) — CSV/JSON converter
 - `example_web_get.exe` (28KB) — HTTP downloader
 - `example_notes.exe` (30KB) — Note-taking app
 - `example_directx.exe` (30KB) — 3D sphere with Direct3D 11
-- `example_simple_chat.exe` (40KB) — AI chat client
-- `example_gui_chat.exe` (39KB) — Windows GUI chat app
+- `example_gui_chat.exe` (39KB) — Windows GUI AI chat app
+- `example_simple_chat.exe` (40KB) — Console AI chat client
 - `example_console.exe` (44KB) — Console UI showcase
 - `example_web_server.exe` (44KB) — HTTP server
-- `example_minesweeper.exe` (13KB) — Minesweeper game
-- `example_kitchen_sink.exe` (122KB) — Every library feature in one program
-- `example_similarity.exe` (44KB) — Compare two files through OpenAI embeddings
-- `example_compare_files.exe` (44KB) — Summarize a file into a paragraph using OpenAI
+- `example_compare_files.exe` (44KB) — Compare two files through OpenAI embeddings
+- `example_summarize.exe` (44KB) — Summarize a file into a paragraph using OpenAI
+- `example_kitchen_sink.exe` (122KB) — Every library function in one program (max size demo)
 
 ## Requirements
 
