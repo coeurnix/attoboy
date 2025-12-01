@@ -107,7 +107,7 @@ The library includes 15 working examples (with MSVC build sizes):
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+Boost Software License 1.0 — see [LICENSE](LICENSE) for details.
 
 Created by [coeurnix](https://github.com/coeurnix).
 

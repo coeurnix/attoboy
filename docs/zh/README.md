@@ -69,6 +69,6 @@ void atto_main() {
 
 ## 许可证
 
-MIT License —— 详情见 [LICENSE](https://github.com/coeurnix/attoboy/blob/main/LICENSE)。
+Boost Software License 1.0 —— 详情见 [LICENSE](https://github.com/coeurnix/attoboy/blob/main/LICENSE)。
 
 由 [coeurnix](https://github.com/coeurnix) 创建。

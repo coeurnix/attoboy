@@ -325,4 +325,4 @@ Have fun and thanks for using Attoboy!
 
 *Made by [coeurnix](https://github.com/coeurnix)*
 
-*Licensed under the MIT License*
+*Licensed under the Boost Software License 1.0*

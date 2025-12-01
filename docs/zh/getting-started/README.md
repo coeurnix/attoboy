@@ -325,4 +325,4 @@ cmake --build build_msvc --config Release --target coverage_live
 
 *作者：[coeurnix](https://github.com/coeurnix)*
 
-*基于 MIT 协议授权*
+*基于 Boost Software License 1.0 协议授权*

@@ -69,6 +69,6 @@ Ready to learn more?
 
 ## License
 
-MIT License — see [LICENSE](https://github.com/coeurnix/attoboy/blob/main/LICENSE) for details.
+Boost Software License 1.0  — see [LICENSE](https://github.com/coeurnix/attoboy/blob/main/LICENSE) for details.
 
 Created by [coeurnix](https://github.com/coeurnix).

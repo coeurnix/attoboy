@@ -69,6 +69,6 @@ void atto_main() {
 
 ## Лицензия
 
-Лицензия MIT — см. [LICENSE](https://github.com/coeurnix/attoboy/blob/main/LICENSE) для подробностей.
+Boost Software License 1.0 — см. [LICENSE](https://github.com/coeurnix/attoboy/blob/main/LICENSE) для подробностей.
 
 Создано [coeurnix](https://github.com/coeurnix).
