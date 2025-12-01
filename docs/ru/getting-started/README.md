@@ -161,7 +161,7 @@ cmake --build build
 **Что было собрано?**
 
 - **Библиотека**: Скомпилированная библиотека attoboy (`attoboy.lib` для MSVC или `libattoboy.a` для MinGW)  
-- **Примеры**: 13 примерных программ в `build_msvc/examples/` или `build/examples/`  
+- **Примеры**: 15 примерных программ в `build_msvc/examples/` или `build/examples/`  
 - **Дистрибутив**: Готовый к использованию пакет в `build_msvc/dist/` или `build/dist/`
 
 Папка **dist** особая — она содержит всё, что нужно для сборки ваших собственных программ на attoboy без повторного обращения к CMake!

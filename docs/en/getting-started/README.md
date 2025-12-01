@@ -161,7 +161,7 @@ If the build succeeded, you should see a success message. Your compiled library 
 **What was built?**
 
 - **Library**: The compiled attoboy library (`attoboy.lib` for MSVC or `libattoboy.a` for MinGW)
-- **Examples**: 13 example programs in `build_msvc/examples/` or `build/examples/`
+- **Examples**: 15 example programs in `build_msvc/examples/` or `build/examples/`
 - **Distribution**: A ready-to-use package in `build_msvc/dist/` or `build/dist/`
 
 The **dist** folder is special—it contains everything you need to build your own attoboy programs without touching CMake again!

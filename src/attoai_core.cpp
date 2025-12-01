@@ -8,15 +8,21 @@ static String NormalizeBaseUrl(const String &url) {
   if (normalized.isEmpty())
     return String("https://api.openai.com/v1/");
 
+  if (normalized.endsWith(String("v1/")))
+    return normalized;
+
+  if (normalized.endsWith(String("v1")))
+    return normalized.append(String("/"));
+
   if (!normalized.endsWith(String("/")))
     normalized = normalized.append(String("/"));
 
-  return normalized;
+  return normalized.append(String("v1/"));
 }
 
 AI::AI(const String &baseUrl, const String &apiKey, const String &model) {
-  impl = (AIImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
-                             sizeof(AIImpl));
+  impl =
+      (AIImpl *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(AIImpl));
   if (!impl)
     return;
   InitializeSRWLock(&impl->lock);
@@ -86,7 +92,8 @@ AI &AI::setSystemPrompt(const String &prompt) {
     return *this;
   WriteLockGuard lock(&impl->lock);
   FreeAIString(impl->systemPrompt);
-  impl->systemPrompt = prompt.isEmpty() ? nullptr : DuplicateString(prompt.c_str());
+  impl->systemPrompt =
+      prompt.isEmpty() ? nullptr : DuplicateString(prompt.c_str());
   return *this;
 }
 

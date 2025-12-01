@@ -161,7 +161,7 @@ cmake --build build
 **构建了什么？**
 
 - **库**：已编译的 attoboy 库（MSVC 为 `attoboy.lib`，MinGW 为 `libattoboy.a`）
-- **示例**：13 个示例程序，位于 `build_msvc/examples/` 或 `build/examples/`
+- **示例**：15 个示例程序，位于 `build_msvc/examples/` 或 `build/examples/`
 - **发行包**：一个开箱即用的发行包，位于 `build_msvc/dist/` 或 `build/dist/`
 
 其中 **dist** 目录很特别——它包含了你编写自己的 attoboy 程序所需的一切，以后无需再碰 CMake！
